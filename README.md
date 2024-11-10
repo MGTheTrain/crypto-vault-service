@@ -9,7 +9,7 @@
 
 ## Summary
 
-Go gRPC service for managing cryptographic material (x.509 certs and keys) and securing files at rest in BLOB storages
+RESTful Web API for managing cryptographic material (x.509 certs and keys) and securing files at rest in BLOB storages
 
 ## References
 
