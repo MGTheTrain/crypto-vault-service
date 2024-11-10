@@ -1,0 +1,16 @@
+name: Pull request
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-build-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Echo
+        run: echo "TBD"
+      

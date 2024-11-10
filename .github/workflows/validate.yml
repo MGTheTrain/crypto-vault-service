@@ -1,0 +1,25 @@
+name: Check Git diffs
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-diffs:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Echo
+      run: echo "TBD"
+
+    # - name: Check diffs
+    #   run: |
+    #     status=$(git status --porcelain=v1)
+    #     if [[ -n "$status" ]]; then
+    #       git diff
+    #       exit 1
+    #     fi

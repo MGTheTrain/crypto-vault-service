@@ -9,7 +9,7 @@
 
 ## Summary
 
-RESTful Web API for managing cryptographic material (x.509 certs and keys) and securing files at rest in BLOB storages.
+RESTful Web API for managing cryptographic material (x.509 certs and keys) and securing data at rest (metadata, BLOB)
 
 ## References
 
@@ -19,15 +19,14 @@ TBD
 
 ### Functional
 
-- [ ] **Provide RESTful API for cryptographic operations**: Expose endpoints for generating, encrypting, decrypting and verifying cryptographic material.
+- [ ] **Provide RESTful API for cryptographic operations**: Expose endpoints for managing cryptographic material and securing data (files, metadata) at rest.
 - [ ] **Asymmetric encryption and decryption**: Support RSA, ECC and other asymmetric encryption algorithms for data protection.
-- [ ] **Symmetric encryption**: Implement support for symmetric key encryption (e.g. AES) for file-level security.
+- [ ] **Symmetric encryption**: Support for symmetric key encryption (e.g. AES) for data protection.
 - [ ] **Manage cryptographic material**: Enable management of X.509 certificates, private/public key pairs and symmetric keys (generation, import/export, rotation, etc.).
 - [ ] **Hashing and signature verification**: Support hashing algorithms (e.g. SHA-256, SHA-512) and verify signatures using asymmetric keys (RSA, ECDSA, etc.).
-- [ ] **File encryption and decryption**: Provide endpoints to encrypt and decrypt files using the supported cryptographic algorithms, with support for large file handling.
 - [ ] **Key management lifecycle**: Implement key lifecycle management (generation, rotation, revocation, expiration).
 - [ ] **Secure file storage integration**: Provide mechanisms to securely store encrypted files in BLOB storage (e.g. AWS S3, Azure Blob Storage, Google Cloud Storage).
-- [ ] **Access control**: Implement role-based access control (RBAC) for APIs and encrypted files, ensuring that only authorized users can perform operations on cryptographic material.
+- [ ] **Access control**: Implement role-based access control (RBAC) for APIs ensuring that only authorized users can perform operations on cryptographic material.
 
 ### Non-functional
 
@@ -39,7 +38,6 @@ TBD
 - [ ] **Security**: Ensure all cryptographic material is securely stored and encrypted, protect APIs with authentication (e.g. OAuth2, JWT) and follow best practices for handling sensitive data.
 - [ ] **Documentation**: Provide clear API documentation (e.g. Swagger/OpenAPI) for ease of integration by other developers.
 - [ ] **Versioning**: Implement proper API versioning to maintain backward compatibility as the API evolves.
-- [ ] **Internationalization and localization**: Support multiple languages or regional settings for global use (optional).
 - [ ] **Audit logging**: Maintain logs of all cryptographic operations and key management activities for compliance and auditing purposes.
 
 
