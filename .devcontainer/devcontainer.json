@@ -1,0 +1,9 @@
+{
+    // Docker images officially provided by Microsoft that can utilized as base images
+    // https://hub.docker.com/_/microsoft-vscode-devcontainers
+    "name": "Tools for building and running Go projects",
+    "image": "mcr.microsoft.com/vscode/devcontainers/go:1.21",
+    // Features to add to the dev container. More info: https://containers.dev/features
+    "features": {},
+    "remoteUser": "root"
+}
