@@ -4,13 +4,13 @@
 
 ## Prerequisites
 
-Before you begin, ensure you have the following tools installed:
-
 - Install Go from the official Go website, or use this [devcontainer.json](../../.devcontainer/devcontainer.json) with the [DevContainer extensions in VS Code or other IDE supporting DevContainers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
 ## Getting Started
 
-## AES example
+### Encryption/Decryption
+
+**AES example**
 
 ```sh
 # Encryption
@@ -19,9 +19,7 @@ go run crypto-cli.go encrypt-aes --input data/input.txt --output data/output.enc
 go run crypto-cli.go decrypt-aes --input data/output.enc --output data/decrypted.txt --keyDir data/
 ```
 
-## RSA Example
-
-### External key generation
+**RSA Example considering external key generation**
 
 ```sh
 cd data
@@ -36,7 +34,7 @@ go run crypto-cli.go encrypt-rsa --input data/input.txt --output data/encryptedI
 go run crypto-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
 ```
 
-### Internal key generation
+**RSA Example considering internal key generation**
 
 ```sh
 # Encryption
@@ -46,29 +44,27 @@ go run crypto-cli.go encrypt-rsa --input data/input.txt --output data/encryptedI
 go run crypto-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
 ```
 
-## EC Example
-
-### External key generation
+**RSA with PKCS#11 Example considering external key generation** 
 
 ```sh
 TBD
 ```
 
-### Internal key generation
+**RSA with PKCS#11 Example considering internal key generation** 
 
 ```sh
 TBD
 ```
 
-## RSA with PKCS#11 
+### Hashing / Verifying signatures
 
-### External key generation
+**ECC Example considering external key generation**
 
 ```sh
 TBD
 ```
 
-### Internal key generation
+**ECC Example considering internal key generation**
 
 ```sh
 TBD
