@@ -14,9 +14,9 @@
 
 ```sh
 # Encryption
-go run crypto-cli.go encrypt-aes --input data/input.txt --output data/output.enc --keySize 16 --keyDir data/
+go run crypto-vault-cli.go encrypt-aes --input data/input.txt --output data/output.enc --keySize 16 --keyDir data/
 # Decryption
-go run crypto-cli.go decrypt-aes --input data/output.enc --output data/decrypted.txt --keyDir data/
+go run crypto-vault-cli.go decrypt-aes --input data/output.enc --output data/decrypted.txt --keyDir data/
 ```
 
 **RSA Example considering external key generation**
@@ -28,20 +28,20 @@ openssl rsa -pubout -in private_key.pem -out public_key.pem
 cd -
 
 # Encryption
-go run crypto-cli.go encrypt-rsa --input data/input.txt --output data/encryptedII.txt --publicKey data/public_key.pem
+go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/encryptedII.txt --publicKey data/public_key.pem
 
 # Decryption
-go run crypto-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
+go run crypto-vault-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
 ```
 
 **RSA Example considering internal key generation**
 
 ```sh
 # Encryption
-go run crypto-cli.go encrypt-rsa --input data/input.txt --output data/encryptedII.txt
+go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/encryptedII.txt
 
 # Decryption
-go run crypto-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
+go run crypto-vault-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
 ```
 
 **RSA with PKCS#11 Example considering external key generation** 
@@ -62,8 +62,8 @@ TBD
 
 ```sh
 # Sign a file with a newly generated ECC key pair (internally generated)
-go run crypto-cli.go sign-ecc --input data/input.txt --keyDir data
+go run crypto-vault-cli.go sign-ecc --input data/input.txt --keyDir data
 
 # Verify the signature using the generated public key
-go run crypto-cli.go verify-ecc --input data/input.txt --publicKey data/public_key.pem --signature data/signature.sig
+go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey data/public_key.pem --signature data/signature.sig
 ```
