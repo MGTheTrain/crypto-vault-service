@@ -25,8 +25,10 @@ func encryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error: input, output, and keyDir flags are required\n")
 	}
 
+	aes := &cryptography.AESImpl{}
+
 	// Generate AES Key
-	key, err := cryptography.GenerateRandomAESKey(keySize)
+	key, err := aes.GenerateKey(keySize)
 	if err != nil {
 		log.Fatalf("Error generating AES key: %v\n", err)
 	}
@@ -37,7 +39,7 @@ func encryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
 
-	encryptedData, err := cryptography.EncryptAES(plainText, key)
+	encryptedData, err := aes.Encrypt(plainText, key)
 	if err != nil {
 		log.Fatalf("Error encrypting data: %v\n", err)
 	}
@@ -81,7 +83,9 @@ func decryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
 
-	decryptedData, err := cryptography.DecryptAES(encryptedData, key)
+	aes := &cryptography.AESImpl{}
+
+	decryptedData, err := aes.Decrypt(encryptedData, key)
 	if err != nil {
 		log.Fatalf("Error decrypting data: %v\n", err)
 	}
@@ -103,9 +107,11 @@ func encryptRSACmd(cmd *cobra.Command, args []string) {
 	// Generate RSA keys if no public key is provided
 	var publicKey *rsa.PublicKey
 	var err error
+	rsa := &cryptography.RSAImpl{}
 	if publicKeyPath == "" {
 		// Generate RSA keys
-		privateKey, pubKey, genErr := cryptography.GenerateRSAKeys(2048)
+
+		privateKey, pubKey, genErr := rsa.GenerateKeys(2048)
 		if genErr != nil {
 			log.Fatalf("Error generating RSA keys: %v\n", genErr)
 		}
@@ -135,7 +141,7 @@ func encryptRSACmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
 
-	encryptedData, err := cryptography.EncryptWithRSA(publicKey, plainText)
+	encryptedData, err := rsa.Encrypt(plainText, publicKey)
 	if err != nil {
 		log.Fatalf("Error encrypting data: %v\n", err)
 	}
@@ -156,9 +162,10 @@ func decryptRSACmd(cmd *cobra.Command, args []string) {
 	// Generate RSA keys if no private key is provided
 	var privateKey *rsa.PrivateKey
 	var err error
+	rsa := &cryptography.RSAImpl{}
 	if privateKeyPath == "" {
 		// Generate RSA keys
-		privKey, _, genErr := cryptography.GenerateRSAKeys(2048)
+		privKey, _, genErr := rsa.GenerateKeys(2048)
 		if genErr != nil {
 			log.Fatalf("Error generating RSA keys: %v\n", genErr)
 		}
@@ -184,7 +191,7 @@ func decryptRSACmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
 
-	decryptedData, err := cryptography.DecryptWithRSA(privateKey, encryptedData)
+	decryptedData, err := rsa.Decrypt(encryptedData, privateKey)
 	if err != nil {
 		log.Fatalf("Error decrypting data: %v\n", err)
 	}
