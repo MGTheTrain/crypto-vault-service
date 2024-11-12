@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Asymmetric encryption and decryption**: Supported RSA and other asymmetric encryption algorithms for data protection.
 - **Symmetric encryption**: Supported symmetric key encryption (e.g. AES) for data protection.
 - **Hashing and signature verification**: Supported hashing algorithms (e.g. SHA-256, SHA-512) and verified signatures using asymmetric keys (RSA, ECDSA, etc.).
+- Adopted Domain-Driven Design to create a **modular, flexible and maintainable** project structure with a focus on the **domain at its core**
 
 ## [0.1.0] - TBD-TBD-TBD
 
