@@ -9,7 +9,7 @@
 
 ## Summary
 
-RESTful Web API for managing cryptographic material (x.509 certs and keys) and securing data at rest (metadata, BLOB)
+RESTful Web API for managing cryptographic keys and securing data at rest (metadata, BLOB)
 
 ## References
 
@@ -23,7 +23,7 @@ TBD
 - [ ] **Asymmetric encryption and decryption**: Support RSA, ECC and other asymmetric encryption algorithms for data protection.
 - [ ] **PKCS#11 integration**:  Enable key management in FIPS-compliant hardware or software environments.
 - [ ] **Symmetric encryption**: Support for symmetric key encryption (e.g. AES) for data protection.
-- [ ] **Manage cryptographic material**: Enable management of X.509 certificates, private/public key pairs and symmetric keys (generation, import/export, rotation, etc.).
+- [ ] **Manage cryptographic material**: Enable management of private/public key pairs and symmetric keys (generation, import/export, rotation, etc.).
 - [ ] **Hashing and signature verification**: Support hashing algorithms (e.g. SHA-256, SHA-512) and verify signatures using asymmetric keys (RSA, ECDSA, etc.).
 - [ ] **Key management lifecycle**: Implement key lifecycle management (generation, rotation, revocation, expiration).
 - [ ] **Secure file storage integration**: Provide mechanisms to securely store encrypted files in BLOB storage (e.g. AWS S3, Azure Blob Storage, Google Cloud Storage).
