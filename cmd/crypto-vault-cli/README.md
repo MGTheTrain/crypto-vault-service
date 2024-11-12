@@ -24,7 +24,7 @@ go run crypto-cli.go decrypt-aes --input data/output.enc --output data/decrypted
 ### External key generation
 
 ```sh
-cd assets
+cd data
 openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
 openssl rsa -pubout -in private_key.pem -out public_key.pem
 cd -
