@@ -58,14 +58,12 @@ TBD
 
 ### Hashing / Verifying signatures
 
-**ECC Example considering external key generation**
+**ECDSA Example considering internal key generation**
 
 ```sh
-TBD
-```
+# Sign a file with a newly generated ECC key pair (internally generated)
+go run crypto-cli.go sign-ecc --input data/input.txt --keyDir data
 
-**ECC Example considering internal key generation**
-
-```sh
-TBD
+# Verify the signature using the generated public key
+go run crypto-cli.go verify-ecc --input data/input.txt --publicKey data/public_key.pem --signature data/signature.sig
 ```
