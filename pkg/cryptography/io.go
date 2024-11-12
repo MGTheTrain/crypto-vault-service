@@ -9,6 +9,15 @@ import (
 	"os"
 )
 
+// File Operations
+func ReadFile(filePath string) ([]byte, error) {
+	return ioutil.ReadFile(filePath)
+}
+
+func WriteFile(filePath string, data []byte) error {
+	return ioutil.WriteFile(filePath, data, 0644)
+}
+
 func SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error {
 	privKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	privKeyPem := &pem.Block{
@@ -53,15 +62,6 @@ func SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
 	}
 
 	return nil
-}
-
-// File Operations
-func ReadFile(filePath string) ([]byte, error) {
-	return ioutil.ReadFile(filePath)
-}
-
-func WriteFile(filePath string, data []byte) error {
-	return ioutil.WriteFile(filePath, data, 0644)
 }
 
 // Read RSA private key from PEM file
