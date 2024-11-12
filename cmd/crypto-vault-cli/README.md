@@ -24,7 +24,6 @@ go run crypto-cli.go decrypt-aes --input data/output.enc --output data/decrypted
 ### External key generation
 
 ```sh
-# Generate private and public keys externally
 cd assets
 openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
 openssl rsa -pubout -in private_key.pem -out public_key.pem
@@ -48,6 +47,28 @@ go run crypto-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decr
 ```
 
 ## EC Example
+
+### External key generation
+
+```sh
+TBD
+```
+
+### Internal key generation
+
+```sh
+TBD
+```
+
+## RSA with PKCS#11 
+
+### External key generation
+
+```sh
+TBD
+```
+
+### Internal key generation
 
 ```sh
 TBD
