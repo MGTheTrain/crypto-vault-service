@@ -6,18 +6,8 @@ Incorporating DDD as an architecture decision impacts the structure and developm
 .
 ├── cmd
 │   ├── crypto-vault-cli
-│   │   ├── README.md
-│   │   ├── crypto-vault-cli.go
-│   │   └── data
-│   │       ├── decrypted.txt
-│   │       ├── decryptedII.txt
-│   │       ├── encryptedII.txt
-│   │       ├── encryption_key.bin
-│   │       ├── input.txt
-│   │       ├── output.enc
-│   │       ├── private_key.pem
-│   │       ├── public_key.pem
-│   │       └── signature.sig
+│       ├── Dockerfile
+│       ├── crypto-vault-cli.go
 │   └── crypto-vault-service
 │       ├── Dockerfile
 │       └── crypto-vault-service.go
