@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	cryptography "crypto_vault_service/pkg/cryptography"
+	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
 )
 
 // Encrypts a file using AES and saves the encryption key

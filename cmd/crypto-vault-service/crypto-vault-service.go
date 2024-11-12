@@ -1,7 +1,7 @@
 package main
 
 import (
-	v1 "crypto_vault_service/api/v1"
+	v1 "crypto_vault_service/internal/api/v1"
 
 	"github.com/gin-gonic/gin"
 )
