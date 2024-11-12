@@ -118,18 +118,18 @@ func encryptRSACmd(cmd *cobra.Command, args []string) {
 		publicKey = pubKey
 
 		// Optionally save the private and public keys
-		err = cryptography.SavePrivateKeyToFile(privateKey, "data/private_key.pem")
+		err = rsa.SavePrivateKeyToFile(privateKey, "data/private_key.pem")
 		if err != nil {
 			log.Fatalf("Error saving private key: %v\n", err)
 		}
-		err = cryptography.SavePublicKeyToFile(publicKey, "data/public_key.pem")
+		err = rsa.SavePublicKeyToFile(publicKey, "data/public_key.pem")
 		if err != nil {
 			log.Fatalf("Error saving public key: %v\n", err)
 		}
 		fmt.Println("Generated and saved RSA keys.")
 	} else {
 		// Read the provided public key
-		publicKey, err = cryptography.ReadPublicKey(publicKeyPath)
+		publicKey, err = rsa.ReadPublicKey(publicKeyPath)
 		if err != nil {
 			log.Fatalf("Error reading public key: %v\n", err)
 		}
@@ -172,14 +172,14 @@ func decryptRSACmd(cmd *cobra.Command, args []string) {
 		privateKey = privKey
 
 		// Optionally save the private and public keys
-		err = cryptography.SavePrivateKeyToFile(privateKey, "private_key.pem")
+		err = rsa.SavePrivateKeyToFile(privateKey, "private_key.pem")
 		if err != nil {
 			log.Fatalf("Error saving private key: %v\n", err)
 		}
 		fmt.Println("Generated and saved private key.")
 	} else {
 		// Read the provided private key
-		privateKey, err = cryptography.ReadPrivateKey(privateKeyPath)
+		privateKey, err = rsa.ReadPrivateKey(privateKeyPath)
 		if err != nil {
 			log.Fatalf("Error reading private key: %v\n", err)
 		}
