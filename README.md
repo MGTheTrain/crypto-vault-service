@@ -20,9 +20,9 @@ TBD
 ### Functional
 
 - [ ] **Provide RESTful API for cryptographic operations**: Expose endpoints for managing cryptographic material and securing data (files, metadata) at rest.
-- [ ] **Asymmetric encryption and decryption**: Support RSA and other asymmetric encryption algorithms for data protection.
-- [ ] **Symmetric encryption**: Support for symmetric key encryption (e.g. AES) for data protection.
-- [ ] **Hashing and signature verification**: Support hashing algorithms (e.g. SHA-256, SHA-512) and verify signatures using asymmetric keys (RSA, ECDSA, etc.).
+- [x] **Asymmetric encryption and decryption**: Support RSA and other asymmetric encryption algorithms for data protection.
+- [x] **Symmetric encryption**: Support for symmetric key encryption (e.g. AES) for data protection.
+- [x] **Hashing and signature verification**: Support hashing algorithms (e.g. SHA-256, SHA-512) and verify signatures using asymmetric keys (RSA, ECDSA, etc.).
 - [ ] **PKCS#11 integration**:  Enable key management in FIPS-compliant hardware or software.
 - [ ] **Manage cryptographic material**: Enable management of private/public key pairs and symmetric keys (generation, import/export, rotation, etc.).
 - [ ] **Key management lifecycle**: Implement key lifecycle management (generation, rotation, revocation, expiration).
