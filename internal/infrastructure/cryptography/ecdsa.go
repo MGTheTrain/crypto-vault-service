@@ -41,6 +41,10 @@ func (e *ECDSAImpl) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecds
 
 // Sign signs a message with the private key
 func (e *ECDSAImpl) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+	if privateKey == nil {
+		return nil, fmt.Errorf("private key cannot be nil")
+	}
+
 	// Check if the private key is valid (D should not be zero)
 	if privateKey.D.Sign() == 0 {
 		return nil, fmt.Errorf("invalid private key: D cannot be zero")
@@ -60,6 +64,10 @@ func (e *ECDSAImpl) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, 
 
 // Verify verifies the signature of a message with the public key
 func (e *ECDSAImpl) Verify(message, signature []byte, publicKey *ecdsa.PublicKey) (bool, error) {
+	if publicKey == nil {
+		return false, fmt.Errorf("public key cannot be nil")
+	}
+
 	// Hash the message before verifying it
 	hash := sha256.Sum256(message)
 
