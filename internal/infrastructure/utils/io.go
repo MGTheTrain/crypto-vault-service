@@ -1,14 +1,12 @@
 package utils
 
-import (
-	"io/ioutil"
-)
+import "os"
 
 // File Operations
 func ReadFile(filePath string) ([]byte, error) {
-	return ioutil.ReadFile(filePath)
+	return os.ReadFile(filePath)
 }
 
 func WriteFile(filePath string, data []byte) error {
-	return ioutil.WriteFile(filePath, data, 0644)
+	return os.WriteFile(filePath, data, 0644)
 }

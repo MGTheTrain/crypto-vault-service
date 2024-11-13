@@ -2,6 +2,7 @@ package main
 
 import (
 	v1 "crypto_vault_service/internal/api/v1"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,7 @@ func main() {
 	// Optional: Apply a global middleware
 	r.Use(v1.AuthMiddleware())
 
-	// Start the server
-	r.Run(":8080") // By default it will listen on :8080
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("Error starting server: %v", err)
+	}
 }

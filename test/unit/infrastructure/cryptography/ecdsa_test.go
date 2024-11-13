@@ -4,7 +4,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
-	"io/ioutil"
 	"math/big"
 	"os"
 	"testing"
@@ -114,7 +113,7 @@ func (et *ECDSATests) TestSaveSignatureToFile(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Read the saved signature from the file
-	hexData, err := ioutil.ReadFile(signatureFile)
+	hexData, err := os.ReadFile(signatureFile)
 	assert.NoError(t, err)
 
 	// Decode the hex signature

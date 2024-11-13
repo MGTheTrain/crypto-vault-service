@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
-	"io/ioutil"
 	"math/big"
 	"os"
 )
@@ -138,7 +137,7 @@ func (e *ECDSAImpl) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename str
 // SaveSignatureToFile can be used for storing signature files in hex format
 func (e *ECDSAImpl) SaveSignatureToFile(filename string, data []byte) error {
 	hexData := hex.EncodeToString(data)
-	err := ioutil.WriteFile(filename, []byte(hexData), 0644)
+	err := os.WriteFile(filename, []byte(hexData), 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write data to file %s: %v", filename, err)
 	}
@@ -147,7 +146,7 @@ func (e *ECDSAImpl) SaveSignatureToFile(filename string, data []byte) error {
 
 // ReadPrivateKey reads an ECDSA private key from a PEM file using encoding/pem
 func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string) (*ecdsa.PrivateKey, error) {
-	privKeyPEM, err := ioutil.ReadFile(privateKeyPath)
+	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %v", err)
 	}
@@ -180,7 +179,7 @@ func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string) (*ecdsa.PrivateKey, er
 
 // ReadPublicKey reads an ECDSA public key from a PEM file using encoding/pem
 func (e *ECDSAImpl) ReadPublicKey(publicKeyPath string) (*ecdsa.PublicKey, error) {
-	pubKeyPEM, err := ioutil.ReadFile(publicKeyPath)
+	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %v", err)
 	}

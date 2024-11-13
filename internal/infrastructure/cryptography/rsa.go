@@ -7,7 +7,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -109,7 +108,7 @@ func (r *RSAImpl) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string)
 
 // Read RSA private key from PEM file
 func (r *RSAImpl) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
-	privKeyPEM, err := ioutil.ReadFile(privateKeyPath)
+	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %v", err)
 	}
@@ -142,7 +141,7 @@ func (r *RSAImpl) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error)
 
 // Read RSA public key from PEM file
 func (r *RSAImpl) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
-	pubKeyPEM, err := ioutil.ReadFile(publicKeyPath)
+	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %v", err)
 	}

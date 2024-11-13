@@ -6,7 +6,6 @@ import (
 	"crypto/rsa"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -76,7 +75,7 @@ func decryptAESCmd(cmd *cobra.Command, args []string) {
 
 	// Read the encryption key from the specified directory
 	keyFilePath := filepath.Join(keyDir, "encryption_key.bin")
-	key, err := ioutil.ReadFile(keyFilePath)
+	key, err := os.ReadFile(keyFilePath)
 	if err != nil {
 		log.Fatalf("Error reading encryption key from file: %v\n", err)
 	}
@@ -299,7 +298,7 @@ func verifyECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Read the signature (from hex file)
-	signatureHex, err := ioutil.ReadFile(signatureFile)
+	signatureHex, err := os.ReadFile(signatureFile)
 	if err != nil {
 		log.Fatalf("Error reading signature file: %v\n", err)
 	}
