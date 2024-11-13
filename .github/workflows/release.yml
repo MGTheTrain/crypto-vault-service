@@ -2,7 +2,8 @@ name: Workflow for release packages
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*.*.*"
 
 jobs:
   test-build-push:
