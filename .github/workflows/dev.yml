@@ -1,12 +1,11 @@
-name: Workflow for release packages
+name: Workflow for dev packages
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  pull_request:
+    branches: [main]
 
 jobs:
-  release-package-ci:
+  dev-package-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,9 +25,9 @@ jobs:
         working-directory: ./scripts
 
       # - name: Run Integration tests
-      #   run: ./run-test.sh -i
+      #   run: sudo ./run-test.sh -i
       #   working-directory: ./scripts
 
       # Run static code analysis on source code
       # Run vulnerability scanner and generate SBOMs on third part dependencies
-      # Create build artifacts, e.g. Build docker image with release tag for applications, scan docker image and push to container registry
+      # # Create build artifacts, e.g. Build docker image with dev tag for applications and push to container registry

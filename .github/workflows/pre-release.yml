@@ -1,12 +1,11 @@
-name: Workflow for release packages
+name: Workflow for pre-release packages
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: [main]
 
 jobs:
-  release-package-ci:
+  pre-release-package-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,4 +30,4 @@ jobs:
 
       # Run static code analysis on source code
       # Run vulnerability scanner and generate SBOMs on third part dependencies
-      # Create build artifacts, e.g. Build docker image with release tag for applications, scan docker image and push to container registry
+      # Create build artifacts, e.g.  Build docker image with pre-release tag for applications, scan docker image and push to container registry

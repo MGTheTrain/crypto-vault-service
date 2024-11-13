@@ -31,8 +31,9 @@ TBD
 
 ### Non-functional
 
-- [ ] **Scalable and maintainable project structure**: Adhere to the [project-layout GitHub repo](https://github.com/golang-standards/project-layout) to ensure a clean, modular and scalable codebase.
-- [ ] **CI/CD workflows for quality checks**: Set up continuous integration workflows with GitHub Actions for automated linting, testing and building.
+- [x] **Scalable and maintainable project structure**: Refer to the [project-layout GitHub repo](https://github.com/golang-standards/project-layout) and adopt Domain-Driven Design to create a **modular, flexible and maintainable** project structure with a focus on the **domain at its core**
+- [x] **CI workflows for quality checks**: Set up continuous integration workflows with GitHub Actions for automated linting, functional and non-functional testing, building and pushing artifacts.
+- [ ] **Security checks in CI workflows**: Consider non-functional testing (vulnerability scanning, SBOM generation, Static Code Analysis) in GitHub Actions.
 - [ ] **Performance optimization**: Ensure cryptographic operations are optimized for performance, especially for large files and high throughput environments.
 - [ ] **Logging and monitoring**: Integrate logging (e.g. using structured logging with `logrus`) and monitoring (e.g. Prometheus, Grafana) to track API usage, performance and errors.
 - [ ] **Error handling and resiliency**: Implement comprehensive error handling and retries for operations that may fail, with clear error messages and status codes for the API.
@@ -44,20 +45,47 @@ TBD
 
 ## Getting Started
 
+### Formatting and linting
+
+For formatting and linting run either on Unix systems
+
+```sh
+cd scripts
+./format-and-lint.sh
+```
+
+or
+
+```sh
+make format-and-lint
+```
+
 ### Run Tests
 
-To run `unit` tests on Unix systems execute:
+To run `unit` tests on Unix systems either execute
 
 ```sh
 cd scripts
 ./run-test.sh -u
 ```
 
-**TBD** To run `integration` tests on Unix systems execute:
+or
+
+```sh
+make run-unit-tests
+```
+
+**TBD** To run `integration` tests on Unix systems either execute
 
 ```sh
 cd scripts
 ./run-test.sh -i
+```
+
+**TBD** or
+
+```sh
+make run-integration-tests
 ```
 
 ### Applications
