@@ -3,23 +3,32 @@ package cryptography
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
 	"io/ioutil"
 	"math/big"
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
-	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
 	"encoding/hex"
+
+	"github.com/stretchr/testify/assert"
 )
 
-// TestGenerateKeys tests the key generation functionality
-func TestGenerateKeys(t *testing.T) {
-	ecc := &cryptography.ECDSAImpl{}
+type ECDSATests struct {
+	ecc *cryptography.ECDSAImpl
+}
 
+// NewECDSATests is a constructor that creates a new instance of ECDSATests
+func NewECDSATests() *ECDSATests {
+	return &ECDSATests{
+		ecc: &cryptography.ECDSAImpl{},
+	}
+}
+
+// TestGenerateKeys tests the key generation functionality
+func (et *ECDSATests) TestGenerateKeys(t *testing.T) {
 	// Generate ECDSA keys using P256 curve
-	privateKey, publicKey, err := ecc.GenerateKeys(elliptic.P256())
+	privateKey, publicKey, err := et.ecc.GenerateKeys(elliptic.P256())
 	assert.NoError(t, err)
 	assert.NotNil(t, privateKey)
 	assert.NotNil(t, publicKey)
@@ -28,58 +37,54 @@ func TestGenerateKeys(t *testing.T) {
 }
 
 // TestSignVerify tests signing and verifying functionality
-func TestSignVerify(t *testing.T) {
-	ecc := &cryptography.ECDSAImpl{}
-
+func (et *ECDSATests) TestSignVerify(t *testing.T) {
 	// Generate ECDSA keys
-	privateKey, publicKey, err := ecc.GenerateKeys(elliptic.P256())
+	privateKey, publicKey, err := et.ecc.GenerateKeys(elliptic.P256())
 	assert.NoError(t, err)
 
 	// Message to sign
 	message := []byte("This is a test message.")
 
 	// Sign the message
-	signature, err := ecc.Sign(message, privateKey)
+	signature, err := et.ecc.Sign(message, privateKey)
 	assert.NoError(t, err)
 	assert.NotNil(t, signature)
 
 	// Verify the signature
-	valid, err := ecc.Verify(message, signature, publicKey)
+	valid, err := et.ecc.Verify(message, signature, publicKey)
 	assert.NoError(t, err)
 	assert.True(t, valid, "The signature should be valid")
 
 	// Modify the message and try verifying the signature
 	modifiedMessage := []byte("This is a modified message.")
-	valid, err = ecc.Verify(modifiedMessage, signature, publicKey)
+	valid, err = et.ecc.Verify(modifiedMessage, signature, publicKey)
 	assert.NoError(t, err)
 	assert.False(t, valid, "The signature should not be valid for a modified message")
 }
 
 // TestSaveAndReadKeys tests saving and reading the private and public keys from PEM files
-func TestSaveAndReadKeys(t *testing.T) {
-	ecc := &cryptography.ECDSAImpl{}
-
+func (et *ECDSATests) TestSaveAndReadKeys(t *testing.T) {
 	// Generate ECDSA keys
-	privateKey, publicKey, err := ecc.GenerateKeys(elliptic.P256())
+	privateKey, publicKey, err := et.ecc.GenerateKeys(elliptic.P256())
 	assert.NoError(t, err)
 
 	// Save private and public keys to files
 	privateKeyFile := "private.pem"
 	publicKeyFile := "public.pem"
-	err = ecc.SavePrivateKeyToFile(privateKey, privateKeyFile)
+	err = et.ecc.SavePrivateKeyToFile(privateKey, privateKeyFile)
 	assert.NoError(t, err)
 
-	err = ecc.SavePublicKeyToFile(publicKey, publicKeyFile)
+	err = et.ecc.SavePublicKeyToFile(publicKey, publicKeyFile)
 	assert.NoError(t, err)
 
 	// Read the private and public keys from the files
-	readPrivateKey, err := ecc.ReadPrivateKey(privateKeyFile)
+	readPrivateKey, err := et.ecc.ReadPrivateKey(privateKeyFile)
 	assert.NoError(t, err)
 	assert.Equal(t, privateKey.D, readPrivateKey.D)
 	assert.Equal(t, privateKey.PublicKey.X, readPrivateKey.PublicKey.X)
 	assert.Equal(t, privateKey.PublicKey.Y, readPrivateKey.PublicKey.Y)
 
-	readPublicKey, err := ecc.ReadPublicKey(publicKeyFile)
+	readPublicKey, err := et.ecc.ReadPublicKey(publicKeyFile)
 	assert.NoError(t, err)
 	assert.Equal(t, publicKey.X, readPublicKey.X)
 	assert.Equal(t, publicKey.Y, readPublicKey.Y)
@@ -90,24 +95,22 @@ func TestSaveAndReadKeys(t *testing.T) {
 }
 
 // TestSaveSignatureToFile tests saving a signature to a file
-func TestSaveSignatureToFile(t *testing.T) {
-	ecc := &cryptography.ECDSAImpl{}
-
+func (et *ECDSATests) TestSaveSignatureToFile(t *testing.T) {
 	// Generate ECDSA keys
-	privateKey, _, err := ecc.GenerateKeys(elliptic.P256())
+	privateKey, _, err := et.ecc.GenerateKeys(elliptic.P256())
 	assert.NoError(t, err)
 
 	// Message to sign
 	message := []byte("This is a test message.")
 
 	// Sign the message
-	signature, err := ecc.Sign(message, privateKey)
+	signature, err := et.ecc.Sign(message, privateKey)
 	assert.NoError(t, err)
 	assert.NotNil(t, signature)
 
 	// Save the signature to a file
 	signatureFile := "signature.hex"
-	err = ecc.SaveSignatureToFile(signatureFile, signature)
+	err = et.ecc.SaveSignatureToFile(signatureFile, signature)
 	assert.NoError(t, err)
 
 	// Read the saved signature from the file
@@ -124,11 +127,9 @@ func TestSaveSignatureToFile(t *testing.T) {
 }
 
 // TestSignWithInvalidPrivateKey tests signing with an invalid private key
-func TestSignWithInvalidPrivateKey(t *testing.T) {
-	ecc := &cryptography.ECDSAImpl{}
-
+func (et *ECDSATests) TestSignWithInvalidPrivateKey(t *testing.T) {
 	// Generate ECDSA keys (valid ones)
-	_, _, err := ecc.GenerateKeys(elliptic.P256())
+	_, _, err := et.ecc.GenerateKeys(elliptic.P256())
 	assert.NoError(t, err)
 
 	// Modify the private key to make it invalid (e.g., set D to 0)
@@ -141,21 +142,19 @@ func TestSignWithInvalidPrivateKey(t *testing.T) {
 
 	// Attempt to sign a message with the invalid private key
 	message := []byte("This message will fail to sign")
-	_, err = ecc.Sign(message, invalidPrivateKey)
+	_, err = et.ecc.Sign(message, invalidPrivateKey)
 	assert.Error(t, err, "Signing with an invalid private key should fail")
 }
 
 // TestVerifyWithInvalidPublicKey tests verifying with an invalid public key
-func TestVerifyWithInvalidPublicKey(t *testing.T) {
-	ecc := &cryptography.ECDSAImpl{}
-
+func (et *ECDSATests) TestVerifyWithInvalidPublicKey(t *testing.T) {
 	// Generate ECDSA keys
-	privateKey, _, err := ecc.GenerateKeys(elliptic.P256())
+	privateKey, _, err := et.ecc.GenerateKeys(elliptic.P256())
 	assert.NoError(t, err)
 
 	// Sign the message
 	message := []byte("This is a test message.")
-	signature, err := ecc.Sign(message, privateKey)
+	signature, err := et.ecc.Sign(message, privateKey)
 	assert.NoError(t, err)
 
 	// Create an invalid public key (e.g., public key X = 0)
@@ -166,7 +165,20 @@ func TestVerifyWithInvalidPublicKey(t *testing.T) {
 	}
 
 	// Attempt to verify the signature with the invalid public key
-	valid, err := ecc.Verify(message, signature, invalidPublicKey)
+	valid, err := et.ecc.Verify(message, signature, invalidPublicKey)
 	assert.NoError(t, err)
 	assert.False(t, valid, "Verification with an invalid public key should fail")
+}
+
+func TestECDSA(t *testing.T) {
+	// Create a new ECDSA test suite instance
+	et := NewECDSATests()
+
+	// Run each test method
+	t.Run("TestGenerateKeys", et.TestGenerateKeys)
+	t.Run("TestSignVerify", et.TestSignVerify)
+	t.Run("TestSaveAndReadKeys", et.TestSaveAndReadKeys)
+	t.Run("TestSaveSignatureToFile", et.TestSaveSignatureToFile)
+	t.Run("TestSignWithInvalidPrivateKey", et.TestSignWithInvalidPrivateKey)
+	t.Run("TestVerifyWithInvalidPublicKey", et.TestVerifyWithInvalidPublicKey)
 }
