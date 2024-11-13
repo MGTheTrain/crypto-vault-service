@@ -42,7 +42,7 @@ fi
 
 if [ "$RUN_INTEGRATION_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running integration tests..."
-  go test ./test/integration
+  go test ./test/integration/...
 fi
 
 cd $SCRIPT_DIR
