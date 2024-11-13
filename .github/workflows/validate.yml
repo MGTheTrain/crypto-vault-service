@@ -30,6 +30,10 @@ jobs:
         ./format-and-lint.sh
       working-directory: ./scripts
 
+    - name: Remove execute permissions
+      run: chmod -x *
+      working-directory: ./scripts
+
     - name: Check diffs
       run: |
         status=$(git status --porcelain=v1)
