@@ -1,8 +1,8 @@
 SCRIPT_DIR = "scripts"
 
-.PHONY: lint run-unit-tests run-integration-tests
+.PHONY: format-and-lint run-unit-tests run-integration-tests
 
-lint:
+format-and-lint:
 	@cd $(SCRIPT_DIR) && ./format-and-lint.sh
 
 run-unit-tests:
