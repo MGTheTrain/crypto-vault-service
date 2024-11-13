@@ -21,6 +21,10 @@ jobs:
     - name: Install golangci-lint package 📦
       run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
       
+    - name: Grant execute permissions
+      run: chmod +x *
+      working-directory: ./scripts
+
     - name: Auto-format and lint Go
       run: |
         ./format-and-lint.sh

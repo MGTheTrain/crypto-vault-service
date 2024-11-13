@@ -16,6 +16,10 @@ jobs:
         with:
           go-version: '1.21.x'
 
+      - name: Grant execute permissions
+        run: chmod +x *
+        working-directory: ./scripts
+
       - name: Run Unit tests
         run: ./run-test.sh -u
         working-directory: ./scripts
