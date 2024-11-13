@@ -44,20 +44,47 @@ TBD
 
 ## Getting Started
 
+### Formatting and linting
+
+For formatting and linting run either on Unix systems
+
+```sh
+cd scripts
+./format-and-lint.sh
+```
+
+or
+
+```sh
+make format-and-lint
+```
+
 ### Run Tests
 
-To run `unit` tests on Unix systems execute:
+To run `unit` tests on Unix systems either execute
 
 ```sh
 cd scripts
 ./run-test.sh -u
 ```
 
-**TBD** To run `integration` tests on Unix systems execute:
+or
+
+```sh
+make run-unit-tests
+```
+
+**TBD** To run `integration` tests on Unix systems either execute
 
 ```sh
 cd scripts
 ./run-test.sh -i
+```
+
+**TBD** or
+
+```sh
+make run-integration-tests
 ```
 
 ### Applications
