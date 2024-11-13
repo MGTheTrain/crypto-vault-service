@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  test-build-push:
+  pre-release-package-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

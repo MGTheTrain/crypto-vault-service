@@ -6,7 +6,7 @@ on:
       - "v*.*.*"
 
 jobs:
-  test-build-push:
+  release-package-ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
