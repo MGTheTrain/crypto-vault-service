@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -36,6 +37,10 @@ func (r *RSAImpl) GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error
 
 // Encrypt data using RSA public key
 func (r *RSAImpl) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error) {
+	if publicKey == nil {
+		return nil, errors.New("public key cannot be nil")
+	}
+
 	encryptedData, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encrypt data: %v", err)
@@ -45,6 +50,10 @@ func (r *RSAImpl) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, e
 
 // Decrypt data using RSA private key
 func (r *RSAImpl) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+	if privateKey == nil {
+		return nil, fmt.Errorf("private key cannot be nil")
+	}
+
 	decryptedData, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt data: %v", err)

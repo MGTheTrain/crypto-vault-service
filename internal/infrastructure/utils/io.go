@@ -1,4 +1,4 @@
-package cryptography
+package utils
 
 import (
 	"io/ioutil"

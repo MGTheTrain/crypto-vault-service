@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 
 	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
+	utils "crypto_vault_service/internal/infrastructure/utils"
 )
 
 // Encrypts a file using AES and saves the encryption key
@@ -37,7 +38,7 @@ func encryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Encrypt the file
-	plainText, err := cryptography.ReadFile(inputFile)
+	plainText, err := utils.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
@@ -48,7 +49,7 @@ func encryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save encrypted file
-	err = cryptography.WriteFile(outputFile, encryptedData)
+	err = utils.WriteFile(outputFile, encryptedData)
 	if err != nil {
 		log.Fatalf("Error writing encrypted file: %v\n", err)
 	}
@@ -56,7 +57,7 @@ func encryptAESCmd(cmd *cobra.Command, args []string) {
 
 	// Save the AES key to the specified key directory
 	keyFilePath := filepath.Join(keyDir, "encryption_key.bin")
-	err = cryptography.WriteFile(keyFilePath, key)
+	err = utils.WriteFile(keyFilePath, key)
 	if err != nil {
 		log.Fatalf("Error writing AES key to file: %v\n", err)
 	}
@@ -81,7 +82,7 @@ func decryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Decrypt the file
-	encryptedData, err := cryptography.ReadFile(inputFile)
+	encryptedData, err := utils.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
@@ -94,7 +95,7 @@ func decryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save decrypted file
-	err = cryptography.WriteFile(outputFile, decryptedData)
+	err = utils.WriteFile(outputFile, decryptedData)
 	if err != nil {
 		log.Fatalf("Error writing decrypted file: %v\n", err)
 	}
@@ -139,7 +140,7 @@ func encryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Encrypt the file
-	plainText, err := cryptography.ReadFile(inputFile)
+	plainText, err := utils.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
@@ -150,7 +151,7 @@ func encryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save encrypted file
-	err = cryptography.WriteFile(outputFile, encryptedData)
+	err = utils.WriteFile(outputFile, encryptedData)
 	if err != nil {
 		log.Fatalf("Error writing encrypted file: %v\n", err)
 	}
@@ -189,7 +190,7 @@ func decryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Decrypt the file
-	encryptedData, err := cryptography.ReadFile(inputFile)
+	encryptedData, err := utils.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
@@ -200,7 +201,7 @@ func decryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save decrypted file
-	err = cryptography.WriteFile(outputFile, decryptedData)
+	err = utils.WriteFile(outputFile, decryptedData)
 	if err != nil {
 		log.Fatalf("Error writing decrypted file: %v\n", err)
 	}
@@ -226,7 +227,7 @@ func signECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Read the file content
-	fileContent, err := cryptography.ReadFile(inputFile)
+	fileContent, err := utils.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
@@ -292,7 +293,7 @@ func verifyECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Read the file content (optional: you can also hash the content before verifying)
-	fileContent, err := cryptography.ReadFile(inputFile)
+	fileContent, err := utils.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}

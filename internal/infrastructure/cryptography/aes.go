@@ -48,6 +48,10 @@ func (a *AESImpl) GenerateKey(keySize int) ([]byte, error) {
 
 // Encrypt data using AES in CBC mode
 func (a *AESImpl) Encrypt(plainText, key []byte) ([]byte, error) {
+	if key == nil {
+		return nil, fmt.Errorf("key key cannot be nil")
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -69,6 +73,10 @@ func (a *AESImpl) Encrypt(plainText, key []byte) ([]byte, error) {
 
 // Decrypt data using AES in CBC mode
 func (a *AESImpl) Decrypt(ciphertext, key []byte) ([]byte, error) {
+	if key == nil {
+		return nil, fmt.Errorf("key key cannot be nil")
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

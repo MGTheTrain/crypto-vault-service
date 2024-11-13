@@ -44,4 +44,22 @@ TBD
 
 ## Getting Started
 
-TBD
+### Run Tests
+
+To run `unit` tests on Unix systems execute:
+
+```sh
+cd scripts
+./run-test.sh -u
+```
+
+**TBD** To run `integration` tests on Unix systems execute:
+
+```sh
+cd scripts
+./run-test.sh -i
+```
+
+### Applications
+
+You can find applications utilizing [internal packages](./internal/) in the [cmd folder](./cmd/).
