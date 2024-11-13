@@ -1,5 +1,13 @@
 # crypto-vault-cli
 
+## Table of Contents
+
++ [Summary](#summary)
++ [Prerequisites](#prerequisites)
++ [Getting started](#getting-started)
+
+## Summary
+
 `crypto-vault-cli` is a command-line tool for file encryption and decryption using AES, RSA and EC algorithms. It provides an easy interface to securely encrypt and decrypt files using symmetric (AES) and asymmetric (RSA, EC) cryptography.
 
 ## Prerequisites
