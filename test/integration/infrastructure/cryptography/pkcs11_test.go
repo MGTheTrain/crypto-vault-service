@@ -44,14 +44,7 @@ func (p *PKCS11Test) Setup(t *testing.T) {
 // AddKeyToToken is a helper function to add a key to a token
 func (p *PKCS11Test) AddKeyToToken(t *testing.T) {
 	var err error
-	switch p.Token.KeyType {
-	case "RSA":
-		err = p.Token.AddRSASignKey()
-	case "ECDSA":
-		err = p.Token.AddECDSASignKey()
-	default:
-		t.Fatalf("Unsupported key type: %s", p.Token.KeyType)
-	}
+	err = p.Token.AddKey()
 
 	assert.NoError(t, err, "Failed to add key to the token")
 

@@ -14,8 +14,6 @@ type PKCS11TokenInterface interface {
 	InitializeToken() error
 	GetFreeSlot() (string, error)
 	AddKey() error
-	AddECDSASignKey() error
-	AddRSASignKey() error
 	DeleteObject(objectType, objectLabel string) error // Added method for deleting keys
 }
 
@@ -58,11 +56,6 @@ func (token *PKCS11Token) Pkcs11SlotSetup() error {
 
 	// Initialize token if necessary
 	if err := token.InitializeToken(); err != nil {
-		return err
-	}
-
-	// Add the key to the token (either ECDSA or RSA)
-	if err := token.AddKey(); err != nil {
 		return err
 	}
 
@@ -233,30 +226,44 @@ func (token *PKCS11Token) AddKey() error {
 
 	// Determine key type and call the appropriate function to generate the key
 	if token.KeyType == "ECDSA" {
-		return token.AddECDSASignKey()
+		return token.addECDSASignKey()
 	} else if token.KeyType == "RSA" {
-		return token.AddRSASignKey()
+		return token.addRSASignKey()
 	} else {
 		return fmt.Errorf("unsupported key type: %s", token.KeyType)
 	}
 }
 
-// AddECDSASignKey adds an ECDSA signing key to the token
-func (token *PKCS11Token) AddECDSASignKey() error {
+// addECDSASignKey adds an ECDSA signing key to the token
+func (token *PKCS11Token) addECDSASignKey() error {
 	if token.KeySize != 256 && token.KeySize != 384 && token.KeySize != 521 {
 		return fmt.Errorf("ECDSA key size must be one of 256, 384, or 521 bits, but got %d", token.KeySize)
 	}
 
 	// Generate the key pair (example using secp256r1)
+	// Supported ECDSA key sizes and their corresponding elliptic curves
+	ecdsaCurves := map[int]string{
+		256: "secp256r1",
+		384: "secp384r1",
+		521: "secp521r1",
+	}
+
+	curve, supported := ecdsaCurves[token.KeySize]
+	if !supported {
+		return fmt.Errorf("ECDSA key size must be one of 256, 384, or 521 bits, but got %d", token.KeySize)
+	}
+
+	// Generate the key pair using the correct elliptic curve
 	args := []string{
 		"--module", token.ModulePath,
 		"--token-label", token.TokenLabel,
 		"--keypairgen",
-		"--key-type", fmt.Sprintf("EC:secp256r1"), // Choose secp256r1 for simplicity
+		"--key-type", fmt.Sprintf("EC:%s", curve), // Use the dynamically selected curve
 		"--label", token.ObjectLabel,
 		"--pin", token.UserPin,
 		"--usage-sign",
 	}
+
 	_, err := token.executePKCS11ToolCommand(args)
 	if err != nil {
 		return fmt.Errorf("failed to add ECDSA key to token: %v", err)
@@ -266,8 +273,8 @@ func (token *PKCS11Token) AddECDSASignKey() error {
 	return nil
 }
 
-// AddRSASignKey adds an RSA signing key to the token
-func (token *PKCS11Token) AddRSASignKey() error {
+// addRSASignKey adds an RSA signing key to the token
+func (token *PKCS11Token) addRSASignKey() error {
 	// Supported RSA key sizes (for example, 2048, 3072, and 4096)
 	supportedRSASizes := []int{2048, 3072, 4096}
 
