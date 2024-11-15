@@ -8,10 +8,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/google/uuid" // Import UUID package
 	"github.com/spf13/cobra"
 )
 
-// Encrypts a file using AES and saves the encryption key
+// Encrypts a file using AES and saves the symmetric key with a UUID prefix
 func EncryptAESCmd(cmd *cobra.Command, args []string) {
 	inputFile, _ := cmd.Flags().GetString("input")
 	outputFile, _ := cmd.Flags().GetString("output")
@@ -49,8 +50,11 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 	fmt.Printf("Encrypted data saved to %s\n", outputFile)
 
-	// Save the AES key to the specified key directory
-	keyFilePath := filepath.Join(keyDir, "encryption_key.bin")
+	// Generate a UUID for the key filename
+	uniqueID := uuid.New().String() // Generate a unique UUID
+
+	// Save the AES key with the UUID prefix in the specified key directory
+	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric_key.bin", uniqueID))
 	err = utils.WriteFile(keyFilePath, key)
 	if err != nil {
 		log.Fatalf("Error writing AES key to file: %v\n", err)
@@ -58,21 +62,21 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 	fmt.Printf("AES key saved to %s\n", keyFilePath)
 }
 
+// Decrypts a file using AES and reads the corresponding symmetric key with a UUID prefix
 func DecryptAESCmd(cmd *cobra.Command, args []string) {
 	inputFile, _ := cmd.Flags().GetString("input")
 	outputFile, _ := cmd.Flags().GetString("output")
-	keyDir, _ := cmd.Flags().GetString("keyDir")
+	symmetricKey, _ := cmd.Flags().GetString("symmetricKey")
 
 	// Validate input arguments
-	if inputFile == "" || outputFile == "" || keyDir == "" {
-		log.Fatalf("Error: input, output, and keyDir flags are required\n")
+	if inputFile == "" || outputFile == "" || symmetricKey == "" {
+		log.Fatalf("Error: input, output and symmetricKey flags are required\n")
 	}
 
-	// Read the encryption key from the specified directory
-	keyFilePath := filepath.Join(keyDir, "encryption_key.bin")
-	key, err := os.ReadFile(keyFilePath)
+	// Read the symmetric key from the file
+	key, err := os.ReadFile(symmetricKey)
 	if err != nil {
-		log.Fatalf("Error reading encryption key from file: %v\n", err)
+		log.Fatalf("Error reading symmetric key from file: %v\n", err)
 	}
 
 	// Decrypt the file

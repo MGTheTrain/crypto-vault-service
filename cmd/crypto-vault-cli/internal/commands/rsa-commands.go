@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -14,38 +15,41 @@ import (
 func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	inputFile, _ := cmd.Flags().GetString("input")
 	outputFile, _ := cmd.Flags().GetString("output")
-	publicKeyPath, _ := cmd.Flags().GetString("publicKey")
+	keyDir, _ := cmd.Flags().GetString("keyDir") // Directory to save keys
+
+	// Validate input arguments
+	if inputFile == "" || outputFile == "" || keyDir == "" {
+		log.Fatalf("Error: input, output and keyDir flags are required\n")
+	}
 
 	// Generate RSA keys if no public key is provided
 	var publicKey *rsa.PublicKey
 	var err error
 	rsa := &cryptography.RSAImpl{}
-	if publicKeyPath == "" {
-		// Generate RSA keys
 
-		privateKey, pubKey, genErr := rsa.GenerateKeys(2048)
-		if genErr != nil {
-			log.Fatalf("Error generating RSA keys: %v\n", genErr)
-		}
-		publicKey = pubKey
+	uniqueID := uuid.New()
+	// Generate RSA keys
 
-		// Optionally save the private and public keys
-		err = rsa.SavePrivateKeyToFile(privateKey, "data/private_key.pem")
-		if err != nil {
-			log.Fatalf("Error saving private key: %v\n", err)
-		}
-		err = rsa.SavePublicKeyToFile(publicKey, "data/public_key.pem")
-		if err != nil {
-			log.Fatalf("Error saving public key: %v\n", err)
-		}
-		fmt.Println("Generated and saved RSA keys.")
-	} else {
-		// Read the provided public key
-		publicKey, err = rsa.ReadPublicKey(publicKeyPath)
-		if err != nil {
-			log.Fatalf("Error reading public key: %v\n", err)
-		}
+	privateKey, publicKey, genErr := rsa.GenerateKeys(2048)
+	if genErr != nil {
+		log.Fatalf("Error generating RSA keys: %v\n", genErr)
 	}
+
+	privateKeyFilePath := fmt.Sprintf("%s/%s-private_key.pem", keyDir, uniqueID.String())
+	// Optionally save the private and public keys
+	err = rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
+	if err != nil {
+		log.Fatalf("Error saving private key: %v\n", err)
+	}
+
+	publicKeyFilePath := fmt.Sprintf("%s/%s-public_key.pem", keyDir, uniqueID.String())
+	err = rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
+	if err != nil {
+		log.Fatalf("Error saving public key: %v\n", err)
+	}
+	fmt.Println("Generated and saved RSA keys.")
+	fmt.Println("Private key path:", privateKeyFilePath)
+	fmt.Println("Public key path:", publicKeyFilePath)
 
 	// Encrypt the file
 	plainText, err := utils.ReadFile(inputFile)

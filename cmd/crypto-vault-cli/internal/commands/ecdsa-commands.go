@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -18,6 +19,11 @@ import (
 func SignECCCmd(cmd *cobra.Command, args []string) {
 	inputFile, _ := cmd.Flags().GetString("input") // File to sign
 	keyDir, _ := cmd.Flags().GetString("keyDir")   // Directory to save keys
+
+	// Validate input arguments
+	if inputFile == "" || keyDir == "" {
+		log.Fatalf("Error: input and keyDir flags are required\n")
+	}
 
 	// ECC implementation
 	ecdsaImpl := &cryptography.ECDSAImpl{}
@@ -46,9 +52,11 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	// Output the signature
 	fmt.Printf("Signature: %x\n", signature)
 
+	uniqueID := uuid.New()
 	// Save the private and public keys to files (if they were generated)
 	if privateKey != nil && keyDir != "" {
-		privateKeyFilePath := fmt.Sprintf("%s/private_key.pem", keyDir)
+		privateKeyFilePath := fmt.Sprintf("%s/%s-private_key.pem", keyDir, uniqueID.String())
+
 		err = ecdsaImpl.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 		if err != nil {
 			log.Fatalf("Error saving private key: %v\n", err)
@@ -57,7 +65,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if publicKey != nil && keyDir != "" {
-		publicKeyFilePath := fmt.Sprintf("%s/public_key.pem", keyDir)
+		publicKeyFilePath := fmt.Sprintf("%s/%s-public_key.pem", keyDir, uniqueID.String())
 		err = ecdsaImpl.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 		if err != nil {
 			log.Fatalf("Error saving public key: %v\n", err)
@@ -67,7 +75,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 
 	// Save the signature to a file in the data folder (optional, based on the input file)
 	if keyDir != "" {
-		signatureFilePath := fmt.Sprintf("%s/signature.sig", keyDir)
+		signatureFilePath := fmt.Sprintf("%s/%s-signature.sig", keyDir, uniqueID.String())
 		err = ecdsaImpl.SaveSignatureToFile(signatureFilePath, signature)
 		if err != nil {
 			log.Fatalf("Error saving signature: %v\n", err)

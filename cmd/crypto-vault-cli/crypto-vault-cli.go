@@ -32,7 +32,7 @@ func main() {
 	}
 	decryptAESFileCmd.Flags().StringP("input", "i", "", "Input encrypted file path")
 	decryptAESFileCmd.Flags().StringP("output", "o", "", "Output decrypted file path")
-	decryptAESFileCmd.Flags().StringP("keyDir", "d", "", "Directory to read the encryption key from")
+	decryptAESFileCmd.Flags().StringP("symmetricKey", "k", "", "Path to the symmetric key")
 	rootCmd.AddCommand(decryptAESFileCmd)
 
 	// RSA Commands
@@ -43,7 +43,8 @@ func main() {
 	}
 	encryptRSAFileCmd.Flags().StringP("input", "i", "", "Input file path")
 	encryptRSAFileCmd.Flags().StringP("output", "o", "", "Output encrypted file path")
-	encryptRSAFileCmd.Flags().StringP("publicKey", "p", "", "Path to RSA public key")
+	encryptRSAFileCmd.Flags().StringP("keyDir", "d", "", "Directory to store the encryption key")
+
 	rootCmd.AddCommand(encryptRSAFileCmd)
 
 	var decryptRSAFileCmd = &cobra.Command{
