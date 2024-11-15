@@ -48,6 +48,8 @@ go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/${uu
 go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --output data/${uuid}-decrypted.txt --privateKey <your generated private key from previous encryption operation>
 ```
 
+---
+
 ### Signing / Verifying signatures
 
 #### ECDSA Example
@@ -59,6 +61,8 @@ go run crypto-vault-cli.go sign-ecc --input data/input.txt --keyDir data
 # Verify the signature using the generated public key
 go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your generated public key from previous signing operation> --signature <your generated signature file from previous signing operation>
 ```
+
+---
 
 ### PKCS#11  
 
