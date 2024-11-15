@@ -77,13 +77,13 @@ func (et *ECDSATests) TestSaveAndReadKeys(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Read the private and public keys from the files
-	readPrivateKey, err := et.ecc.ReadPrivateKey(privateKeyFile)
+	readPrivateKey, err := et.ecc.ReadPrivateKey(privateKeyFile, elliptic.P256())
 	assert.NoError(t, err)
 	assert.Equal(t, privateKey.D, readPrivateKey.D)
 	assert.Equal(t, privateKey.PublicKey.X, readPrivateKey.PublicKey.X)
 	assert.Equal(t, privateKey.PublicKey.Y, readPrivateKey.PublicKey.Y)
 
-	readPublicKey, err := et.ecc.ReadPublicKey(publicKeyFile)
+	readPublicKey, err := et.ecc.ReadPublicKey(publicKeyFile, elliptic.P256())
 	assert.NoError(t, err)
 	assert.Equal(t, publicKey.X, readPublicKey.X)
 	assert.Equal(t, publicKey.Y, readPublicKey.Y)

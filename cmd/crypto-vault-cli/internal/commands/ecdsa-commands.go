@@ -99,7 +99,7 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	if publicKeyPath == "" {
 		log.Fatalf("Public key is required for ECC signature verification.\n")
 	} else {
-		publicKey, err = ecdsaImpl.ReadPublicKey(publicKeyPath)
+		publicKey, err = ecdsaImpl.ReadPublicKey(publicKeyPath, elliptic.P256())
 		if err != nil {
 			log.Fatalf("Error reading public key: %v\n", err)
 		}
