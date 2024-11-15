@@ -22,9 +22,9 @@
 
 ## Getting Started
 
-**NOTE**: Keys will be generated internally during the encryption or signature generation operations.
-
 ### Encryption/Decryption
+
+**NOTE**: Keys will be generated internally during the encryption operations.
 
 #### AES example
 
@@ -51,6 +51,8 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 ---
 
 ### Signing / Verifying signatures
+
+**NOTE**: Keys will be generated internally during signature generation operations.
 
 #### ECDSA Example
 
