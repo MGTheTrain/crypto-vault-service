@@ -68,47 +68,34 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 
 ### PKCS#11  
 
-#### List commands
-
 ```sh
-# Get the next available uninitialized slot in the PKCS#11 module
-go run crypto-vault-cli.go get-free-slot --module /usr/lib/softhsm/libsofthsm2.so
+# Check available slots
+pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -L
+# Initialize a PKCS#11 token
+go run crypto-vault-cli.go initialize-token --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --so-pin 1234 --user-pin 5678 --slot "0x1"
 
 # Check if PKCS#11 token is set
 go run crypto-vault-cli.go is-token-set --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token
 
 # Check if an object (e.g., key) exists in the PKCS#11 token
 go run crypto-vault-cli.go is-object-set --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678
-```
+# Check all keys
+pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -O --token-label "my-token" --pin 5678
 
-#### Setup commands
-
-```sh
-# Initialize a PKCS#11 token
-go run crypto-vault-cli.go initialize-token --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --so-pin 1234 --user-pin 5678
-
-# Set up a PKCS#11 token slot
-go run crypto-vault-cli.go setup-slot --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --so-pin 1234 --user-pin 5678
-```
-
-#### Adding keys to tokens
-
-```sh
-# Add an RSA or ECDSA key to a PKCS#11 token
+# Adding keys to tokens
+# Add an RSA or ECDSA key pair (private and public key) to a PKCS#11 token
 go run crypto-vault-cli.go add-key --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --key-type RSA --key-size 2048 --user-pin 5678
-```
 
-#### Deleting keys from tokens
-
-```sh
+# Deleting keys from tokens
 # Delete an object (e.g., RSA or ECDSA key) from the PKCS#11 token
+go run crypto-vault-cli.go delete-object --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --object-type pubkey --user-pin 5678
 go run crypto-vault-cli.go delete-object --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --object-type privkey --user-pin 5678
+
+# Encryption/Decryption
+
+TBD
+
+# Signing / Verifying signatures
+
+TBD
 ```
-
-#### Encryption/Decryption
-
-TBD
-
-#### Signing / Verifying signatures
-
-TBD

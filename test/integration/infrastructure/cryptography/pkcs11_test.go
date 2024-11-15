@@ -15,7 +15,7 @@ type PKCS11Test struct {
 }
 
 // NewPKCS11Test sets up the test environment for PKCS#11 integration tests
-func NewPKCS11Test(modulePath, tokenLabel, soPin, userPin, objectLabel, keyType string, keySize int) *PKCS11Test {
+func NewPKCS11Test(slot, modulePath, tokenLabel, soPin, userPin, objectLabel, keyType string, keySize int) *PKCS11Test {
 	return &PKCS11Test{
 		Token: &cryptography.PKCS11Token{
 			ModulePath:  modulePath,
@@ -30,7 +30,8 @@ func NewPKCS11Test(modulePath, tokenLabel, soPin, userPin, objectLabel, keyType 
 }
 func (p *PKCS11Test) Setup(t *testing.T) {
 	// Initialize the PKCS#11 token
-	err := p.Token.InitializeToken()
+	tokenSlot := "0x1"
+	err := p.Token.InitializeToken(tokenSlot)
 	require.NoError(t, err, "Failed to initialize PKCS#11 token")
 
 	isTokenSet, err := p.Token.IsTokenSet()
@@ -70,7 +71,7 @@ func (p *PKCS11Test) AddKeyToToken(t *testing.T) {
 
 // TestAddRSAKey tests adding an RSA key to a PKCS#11 token
 func TestAddRSAKey(t *testing.T) {
-	test := NewPKCS11Test("/usr/lib/softhsm/libsofthsm2.so", "TestToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
+	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "my-token", "123456", "234567", "TestRSAKey", "RSA", 2048)
 
 	test.Setup(t)
 
@@ -80,7 +81,7 @@ func TestAddRSAKey(t *testing.T) {
 
 // TestAddECDSAKey tests adding an ECDSA key to a PKCS#11 token
 func TestAddECDSAKey(t *testing.T) {
-	test := NewPKCS11Test("/usr/lib/softhsm/libsofthsm2.so", "TestToken", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
+	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "my-token", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
 
 	test.Setup(t)
 

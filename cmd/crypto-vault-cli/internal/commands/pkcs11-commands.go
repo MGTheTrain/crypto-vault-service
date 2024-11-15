@@ -8,29 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Command for Slot Setup
-func Pkcs11SlotSetupCmd(cmd *cobra.Command, args []string) {
-	// Read flags for the required parameters
-	modulePath, _ := cmd.Flags().GetString("module")
-	tokenLabel, _ := cmd.Flags().GetString("token-label")
-	soPin, _ := cmd.Flags().GetString("so-pin")
-	userPin, _ := cmd.Flags().GetString("user-pin")
-
-	// Create an instance of PKCS11Token with the provided flags
-	token := &cryptography.PKCS11Token{
-		ModulePath: modulePath,
-		TokenLabel: tokenLabel,
-		SOPin:      soPin,
-		UserPin:    userPin,
-	}
-
-	// Call the method to set up the token slot
-	if err := token.Pkcs11SlotSetup(); err != nil {
-		log.Fatalf("Error setting up slot: %v", err)
-	}
-	fmt.Println("Token slot setup successfully!")
-}
-
 // Command to check if token is set
 func IsTokenSetCmd(cmd *cobra.Command, args []string) {
 	modulePath, _ := cmd.Flags().GetString("module")
@@ -79,6 +56,7 @@ func IsObjectSetCmd(cmd *cobra.Command, args []string) {
 
 // Command to initialize a PKCS#11 token
 func InitializeTokenCmd(cmd *cobra.Command, args []string) {
+	slot, _ := cmd.Flags().GetString("slot")
 	modulePath, _ := cmd.Flags().GetString("module")
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	soPin, _ := cmd.Flags().GetString("so-pin")
@@ -91,25 +69,9 @@ func InitializeTokenCmd(cmd *cobra.Command, args []string) {
 		UserPin:    userPin,
 	}
 
-	if err := token.InitializeToken(); err != nil {
+	if err := token.InitializeToken(slot); err != nil {
 		log.Fatalf("Error initializing token: %v", err)
 	}
-	fmt.Println("Token initialized successfully!")
-}
-
-// Command to get free slot for the PKCS#11 token
-func GetFreeSlotCmd(cmd *cobra.Command, args []string) {
-	modulePath, _ := cmd.Flags().GetString("module")
-
-	token := &cryptography.PKCS11Token{
-		ModulePath: modulePath,
-	}
-
-	slot, err := token.GetFreeSlot()
-	if err != nil {
-		log.Fatalf("Error getting free slot: %v", err)
-	}
-	fmt.Printf("Free slot: %s\n", slot)
 }
 
 // Command to add key to PKCS#11 token
@@ -158,17 +120,6 @@ func DeleteObjectCmd(cmd *cobra.Command, args []string) {
 }
 
 func InitPKCS11Commands(rootCmd *cobra.Command) {
-	var pkcs11SlotSetupCmd = &cobra.Command{
-		Use:   "setup-slot",
-		Short: "Setup PKCS#11 token slot",
-		Run:   Pkcs11SlotSetupCmd,
-	}
-	pkcs11SlotSetupCmd.Flags().String("module", "", "Path to the PKCS#11 module")
-	pkcs11SlotSetupCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
-	pkcs11SlotSetupCmd.Flags().String("so-pin", "", "Security Officer PIN")
-	pkcs11SlotSetupCmd.Flags().String("user-pin", "", "User PIN")
-	rootCmd.AddCommand(pkcs11SlotSetupCmd)
-
 	var pkcs11IsTokenSetCmd = &cobra.Command{
 		Use:   "is-token-set",
 		Short: "Check if PKCS#11 token is set",
@@ -194,19 +145,12 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 		Short: "Initialize a PKCS#11 token",
 		Run:   InitializeTokenCmd,
 	}
+	pkcs11InitializeTokenCmd.Flags().String("slot", "", "The token slot id")
 	pkcs11InitializeTokenCmd.Flags().String("module", "", "Path to the PKCS#11 module")
 	pkcs11InitializeTokenCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
 	pkcs11InitializeTokenCmd.Flags().String("so-pin", "", "Security Officer PIN")
 	pkcs11InitializeTokenCmd.Flags().String("user-pin", "", "User PIN")
 	rootCmd.AddCommand(pkcs11InitializeTokenCmd)
-
-	var pkcs11GetFreeSlotCmd = &cobra.Command{
-		Use:   "get-free-slot",
-		Short: "Get the next available uninitialized slot",
-		Run:   GetFreeSlotCmd,
-	}
-	pkcs11GetFreeSlotCmd.Flags().String("module", "", "Path to the PKCS#11 module")
-	rootCmd.AddCommand(pkcs11GetFreeSlotCmd)
 
 	var pkcs11AddKeyCmd = &cobra.Command{
 		Use:   "add-key",

@@ -8,11 +8,9 @@ import (
 
 // PKCS11TokenInterface defines the operations for working with a PKCS#11 token
 type PKCS11TokenInterface interface {
-	Pkcs11SlotSetup() error
 	IsTokenSet() (bool, error)
 	IsObjectSet() (bool, error)
 	InitializeToken() error
-	GetFreeSlot() (string, error)
 	AddKey() error
 	DeleteObject(objectType, objectLabel string) error // Added method for deleting keys
 }
@@ -36,46 +34,6 @@ func (token *PKCS11Token) executePKCS11ToolCommand(args []string) (string, error
 		return "", fmt.Errorf("pkcs11-tool command failed: %v\nOutput: %s", err, output)
 	}
 	return string(output), nil
-}
-
-// Pkcs11SlotSetup sets up the PKCS#11 token, initializes it, and adds keys (ECDSA or RSA)
-func (token *PKCS11Token) Pkcs11SlotSetup() error {
-	// Check if OpenSC is installed
-	if _, err := exec.LookPath("pkcs11-tool"); err != nil {
-		return fmt.Errorf("OpenSC is not installed: %v", err)
-	}
-
-	// Validate the required environment variables and pins
-	if token.ModulePath == "" {
-		return fmt.Errorf("PKCS11_MODULE_PATH must be set")
-	}
-
-	if len(token.UserPin) < 4 || len(token.SOPin) < 4 {
-		return fmt.Errorf("PINs must be at least 4 characters")
-	}
-
-	// Initialize token if necessary
-	if err := token.InitializeToken(); err != nil {
-		return err
-	}
-
-	// List all token slots
-	fmt.Println("### List all slots")
-	if output, err := token.executePKCS11ToolCommand([]string{"-L", "--module", token.ModulePath}); err != nil {
-		return err
-	} else {
-		fmt.Println(output)
-	}
-
-	// List all objects on the selected token
-	fmt.Printf("### List all objects on Token '%s'\n", token.TokenLabel)
-	if output, err := token.executePKCS11ToolCommand([]string{"-O", "--module", token.ModulePath, "--token-label", token.TokenLabel, "--pin", token.UserPin}); err != nil {
-		return err
-	} else {
-		fmt.Println(output)
-	}
-
-	return nil
 }
 
 // IsTokenSet checks if the token exists in the given module path
@@ -121,8 +79,8 @@ func (token *PKCS11Token) IsObjectSet() (bool, error) {
 }
 
 // InitializeToken initializes the token with the provided label and pins
-func (token *PKCS11Token) InitializeToken() error {
-	if token.ModulePath == "" || token.TokenLabel == "" || token.SOPin == "" || token.UserPin == "" {
+func (token *PKCS11Token) InitializeToken(slot string) error {
+	if token.ModulePath == "" || token.TokenLabel == "" || token.SOPin == "" || token.UserPin == "" || slot == "" {
 		return fmt.Errorf("missing required parameters for token initialization")
 	}
 
@@ -137,14 +95,8 @@ func (token *PKCS11Token) InitializeToken() error {
 		return nil
 	}
 
-	// Get the next available slot
-	nextSlot, err := token.GetFreeSlot()
-	if err != nil {
-		return err
-	}
-
 	// Initialize the token
-	args := []string{"--module", token.ModulePath, "--init-token", "--label", token.TokenLabel, "--so-pin", token.SOPin, "--init-pin", "--pin", token.UserPin, "--slot", nextSlot}
+	args := []string{"--module", token.ModulePath, "--init-token", "--label", token.TokenLabel, "--so-pin", token.SOPin, "--init-pin", "--pin", token.UserPin, "--slot", slot}
 	_, err = token.executePKCS11ToolCommand(args)
 	if err != nil {
 		return fmt.Errorf("failed to initialize token with label '%s': %v", token.TokenLabel, err)
@@ -190,32 +142,6 @@ func (token *PKCS11Token) DeleteObject(objectType, objectLabel string) error {
 
 	fmt.Printf("Object of type '%s' with label '%s' deleted successfully.\n", objectType, objectLabel)
 	return nil
-}
-
-// GetFreeSlot finds the next available uninitialized slot
-func (token *PKCS11Token) GetFreeSlot() (string, error) {
-	if token.ModulePath == "" {
-		return "", fmt.Errorf("missing module path")
-	}
-
-	args := []string{"-L", "--module", token.ModulePath}
-	output, err := token.executePKCS11ToolCommand(args)
-	if err != nil {
-		return "", err
-	}
-
-	// Extract the first available uninitialized slot
-	for _, line := range strings.Split(output, "\n") {
-		if strings.Contains(line, "uninitialized") {
-			// Extract slot number from the line
-			parts := strings.Fields(line)
-			if len(parts) > 2 {
-				return parts[2], nil
-			}
-		}
-	}
-
-	return "", fmt.Errorf("no uninitialized slot found")
 }
 
 // AddKey adds the selected key (ECDSA or RSA) to the token
