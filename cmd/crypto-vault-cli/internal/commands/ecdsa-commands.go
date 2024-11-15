@@ -135,3 +135,24 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 		fmt.Println("Signature is invalid.")
 	}
 }
+
+func InitECDSACommands(rootCmd *cobra.Command) {
+	var signECCMessageCmd = &cobra.Command{
+		Use:   "sign-ecc",
+		Short: "Sign a message using ECC",
+		Run:   SignECCCmd,
+	}
+	signECCMessageCmd.Flags().StringP("input", "i", "", "Path to file that needs to be signed")
+	signECCMessageCmd.Flags().StringP("keyDir", "d", "", "Directory to save generated keys (optional)")
+	rootCmd.AddCommand(signECCMessageCmd)
+
+	var verifyECCSignatureCmd = &cobra.Command{
+		Use:   "verify-ecc",
+		Short: "Verify a signature using ECC",
+		Run:   VerifyECCCmd,
+	}
+	verifyECCSignatureCmd.Flags().StringP("input", "i", "", "Path to ECC public key")
+	verifyECCSignatureCmd.Flags().StringP("publicKey", "p", "", "The public key used to verify the signature")
+	verifyECCSignatureCmd.Flags().StringP("signature", "s", "", "Signature to verify (hex format)")
+	rootCmd.AddCommand(verifyECCSignatureCmd)
+}
