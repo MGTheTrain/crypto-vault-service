@@ -9,7 +9,7 @@
     - [RSA Example](#rsa-example)
   - [Signing and Verifying Signatures](#signing-and-verifying-signatures)
     - [ECDSA Example](#ecdsa-example)
-  - [PKCS#11 Integration](#pkcs11-integration)
+- [PKCS#11 Integration](#pkcs11-integration)
 
 ## Summary
 
