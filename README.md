@@ -45,6 +45,16 @@ TBD
 
 ## Getting Started
 
+### Preconditions
+
+- Install Go from the official Go website, or use this [devcontainer.json](../../.devcontainer/devcontainer.json) with the [DevContainer extensions in VS Code or other IDE supporting DevContainers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- If the `devcontainer.json` is not used, install the necessary dependencies for PKCS#11 integration on a later Linux distribution such as `Debian 12` or `Ubuntu 22.04`: 
+
+```sh
+apt-get update 
+apt-get install -y opensc softhsm
+```
+
 ### Formatting and linting
 
 For formatting and linting run either on Unix systems

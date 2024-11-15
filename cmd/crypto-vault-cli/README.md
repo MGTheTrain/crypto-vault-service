@@ -3,62 +3,41 @@
 ## Table of Contents
 
 + [Summary](#summary)
-+ [Prerequisites](#prerequisites)
 + [Getting started](#getting-started)
 
 ## Summary
 
 `crypto-vault-cli` is a command-line tool for file encryption and decryption using AES, RSA and EC algorithms. It provides an easy interface to securely encrypt and decrypt files using symmetric (AES) and asymmetric (RSA, EC) cryptography.
 
-## Prerequisites
-
-- Install Go from the official Go website, or use this [devcontainer.json](../../.devcontainer/devcontainer.json) with the [DevContainer extensions in VS Code or other IDE supporting DevContainers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-
 ## Getting Started
+
+**NOTE**: Keys will be generated internally during the encryption or signature generation operations.
 
 ### Encryption/Decryption
 
 **AES example**
 
 ```sh
+uuid=$(cat /proc/sys/kernel/random/uuid)
 # Encryption
-go run crypto-vault-cli.go encrypt-aes --input data/input.txt --output data/output.enc --keySize 16 --keyDir data/
+go run crypto-vault-cli.go encrypt-aes --input data/input.txt --output data/${uuid}-output.enc --keySize 16 --keyDir data/
 # Decryption
-go run crypto-vault-cli.go decrypt-aes --input data/output.enc --output data/decrypted.txt --keyDir data/
+go run crypto-vault-cli.go decrypt-aes --input data/${uuid}-output.enc --output data/${uuid}-decrypted.txt --symmetricKey <your generated symmetric key from previous encryption operation>
 ```
 
-**RSA Example considering external key generation**
+**RSA Example**
 
 ```sh
-cd data
-openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048
-openssl rsa -pubout -in private_key.pem -out public_key.pem
-cd -
+uuid=$(cat /proc/sys/kernel/random/uuid)
 
 # Encryption
-go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/encryptedII.txt --publicKey data/public_key.pem
+go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/${uuid}-encrypted.txt --keyDir data/
 
 # Decryption
-go run crypto-vault-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
+go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --output data/${uuid}-decrypted.txt --privateKey <your generated private key from previous encryption operation>
 ```
 
-**RSA Example considering internal key generation**
-
-```sh
-# Encryption
-go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/encryptedII.txt
-
-# Decryption
-go run crypto-vault-cli.go decrypt-rsa --input data/encryptedII.txt --output data/decryptedII.txt --privateKey data/private_key.pem
-```
-
-**RSA with PKCS#11 Example considering external key generation** 
-
-```sh
-TBD
-```
-
-**RSA with PKCS#11 Example considering internal key generation** 
+**RSA with PKCS#11 Example** 
 
 ```sh
 TBD
@@ -66,12 +45,12 @@ TBD
 
 ### Hashing / Verifying signatures
 
-**ECDSA Example considering internal key generation**
+**ECDSA Example**
 
 ```sh
 # Sign a file with a newly generated ECC key pair (internally generated)
 go run crypto-vault-cli.go sign-ecc --input data/input.txt --keyDir data
 
 # Verify the signature using the generated public key
-go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey data/public_key.pem --signature data/signature.sig
+go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your generated public key from previous signing operation> --signature <your generated signature file from previous signing operation>
 ```
