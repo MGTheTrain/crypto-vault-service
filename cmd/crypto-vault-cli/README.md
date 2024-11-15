@@ -10,11 +10,6 @@
   - [Signing and Verifying Signatures](#signing-and-verifying-signatures)
     - [ECDSA Example](#ecdsa-example)
   - [PKCS#11 Integration](#pkcs11-integration)
-    - [List Commands](#list-commands)
-    - [Setup Commands](#setup-commands)
-    - [Adding Keys to Tokens](#adding-keys-to-tokens)
-    - [Deleting Keys from Tokens](#deleting-keys-from-tokens)
-
 
 ## Summary
 
@@ -22,7 +17,7 @@
 
 ## Getting Started
 
-### Encryption/Decryption
+### Encryption and Decryption
 
 **NOTE**: Keys will be generated internally during the encryption operations.
 
@@ -50,7 +45,7 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 
 ---
 
-### Signing / Verifying signatures
+### Signing and Verifying signatures
 
 **NOTE**: Keys will be generated internally during signature generation operations.
 
@@ -66,7 +61,7 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 
 ---
 
-### PKCS#11  
+### PKCS#11 Integration
 
 ```sh
 # Check available slots
