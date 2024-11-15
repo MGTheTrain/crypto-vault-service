@@ -41,17 +41,41 @@ func (p *PKCS11Test) Setup(t *testing.T) {
 	assert.True(t, isTokenSet, "The token should be initialized and set")
 }
 
+// DeleteKeyFromToken deletes any existing key with the same label before adding a new key.
+func (p *PKCS11Test) DeleteKeyFromToken(t *testing.T) {
+	// Delete the existing key object (if any)
+	err := p.Token.DeleteObject("privkey", p.Token.ObjectLabel)
+	if err != nil {
+		// Log the error and continue
+		t.Logf("Warning: Failed to delete existing private key: %v\n", err)
+	}
+
+	err = p.Token.DeleteObject("pubkey", p.Token.ObjectLabel)
+	if err != nil {
+		// Log the error and continue
+		t.Logf("Warning: Failed to delete existing public key: %v\n", err)
+	}
+
+	err = p.Token.DeleteObject("secrkey", p.Token.ObjectLabel)
+	if err != nil {
+		// Log the error and continue
+		t.Logf("Warning: Failed to delete existing secret key: %v\n", err)
+	}
+}
+
 // AddKeyToToken is a helper function to add a key to a token
 func (p *PKCS11Test) AddKeyToToken(t *testing.T) {
-	var err error
-	err = p.Token.AddKey()
-
+	// Now, add the new key
+	err := p.Token.AddKey()
 	assert.NoError(t, err, "Failed to add key to the token")
 
 	// Verify the key was added to the token
 	isObjectSet, err := p.Token.IsObjectSet()
 	assert.NoError(t, err, "Error checking if key is set")
 	assert.True(t, isObjectSet, fmt.Sprintf("The %s key should be added to the token", p.Token.KeyType))
+
+	// First, delete any existing key with the same label
+	p.DeleteKeyFromToken(t)
 }
 
 // TestAddRSAKey tests adding an RSA key to a PKCS#11 token
