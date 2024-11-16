@@ -85,14 +85,14 @@ or
 make run-unit-tests
 ```
 
-**TBD** To run `integration` tests on Unix systems either execute
+To run `integration` tests on Unix systems either execute
 
 ```sh
 cd scripts
 ./run-test.sh -i
 ```
 
-**TBD** or
+or
 
 ```sh
 make run-integration-tests
