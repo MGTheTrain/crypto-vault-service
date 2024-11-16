@@ -21,9 +21,9 @@
 
 ### Encryption and Decryption
 
-**NOTE**: Keys will be generated internally during the encryption operations.
-
 #### AES example
+
+**NOTE:** Keys will be generated internally during the encryption operations.
 
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -34,6 +34,8 @@ go run crypto-vault-cli.go decrypt-aes --input data/${uuid}-output.enc --output 
 ```
 
 #### RSA Example
+
+**NOTE:** Keys will be generated internally during the encryption operations.
 
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -47,7 +49,10 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 
 #### PKCS#11 encryption and decryption
 
+**NOTE:** Requires RSA keys managed in a FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
+
 ```sh
+# RSA-PKCS
 # Encryption
 go run crypto-vault-cli.go encrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --input-file data/input.txt --output-file data/encrypted-output.enc
 
@@ -59,9 +64,9 @@ go run crypto-vault-cli.go decrypt --module /usr/lib/softhsm/libsofthsm2.so --to
 
 ### Signing and Verifying signatures
 
-**NOTE**: Keys will be generated internally during signature generation operations.
-
 #### ECDSA Example
+
+**NOTE:** Keys will be generated internally during signature generation operations.
 
 ```sh
 # Sign a file with a newly generated ECC key pair (internally generated)
@@ -73,12 +78,22 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 
 #### PKCS#11 signing and verifying
 
+**NOTE:** Requires RSA or EC keys managed in a FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
+
 ```sh
+# RSA-PSS
 # Sign data with a PKCS#11 token
 go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --input-file data/input.txt --output-file data/signature.sig
 
 # Verify the signature using the generated public key from the PKCS#11 token
 go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --data-file data/input.txt --signature-file data/signature.sig
+
+# ECDSA
+# Sign data with a PKCS#11 token
+go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --input-file data/input.txt --output-file data/signature.sig
+
+# Verify the signature using the generated public key from the PKCS#11 token
+go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --data-file data/input.txt --signature-file data/signature.sig
 ```
 
 ---
