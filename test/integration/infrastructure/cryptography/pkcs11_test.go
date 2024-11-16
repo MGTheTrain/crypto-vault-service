@@ -12,12 +12,14 @@ import (
 )
 
 type PKCS11Test struct {
+	Slot  string
 	Token *cryptography.PKCS11Token
 }
 
 // NewPKCS11Test sets up the test environment for PKCS#11 integration tests
 func NewPKCS11Test(slot, modulePath, Label, soPin, userPin, objectLabel, keyType string, keySize int) *PKCS11Test {
 	return &PKCS11Test{
+		Slot: slot,
 		Token: &cryptography.PKCS11Token{
 			ModulePath:  modulePath,
 			Label:       Label,
@@ -32,8 +34,7 @@ func NewPKCS11Test(slot, modulePath, Label, soPin, userPin, objectLabel, keyType
 
 // Setup initializes the PKCS#11 token
 func (p *PKCS11Test) Setup(t *testing.T) {
-	tokenSlot := "0x0"
-	err := p.Token.InitializeToken(tokenSlot)
+	err := p.Token.InitializeToken(p.Slot)
 	require.NoError(t, err, "Failed to initialize PKCS#11 token")
 
 	isTokenSet, err := p.Token.IsTokenSet()
@@ -205,7 +206,7 @@ func TestSignAndVerify(t *testing.T) {
 // TestSignAndVerifyECDSA tests the signing and verification functionality for ECDSA using a PKCS#11 token
 func TestSignAndVerifyECDSA(t *testing.T) {
 	// Prepare the test PKCS#11Token for ECDSA
-	test := NewPKCS11Test("0x0", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
+	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken2", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
 	test.Setup(t)
 
 	// Add an ECDSA key to the token
