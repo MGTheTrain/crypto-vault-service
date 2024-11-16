@@ -13,7 +13,7 @@ RESTful Web API for managing cryptographic keys and securing data at rest (metad
 
 ## References
 
-TBD
+- [pkcs11-tool usage](https://docs.nitrokey.com/nethsm/pkcs11-tool#id1)
 
 ## Features
 
