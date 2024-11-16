@@ -11,12 +11,12 @@ import (
 type PKCS11TokenInterface interface {
 	IsTokenSet() (bool, error)
 	IsObjectSet() (bool, error)
-	InitializeToken() error
+	InitializeToken(slot string) error
 	AddKey() error
-	Encrypt() error
-	Decrypt() error
-	Sign() error
-	Verify() error
+	Encrypt(inputFilePath, outputFilePath string) error
+	Decrypt(inputFilePath, outputFilePath string) error
+	Sign(inputFilePath, outputFilePath string) error
+	Verify(dataFilePath, signatureFilePath string) (bool, error)
 	DeleteObject(objectType, objectLabel string) error
 }
 
