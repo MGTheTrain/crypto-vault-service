@@ -111,7 +111,7 @@ go run crypto-vault-cli.go is-token-set --module /usr/lib/softhsm/libsofthsm2.so
 
 # Check if an object (e.g., key) exists in the PKCS#11 token
 go run crypto-vault-cli.go is-object-set --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678
-# Check all keys
+# Check all keys of a token
 pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -O --token-label "my-token" --pin 5678
 
 # Adding keys to tokens
