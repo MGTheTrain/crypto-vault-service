@@ -2,6 +2,7 @@ package cryptography
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -12,13 +13,17 @@ type PKCS11TokenInterface interface {
 	IsObjectSet() (bool, error)
 	InitializeToken() error
 	AddKey() error
-	DeleteObject(objectType, objectLabel string) error // Added method for deleting keys
+	Encrypt() error
+	Decrypt() error
+	Sign() error
+	Verify() error
+	DeleteObject(objectType, objectLabel string) error
 }
 
 // PKCS11Token represents the parameters and operations for interacting with a PKCS#11 token
 type PKCS11Token struct {
 	ModulePath  string
-	TokenLabel  string
+	Label       string
 	SOPin       string
 	UserPin     string
 	ObjectLabel string
@@ -38,7 +43,7 @@ func (token *PKCS11Token) executePKCS11ToolCommand(args []string) (string, error
 
 // IsTokenSet checks if the token exists in the given module path
 func (token *PKCS11Token) IsTokenSet() (bool, error) {
-	if token.ModulePath == "" || token.TokenLabel == "" {
+	if token.ModulePath == "" || token.Label == "" {
 		return false, fmt.Errorf("missing module path or token label")
 	}
 
@@ -48,22 +53,22 @@ func (token *PKCS11Token) IsTokenSet() (bool, error) {
 		return false, err
 	}
 
-	if strings.Contains(output, token.TokenLabel) && strings.Contains(output, "token initialized") {
-		fmt.Printf("Token with label '%s' exists.\n", token.TokenLabel)
+	if strings.Contains(output, token.Label) && strings.Contains(output, "token initialized") {
+		fmt.Printf("Token with label '%s' exists.\n", token.Label)
 		return true, nil
 	}
 
-	fmt.Printf("Error: Token with label '%s' does not exist.\n", token.TokenLabel)
+	fmt.Printf("Error: Token with label '%s' does not exist.\n", token.Label)
 	return false, nil
 }
 
 // IsObjectSet checks if the specified object exists on the given token
 func (token *PKCS11Token) IsObjectSet() (bool, error) {
-	if token.ModulePath == "" || token.TokenLabel == "" || token.ObjectLabel == "" || token.UserPin == "" {
+	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return false, fmt.Errorf("missing required arguments")
 	}
 
-	args := []string{"-O", "--module", token.ModulePath, "--token-label", token.TokenLabel, "--pin", token.UserPin}
+	args := []string{"-O", "--module", token.ModulePath, "--token-label", token.Label, "--pin", token.UserPin}
 	output, err := token.executePKCS11ToolCommand(args)
 	if err != nil {
 		return false, err
@@ -80,7 +85,7 @@ func (token *PKCS11Token) IsObjectSet() (bool, error) {
 
 // InitializeToken initializes the token with the provided label and pins
 func (token *PKCS11Token) InitializeToken(slot string) error {
-	if token.ModulePath == "" || token.TokenLabel == "" || token.SOPin == "" || token.UserPin == "" || slot == "" {
+	if token.ModulePath == "" || token.Label == "" || token.SOPin == "" || token.UserPin == "" || slot == "" {
 		return fmt.Errorf("missing required parameters for token initialization")
 	}
 
@@ -96,19 +101,19 @@ func (token *PKCS11Token) InitializeToken(slot string) error {
 	}
 
 	// Initialize the token
-	args := []string{"--module", token.ModulePath, "--init-token", "--label", token.TokenLabel, "--so-pin", token.SOPin, "--init-pin", "--pin", token.UserPin, "--slot", slot}
+	args := []string{"--module", token.ModulePath, "--init-token", "--label", token.Label, "--so-pin", token.SOPin, "--init-pin", "--pin", token.UserPin, "--slot", slot}
 	_, err = token.executePKCS11ToolCommand(args)
 	if err != nil {
-		return fmt.Errorf("failed to initialize token with label '%s': %v", token.TokenLabel, err)
+		return fmt.Errorf("failed to initialize token with label '%s': %v", token.Label, err)
 	}
 
-	fmt.Printf("Token with label '%s' initialized successfully.\n", token.TokenLabel)
+	fmt.Printf("Token with label '%s' initialized successfully.\n", token.Label)
 	return nil
 }
 
 // DeleteObject deletes a key or object from the token
 func (token *PKCS11Token) DeleteObject(objectType, objectLabel string) error {
-	if token.ModulePath == "" || token.TokenLabel == "" || objectLabel == "" || token.UserPin == "" {
+	if token.ModulePath == "" || token.Label == "" || objectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments to delete object")
 	}
 
@@ -128,7 +133,7 @@ func (token *PKCS11Token) DeleteObject(objectType, objectLabel string) error {
 	// Execute the pkcs11-tool command to delete the object
 	args := []string{
 		"--module", token.ModulePath,
-		"--token-label", token.TokenLabel,
+		"--token-label", token.Label,
 		"--pin", token.UserPin,
 		"--delete-object",
 		"--type", objectType,
@@ -146,7 +151,7 @@ func (token *PKCS11Token) DeleteObject(objectType, objectLabel string) error {
 
 // AddKey adds the selected key (ECDSA or RSA) to the token
 func (token *PKCS11Token) AddKey() error {
-	if token.ModulePath == "" || token.TokenLabel == "" || token.ObjectLabel == "" || token.UserPin == "" {
+	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments")
 	}
 
@@ -182,7 +187,7 @@ func (token *PKCS11Token) addECDSASignKey() error {
 	// Generate the key pair using the correct elliptic curve
 	args := []string{
 		"--module", token.ModulePath,
-		"--token-label", token.TokenLabel,
+		"--token-label", token.Label,
 		"--keypairgen",
 		"--key-type", fmt.Sprintf("EC:%s", curve), // Use the dynamically selected curve
 		"--label", token.ObjectLabel,
@@ -195,7 +200,7 @@ func (token *PKCS11Token) addECDSASignKey() error {
 		return fmt.Errorf("failed to add ECDSA key to token: %v", err)
 	}
 
-	fmt.Printf("ECDSA key with label '%s' added to token '%s'.\n", token.ObjectLabel, token.TokenLabel)
+	fmt.Printf("ECDSA key with label '%s' added to token '%s'.\n", token.ObjectLabel, token.Label)
 	return nil
 }
 
@@ -218,7 +223,7 @@ func (token *PKCS11Token) addRSASignKey() error {
 
 	args := []string{
 		"--module", token.ModulePath,
-		"--token-label", token.TokenLabel,
+		"--token-label", token.Label,
 		"--keypairgen",
 		"--key-type", fmt.Sprintf("RSA:%d", token.KeySize),
 		"--label", token.ObjectLabel,
@@ -230,6 +235,113 @@ func (token *PKCS11Token) addRSASignKey() error {
 		return fmt.Errorf("failed to add RSA key to token: %v", err)
 	}
 
-	fmt.Printf("RSA key with label '%s' added to token '%s'.\n", token.ObjectLabel, token.TokenLabel)
+	fmt.Printf("RSA key with label '%s' added to token '%s'.\n", token.ObjectLabel, token.Label)
+	return nil
+}
+
+func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
+	// Validate required parameters
+	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
+		return fmt.Errorf("missing required arguments for encryption")
+	}
+
+	// Temporary file to store the public key in DER format
+	publicKeyFile := "public.der"
+
+	// Step 1: Retrieve the public key from the PKCS#11 token using pkcs11-tool
+	args := []string{
+		"--module", token.ModulePath,
+		"--token-label", token.Label,
+		"--pin", token.UserPin,
+		"--read-object",
+		"--label", token.ObjectLabel,
+		"--type", "pubkey", // Retrieve public key
+		"--output-file", publicKeyFile, // Store public key in DER format
+	}
+
+	cmd := exec.Command("pkcs11-tool", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to retrieve public key: %v\nOutput: %s", err, output)
+	}
+	fmt.Println("Public key retrieved successfully.")
+
+	// Check if the public key file was generated
+	if _, err := os.Stat(publicKeyFile); os.IsNotExist(err) {
+		return fmt.Errorf("public key file not found: %s", publicKeyFile)
+	}
+
+	// Step 2: Encrypt the data using OpenSSL and the retrieved public key
+	encryptCmd := exec.Command("openssl", "pkeyutl", "-encrypt", "-pubin", "-inkey", publicKeyFile, "-keyform", "DER", "-in", inputFilePath, "-out", outputFilePath)
+	encryptOutput, err := encryptCmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to encrypt data with OpenSSL: %v\nOutput: %s", err, encryptOutput)
+	}
+
+	// Step 3: Remove the public key from the filesystem
+	os.Remove("public.der")
+
+	fmt.Printf("Encryption successful. Encrypted data written to %s\n", outputFilePath)
+	return nil
+}
+
+func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
+	// Validate required parameters
+	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
+		return fmt.Errorf("missing required arguments for decryption")
+	}
+
+	// Check if input file exists
+	if _, err := os.Stat(inputFilePath); os.IsNotExist(err) {
+		return fmt.Errorf("input file does not exist: %v", err)
+	}
+
+	// Create or validate the output file (will be overwritten)
+	outputFile, err := os.Create(outputFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to create or open output file: %v", err)
+	}
+	defer outputFile.Close()
+
+	// Step 1: Prepare the command to decrypt the data using pkcs11-tool
+	args := []string{
+		"--module", token.ModulePath,
+		"--token-label", token.Label,
+		"--pin", token.UserPin,
+		"--decrypt",
+		"--label", token.ObjectLabel,
+		"--mechanism", "RSA-PKCS", // Specify the RSA-PKCS mechanism
+		"--input-file", inputFilePath, // Input file with encrypted data
+	}
+
+	// Run the decryption command
+	cmd := exec.Command("pkcs11-tool", args...)
+	output, err := cmd.CombinedOutput()
+
+	// Capture the decrypted data and filter out any extra output
+	if err != nil {
+		return fmt.Errorf("decryption failed: %v\nOutput: %s", err, output)
+	}
+
+	// Split the output into lines and filter out unwanted lines
+	lines := strings.Split(string(output), "\n")
+	var decryptedData []byte
+	for i, line := range lines {
+		if !strings.Contains(line, "Using decrypt algorithm RSA-PKCS") {
+			// If this is not the last line, append a newline
+			decryptedData = append(decryptedData, []byte(line)...)
+			if i < len(lines)-1 {
+				decryptedData = append(decryptedData, '\n')
+			}
+		}
+	}
+
+	// Write the actual decrypted data (without extra info) to the output file
+	_, err = outputFile.Write(decryptedData)
+	if err != nil {
+		return fmt.Errorf("failed to write decrypted data to output file: %v", err)
+	}
+
+	fmt.Printf("Decryption successful. Decrypted data written to %s\n", outputFilePath)
 	return nil
 }

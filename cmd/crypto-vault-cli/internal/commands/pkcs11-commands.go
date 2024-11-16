@@ -11,11 +11,11 @@ import (
 // Command to check if token is set
 func IsTokenSetCmd(cmd *cobra.Command, args []string) {
 	modulePath, _ := cmd.Flags().GetString("module")
-	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	Label, _ := cmd.Flags().GetString("token-label")
 
 	token := &cryptography.PKCS11Token{
 		ModulePath: modulePath,
-		TokenLabel: tokenLabel,
+		Label:      Label,
 	}
 
 	isSet, err := token.IsTokenSet()
@@ -32,13 +32,13 @@ func IsTokenSetCmd(cmd *cobra.Command, args []string) {
 // Command to check if object is set
 func IsObjectSetCmd(cmd *cobra.Command, args []string) {
 	modulePath, _ := cmd.Flags().GetString("module")
-	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
 	token := &cryptography.PKCS11Token{
 		ModulePath:  modulePath,
-		TokenLabel:  tokenLabel,
+		Label:       Label,
 		ObjectLabel: objectLabel,
 		UserPin:     userPin,
 	}
@@ -58,13 +58,13 @@ func IsObjectSetCmd(cmd *cobra.Command, args []string) {
 func InitializeTokenCmd(cmd *cobra.Command, args []string) {
 	slot, _ := cmd.Flags().GetString("slot")
 	modulePath, _ := cmd.Flags().GetString("module")
-	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	Label, _ := cmd.Flags().GetString("token-label")
 	soPin, _ := cmd.Flags().GetString("so-pin")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
 	token := &cryptography.PKCS11Token{
 		ModulePath: modulePath,
-		TokenLabel: tokenLabel,
+		Label:      Label,
 		SOPin:      soPin,
 		UserPin:    userPin,
 	}
@@ -77,7 +77,7 @@ func InitializeTokenCmd(cmd *cobra.Command, args []string) {
 // Command to add key to PKCS#11 token
 func AddKeyCmd(cmd *cobra.Command, args []string) {
 	modulePath, _ := cmd.Flags().GetString("module")
-	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	keyType, _ := cmd.Flags().GetString("key-type") // "ECDSA" or "RSA"
 	keySize, _ := cmd.Flags().GetInt("key-size")
@@ -85,7 +85,7 @@ func AddKeyCmd(cmd *cobra.Command, args []string) {
 
 	token := &cryptography.PKCS11Token{
 		ModulePath:  modulePath,
-		TokenLabel:  tokenLabel,
+		Label:       Label,
 		ObjectLabel: objectLabel,
 		KeyType:     keyType,
 		KeySize:     keySize,
@@ -101,14 +101,14 @@ func AddKeyCmd(cmd *cobra.Command, args []string) {
 // Command to delete an object (key) from the PKCS#11 token
 func DeleteObjectCmd(cmd *cobra.Command, args []string) {
 	modulePath, _ := cmd.Flags().GetString("module")
-	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	objectType, _ := cmd.Flags().GetString("object-type")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
 	token := &cryptography.PKCS11Token{
 		ModulePath:  modulePath,
-		TokenLabel:  tokenLabel,
+		Label:       Label,
 		ObjectLabel: objectLabel,
 		UserPin:     userPin,
 	}
