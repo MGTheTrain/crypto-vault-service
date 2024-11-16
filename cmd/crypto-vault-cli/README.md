@@ -54,10 +54,10 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 ```sh
 # RSA-PKCS
 # Encryption
-go run crypto-vault-cli.go encrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --input-file data/input.txt --output-file data/encrypted-output.enc
+go run crypto-vault-cli.go encrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --input-file data/input.txt --output-file data/encrypted-output.enc
 
 # Decryption
-go run crypto-vault-cli.go decrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --input-file data/encrypted-output.enc --output-file data/decrypted-output.txt
+go run crypto-vault-cli.go decrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --input-file data/encrypted-output.enc --output-file data/decrypted-output.txt
 ```
 
 ---
@@ -83,17 +83,17 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 ```sh
 # RSA-PSS
 # Sign data with a PKCS#11 token
-go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --input-file data/input.txt --output-file data/signature.sig
+go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --input-file data/input.txt --output-file data/signature.sig
 
 # Verify the signature using the generated public key from the PKCS#11 token
-go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --data-file data/input.txt --signature-file data/signature.sig
+go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
 
 # ECDSA
 # Sign data with a PKCS#11 token
-go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --input-file data/input.txt --output-file data/signature.sig
+go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --key-type ECDSA --input-file data/input.txt --output-file data/signature.sig
 
 # Verify the signature using the generated public key from the PKCS#11 token
-go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --data-file data/input.txt --signature-file data/signature.sig
+go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
 ```
 
 ---

@@ -125,6 +125,7 @@ func EncryptCmd(cmd *cobra.Command, args []string) {
 	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	userPin, _ := cmd.Flags().GetString("user-pin")
+	keyType, _ := cmd.Flags().GetString("key-type")
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 
@@ -133,6 +134,7 @@ func EncryptCmd(cmd *cobra.Command, args []string) {
 		Label:       Label,
 		ObjectLabel: objectLabel,
 		UserPin:     userPin,
+		KeyType:     keyType,
 	}
 
 	if err := token.Encrypt(inputFilePath, outputFilePath); err != nil {
@@ -147,6 +149,7 @@ func DecryptCmd(cmd *cobra.Command, args []string) {
 	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	userPin, _ := cmd.Flags().GetString("user-pin")
+	keyType, _ := cmd.Flags().GetString("key-type")
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 
@@ -155,6 +158,7 @@ func DecryptCmd(cmd *cobra.Command, args []string) {
 		Label:       Label,
 		ObjectLabel: objectLabel,
 		UserPin:     userPin,
+		KeyType:     keyType,
 	}
 
 	if err := token.Decrypt(inputFilePath, outputFilePath); err != nil {
@@ -169,6 +173,7 @@ func SignCmd(cmd *cobra.Command, args []string) {
 	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	userPin, _ := cmd.Flags().GetString("user-pin")
+	keyType, _ := cmd.Flags().GetString("key-type")
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 
@@ -177,6 +182,7 @@ func SignCmd(cmd *cobra.Command, args []string) {
 		Label:       Label,
 		ObjectLabel: objectLabel,
 		UserPin:     userPin,
+		KeyType:     keyType,
 	}
 
 	if err := token.Sign(inputFilePath, outputFilePath); err != nil {
@@ -191,6 +197,7 @@ func VerifyCmd(cmd *cobra.Command, args []string) {
 	Label, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	userPin, _ := cmd.Flags().GetString("user-pin")
+	keyType, _ := cmd.Flags().GetString("key-type")
 	dataFilePath, _ := cmd.Flags().GetString("data-file")
 	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
 
@@ -199,6 +206,7 @@ func VerifyCmd(cmd *cobra.Command, args []string) {
 		Label:       Label,
 		ObjectLabel: objectLabel,
 		UserPin:     userPin,
+		KeyType:     keyType,
 	}
 
 	valid, err := token.Verify(dataFilePath, signatureFilePath)
@@ -282,6 +290,7 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	pkcs11EncryptCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
 	pkcs11EncryptCmd.Flags().String("object-label", "", "Label of the object (key) for encryption")
 	pkcs11EncryptCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11EncryptCmd.Flags().String("key-type", "", "Type of the key (ECDSA or RSA)")
 	pkcs11EncryptCmd.Flags().String("input-file", "", "Output encrypted file path")
 	pkcs11EncryptCmd.Flags().String("output-file", "", "Path to output file for encryption")
 	rootCmd.AddCommand(pkcs11EncryptCmd)
@@ -298,6 +307,7 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	pkcs11DecryptCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
 	pkcs11DecryptCmd.Flags().String("object-label", "", "Label of the object (key) for decryption")
 	pkcs11DecryptCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11DecryptCmd.Flags().String("key-type", "", "Type of the key (ECDSA or RSA)")
 	pkcs11DecryptCmd.Flags().String("input-file", "", "Input encrypted file path")
 	pkcs11DecryptCmd.Flags().String("output-file", "", "Output decrypted file path")
 	rootCmd.AddCommand(pkcs11DecryptCmd)
@@ -314,6 +324,7 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	pkcs11SignCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
 	pkcs11SignCmd.Flags().String("object-label", "", "Label of the object (key) for signing")
 	pkcs11SignCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11SignCmd.Flags().String("key-type", "", "Type of the key (ECDSA or RSA)")
 	pkcs11SignCmd.Flags().String("input-file", "", "Path to file that needs to be signed")
 	pkcs11SignCmd.Flags().String("output-file", "", "Path to signature file")
 	rootCmd.AddCommand(pkcs11SignCmd)
@@ -330,6 +341,7 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	pkcs11VerifyCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
 	pkcs11VerifyCmd.Flags().String("object-label", "", "Label of the object (key) for signature verification")
 	pkcs11VerifyCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11VerifyCmd.Flags().String("key-type", "", "Type of the key (ECDSA or RSA)")
 	pkcs11VerifyCmd.Flags().String("data-file", "", "Path to data file to verify")
 	pkcs11VerifyCmd.Flags().String("signature-file", "", "Path to signature file for verification")
 	rootCmd.AddCommand(pkcs11VerifyCmd)
