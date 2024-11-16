@@ -53,7 +53,7 @@ RESTful Web API for managing cryptographic keys and securing data at rest (metad
 
 ```sh
 apt-get update 
-apt-get install -y openssl opensc softhsm
+apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
 ```
 
 ### Formatting and linting
