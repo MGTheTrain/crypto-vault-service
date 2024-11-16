@@ -245,6 +245,10 @@ func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
 		return fmt.Errorf("missing required arguments for encryption")
 	}
 
+	if token.KeyType != "RSA" {
+		return fmt.Errorf("only RSA keys are supported for encryption")
+	}
+
 	// Temporary file to store the public key in DER format
 	publicKeyFile := "public.der"
 
@@ -289,6 +293,10 @@ func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments for decryption")
+	}
+
+	if token.KeyType != "RSA" {
+		return fmt.Errorf("only RSA keys are supported for decryption")
 	}
 
 	// Check if input file exists
