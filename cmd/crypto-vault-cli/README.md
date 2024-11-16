@@ -7,8 +7,10 @@
   - [Encryption and Decryption](#encryption-and-decryption)
     - [AES Example](#aes-example)
     - [RSA Example](#rsa-example)
+    - [PKCS#11 Encryption and Decryption](#pkcs11-encryption-and-decryption)
   - [Signing and Verifying Signatures](#signing-and-verifying-signatures)
     - [ECDSA Example](#ecdsa-example)
+    - [PKCS#11 Signing and Verifying](#pkcs11-signing-and-verifying)
 - [PKCS#11 Integration](#pkcs11-integration)
 
 ## Summary
