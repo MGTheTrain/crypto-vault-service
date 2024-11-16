@@ -23,7 +23,7 @@
 
 #### AES example
 
-**NOTE:** Keys will be generated internally during the encryption operations.
+*NOTE:* Keys will be generated internally during the encryption operations.
 
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -35,7 +35,7 @@ go run crypto-vault-cli.go decrypt-aes --input data/${uuid}-output.enc --output 
 
 #### RSA Example
 
-**NOTE:** Keys will be generated internally during the encryption operations.
+*NOTE:* Keys will be generated internally during the encryption operations.
 
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
@@ -49,7 +49,7 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 
 #### PKCS#11 encryption and decryption
 
-**NOTE:** Requires RSA keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
+*NOTE:* Requires RSA keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
 
 ```sh
 # RSA-PKCS
@@ -66,7 +66,7 @@ go run crypto-vault-cli.go decrypt --module /usr/lib/softhsm/libsofthsm2.so --to
 
 #### ECDSA Example
 
-**NOTE:** Keys will be generated internally during signature generation operations.
+*NOTE:* Keys will be generated internally during signature generation operations.
 
 ```sh
 # Sign a file with a newly generated ECC key pair (internally generated)
@@ -78,7 +78,7 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 
 #### PKCS#11 signing and verifying
 
-**NOTE:** Requires RSA or EC keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
+*NOTE:* Requires RSA or EC keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
 
 ```sh
 # RSA-PSS
