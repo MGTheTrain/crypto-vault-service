@@ -2,7 +2,6 @@ package commands
 
 import (
 	"crypto_vault_service/internal/infrastructure/cryptography"
-	"fmt"
 	"log"
 
 	"github.com/spf13/cobra"
@@ -18,14 +17,9 @@ func IsTokenSetCmd(cmd *cobra.Command, args []string) {
 		Label:      Label,
 	}
 
-	isSet, err := token.IsTokenSet()
+	_, err := token.IsTokenSet()
 	if err != nil {
 		log.Fatalf("Error checking token: %v", err)
-	}
-	if isSet {
-		fmt.Println("Token is set.")
-	} else {
-		fmt.Println("Token is not set.")
 	}
 }
 
@@ -43,14 +37,9 @@ func IsObjectSetCmd(cmd *cobra.Command, args []string) {
 		UserPin:     userPin,
 	}
 
-	isSet, err := token.IsObjectSet()
+	_, err := token.IsObjectSet()
 	if err != nil {
 		log.Fatalf("Error checking object: %v", err)
-	}
-	if isSet {
-		fmt.Println("Object is set.")
-	} else {
-		fmt.Println("Object is not set.")
 	}
 }
 
@@ -95,7 +84,6 @@ func AddKeyCmd(cmd *cobra.Command, args []string) {
 	if err := token.AddKey(); err != nil {
 		log.Fatalf("Error adding key: %v", err)
 	}
-	fmt.Println("Key added successfully!")
 }
 
 // Command to delete an object (key) from the PKCS#11 token
@@ -116,7 +104,6 @@ func DeleteObjectCmd(cmd *cobra.Command, args []string) {
 	if err := token.DeleteObject(objectType, objectLabel); err != nil {
 		log.Fatalf("Error deleting object: %v", err)
 	}
-	fmt.Println("Object deleted successfully!")
 }
 
 // Command to encrypt data using the PKCS#11 token
@@ -140,7 +127,6 @@ func EncryptCmd(cmd *cobra.Command, args []string) {
 	if err := token.Encrypt(inputFilePath, outputFilePath); err != nil {
 		log.Fatalf("Error encrypting data: %v", err)
 	}
-	fmt.Println("Encryption successful!")
 }
 
 // Command to decrypt data using the PKCS#11 token
@@ -164,7 +150,6 @@ func DecryptCmd(cmd *cobra.Command, args []string) {
 	if err := token.Decrypt(inputFilePath, outputFilePath); err != nil {
 		log.Fatalf("Error decrypting data: %v", err)
 	}
-	fmt.Println("Decryption successful!")
 }
 
 // Command to sign data using the PKCS#11 token
@@ -188,7 +173,6 @@ func SignCmd(cmd *cobra.Command, args []string) {
 	if err := token.Sign(inputFilePath, outputFilePath); err != nil {
 		log.Fatalf("Error signing data: %v", err)
 	}
-	fmt.Println("Signing successful!")
 }
 
 // Command to verify signature using the PKCS#11 token
@@ -209,14 +193,9 @@ func VerifyCmd(cmd *cobra.Command, args []string) {
 		KeyType:     keyType,
 	}
 
-	valid, err := token.Verify(dataFilePath, signatureFilePath)
+	_, err := token.Verify(dataFilePath, signatureFilePath)
 	if err != nil {
 		log.Fatalf("Error verifying signature: %v", err)
-	}
-	if valid {
-		fmt.Println("Verification successful: The signature is valid.")
-	} else {
-		fmt.Println("Verification failed: The signature is invalid.")
 	}
 }
 
