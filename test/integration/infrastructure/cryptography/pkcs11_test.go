@@ -154,3 +154,50 @@ func TestEncryptDecrypt(t *testing.T) {
 	err = os.Remove(decryptedFilePath)
 	require.NoError(t, err, "Failed to remove decrypted file")
 }
+
+// TestSignAndVerify tests the signing and verification functionality of the PKCS#11 token
+func TestSignAndVerify(t *testing.T) {
+	// Prepare the test PKCS#11Token
+	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
+	test.Setup(t)
+
+	// Add an RSA key to the token
+	test.AddKeyToToken(t)
+
+	// Sample input file with data to sign (for testing purposes)
+	inputFilePath := "data-to-sign.txt"
+	err := os.WriteFile(inputFilePath, []byte("This is some data to sign."), 0644)
+	require.NoError(t, err, "Failed to write data to sign to input file")
+
+	// Output file path where the signature will be stored
+	signatureFilePath := "data.sig"
+
+	// Sign the data using the Sign method
+	err = test.Token.Sign(inputFilePath, signatureFilePath)
+	assert.NoError(t, err, "Failed to sign data using the PKCS#11 token")
+
+	// Try reading the signature data from the output file
+	signatureData, err := os.ReadFile(signatureFilePath)
+	if err != nil {
+		t.Fatalf("Failed to read signature data from output file: %v", err)
+	}
+
+	// Ensure the signature data is non-empty
+	assert.NotEmpty(t, signatureData, "Signature data should not be empty")
+
+	// Verify the signature using the Verify method
+	valid, err := test.Token.Verify(inputFilePath, signatureFilePath)
+	assert.NoError(t, err, "Failed to verify the signature using the PKCS#11 token")
+
+	// Ensure the signature is valid
+	assert.True(t, valid, "The signature should be valid")
+
+	// Clean up by deleting the key from the token
+	test.DeleteKeyFromToken(t)
+
+	// Optionally, delete the files after the test
+	err = os.Remove(inputFilePath)
+	require.NoError(t, err, "Failed to remove input file")
+	err = os.Remove(signatureFilePath)
+	require.NoError(t, err, "Failed to remove signature file")
+}
