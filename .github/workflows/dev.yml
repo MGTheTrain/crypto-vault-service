@@ -29,7 +29,7 @@ jobs:
       - name: Install apt dependencies for integration test
         run: |
           sudo apt-get update
-          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl2
+          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
 
       - name: Run Integration tests
         run: sudo ./run-test.sh -i
