@@ -32,7 +32,7 @@ func NewPKCS11Test(slot, modulePath, Label, soPin, userPin, objectLabel, keyType
 
 // Setup initializes the PKCS#11 token
 func (p *PKCS11Test) Setup(t *testing.T) {
-	tokenSlot := "0x1"
+	tokenSlot := "0x0"
 	err := p.Token.InitializeToken(tokenSlot)
 	require.NoError(t, err, "Failed to initialize PKCS#11 token")
 
@@ -74,7 +74,7 @@ func (p *PKCS11Test) AddKeyToToken(t *testing.T) {
 
 // TestAddRSAKey tests adding an RSA key to a PKCS#11 token
 func TestAddRSAKey(t *testing.T) {
-	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
+	test := NewPKCS11Test("0x0", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
 
 	test.Setup(t)
 
@@ -86,7 +86,7 @@ func TestAddRSAKey(t *testing.T) {
 
 // TestAddECDSAKey tests adding an ECDSA key to a PKCS#11 token
 func TestAddECDSAKey(t *testing.T) {
-	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
+	test := NewPKCS11Test("0x0", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
 
 	test.Setup(t)
 
@@ -99,7 +99,7 @@ func TestAddECDSAKey(t *testing.T) {
 // TestEncryptDecrypt tests the encryption ad decryption functionality of the PKCS#11 token
 func TestEncryptDecrypt(t *testing.T) {
 	// Prepare the test PKCS#11Token
-	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
+	test := NewPKCS11Test("0x0", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
 	test.Setup(t)
 
 	// Add an RSA key to the token
@@ -158,7 +158,7 @@ func TestEncryptDecrypt(t *testing.T) {
 // TestSignAndVerify tests the signing and verification functionality of the PKCS#11 token
 func TestSignAndVerify(t *testing.T) {
 	// Prepare the test PKCS#11Token
-	test := NewPKCS11Test("0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
+	test := NewPKCS11Test("0x0", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestRSAKey", "RSA", 2048)
 	test.Setup(t)
 
 	// Add an RSA key to the token
@@ -191,6 +191,53 @@ func TestSignAndVerify(t *testing.T) {
 
 	// Ensure the signature is valid
 	assert.True(t, valid, "The signature should be valid")
+
+	// Clean up by deleting the key from the token
+	test.DeleteKeyFromToken(t)
+
+	// Optionally, delete the files after the test
+	err = os.Remove(inputFilePath)
+	require.NoError(t, err, "Failed to remove input file")
+	err = os.Remove(signatureFilePath)
+	require.NoError(t, err, "Failed to remove signature file")
+}
+
+// TestSignAndVerifyECDSA tests the signing and verification functionality for ECDSA using a PKCS#11 token
+func TestSignAndVerifyECDSA(t *testing.T) {
+	// Prepare the test PKCS#11Token for ECDSA
+	test := NewPKCS11Test("0x0", "/usr/lib/softhsm/libsofthsm2.so", "MyToken", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
+	test.Setup(t)
+
+	// Add an ECDSA key to the token
+	test.AddKeyToToken(t)
+
+	// Sample input file with data to sign (for testing purposes)
+	inputFilePath := "data-to-sign.txt"
+	err := os.WriteFile(inputFilePath, []byte("This is some data to sign."), 0644)
+	require.NoError(t, err, "Failed to write data to sign to input file")
+
+	// Output file path where the signature will be stored
+	signatureFilePath := "data.sig"
+
+	// Sign the data using the Sign method (ECDSA)
+	err = test.Token.Sign(inputFilePath, signatureFilePath)
+	assert.NoError(t, err, "Failed to sign data using the PKCS#11 token with ECDSA")
+
+	// Try reading the signature data from the output file
+	signatureData, err := os.ReadFile(signatureFilePath)
+	if err != nil {
+		t.Fatalf("Failed to read signature data from output file: %v", err)
+	}
+
+	// Ensure the signature data is non-empty
+	assert.NotEmpty(t, signatureData, "Signature data should not be empty")
+
+	// Verify the signature using the Verify method (ECDSA)
+	valid, err := test.Token.Verify(inputFilePath, signatureFilePath)
+	assert.NoError(t, err, "Failed to verify the signature using the PKCS#11 token with ECDSA")
+
+	// Ensure the signature is valid
+	assert.True(t, valid, "The ECDSA signature should be valid")
 
 	// Clean up by deleting the key from the token
 	test.DeleteKeyFromToken(t)
