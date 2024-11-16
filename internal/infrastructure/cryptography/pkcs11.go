@@ -5,8 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/google/uuid"
 )
 
 // PKCS11TokenInterface defines the operations for working with a PKCS#11 token
@@ -308,15 +306,15 @@ func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
 	return nil
 }
 
-// Sign signs data using the cryptographic capabilities of the PKCS#11 token.
+// Sign signs data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
 func (token *PKCS11Token) Sign(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments for signing")
 	}
 
-	if token.KeyType != "RSA" {
-		return fmt.Errorf("only RSA keys are supported for decryption")
+	if token.KeyType != "RSA" && token.KeyType != "ECDSA" {
+		return fmt.Errorf("only RSA and ECDSA keys are supported for signing")
 	}
 
 	// Check if the input file exists
@@ -324,64 +322,50 @@ func (token *PKCS11Token) Sign(inputFilePath, outputFilePath string) error {
 		return fmt.Errorf("input file does not exist: %v", err)
 	}
 
-	uniqueID := uuid.New()
-	// Step 1: Hash the data using OpenSSL (SHA-256)
-	hashFile := fmt.Sprintf("%s-data.hash", uniqueID)
-	hashCmd := exec.Command("openssl", "dgst", "-sha256", "-binary", inputFilePath)
-
-	// Redirect the output of the hash command to a file
-	hashOut, err := os.Create(hashFile)
-	if err != nil {
-		return fmt.Errorf("failed to create hash output file: %v", err)
+	// Step 1: Prepare the OpenSSL command based on key type
+	var signCmd *exec.Cmd
+	var signatureFormat string
+	if token.KeyType == "RSA" {
+		signatureFormat = "rsa_padding_mode:pss"
+		// Command for signing with RSA-PSS
+		signCmd = exec.Command(
+			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
+			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=private;pin-value="+token.UserPin,
+			"-sigopt", signatureFormat,
+			"-sha384", // Use SHA-384
+			"-out", outputFilePath, inputFilePath,
+		)
+	} else if token.KeyType == "ECDSA" {
+		// Command for signing with ECDSA
+		signCmd = exec.Command(
+			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
+			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=private;pin-value="+token.UserPin,
+			"-sha384", // ECDSA typically uses SHA-384
+			"-out", outputFilePath, inputFilePath,
+		)
 	}
-	defer hashOut.Close()
 
-	hashCmd.Stdout = hashOut
-	hashCmd.Stderr = os.Stderr
-
-	// Execute the hashing command
-	if err := hashCmd.Run(); err != nil {
-		return fmt.Errorf("failed to hash data: %v", err)
-	}
-	fmt.Println("Data hashed successfully.")
-
-	// Step 2: Sign the hashed data using pkcs11-tool
-	signCmd := exec.Command("pkcs11-tool",
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
-		"--pin", token.UserPin,
-		"--sign",
-		"--mechanism", "RSA-PKCS-PSS", // Using RSA-PKCS-PSS for signing
-		"--hash-algorithm", "SHA256", // Hash algorithm to match the hashing step
-		"--input-file", hashFile, // Input file containing the hashed data
-		"--output-file", outputFilePath, // Output signature file
-		"--signature-format", "openssl", // Use OpenSSL signature format
-		"--label", token.ObjectLabel, // Key label used for signing
-	)
-
-	// Run the signing command
+	// Execute the sign command
 	signOutput, err := signCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to sign data: %v\nOutput: %s", err, signOutput)
 	}
 
-	// Step 3: Remove the hash file from the filesystem
-	os.Remove(hashFile)
-
 	fmt.Printf("Signing successful. Signature written to %s\n", outputFilePath)
 	return nil
 }
 
-// Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token.
+// Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
 func (token *PKCS11Token) Verify(dataFilePath, signatureFilePath string) (bool, error) {
 	valid := false
+
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return valid, fmt.Errorf("missing required arguments for verification")
 	}
 
-	if token.KeyType != "RSA" {
-		return valid, fmt.Errorf("only RSA keys are supported for decryption")
+	if token.KeyType != "RSA" && token.KeyType != "ECDSA" {
+		return valid, fmt.Errorf("only RSA and ECDSA keys are supported for verification")
 	}
 
 	// Check if the input files exist
@@ -392,37 +376,28 @@ func (token *PKCS11Token) Verify(dataFilePath, signatureFilePath string) (bool, 
 		return valid, fmt.Errorf("signature file does not exist: %v", err)
 	}
 
-	uniqueID := uuid.New()
-	// Step 1: Retrieve the public key from the PKCS#11 token and save it as public.der
-	publicKeyFile := fmt.Sprintf("%s-public.der", uniqueID)
-
-	args := []string{
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
-		"--pin", token.UserPin,
-		"--read-object",
-		"--label", token.ObjectLabel,
-		"--type", "pubkey", // Extract public key
-		"--output-file", publicKeyFile, // Output file for public key in DER format
+	// Step 1: Prepare the OpenSSL command based on key type
+	var verifyCmd *exec.Cmd
+	if token.KeyType == "RSA" {
+		// Command for verifying with RSA-PSS
+		verifyCmd = exec.Command(
+			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
+			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=public;pin-value="+token.UserPin,
+			"-sigopt", "rsa_padding_mode:pss",
+			"-sha384", // Use SHA-384 for verification
+			"-signature", signatureFilePath, "-binary", dataFilePath,
+		)
+	} else if token.KeyType == "ECDSA" {
+		// Command for verifying with ECDSA
+		verifyCmd = exec.Command(
+			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
+			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=public;pin-value="+token.UserPin,
+			"-sha384", // ECDSA typically uses SHA-384
+			"-signature", signatureFilePath, "-binary", dataFilePath,
+		)
 	}
 
-	cmd := exec.Command("pkcs11-tool", args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return valid, fmt.Errorf("failed to retrieve public key: %v\nOutput: %s", err, output)
-	}
-	fmt.Println("Public key retrieved successfully.")
-
-	// Step 2: Verify the signature using OpenSSL and the retrieved public key
-	verifyCmd := exec.Command(
-		"openssl", "dgst", "-keyform", "DER", "-verify", publicKeyFile, "-sha256", // Use SHA256 for hash
-		"-sigopt", "rsa_padding_mode:pss", // Use PSS padding
-		"-sigopt", "rsa_pss_saltlen:-1", // Set salt length to default (-1 for auto)
-		"-signature", signatureFilePath, // Path to the signature file
-		"-binary", dataFilePath, // Path to the data file
-	)
-
-	// Run the verification command
+	// Execute the verify command
 	verifyOutput, err := verifyCmd.CombinedOutput()
 	if err != nil {
 		return valid, fmt.Errorf("failed to verify signature: %v\nOutput: %s", err, verifyOutput)
@@ -435,9 +410,6 @@ func (token *PKCS11Token) Verify(dataFilePath, signatureFilePath string) (bool, 
 	} else {
 		fmt.Println("Verification failed: The signature is invalid.")
 	}
-
-	// Step 3: Remove the public key from the filesystem
-	os.Remove(publicKeyFile)
 
 	return valid, nil
 }
