@@ -241,7 +241,7 @@ func (token *PKCS11Token) addRSASignKey() error {
 	return nil
 }
 
-// Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Currently only supports RSA keys. Refer to: https://docs.nitrokey.com/nethsm/pkcs11-tool#pkcs11-tool
+// Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token.
 func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
@@ -252,48 +252,27 @@ func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
 		return fmt.Errorf("only RSA keys are supported for encryption")
 	}
 
-	uniqueID := uuid.New()
-	// Temporary file to store the public key in DER format
-	publicKeyFile := fmt.Sprintf("%s-public.der", uniqueID)
+	// Step 1: Prepare the URI to use PKCS#11 engine for accessing the public key
+	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=public;pin-value=%s", token.Label, token.ObjectLabel, token.UserPin)
 
-	// Step 1: Retrieve the public key from the PKCS#11 token using pkcs11-tool
-	args := []string{
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
-		"--pin", token.UserPin,
-		"--read-object",
-		"--label", token.ObjectLabel,
-		"--type", "pubkey", // Retrieve public key
-		"--output-file", publicKeyFile, // Store public key in DER format
-	}
+	// Step 2: Run OpenSSL command to encrypt using the public key from the PKCS#11 token
+	encryptCmd := exec.Command(
+		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-pubin", "-encrypt",
+		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
+	)
 
-	cmd := exec.Command("pkcs11-tool", args...)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to retrieve public key: %v\nOutput: %s", err, output)
-	}
-	fmt.Println("Public key retrieved successfully.")
-
-	// Check if the public key file was generated
-	if _, err := os.Stat(publicKeyFile); os.IsNotExist(err) {
-		return fmt.Errorf("public key file not found: %s", publicKeyFile)
-	}
-
-	// Step 2: Encrypt the data using OpenSSL and the retrieved public key
-	encryptCmd := exec.Command("openssl", "pkeyutl", "-encrypt", "-pubin", "-inkey", publicKeyFile, "-keyform", "DER", "-in", inputFilePath, "-out", outputFilePath)
+	// Execute the encryption command
 	encryptOutput, err := encryptCmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to encrypt data with OpenSSL: %v\nOutput: %s", err, encryptOutput)
 	}
 
-	// Step 3: Remove the public key from the filesystem
-	os.Remove(publicKeyFile)
-
+	// Output success message
 	fmt.Printf("Encryption successful. Encrypted data written to %s\n", outputFilePath)
 	return nil
 }
 
-// Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Currently only supports RSA keys. Refer to: https://docs.nitrokey.com/nethsm/pkcs11-tool#pkcs11-tool
+// Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token.
 func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
@@ -309,57 +288,27 @@ func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
 		return fmt.Errorf("input file does not exist: %v", err)
 	}
 
-	// Create or validate the output file (will be overwritten)
-	outputFile, err := os.Create(outputFilePath)
+	// Step 1: Prepare the URI to use PKCS#11 engine for accessing the private key
+	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=private;pin-value=%s", token.Label, token.ObjectLabel, token.UserPin)
+
+	// Step 2: Run OpenSSL command to decrypt the data using the private key from the PKCS#11 token
+	decryptCmd := exec.Command(
+		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-decrypt",
+		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
+	)
+
+	// Execute the decryption command
+	decryptOutput, err := decryptCmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to create or open output file: %v", err)
-	}
-	defer outputFile.Close()
-
-	// Step 1: Prepare the command to decrypt the data using pkcs11-tool
-	args := []string{
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
-		"--pin", token.UserPin,
-		"--decrypt",
-		"--label", token.ObjectLabel,
-		"--mechanism", "RSA-PKCS", // Specify the RSA-PKCS mechanism
-		"--input-file", inputFilePath, // Input file with encrypted data
+		return fmt.Errorf("failed to decrypt data with OpenSSL: %v\nOutput: %s", err, decryptOutput)
 	}
 
-	// Run the decryption command
-	cmd := exec.Command("pkcs11-tool", args...)
-	output, err := cmd.CombinedOutput()
-
-	// Capture the decrypted data and filter out any extra output
-	if err != nil {
-		return fmt.Errorf("decryption failed: %v\nOutput: %s", err, output)
-	}
-
-	// Split the output into lines and filter out unwanted lines
-	lines := strings.Split(string(output), "\n")
-	var decryptedData []byte
-	for i, line := range lines {
-		if !strings.Contains(line, "Using decrypt algorithm RSA-PKCS") {
-			// If this is not the last line, append a newline
-			decryptedData = append(decryptedData, []byte(line)...)
-			if i < len(lines)-1 {
-				decryptedData = append(decryptedData, '\n')
-			}
-		}
-	}
-
-	// Write the actual decrypted data (without extra info) to the output file
-	_, err = outputFile.Write(decryptedData)
-	if err != nil {
-		return fmt.Errorf("failed to write decrypted data to output file: %v", err)
-	}
-
+	// Output success message
 	fmt.Printf("Decryption successful. Decrypted data written to %s\n", outputFilePath)
 	return nil
 }
 
-// Sign signs data using the cryptographic capabilities of the PKCS#11 token. Currently only supports RSA keys. Refer to: https://docs.nitrokey.com/nethsm/pkcs11-tool#pkcs11-tool
+// Sign signs data using the cryptographic capabilities of the PKCS#11 token.
 func (token *PKCS11Token) Sign(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
