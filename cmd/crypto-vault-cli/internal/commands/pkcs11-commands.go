@@ -119,6 +119,99 @@ func DeleteObjectCmd(cmd *cobra.Command, args []string) {
 	fmt.Println("Object deleted successfully!")
 }
 
+// Command to encrypt data using the PKCS#11 token
+func EncryptCmd(cmd *cobra.Command, args []string) {
+	modulePath, _ := cmd.Flags().GetString("module")
+	Label, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	userPin, _ := cmd.Flags().GetString("user-pin")
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+
+	token := &cryptography.PKCS11Token{
+		ModulePath:  modulePath,
+		Label:       Label,
+		ObjectLabel: objectLabel,
+		UserPin:     userPin,
+	}
+
+	if err := token.Encrypt(inputFilePath, outputFilePath); err != nil {
+		log.Fatalf("Error encrypting data: %v", err)
+	}
+	fmt.Println("Encryption successful!")
+}
+
+// Command to decrypt data using the PKCS#11 token
+func DecryptCmd(cmd *cobra.Command, args []string) {
+	modulePath, _ := cmd.Flags().GetString("module")
+	Label, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	userPin, _ := cmd.Flags().GetString("user-pin")
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+
+	token := &cryptography.PKCS11Token{
+		ModulePath:  modulePath,
+		Label:       Label,
+		ObjectLabel: objectLabel,
+		UserPin:     userPin,
+	}
+
+	if err := token.Decrypt(inputFilePath, outputFilePath); err != nil {
+		log.Fatalf("Error decrypting data: %v", err)
+	}
+	fmt.Println("Decryption successful!")
+}
+
+// Command to sign data using the PKCS#11 token
+func SignCmd(cmd *cobra.Command, args []string) {
+	modulePath, _ := cmd.Flags().GetString("module")
+	Label, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	userPin, _ := cmd.Flags().GetString("user-pin")
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+
+	token := &cryptography.PKCS11Token{
+		ModulePath:  modulePath,
+		Label:       Label,
+		ObjectLabel: objectLabel,
+		UserPin:     userPin,
+	}
+
+	if err := token.Sign(inputFilePath, outputFilePath); err != nil {
+		log.Fatalf("Error signing data: %v", err)
+	}
+	fmt.Println("Signing successful!")
+}
+
+// Command to verify signature using the PKCS#11 token
+func VerifyCmd(cmd *cobra.Command, args []string) {
+	modulePath, _ := cmd.Flags().GetString("module")
+	Label, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	userPin, _ := cmd.Flags().GetString("user-pin")
+	dataFilePath, _ := cmd.Flags().GetString("data-file")
+	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
+
+	token := &cryptography.PKCS11Token{
+		ModulePath:  modulePath,
+		Label:       Label,
+		ObjectLabel: objectLabel,
+		UserPin:     userPin,
+	}
+
+	valid, err := token.Verify(dataFilePath, signatureFilePath)
+	if err != nil {
+		log.Fatalf("Error verifying signature: %v", err)
+	}
+	if valid {
+		fmt.Println("Verification successful: The signature is valid.")
+	} else {
+		fmt.Println("Verification failed: The signature is invalid.")
+	}
+}
+
 func InitPKCS11Commands(rootCmd *cobra.Command) {
 	var pkcs11IsTokenSetCmd = &cobra.Command{
 		Use:   "is-token-set",
@@ -176,4 +269,68 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	pkcs11DeleteObjectCmd.Flags().String("object-type", "", "Type of the object (e.g., privkey, pubkey, cert)")
 	pkcs11DeleteObjectCmd.Flags().String("user-pin", "", "User PIN")
 	rootCmd.AddCommand(pkcs11DeleteObjectCmd)
+
+	// ---------------------------
+	// Encryption Command
+	// ---------------------------
+	var pkcs11EncryptCmd = &cobra.Command{
+		Use:   "encrypt",
+		Short: "Encrypt data using a PKCS#11 token",
+		Run:   EncryptCmd,
+	}
+	pkcs11EncryptCmd.Flags().String("module", "", "Path to the PKCS#11 module")
+	pkcs11EncryptCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
+	pkcs11EncryptCmd.Flags().String("object-label", "", "Label of the object (key) for encryption")
+	pkcs11EncryptCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11EncryptCmd.Flags().String("input-file", "", "Output encrypted file path")
+	pkcs11EncryptCmd.Flags().String("output-file", "", "Path to output file for encryption")
+	rootCmd.AddCommand(pkcs11EncryptCmd)
+
+	// ---------------------------
+	// Decryption Command
+	// ---------------------------
+	var pkcs11DecryptCmd = &cobra.Command{
+		Use:   "decrypt",
+		Short: "Decrypt data using a PKCS#11 token",
+		Run:   DecryptCmd,
+	}
+	pkcs11DecryptCmd.Flags().String("module", "", "Path to the PKCS#11 module")
+	pkcs11DecryptCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
+	pkcs11DecryptCmd.Flags().String("object-label", "", "Label of the object (key) for decryption")
+	pkcs11DecryptCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11DecryptCmd.Flags().String("input-file", "", "Input encrypted file path")
+	pkcs11DecryptCmd.Flags().String("output-file", "", "Output decrypted file path")
+	rootCmd.AddCommand(pkcs11DecryptCmd)
+
+	// ---------------------------
+	// Sign Command
+	// ---------------------------
+	var pkcs11SignCmd = &cobra.Command{
+		Use:   "sign",
+		Short: "Sign data using a PKCS#11 token",
+		Run:   SignCmd,
+	}
+	pkcs11SignCmd.Flags().String("module", "", "Path to the PKCS#11 module")
+	pkcs11SignCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
+	pkcs11SignCmd.Flags().String("object-label", "", "Label of the object (key) for signing")
+	pkcs11SignCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11SignCmd.Flags().String("input-file", "", "Path to file that needs to be signed")
+	pkcs11SignCmd.Flags().String("output-file", "", "Path to signature file")
+	rootCmd.AddCommand(pkcs11SignCmd)
+
+	// ---------------------------
+	// Verify Command
+	// ---------------------------
+	var pkcs11VerifyCmd = &cobra.Command{
+		Use:   "verify",
+		Short: "Verify signature using a PKCS#11 token",
+		Run:   VerifyCmd,
+	}
+	pkcs11VerifyCmd.Flags().String("module", "", "Path to the PKCS#11 module")
+	pkcs11VerifyCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
+	pkcs11VerifyCmd.Flags().String("object-label", "", "Label of the object (key) for signature verification")
+	pkcs11VerifyCmd.Flags().String("user-pin", "", "User PIN")
+	pkcs11VerifyCmd.Flags().String("data-file", "", "Path to data file to verify")
+	pkcs11VerifyCmd.Flags().String("signature-file", "", "Path to signature file for verification")
+	rootCmd.AddCommand(pkcs11VerifyCmd)
 }
