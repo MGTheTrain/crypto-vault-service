@@ -11,7 +11,7 @@
   - [Signing and Verifying Signatures](#signing-and-verifying-signatures)
     - [ECDSA Example](#ecdsa-example)
     - [PKCS#11 Signing and Verifying](#pkcs11-signing-and-verifying)
-- [PKCS#11 Integration](#pkcs11-integration)
+  - [PKCS#11 key management operations](#pkcs11-key-management-operations)
 
 ## Summary
 
@@ -83,7 +83,7 @@ go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --tok
 
 ---
 
-### PKCS#11 Integration
+### PKCS#11 key management operations
 
 ```sh
 # Check available slots
