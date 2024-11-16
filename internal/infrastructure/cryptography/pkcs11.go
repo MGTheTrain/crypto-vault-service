@@ -241,7 +241,7 @@ func (token *PKCS11Token) addRSASignKey() error {
 	return nil
 }
 
-// Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token.
+// Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
 func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
@@ -272,7 +272,7 @@ func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
 	return nil
 }
 
-// Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token.
+// Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
 func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
