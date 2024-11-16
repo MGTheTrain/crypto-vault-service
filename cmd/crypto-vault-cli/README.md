@@ -49,7 +49,7 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 
 #### PKCS#11 encryption and decryption
 
-*NOTE:* Requires RSA keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
+*NOTE:* Requires RSA keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or utilize commands in [PKCS#11 key management operations](#pkcs11-key-management-operations):
 
 ```sh
 # RSA-PKCS
@@ -78,7 +78,7 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 
 #### PKCS#11 signing and verifying
 
-*NOTE:* Requires RSA or EC keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or [PKCS#11 key management operations](#pkcs11-key-management-operations):
+*NOTE:* Requires RSA or EC keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or utilize commands in [PKCS#11 key management operations](#pkcs11-key-management-operations):
 
 ```sh
 # RSA-PSS
