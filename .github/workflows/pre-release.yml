@@ -24,9 +24,16 @@ jobs:
         run: ./run-test.sh -u
         working-directory: ./scripts
 
-      # - name: Run Integration tests
-      #   run: ./run-test.sh -i
-      #   working-directory: ./scripts
+      # Spin up integration environment (docker-compose or public hyper scaler infrastructure)
+
+      - name: Install apt dependencies for integration test
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
+
+      - name: Run Integration tests
+        run: sudo ./run-test.sh -i
+        working-directory: ./scripts
 
       # Run static code analysis on source code
       # Run vulnerability scanner and generate SBOMs on third part dependencies

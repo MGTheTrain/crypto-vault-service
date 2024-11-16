@@ -145,7 +145,7 @@ func (e *ECDSAImpl) SaveSignatureToFile(filename string, data []byte) error {
 }
 
 // ReadPrivateKey reads an ECDSA private key from a PEM file using encoding/pem
-func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string) (*ecdsa.PrivateKey, error) {
+func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
 	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %v", err)
@@ -164,7 +164,7 @@ func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string) (*ecdsa.PrivateKey, er
 	pubKeyY := new(big.Int).SetBytes(privKeyBytes[64:96]) // last 32 bytes for Y
 
 	publicKey := &ecdsa.PublicKey{
-		Curve: elliptic.P256(), // Assume P256 curve, you can make it dynamic
+		Curve: curve, // Use dynamic curve
 		X:     pubKeyX,
 		Y:     pubKeyY,
 	}
@@ -178,7 +178,7 @@ func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string) (*ecdsa.PrivateKey, er
 }
 
 // ReadPublicKey reads an ECDSA public key from a PEM file using encoding/pem
-func (e *ECDSAImpl) ReadPublicKey(publicKeyPath string) (*ecdsa.PublicKey, error) {
+func (e *ECDSAImpl) ReadPublicKey(publicKeyPath string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
 	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %v", err)
@@ -196,7 +196,7 @@ func (e *ECDSAImpl) ReadPublicKey(publicKeyPath string) (*ecdsa.PublicKey, error
 	pubKeyY := new(big.Int).SetBytes(pubKeyBytes[32:64]) // next 32 bytes for Y
 
 	publicKey := &ecdsa.PublicKey{
-		Curve: elliptic.P256(), // Assume P256 curve, you can make it dynamic
+		Curve: curve, // Use dynamic curve
 		X:     pubKeyX,
 		Y:     pubKeyY,
 	}

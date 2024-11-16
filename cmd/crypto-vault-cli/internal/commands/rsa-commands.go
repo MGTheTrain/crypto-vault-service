@@ -119,3 +119,25 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 	fmt.Printf("Decrypted data saved to %s\n", outputFile)
 }
+
+func InitRSACommands(rootCmd *cobra.Command) {
+	var encryptRSAFileCmd = &cobra.Command{
+		Use:   "encrypt-rsa",
+		Short: "Encrypt a file using RSA",
+		Run:   EncryptRSACmd,
+	}
+	encryptRSAFileCmd.Flags().StringP("input", "i", "", "Input file path")
+	encryptRSAFileCmd.Flags().StringP("output", "o", "", "Output encrypted file path")
+	encryptRSAFileCmd.Flags().StringP("keyDir", "d", "", "Directory to store the encryption key")
+	rootCmd.AddCommand(encryptRSAFileCmd)
+
+	var decryptRSAFileCmd = &cobra.Command{
+		Use:   "decrypt-rsa",
+		Short: "Decrypt a file using RSA",
+		Run:   DecryptRSACmd,
+	}
+	decryptRSAFileCmd.Flags().StringP("input", "i", "", "Input encrypted file path")
+	decryptRSAFileCmd.Flags().StringP("output", "o", "", "Output decrypted file path")
+	decryptRSAFileCmd.Flags().StringP("privateKey", "r", "", "Path to RSA private key")
+	rootCmd.AddCommand(decryptRSAFileCmd)
+}

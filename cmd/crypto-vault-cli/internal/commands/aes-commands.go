@@ -99,3 +99,27 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 	fmt.Printf("Decrypted data saved to %s\n", outputFile)
 }
+
+func InitAESCommands(rootCmd *cobra.Command) {
+	// AES Commands
+	var encryptAESFileCmd = &cobra.Command{
+		Use:   "encrypt-aes",
+		Short: "Encrypt a file using AES",
+		Run:   EncryptAESCmd,
+	}
+	encryptAESFileCmd.Flags().StringP("input", "i", "", "Input file path")
+	encryptAESFileCmd.Flags().StringP("output", "o", "", "Output encrypted file path")
+	encryptAESFileCmd.Flags().IntP("keySize", "k", 16, "AES key size (default 16 bytes for AES-128)")
+	encryptAESFileCmd.Flags().StringP("keyDir", "d", "", "Directory to store the encryption key")
+	rootCmd.AddCommand(encryptAESFileCmd)
+
+	var decryptAESFileCmd = &cobra.Command{
+		Use:   "decrypt-aes",
+		Short: "Decrypt a file using AES",
+		Run:   DecryptAESCmd,
+	}
+	decryptAESFileCmd.Flags().StringP("input", "i", "", "Input encrypted file path")
+	decryptAESFileCmd.Flags().StringP("output", "o", "", "Output decrypted file path")
+	decryptAESFileCmd.Flags().StringP("symmetricKey", "k", "", "Path to the symmetric key")
+	rootCmd.AddCommand(decryptAESFileCmd)
+}
