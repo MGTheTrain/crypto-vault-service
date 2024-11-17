@@ -107,4 +107,4 @@ You can find applications utilizing [internal packages](./internal/) in the [cmd
 
 ### Documentation
 
-You can find documentation on architectural decisions, diagrams and concepts [here](./docs./)
+You can find documentation on architectural decisions, diagrams and concepts [here](./docs).
