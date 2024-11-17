@@ -28,7 +28,7 @@ RESTful Web API for managing cryptographic keys and securing data at rest (metad
 - [ ] **Manage cryptographic material**: Enable management of private/public key pairs and symmetric keys (generation, import/export, rotation, etc.).
 - [ ] **Key management lifecycle**: Implement key lifecycle management (generation, rotation, revocation, expiration).
 - [ ] **Secure file storage integration**: Provide mechanisms to securely store encrypted files in BLOB storage (e.g. AWS S3, Azure Blob Storage, Google Cloud Storage).
-- [ ] **Access control**: Implement role-based access control (RBAC) for APIs ensuring that only authorized users can perform operations on cryptographic material.
+- [ ] **Access control**:  Implement relationship-based access control (ReBAC) for APIs, ensuring that users can only perform operations on cryptographic material based on their defined relationships and permissions within the system.
 
 ### Non-functional
 
