@@ -15,6 +15,7 @@ RESTful Web API for managing cryptographic keys and securing data at rest (metad
 
 - [OpenSSL with libp11 for Signing, Verifying and Encrypting, Decrypting](https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs)
 - [pkcs11-tool usage](https://docs.nitrokey.com/nethsm/pkcs11-tool#id1)
+- [OpenFGA online editor](https://play.fga.dev/sandbox/?store=github)
 
 ## Features
 
