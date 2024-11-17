@@ -1,0 +1,85 @@
+tuples:
+  # Admin granting full control over all blobs
+  - user: "user:AdminUser"
+    relation: "admin"
+    object: "blob:Blob1"
+
+  # Owner managing their own blob
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob1"
+
+  # Owner granting permission to a grantee to download a blob
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob1"
+    
+  # Owner granting permission to a grantee to view a blob
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob1"
+
+  # Grantee granted permission to download the blob
+  - user: "user:GranteeUser"
+    relation: "grantee"
+    object: "blob:Blob1"
+    
+  # Grantee granted permission to view the blob
+  - user: "user:GranteeUser"
+    relation: "grantee"
+    object: "blob:Blob1"
+    
+  # Owner performing cryptographic action (create own keys)
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob1"
+    
+  # Owner encrypting a file (blob)
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob1"
+
+  # Owner generating signature for their own file (blob)
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob1"
+    
+  # Grantee verifying the signature of the file (blob)
+  - user: "user:GranteeUser"
+    relation: "grantee"
+    object: "blob:Blob1"
+    
+  # Admin granting full permissions for cryptographic actions
+  - user: "user:AdminUser"
+    relation: "admin"
+    object: "blob:Blob1"
+    
+  # Admin granting full permissions to view and manage all blobs
+  - user: "user:AdminUser"
+    relation: "admin"
+    object: "blob:Blob2"
+  
+  # Owner granting access to download a specific file to a grantee
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob2"
+    
+  # Owner granting access to view a specific file to a grantee
+  - user: "user:OwnerUser"
+    relation: "owner"
+    object: "blob:Blob2"
+  
+  # Grantee being allowed to download a blob with permissions granted
+  - user: "user:GranteeUser"
+    relation: "grantee"
+    object: "blob:Blob2"
+    
+  # Grantee being allowed to view a blob with permissions granted
+  - user: "user:GranteeUser"
+    relation: "grantee"
+    object: "blob:Blob2"
+  
+  # Example of an Admin performing an action that is beyond a normal user
+  - user: "user:AdminUser"
+    relation: "admin"
+    object: "blob:Blob3"
