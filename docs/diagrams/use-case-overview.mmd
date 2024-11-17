@@ -1,25 +1,27 @@
 graph TD;
 
 Admin["Administrator"]
-LoggedInUser["Logged In User"]
+Owner["Owner"]
+Grantee["Grantee"]
 
-Admin --> UC1["Create, Rotate, Delete Keys"]
-Admin --> UC2["Manage KeyVault"]
-Admin --> UC3["View and Delete Blobs"]
-Admin --> UC4["Logout"]
+Admin --> UC1["Manage All Blobs"]
+Admin --> UC2["Manage Cryptographic Keys"]
+Admin --> UC3["Logout"]
 
-LoggedInUser --> UC5["Create Own Keys"]
-LoggedInUser --> UC6["Upload, Update, Delete Own Blobs"]
-LoggedInUser --> UC7["Download Own Blobs"]
-LoggedInUser --> UC8["View Own File Metadata"]
-LoggedInUser --> UC9["Encrypt/Decrypt Own Files"]
-LoggedInUser --> UC10["Hash Own Files"]
-LoggedInUser --> UC11["Verify File Signature"]
-LoggedInUser --> UC12["View Public Blobs"]
-LoggedInUser --> UC13["Download Public Blobs"]
-LoggedInUser --> UC14["View Blobs with granted permissions"]
-LoggedInUser --> UC15["Download Blobs with granted permissions"]
-LoggedInUser --> UC16["Logout"]
+Owner --> UC4["Upload Own Blobs"]
+Owner --> UC5["Delete Own Blobs"]
+Owner --> UC6["Grant Download Permission"]
+Owner --> UC7["Grant View Permission"]
+Owner --> UC8["Encrypt Own Blobs"]
+Owner --> UC9["Decrypt Own Blobs"]
+Owner --> UC10["Hash Own Blobs"]
+Owner --> UC11["Verify Blob Signature"]
+Owner --> UC12["Logout"]
+
+Grantee --> UC13["Download Blob with Permission"]
+Grantee --> UC14["View Blob with Permission"]
+Grantee --> UC15["Verify Blob Signature"]
+Grantee --> UC16["Logout"]
 
 classDef actor fill:#ADD8E6,stroke:#333,stroke-width:2px;
-class Admin,LoggedInUser actor;
+class Admin,Owner,Grantee actor;
