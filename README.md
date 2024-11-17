@@ -6,6 +6,7 @@
 + [References](#references)
 + [Features](#features)
 + [Getting started](#getting-started)
++ [Documentation](#documentation)
 
 ## Summary
 
@@ -103,3 +104,7 @@ make run-integration-tests
 ### Applications
 
 You can find applications utilizing [internal packages](./internal/) in the [cmd folder](./cmd/).
+
+### Documentation
+
+You can find documentation on architectural decisions, diagrams and concepts [here](./docs./)
