@@ -1,3 +1,5 @@
+# Create tuples after pasting the `openfga.dsl` file
+
 tuples:
   # Admin granting full control over all blobs
   - user: "user:AdminUser"
