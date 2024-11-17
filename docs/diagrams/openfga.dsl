@@ -5,17 +5,18 @@ type user
 
 type blob
   relations
-    # Permissions related to file management
+    # Permissions related to blob management
     define can_manage_all_blobs: admin
     define can_manage_own_blobs: owner
     define can_download_blobs_with_given_permission: grantee
     define can_view_blobs_with_given_permission: grantee
 
     # Cryptographic actions
+    define can_manage_all_keys: admin
     define create_own_cryptographic_keys: owner
-    define encrypt_decrypt_own_files: owner
-    define generate_signature_for_own_files: owner
-    define verify_file_signature: owner or grantee  # Public key verification is possible for grantee
+    define encrypt_decrypt_own_blobs: owner
+    define generate_signature_for_own_blobs: owner
+    define verify_blob_signature: owner or grantee  # Public key verification is possible for grantee
     
     # Access control for owners and grantees
     define can_grant_access_to_download_owned_blobs: owner
