@@ -9,15 +9,17 @@ Admin --> UC3["View and Delete Blobs"]
 Admin --> UC4["Logout"]
 
 LoggedInUser --> UC5["Create Own Keys"]
-LoggedInUser --> UC6["Upload, Update, Delete Own Files (Blobs)"]
-LoggedInUser --> UC7["Download Own Files (Blobs)"]
+LoggedInUser --> UC6["Upload, Update, Delete Own Blobs"]
+LoggedInUser --> UC7["Download Own Blobs"]
 LoggedInUser --> UC8["View Own File Metadata"]
 LoggedInUser --> UC9["Encrypt/Decrypt Own Files"]
 LoggedInUser --> UC10["Hash Own Files"]
 LoggedInUser --> UC11["Verify File Signature"]
-LoggedInUser --> UC12["View Public Files (Blobs)"]
-LoggedInUser --> UC13["Download Public Files (Blobs)"]
-LoggedInUser --> UC14["Logout"]
+LoggedInUser --> UC12["View Public Blobs"]
+LoggedInUser --> UC13["Download Public Blobs"]
+LoggedInUser --> UC14["View Blobs with granted permissions"]
+LoggedInUser --> UC15["Download Blobs with granted permissions"]
+LoggedInUser --> UC16["Logout"]
 
 classDef actor fill:#ADD8E6,stroke:#333,stroke-width:2px;
 class Admin,LoggedInUser actor;
