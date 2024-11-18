@@ -1,19 +1,20 @@
 erDiagram
     CRYPTOGRAPHIC_KEY {
-        string key_id PK
-        string key_type
+        string id PK
+        string type
         datetime created_at
         datetime expires_at
         string user_id FK
     }
 
     BLOB {
-        string blob_id PK
+        string id PK
         datetime upload_time
         string user_id FK
-        string blob_name
-        int blob_size
-        string blob_type
+        string key_id FK
+        string name
+        int size
+        string type
         string encryption_algorithm
         string hash_algorithm
         bool is_encrypted

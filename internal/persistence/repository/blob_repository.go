@@ -38,7 +38,7 @@ func (r *BlobRepositoryImpl) Create(blob *model.Blob) error {
 // GetById retrieves a Blob by its ID from the database
 func (r *BlobRepositoryImpl) GetById(blobID string) (*model.Blob, error) {
 	var blob model.Blob
-	if err := r.DB.Where("blob_id = ?", blobID).First(&blob).Error; err != nil {
+	if err := r.DB.Where("id = ?", blobID).First(&blob).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("blob with ID %s not found", blobID)
 		}
@@ -63,7 +63,7 @@ func (r *BlobRepositoryImpl) UpdateById(blob *model.Blob) error {
 
 // DeleteById removes a Blob from the database by its ID
 func (r *BlobRepositoryImpl) DeleteById(blobID string) error {
-	if err := r.DB.Where("blob_id = ?", blobID).Delete(&model.Blob{}).Error; err != nil {
+	if err := r.DB.Where("id = ?", blobID).Delete(&model.Blob{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}
 	return nil

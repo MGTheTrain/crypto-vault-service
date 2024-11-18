@@ -14,7 +14,7 @@ func TestCryptographicKeyValidation(t *testing.T) {
 	// Valid CryptographicKey
 	validKey := model.CryptographicKey{
 		KeyID:     uuid.New().String(), // Valid UUID
-		KeyType:   "AES",               // Valid KeyType
+		Type:      "AES",               // Valid Type
 		CreatedAt: time.Now(),
 		ExpiresAt: time.Now().Add(time.Hour * 24), // Valid ExpiresAt
 		UserID:    uuid.New().String(),            // Valid UserID
@@ -24,10 +24,10 @@ func TestCryptographicKeyValidation(t *testing.T) {
 	err := validKey.Validate()
 	assert.Nil(t, err, "Expected no validation errors for valid CryptographicKey")
 
-	// Invalid CryptographicKey (empty KeyID, invalid KeyType, expired)
+	// Invalid CryptographicKey (empty KeyID, invalid Type, expired)
 	invalidKey := model.CryptographicKey{
 		KeyID:     "",            // Invalid empty KeyID
-		KeyType:   "InvalidType", // Invalid KeyType
+		Type:      "InvalidType", // Invalid Type
 		CreatedAt: time.Now(),
 		ExpiresAt: time.Now().Add(-time.Hour * 24), // Invalid ExpiresAt (before CreatedAt)
 		UserID:    "invalid-user-id",               // Invalid UserID
@@ -37,7 +37,7 @@ func TestCryptographicKeyValidation(t *testing.T) {
 	err = invalidKey.Validate()
 	assert.NotNil(t, err, "Expected validation errors for invalid CryptographicKey")
 	assert.Contains(t, err.Error(), "Field: KeyID, Tag: required")
-	assert.Contains(t, err.Error(), "Field: KeyType, Tag: oneof")
+	assert.Contains(t, err.Error(), "Field: Type, Tag: oneof")
 	assert.Contains(t, err.Error(), "Field: ExpiresAt, Tag: gtefield")
 }
 
@@ -46,7 +46,7 @@ func TestCryptographicKeyValidations(t *testing.T) {
 	// Test missing UserID (should fail)
 	invalidKey := model.CryptographicKey{
 		KeyID:     uuid.New().String(), // Valid UUID
-		KeyType:   "AES",               // Valid KeyType
+		Type:      "AES",               // Valid Type
 		CreatedAt: time.Now(),
 		ExpiresAt: time.Now().Add(time.Hour * 24), // Valid ExpiresAt
 		UserID:    "",                             // Invalid empty UserID
