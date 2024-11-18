@@ -37,6 +37,11 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
+	_, err = client.CreateContainer(context.Background(), containerName, nil)
+	if err != nil {
+		fmt.Printf("Failed to create Azure container: %v\n", err) // The container may already exist, so we should not return an error in this case.
+	}
+
 	return &AzureBlobConnectorImpl{
 		Client:        client,
 		ContainerName: containerName,
