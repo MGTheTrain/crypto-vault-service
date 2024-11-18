@@ -19,8 +19,8 @@ type AzureBlobConnector interface {
 	Upload(filePaths []string) ([]*model.Blob, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) (*bytes.Buffer, error)
-	// DeleteById deletes a blob from Azure Blob Storage by its ID and returns any error encountered.
-	DeleteById(blobId string) error
+	// Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
+	Delete(blobId, blobName string) error
 }
 
 // AzureBlobConnectorImpl is a struct that holds the Azure Blob storage client.
@@ -36,14 +36,6 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
-
-	// Create the container if it doesn't already exist
-	ctx := context.Background()
-	_, err = client.CreateContainer(ctx, containerName, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create Azure Blob container: %w", err)
-	}
-	fmt.Printf("Created container named %s\n", containerName)
 
 	return &AzureBlobConnectorImpl{
 		Client:        client,
@@ -61,24 +53,28 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 		// Open the file from the given filePath
 		file, err := os.Open(filePath)
 		if err != nil {
-			abc.DeleteById(blobId)
-			return nil, fmt.Errorf("failed to open file '%s': %w", filePath, err)
+			err = fmt.Errorf("failed to open file '%s': %w", filePath, err)
+			abc.rollbackUploadedBlobs(blobs) // Rollback previously uploaded blobs
+			return nil, err
 		}
+		// Ensure file is closed after processing
 		defer file.Close()
 
 		// Get file info (name, size, etc.)
 		fileInfo, err := file.Stat()
 		if err != nil {
-			abc.DeleteById(blobId)
-			return nil, fmt.Errorf("failed to stat file '%s': %w", filePath, err)
+			err = fmt.Errorf("failed to stat file '%s': %w", filePath, err)
+			abc.rollbackUploadedBlobs(blobs)
+			return nil, err
 		}
 
 		// Read the file into a byte slice
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(file)
 		if err != nil {
-			abc.DeleteById(blobId)
-			return nil, fmt.Errorf("failed to read file '%s': %w", filePath, err)
+			err = fmt.Errorf("failed to read file '%s': %w", filePath, err)
+			abc.rollbackUploadedBlobs(blobs)
+			return nil, err
 		}
 
 		// Extract the file extension (type)
@@ -98,8 +94,9 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 		// Upload the blob to Azure
 		_, err = abc.Client.UploadBuffer(context.Background(), abc.ContainerName, fullBlobName, buf.Bytes(), nil)
 		if err != nil {
-			abc.DeleteById(blobId)
-			return nil, fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
+			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
+			abc.rollbackUploadedBlobs(blobs)
+			return nil, err
 		}
 
 		log.Printf("Blob '%s' uploaded successfully.\n", blob.Name)
@@ -112,13 +109,24 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 	return blobs, nil
 }
 
+// rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
+func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*model.Blob) {
+	for _, blob := range blobs {
+		err := abc.Delete(blob.ID, blob.Name)
+		if err != nil {
+			log.Printf("Failed to delete blob '%s' during rollback: %v", blob.Name, err)
+		} else {
+			log.Printf("Blob '%s' deleted during rollback.\n", blob.Name)
+		}
+	}
+}
+
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 func (abc *AzureBlobConnectorImpl) Download(blobId, blobName string) (*bytes.Buffer, error) {
 	ctx := context.Background()
 
 	// Construct the full blob path by combining blob ID and name
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName) // Combine ID and name to form a full path
-	fullBlobName = filepath.ToSlash(fullBlobName)          // Ensure consistent slash usage across platforms
 
 	// Download the blob as a stream
 	get, err := abc.Client.DownloadStream(ctx, abc.ContainerName, fullBlobName, nil)
@@ -146,12 +154,15 @@ func (abc *AzureBlobConnectorImpl) Download(blobId, blobName string) (*bytes.Buf
 	return &downloadedData, nil
 }
 
-// DeleteById deletes a blob from Azure Blob Storage by its ID and returns any error encountered.
-func (abc *AzureBlobConnectorImpl) DeleteById(blobId string) error {
+// Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
+func (abc *AzureBlobConnectorImpl) Delete(blobId, blobName string) error {
 	ctx := context.Background()
 
+	// Construct the full blob path by combining blob ID and name
+	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName) // Combine ID and name to form a full path
+
 	// Delete the blob
-	_, err := abc.Client.DeleteBlob(ctx, abc.ContainerName, blobId, nil)
+	_, err := abc.Client.DeleteBlob(ctx, abc.ContainerName, fullBlobName, nil)
 	if err != nil {
 		return fmt.Errorf("failed to delete all blobs in %s", blobId)
 	}
