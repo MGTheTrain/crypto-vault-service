@@ -16,6 +16,6 @@ type BlobManagement interface {
 	Download(blobId string) (*model.Blob, []byte, error)
 
 	// Delete removes a blob by its ID.
-	// Returns the deleted Blob metadata and any error encountered.
-	Delete(blobId string) (*model.Blob, error)
+	// Returns any error encountered.
+	Delete(blobId string) error
 }

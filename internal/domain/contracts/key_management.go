@@ -16,6 +16,6 @@ type KeyManagement interface {
 	Download(keyId string) (*model.CryptographicKey, []byte, error)
 
 	// Delete removes a cryptographic key by its ID.
-	// Returns the deleted key metadata and any error encountered.
-	Delete(keyId string) (*model.CryptographicKey, error)
+	// Returns any error encountered.
+	Delete(keyId string) error
 }
