@@ -2,18 +2,17 @@ package contracts
 
 import (
 	"crypto_vault_service/internal/domain/model"
-	"mime/multipart"
 )
 
 // BlobManagement defines methods for managing blob operations.
 type BlobManagement interface {
-	// Upload handles the upload of a blob from a multipart form.
-	// Returns the created Blob metadata and any error encountered.
-	Upload(form *multipart.Form) (*model.Blob, error)
+	// Upload handles the upload of blobs from file paths.
+	// Returns the created Blobs metadata and any error encountered.
+	Upload(filePath []string) ([]*model.Blob, error)
 
-	// DownloadByID retrieves a blob by its ID, returning the metadata and file data.
+	// Download retrieves a blob by its ID and name, returning the metadata and file data.
 	// Returns the Blob metadata, file data as a byte slice, and any error.
-	DownloadByID(blobId string) (*model.Blob, []byte, error)
+	Download(blobId, blobName string) (*model.Blob, []byte, error)
 
 	// DeleteByID removes a blob by its ID.
 	// Returns any error encountered.

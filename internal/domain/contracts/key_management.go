@@ -2,18 +2,27 @@ package contracts
 
 import (
 	"crypto_vault_service/internal/domain/model"
-	"mime/multipart"
+)
+
+// Define KeyType as a custom type (based on int)
+type KeyType int
+
+// Enum-like values using iota
+const (
+	AsymmetricPublic KeyType = iota
+	AsymmetricPrivate
+	Symmetric
 )
 
 // KeyManagement defines methods for managing cryptographic key operations.
 type KeyManagement interface {
-	// Upload handles the upload of a cryptographic key from a multipart form.
-	// Returns the created key metadata and any error encountered.
-	Upload(form *multipart.Form) (*model.CryptographicKey, error)
+	// Upload handles the upload of blobs from file paths.
+	// Returns the created Blobs metadata and any error encountered.
+	Upload(filePath []string) ([]*model.CryptographicKey, error)
 
-	// DownloadByID retrieves a cryptographic key by its ID, returning the metadata and key data.
+	// Download retrieves a cryptographic key by its ID and key type, returning the metadata and key data.
 	// Returns the key metadata, key data as a byte slice, and any error.
-	DownloadByID(keyId string) (*model.CryptographicKey, []byte, error)
+	Download(keyId string, keyType KeyType) (*model.CryptographicKey, []byte, error)
 
 	// DeleteByID removes a cryptographic key by its ID.
 	// Returns any error encountered.
