@@ -1,27 +1,70 @@
 graph TD;
 
+%% Actors (Users)
 Admin["Administrator"]
 Owner["Owner"]
 Grantee["Grantee"]
 
-Admin --> UC1["Manage All Blobs"]
-Admin --> UC2["Manage Cryptographic Keys"]
-Admin --> UC3["Logout"]
+%% Use Cases Grouped by Domain
+subgraph Blob_Management ["Blob Management"]
+    UC1["Manage All Blobs"]
+    UC2["Upload Own Blobs"]
+    UC3["Delete Own Blobs"]
+    UC4["Download Blob with Permission"]
+    UC5["View Blob with Permission"]
+end
 
-Owner --> UC4["Upload Own Blobs"]
-Owner --> UC5["Delete Own Blobs"]
-Owner --> UC6["Grant Download Permission"]
-Owner --> UC7["Grant View Permission"]
-Owner --> UC8["Encrypt Own Blobs"]
-Owner --> UC9["Decrypt Own Blobs"]
-Owner --> UC10["Hash Own Blobs"]
-Owner --> UC11["Verify Blob Signature"]
-Owner --> UC12["Logout"]
+subgraph Key_Management ["Key Management"]
+    UC6["Manage Cryptographic Keys"]
+    UC7["Manage Own Cryptographic Keys"]
+end
 
-Grantee --> UC13["Download Blob with Permission"]
-Grantee --> UC14["View Blob with Permission"]
-Grantee --> UC15["Verify Blob Signature"]
-Grantee --> UC16["Logout"]
+subgraph Metadata_Management ["Metadata Management"]
+    UC8["Manage Metadata"]
+    UC9["Manage Own Metadata"]
+    UC10["View public Metadata"]
+end
 
+subgraph Key_Operations ["Key Operations"]
+    UC11["Encrypt Own Blobs"]
+    UC12["Decrypt Own Blobs"]
+    UC13["Hash Own Blobs"]
+    UC14["Verify Blob Signature"]
+end
+
+subgraph Permission_Management ["Permission Management"]
+    UC15["Grant Download Permission"]
+    UC16["Grant View Permission"]
+end
+
+%% Actor -> Use Cases
+Admin --> UC1
+Admin --> UC6
+Admin --> UC7
+
+Owner --> UC2
+Owner --> UC3
+Owner --> UC4
+Owner --> UC8
+Owner --> UC9
+Owner --> UC10
+Owner --> UC11
+Owner --> UC12
+Owner --> UC13
+Owner --> UC14
+Owner --> UC15
+Owner --> UC16
+
+Grantee --> UC4
+Grantee --> UC5
+Grantee --> UC12
+
+%% Class definitions for actors
 classDef actor fill:#ADD8E6,stroke:#333,stroke-width:2px;
 class Admin,Owner,Grantee actor;
+
+%% Class definitions for domains
+class Blob_Management fill:#FFD700,stroke:#333,stroke-width:2px;
+class Key_Management fill:#90EE90,stroke:#333,stroke-width:2px;
+class Key_Operations fill:#98FB98,stroke:#333,stroke-width:2px;
+class Permission_Management fill:#FF6347,stroke:#333,stroke-width:2px;
