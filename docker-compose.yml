@@ -1,0 +1,45 @@
+services:
+  crypto-vault-service:
+    image: crypto-vault-service:0.1.0
+    build:
+      context: .
+      dockerfile: internal/cmd/crypto-vault-service/Dockerfile
+    env_file:
+      - crypto-vault-service.env
+    ports:
+      - "5000:8080/tcp"
+    depends_on:
+      - postgres
+      - azure-blob-storage
+    
+  postgres: 
+    image: postgres
+    container_name: postgres-db
+    environment:
+      - POSTGRES_LOGGING=true
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432/tcp"
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    restart: on-failure
+  # command: psql "host=localhost port=5432 user=postgres password=postgres sslmode=prefer"
+
+  azure-blob-storage:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: azure-blob-storage
+    environment:
+      - ACCOUNT_NAME=devstoreaccount1
+      - ACCOUNT_KEY=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+    volumes:
+      - azurite-data:/data
+    restart: on-failure
+  
+volumes:
+  postgres-db:
+  azurite-data:
