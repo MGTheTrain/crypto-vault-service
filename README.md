@@ -75,30 +75,18 @@ make format-and-lint
 
 ### Run Tests
 
-To run `unit` tests on Unix systems either execute
-
-```sh
-cd scripts
-./run-test.sh -u
-```
-
-or
+To run `unit tests` on Unix systems execute
 
 ```sh
 make run-unit-tests
 ```
 
-To run `integration` tests on Unix systems either execute
+To run `integration tests` on Unix systems execute
 
 ```sh
-cd scripts
-./run-test.sh -i
-```
-
-or
-
-```sh
+make spin-up-integration-test-docker-containers
 make run-integration-tests
+make shut-down-integration-test-docker-containers # Optionally clear docker resources
 ```
 
 ### Applications

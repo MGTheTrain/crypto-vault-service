@@ -17,6 +17,9 @@ jobs:
         with:
           go-version: '1.21.x'
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Grant execute permissions
         run: chmod +x *
         working-directory: ./scripts
@@ -25,7 +28,9 @@ jobs:
         run: ./run-test.sh -u
         working-directory: ./scripts
 
-      # Spin up integration environment (docker-compose or public hyper scaler infrastructure)
+      - name: Spin up external storage services
+        run: |
+          docker compose up -d postgres azure-blob-storage
 
       - name: Install apt dependencies for integration test
         run: |
