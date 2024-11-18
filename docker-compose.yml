@@ -1,16 +1,16 @@
 services:
-  crypto-vault-service:
-    image: crypto-vault-service:0.1.0
-    build:
-      context: .
-      dockerfile: internal/cmd/crypto-vault-service/Dockerfile
-    env_file:
-      - crypto-vault-service.env
-    ports:
-      - "5000:8080/tcp"
-    depends_on:
-      - postgres
-      - azure-blob-storage
+  # crypto-vault-service:
+  #   image: crypto-vault-service:0.1.0
+  #   build:
+  #     context: .
+  #     dockerfile: internal/cmd/crypto-vault-service/Dockerfile
+  #   env_file:
+  #     - crypto-vault-service.env
+  #   ports:
+  #     - "5000:8080/tcp"
+  #   depends_on:
+  #     - postgres
+  #     - azure-blob-storage
     
   postgres: 
     image: postgres
