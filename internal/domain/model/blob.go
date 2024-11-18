@@ -13,7 +13,7 @@ type Blob struct {
 	UploadTime          time.Time        `validate:"required"`                          // UploadTime is required
 	UserID              string           `validate:"required,uuid4"`                    // UserID is required and must be a valid UUID
 	Name                string           `validate:"required,min=1,max=255"`            // Name is required, and its length must be between 1 and 255 characters
-	Size                int              `validate:"required,min=1"`                    // Size must be greater than 0
+	Size                int64            `validate:"required,min=1"`                    // Size must be greater than 0
 	Type                string           `validate:"required,min=1,max=50"`             // Type is required, and its length must be between 1 and 50 characters
 	EncryptionAlgorithm string           `validate:"omitempty,oneof=AES RSA ECDSA"`     // EncryptionAlgorithm is optional and must be one of the listed algorithms
 	HashAlgorithm       string           `validate:"omitempty,oneof=SHA256 SHA512 MD5"` // HashAlgorithm is optional and must be one of the listed algorithms
