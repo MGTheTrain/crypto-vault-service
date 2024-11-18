@@ -29,7 +29,7 @@ jobs:
 
       - name: Spin up external storage services
         run: |
-          docker-compose up -d postgres azure-blob-storage
+          docker compose up -d postgres azure-blob-storage
 
       - name: Install apt dependencies for integration test
         run: |
