@@ -10,3 +10,9 @@ run-unit-tests:
 
 run-integration-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -i
+
+spin-up-docker-containers:
+	docker-compose up -d --build
+
+shut-down-docker-containers:
+	docker-compose down -v
