@@ -17,10 +17,10 @@ type KeyOperations interface {
 
 	// ---Encryption and Decryption (Symmetric algorithms like AES)---
 
-	// Encrypt encrypts data with symmetric keys (e.g. AES)
-	Encrypt(plainText []byte, key []byte) ([]byte, error)
-	// Decrypt decrypts data with symmetric keys (e.g. AES)
-	Decrypt(cipherText []byte, key []byte) ([]byte, error)
+	// EncryptWithSymmetricKey encrypts data with symmetric keys (e.g. AES)
+	EncryptWithSymmetricKey(plainText []byte, key []byte) ([]byte, error)
+	// DecryptWithSymmetricKey decrypts data with symmetric keys (e.g. AES)
+	DecryptWithSymmetricKey(cipherText []byte, key []byte) ([]byte, error)
 
 	// ---Asymmetric Encryption (RSA, ECDSA, PKCS#11)---
 
@@ -31,10 +31,10 @@ type KeyOperations interface {
 
 	// ---Signing and Verification (For RSA, ECDSA)---
 
-	// Sign signs message with private key using asymmetric algorithms (RSA, ECDSA)
-	Sign(message []byte, privateKey interface{}) ([]byte, error)
-	// Verify verifies signatures with private key using asymmetric algorithms (RSA, ECDSA)
-	Verify(message []byte, signature []byte, publicKey interface{}) (bool, error)
+	// SignWithPrivateKey signs message with private key using asymmetric algorithms (RSA, ECDSA) and optionally a PKCS#11 interface
+	SignWithPrivateKey(message []byte, privateKey interface{}) ([]byte, error)
+	// VerifyWithPublicKey verifies signatures with public key using asymmetric algorithms (RSA, ECDSA) and optionally a PKCS#11 interface
+	VerifyWithPublicKey(message []byte, signature []byte, publicKey interface{}) (bool, error)
 
 	// ---PKCS#11 Operations---
 
