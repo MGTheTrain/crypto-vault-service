@@ -9,8 +9,8 @@ import (
 
 // CryptographicKey represents the encryption key entity
 type CryptographicKey struct {
-	KeyID     string    `gorm:"primaryKey" validate:"required,uuid4"` // KeyID is required and must be a valid UUID
-	KeyType   string    `validate:"required,oneof=AES RSA ECDSA"`     // KeyType is required and must be one of the listed types
+	ID        string    `gorm:"primaryKey" validate:"required,uuid4"` // ID is required and must be a valid UUID
+	Type      string    `validate:"required,oneof=AES RSA ECDSA"`     // Type is required and must be one of the listed types
 	CreatedAt time.Time `validate:"required"`                         // CreatedAt is required
 	ExpiresAt time.Time `validate:"required,gtefield=CreatedAt"`      // ExpiresAt is required and must be after CreatedAt
 	UserID    string    `gorm:"index" validate:"required,uuid4"`      // UserID is required and must be a valid UUID

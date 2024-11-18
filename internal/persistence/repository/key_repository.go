@@ -38,7 +38,7 @@ func (r *CryptographicKeyRepositoryImpl) Create(key *model.CryptographicKey) err
 // GetByID retrieves a CryptographicKey by its ID from the database
 func (r *CryptographicKeyRepositoryImpl) GetByID(keyID string) (*model.CryptographicKey, error) {
 	var key model.CryptographicKey
-	if err := r.DB.Where("key_id = ?", keyID).First(&key).Error; err != nil {
+	if err := r.DB.Where("id = ?", keyID).First(&key).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("cryptographic key with ID %s not found", keyID)
 		}
@@ -63,7 +63,7 @@ func (r *CryptographicKeyRepositoryImpl) UpdateByID(key *model.CryptographicKey)
 
 // DeleteByID removes a CryptographicKey from the database by its ID
 func (r *CryptographicKeyRepositoryImpl) DeleteByID(keyID string) error {
-	if err := r.DB.Where("key_id = ?", keyID).Delete(&model.CryptographicKey{}).Error; err != nil {
+	if err := r.DB.Where("id = ?", keyID).Delete(&model.CryptographicKey{}).Error; err != nil {
 		return fmt.Errorf("failed to delete cryptographic key: %w", err)
 	}
 	return nil

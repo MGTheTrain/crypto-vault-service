@@ -21,50 +21,47 @@ type BlobValidationTests struct {
 func NewBlobValidationTests() *BlobValidationTests {
 	// Create valid and invalid test data
 	validBlob := model.Blob{
-		BlobID:              uuid.New().String(),
-		BlobStoragePath:     "/path/to/blob",
+		ID:                  uuid.New().String(),
 		UploadTime:          time.Now(),
 		UserID:              uuid.New().String(),
-		BlobName:            "test_blob.txt",
-		BlobSize:            12345,
-		BlobType:            "text",
+		Name:                "test_blob.txt",
+		Size:                12345,
+		Type:                "text",
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    model.CryptographicKey{KeyID: uuid.New().String(), KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptographicKey:    model.CryptographicKey{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
 	invalidBlob := model.Blob{
-		BlobID:              "", // Invalid empty BlobID
-		BlobStoragePath:     "/path/to/blob",
+		ID:                  "", // Invalid empty ID
 		UploadTime:          time.Now(),
 		UserID:              "invalid-uuid", // Invalid UserID
-		BlobName:            "test_blob.txt",
-		BlobSize:            -12345, // Invalid BlobSize (negative)
-		BlobType:            "text",
+		Name:                "test_blob.txt",
+		Size:                -12345, // Invalid Size (negative)
+		Type:                "text",
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    model.CryptographicKey{KeyID: uuid.New().String(), KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptographicKey:    model.CryptographicKey{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
 	invalidBlob2 := model.Blob{
-		BlobID:              uuid.New().String(),
-		BlobStoragePath:     "/path/to/blob",
+		ID:                  uuid.New().String(),
 		UploadTime:          time.Now(),
 		UserID:              uuid.New().String(),
-		BlobName:            "", // Invalid empty BlobName
-		BlobSize:            12345,
-		BlobType:            "text",
+		Name:                "", // Invalid empty Name
+		Size:                12345,
+		Type:                "text",
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    model.CryptographicKey{KeyID: uuid.New().String(), KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptographicKey:    model.CryptographicKey{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
@@ -84,17 +81,17 @@ func (bt *BlobValidationTests) TestBlobValidation(t *testing.T) {
 	// Validate the invalid Blob
 	err = bt.invalidBlob.Validate()
 	assert.NotNil(t, err, "Expected validation errors for invalid Blob")
-	assert.Contains(t, err.Error(), "Field: BlobID, Tag: required")
-	assert.Contains(t, err.Error(), "Field: BlobSize, Tag: min")
+	assert.Contains(t, err.Error(), "Field: ID, Tag: required")
+	assert.Contains(t, err.Error(), "Field: Size, Tag: min")
 	assert.Contains(t, err.Error(), "Field: UserID, Tag: uuid4")
 }
 
 // TestBlobValidationEdgeCases tests validation edge cases for Blob
 func (bt *BlobValidationTests) TestBlobValidationEdgeCases(t *testing.T) {
-	// Validate the invalid Blob with empty BlobName
+	// Validate the invalid Blob with empty Name
 	err := bt.invalidBlob2.Validate()
-	assert.NotNil(t, err, "Expected validation error for missing BlobName")
-	assert.Contains(t, err.Error(), "Field: BlobName, Tag: required")
+	assert.NotNil(t, err, "Expected validation error for missing Name")
+	assert.Contains(t, err.Error(), "Field: Name, Tag: required")
 }
 
 // TestBlobValidation is the entry point to run the Blob validation tests
