@@ -1,22 +1,9 @@
 erDiagram
     CRYPTOGRAPHIC_KEY {
         string key_id PK
-        string key_value
         string key_type
         datetime created_at
         datetime expires_at
-        string user_id FK
-    }
-
-    METADATA {
-        string metadata_id PK
-        string blob_id FK
-        string key_id FK
-        datetime created_at
-        datetime updated_at
-        string encryption_algorithm
-        string content_type
-        int size
         string user_id FK
     }
 
@@ -28,8 +15,10 @@ erDiagram
         string blob_name
         int blob_size
         string blob_type
+        string encryption_algorithm
+        string hash_algorithm
+        bool is_encrypted
+        bool is_signed
     }
 
-    CRYPTOGRAPHIC_KEY ||--o| METADATA : "used in"
     CRYPTOGRAPHIC_KEY ||--o| BLOB : "associated with"
-    BLOB ||--o| METADATA : "has metadata"
