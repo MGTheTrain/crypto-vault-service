@@ -84,9 +84,9 @@ make run-unit-tests
 To run `integration tests` on Unix systems execute
 
 ```sh
-make spin-up-docker-containers
+make spin-up-integration-test-docker-containers
 make run-integration-tests
-make shut-down-docker-containers # Optionally clear docker resources
+make shut-down-integration-test-docker-containers # Optionally clear docker resources
 ```
 
 ### Applications
