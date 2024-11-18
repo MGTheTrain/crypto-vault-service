@@ -28,7 +28,6 @@ end
 subgraph Permission_Management ["Permission Management"]
     UC6["Grant Download Permission"]
     UC7["Grant View Permission"]
-    UC15["Verify Blob Signature"]
 end
 
 %% Actor -> Use Cases
@@ -46,7 +45,6 @@ Owner --> UC11
 
 Grantee --> UC13
 Grantee --> UC14
-Grantee --> UC15
 
 %% Class definitions for actors
 classDef actor fill:#ADD8E6,stroke:#333,stroke-width:2px;
