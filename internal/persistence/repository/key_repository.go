@@ -10,10 +10,10 @@ import (
 
 // CryptographicKeyRepository defines the interface for CryptographicKey-related operations
 type CryptographicKeyRepository interface {
-	CreateKey(key *model.CryptographicKey) error
-	GetKeyByID(keyID string) (*model.CryptographicKey, error)
-	UpdateKey(key *model.CryptographicKey) error
-	DeleteKey(keyID string) error
+	Create(key *model.CryptographicKey) error
+	GetByID(keyID string) (*model.CryptographicKey, error)
+	UpdateByID(key *model.CryptographicKey) error
+	DeleteByID(keyID string) error
 }
 
 // CryptographicKeyRepositoryImpl is the implementation of the CryptographicKeyRepository interface
@@ -21,8 +21,8 @@ type CryptographicKeyRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-// CreateKey adds a new CryptographicKey to the database
-func (r *CryptographicKeyRepositoryImpl) CreateKey(key *model.CryptographicKey) error {
+// Create adds a new CryptographicKey to the database
+func (r *CryptographicKeyRepositoryImpl) Create(key *model.CryptographicKey) error {
 	// Validate the CryptographicKey before saving
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -35,8 +35,8 @@ func (r *CryptographicKeyRepositoryImpl) CreateKey(key *model.CryptographicKey) 
 	return nil
 }
 
-// GetKeyByID retrieves a CryptographicKey by its ID from the database
-func (r *CryptographicKeyRepositoryImpl) GetKeyByID(keyID string) (*model.CryptographicKey, error) {
+// GetByID retrieves a CryptographicKey by its ID from the database
+func (r *CryptographicKeyRepositoryImpl) GetByID(keyID string) (*model.CryptographicKey, error) {
 	var key model.CryptographicKey
 	if err := r.DB.Where("key_id = ?", keyID).First(&key).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -47,8 +47,8 @@ func (r *CryptographicKeyRepositoryImpl) GetKeyByID(keyID string) (*model.Crypto
 	return &key, nil
 }
 
-// UpdateKey updates an existing CryptographicKey in the database
-func (r *CryptographicKeyRepositoryImpl) UpdateKey(key *model.CryptographicKey) error {
+// UpdateByID updates an existing CryptographicKey in the database
+func (r *CryptographicKeyRepositoryImpl) UpdateByID(key *model.CryptographicKey) error {
 	// Validate the CryptographicKey before updating
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -61,8 +61,8 @@ func (r *CryptographicKeyRepositoryImpl) UpdateKey(key *model.CryptographicKey) 
 	return nil
 }
 
-// DeleteKey removes a CryptographicKey from the database by its ID
-func (r *CryptographicKeyRepositoryImpl) DeleteKey(keyID string) error {
+// DeleteByID removes a CryptographicKey from the database by its ID
+func (r *CryptographicKeyRepositoryImpl) DeleteByID(keyID string) error {
 	if err := r.DB.Where("key_id = ?", keyID).Delete(&model.CryptographicKey{}).Error; err != nil {
 		return fmt.Errorf("failed to delete cryptographic key: %w", err)
 	}

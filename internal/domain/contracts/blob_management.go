@@ -11,11 +11,11 @@ type BlobManagement interface {
 	// Returns the created Blob metadata and any error encountered.
 	Upload(form *multipart.Form) (*model.Blob, error)
 
-	// Download retrieves a blob by its ID, returning the metadata and file data.
+	// DownloadByID retrieves a blob by its ID, returning the metadata and file data.
 	// Returns the Blob metadata, file data as a byte slice, and any error.
-	Download(blobId string) (*model.Blob, []byte, error)
+	DownloadByID(blobId string) (*model.Blob, []byte, error)
 
-	// Delete removes a blob by its ID.
+	// DeleteByID removes a blob by its ID.
 	// Returns any error encountered.
-	Delete(blobId string) error
+	DeleteByID(blobId string) error
 }

@@ -10,10 +10,10 @@ import (
 
 // BlobRepository defines the interface for Blob-related operations
 type BlobRepository interface {
-	CreateBlob(blob *model.Blob) error
-	GetBlobByID(blobID string) (*model.Blob, error)
-	UpdateBlob(blob *model.Blob) error
-	DeleteBlob(blobID string) error
+	Create(blob *model.Blob) error
+	GetById(blobID string) (*model.Blob, error)
+	UpdateById(blob *model.Blob) error
+	DeleteById(blobID string) error
 }
 
 // BlobRepositoryImpl is the implementation of the BlobRepository interface
@@ -21,8 +21,8 @@ type BlobRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-// CreateBlob adds a new Blob to the database
-func (r *BlobRepositoryImpl) CreateBlob(blob *model.Blob) error {
+// Create adds a new Blob to the database
+func (r *BlobRepositoryImpl) Create(blob *model.Blob) error {
 	// Validate the Blob before saving
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -35,8 +35,8 @@ func (r *BlobRepositoryImpl) CreateBlob(blob *model.Blob) error {
 	return nil
 }
 
-// GetBlobByID retrieves a Blob by its ID from the database
-func (r *BlobRepositoryImpl) GetBlobByID(blobID string) (*model.Blob, error) {
+// GetById retrieves a Blob by its ID from the database
+func (r *BlobRepositoryImpl) GetById(blobID string) (*model.Blob, error) {
 	var blob model.Blob
 	if err := r.DB.Where("blob_id = ?", blobID).First(&blob).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -47,8 +47,8 @@ func (r *BlobRepositoryImpl) GetBlobByID(blobID string) (*model.Blob, error) {
 	return &blob, nil
 }
 
-// UpdateBlob updates an existing Blob in the database
-func (r *BlobRepositoryImpl) UpdateBlob(blob *model.Blob) error {
+// UpdateById updates an existing Blob in the database
+func (r *BlobRepositoryImpl) UpdateById(blob *model.Blob) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -61,8 +61,8 @@ func (r *BlobRepositoryImpl) UpdateBlob(blob *model.Blob) error {
 	return nil
 }
 
-// DeleteBlob removes a Blob from the database by its ID
-func (r *BlobRepositoryImpl) DeleteBlob(blobID string) error {
+// DeleteById removes a Blob from the database by its ID
+func (r *BlobRepositoryImpl) DeleteById(blobID string) error {
 	if err := r.DB.Where("blob_id = ?", blobID).Delete(&model.Blob{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}
