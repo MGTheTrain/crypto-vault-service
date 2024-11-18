@@ -23,9 +23,9 @@ func TestBlobValidation(t *testing.T) {
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
-		IsSigned:            false,
-		CryptographicKey:    model.CryptographicKey{KeyID: "abc123", KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: "e2b073b5-3e23-4fbd-b44b-c607b04c9c3e"},
-		KeyID:               "abc123",
+		IsSigned:            false, // Explicitly set to false
+		CryptographicKey:    model.CryptographicKey{KeyID: uuid.New().String(), KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		KeyID:               uuid.New().String(), // Use valid UUID here
 	}
 
 	// Validate the valid Blob
@@ -45,8 +45,8 @@ func TestBlobValidation(t *testing.T) {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    model.CryptographicKey{KeyID: "abc123", KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: "e2b073b5-3e23-4fbd-b44b-c607b04c9c3e"},
-		KeyID:               "abc123",
+		CryptographicKey:    model.CryptographicKey{KeyID: uuid.New().String(), KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		KeyID:               uuid.New().String(), // Use valid UUID
 	}
 
 	// Validate the invalid Blob
@@ -72,8 +72,8 @@ func TestBlobValidationEdgeCases(t *testing.T) {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    model.CryptographicKey{KeyID: "abc123", KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: "e2b073b5-3e23-4fbd-b44b-c607b04c9c3e"},
-		KeyID:               "abc123",
+		CryptographicKey:    model.CryptographicKey{KeyID: uuid.New().String(), KeyType: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		KeyID:               uuid.New().String(),
 	}
 
 	err := invalidBlob.Validate()
