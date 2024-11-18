@@ -18,8 +18,8 @@ type Blob struct {
 	BlobType            string           `validate:"required,min=1,max=50"`             // BlobType is required, and its length must be between 1 and 50 characters
 	EncryptionAlgorithm string           `validate:"omitempty,oneof=AES RSA ECDSA"`     // EncryptionAlgorithm is optional and must be one of the listed algorithms
 	HashAlgorithm       string           `validate:"omitempty,oneof=SHA256 SHA512 MD5"` // HashAlgorithm is optional and must be one of the listed algorithms
-	IsEncrypted         bool             `validate:"required"`                          // IsEncrypted is required (true/false)
-	IsSigned            bool             `validate:"required"`                          // IsSigned is required (true/false)
+	IsEncrypted         bool             `validate:"-"`                                 // IsEncrypted is required (true/false)
+	IsSigned            bool             `validate:"-"`                                 // IsSigned is required (true/false)
 	CryptographicKey    CryptographicKey `gorm:"foreignKey:KeyID" validate:"required"`  // CryptographicKey is required
 	KeyID               string           `validate:"omitempty,uuid4"`                   // KeyID is optional and must be a valid UUID
 }
