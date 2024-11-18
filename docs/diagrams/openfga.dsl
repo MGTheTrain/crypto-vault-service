@@ -9,6 +9,16 @@ type user_group
     define grantee: [user]  # A user who has been granted permissions for an owner's blob
     define admin: [user]    # Admin can manage all blobs, including cryptographic actions
 
+type key
+  relations
+    define manage_cryptographic_keys: admin
+    define create_own_cryptographic_keys: owner
+
+    # Ownership and user roles
+    define owner: [user, user_group#owner]
+    define admin: [user, user_group#admin]    # Admin can manage all blobs, including cryptographic actions
+
+
 type blob
   relations
     # Permissions related to file management
@@ -18,7 +28,6 @@ type blob
     define can_view_blobs_with_given_permission: grantee
 
     # Cryptographic actions
-    define create_own_cryptographic_keys: owner
     define encrypt_decrypt_own_files: owner
     define generate_signature_for_own_files: owner
     define verify_file_signature: owner or grantee  # Public key verification is possible for grantee
