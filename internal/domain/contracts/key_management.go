@@ -11,11 +11,11 @@ type KeyManagement interface {
 	// Returns the created key metadata and any error encountered.
 	Upload(form *multipart.Form) (*model.CryptographicKey, error)
 
-	// Download retrieves a cryptographic key by its ID, returning the metadata and key data.
+	// DownloadByID retrieves a cryptographic key by its ID, returning the metadata and key data.
 	// Returns the key metadata, key data as a byte slice, and any error.
-	Download(keyId string) (*model.CryptographicKey, []byte, error)
+	DownloadByID(keyId string) (*model.CryptographicKey, []byte, error)
 
-	// Delete removes a cryptographic key by its ID.
+	// DeleteByID removes a cryptographic key by its ID.
 	// Returns any error encountered.
-	Delete(keyId string) error
+	DeleteByID(keyId string) error
 }

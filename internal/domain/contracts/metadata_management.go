@@ -4,27 +4,26 @@ import (
 	"crypto_vault_service/internal/domain/model"
 )
 
-// MetadataManagement defines the methods for managing Blob and CryptographicKey metadata
-type MetadataManagement interface {
-	// ---CRUD operations for Blob metadata---
+// BlobMetadataManagement defines the methods for managing Blob metadata
+type BlobMetadataManagement interface {
+	// Create creates a new blob
+	Create(blob *model.Blob) (*model.Blob, error)
+	// GetByID retrieves blob by ID
+	GetByID(blobID string) (*model.Blob, error)
+	// UpdateByID updates a blob's metadata
+	UpdateByID(blobID string, updates *model.Blob) (*model.Blob, error)
+	// DeleteByID deletes a blob by ID
+	DeleteByID(blobID string) error
+}
 
-	// CreateBlob creates a new blob
-	CreateBlob(blob *model.Blob) (*model.Blob, error)
-	// GetBlob retrieves blob by ID
-	GetBlob(blobID string) (*model.Blob, error)
-	// UpdateBlob updates a blob's metadata
-	UpdateBlob(blobID string, updates *model.Blob) (*model.Blob, error)
-	// DeleteBlob deletes a blob by ID
-	DeleteBlob(blobID string) error
-
-	// ---CRUD operations for CryptographicKey metadata---
-
-	// CreateCryptographicKey creates a new cryptographic key
-	CreateCryptographicKey(key *model.CryptographicKey) (*model.CryptographicKey, error)
-	// GetCryptographicKey retrieves cryptographic key by ID
-	GetCryptographicKey(keyID string) (*model.CryptographicKey, error)
-	// UpdateCryptographicKey updates cryptographic key metadata
-	UpdateCryptographicKey(keyID string, updates *model.CryptographicKey) (*model.CryptographicKey, error)
-	// DeleteCryptographicKey deletes a cryptographic key by ID
-	DeleteCryptographicKey(keyID string) error
+// CryptographicKeyMetadataManagement defines the methods for managing CryptographicKey metadata
+type CryptographicKeyMetadataManagement interface {
+	// Create creates a new cryptographic key
+	Create(key *model.CryptographicKey) (*model.CryptographicKey, error)
+	// GetByID retrieves cryptographic key by ID
+	GetByID(keyID string) (*model.CryptographicKey, error)
+	// UpdateByID updates cryptographic key metadata
+	UpdateByID(keyID string, updates *model.CryptographicKey) (*model.CryptographicKey, error)
+	// DeleteByID deletes a cryptographic key by ID
+	DeleteByID(keyID string) error
 }
