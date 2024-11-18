@@ -10,7 +10,6 @@ import (
 // Blob represents metadata on the actual blob being stored
 type Blob struct {
 	BlobID              string           `gorm:"primaryKey" validate:"required,uuid4"`  // BlobID is required and must be a valid UUID
-	BlobStoragePath     string           `validate:"required"`                          // BlobStoragePath is required
 	UploadTime          time.Time        `validate:"required"`                          // UploadTime is required
 	UserID              string           `validate:"required,uuid4"`                    // UserID is required and must be a valid UUID
 	BlobName            string           `validate:"required,min=1,max=255"`            // BlobName is required, and its length must be between 1 and 255 characters

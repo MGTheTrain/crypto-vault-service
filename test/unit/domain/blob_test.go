@@ -22,7 +22,6 @@ func NewBlobValidationTests() *BlobValidationTests {
 	// Create valid and invalid test data
 	validBlob := model.Blob{
 		BlobID:              uuid.New().String(),
-		BlobStoragePath:     "/path/to/blob",
 		UploadTime:          time.Now(),
 		UserID:              uuid.New().String(),
 		BlobName:            "test_blob.txt",
@@ -38,7 +37,6 @@ func NewBlobValidationTests() *BlobValidationTests {
 
 	invalidBlob := model.Blob{
 		BlobID:              "", // Invalid empty BlobID
-		BlobStoragePath:     "/path/to/blob",
 		UploadTime:          time.Now(),
 		UserID:              "invalid-uuid", // Invalid UserID
 		BlobName:            "test_blob.txt",
@@ -54,7 +52,6 @@ func NewBlobValidationTests() *BlobValidationTests {
 
 	invalidBlob2 := model.Blob{
 		BlobID:              uuid.New().String(),
-		BlobStoragePath:     "/path/to/blob",
 		UploadTime:          time.Now(),
 		UserID:              uuid.New().String(),
 		BlobName:            "", // Invalid empty BlobName

@@ -28,7 +28,6 @@ func TestBlobRepository_Create(t *testing.T) {
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &model.Blob{
 		BlobID:           uuid.New().String(), // Generate valid UUID
-		BlobStoragePath:  "/path/to/blob",
 		UploadTime:       time.Now(),
 		UserID:           uuid.New().String(), // Generate valid UUID for UserID
 		BlobName:         "test-blob",
@@ -70,7 +69,6 @@ func TestBlobRepository_GetById(t *testing.T) {
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &model.Blob{
 		BlobID:           uuid.New().String(), // Generate valid UUID
-		BlobStoragePath:  "/path/to/blob",
 		UploadTime:       time.Now(),
 		UserID:           cryptographicKey.UserID, // Link to valid UserID from CryptographicKey
 		BlobName:         "test-blob",
@@ -111,7 +109,6 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &model.Blob{
 		BlobID:           uuid.New().String(), // Generate valid UUID
-		BlobStoragePath:  "/path/to/blob",
 		UploadTime:       time.Now(),
 		UserID:           uuid.New().String(), // Generate valid UUID for UserID
 		BlobName:         "test-blob",
@@ -157,7 +154,6 @@ func TestBlobRepository_DeleteById(t *testing.T) {
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &model.Blob{
 		BlobID:           uuid.New().String(), // Generate valid UUID
-		BlobStoragePath:  "/path/to/blob",
 		UploadTime:       time.Now(),
 		UserID:           uuid.New().String(), // Generate valid UUID for UserID
 		BlobName:         "test-blob",
