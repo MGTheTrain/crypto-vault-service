@@ -1,7 +1,8 @@
 package repository
 
 import (
-	"crypto_vault_service/internal/domain/model"
+	"crypto_vault_service/internal/domain/blobs"
+	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
 	"testing"
@@ -27,7 +28,7 @@ func setupTestDB(t *testing.T) *TestContext {
 	}
 
 	// Migrate the schema for Blob and CryptographicKey
-	err = db.AutoMigrate(&model.Blob{}, &model.CryptographicKey{})
+	err = db.AutoMigrate(&blobs.Blob{}, &keys.CryptographicKey{})
 	if err != nil {
 		t.Fatalf("Failed to migrate schema: %v", err)
 	}

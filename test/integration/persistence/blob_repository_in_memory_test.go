@@ -1,7 +1,8 @@
 package repository
 
 import (
-	"crypto_vault_service/internal/domain/model"
+	"crypto_vault_service/internal/domain/blobs"
+	"crypto_vault_service/internal/domain/keys"
 	"testing"
 	"time"
 
@@ -17,7 +18,7 @@ func TestBlobRepository_Create(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := model.CryptographicKey{
+	cryptographicKey := keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -26,7 +27,7 @@ func TestBlobRepository_Create(t *testing.T) {
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
-	blob := &model.Blob{
+	blob := &blobs.Blob{
 		ID:               uuid.New().String(), // Generate valid UUID
 		UploadTime:       time.Now(),
 		UserID:           uuid.New().String(), // Generate valid UUID for UserID
@@ -44,7 +45,7 @@ func TestBlobRepository_Create(t *testing.T) {
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the blob is created and exists in DB
-	var createdBlob model.Blob
+	var createdBlob blobs.Blob
 	err = ctx.DB.First(&createdBlob, "id = ?", blob.ID).Error
 	assert.NoError(t, err, "Failed to find created blob")
 	assert.Equal(t, blob.ID, createdBlob.ID, "ID should match")
@@ -58,7 +59,7 @@ func TestBlobRepository_GetById(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := model.CryptographicKey{
+	cryptographicKey := keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -67,7 +68,7 @@ func TestBlobRepository_GetById(t *testing.T) {
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
-	blob := &model.Blob{
+	blob := &blobs.Blob{
 		ID:               uuid.New().String(), // Generate valid UUID
 		UploadTime:       time.Now(),
 		UserID:           cryptographicKey.UserID, // Link to valid UserID from CryptographicKey
@@ -98,7 +99,7 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := model.CryptographicKey{
+	cryptographicKey := keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -107,7 +108,7 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
-	blob := &model.Blob{
+	blob := &blobs.Blob{
 		ID:               uuid.New().String(), // Generate valid UUID
 		UploadTime:       time.Now(),
 		UserID:           uuid.New().String(), // Generate valid UUID for UserID
@@ -130,7 +131,7 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the blob is updated
-	var updatedBlob model.Blob
+	var updatedBlob blobs.Blob
 	err = ctx.DB.First(&updatedBlob, "id = ?", blob.ID).Error
 	assert.NoError(t, err)
 	assert.Equal(t, "updated-blob-name", updatedBlob.Name, "Name should be updated")
@@ -143,7 +144,7 @@ func TestBlobRepository_DeleteById(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := model.CryptographicKey{
+	cryptographicKey := keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -152,7 +153,7 @@ func TestBlobRepository_DeleteById(t *testing.T) {
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
-	blob := &model.Blob{
+	blob := &blobs.Blob{
 		ID:               uuid.New().String(), // Generate valid UUID
 		UploadTime:       time.Now(),
 		UserID:           uuid.New().String(), // Generate valid UUID for UserID
@@ -174,7 +175,7 @@ func TestBlobRepository_DeleteById(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the blob is deleted
-	var deletedBlob model.Blob
+	var deletedBlob blobs.Blob
 	err = ctx.DB.First(&deletedBlob, "id = ?", blob.ID).Error
 	assert.Error(t, err, "Blob should be deleted")
 	assert.Equal(t, gorm.ErrRecordNotFound, err, "Error should be 'record not found'")

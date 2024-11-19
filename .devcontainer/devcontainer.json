@@ -4,7 +4,9 @@
     "name": "Tools for building and running Go projects",
     "image": "mcr.microsoft.com/vscode/devcontainers/go:1.21",
     // Features to add to the dev container. More info: https://containers.dev/features
-    "features": {},
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    },
     "postCreateCommand": "apt-get update && apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl",
     "remoteUser": "root"
 }

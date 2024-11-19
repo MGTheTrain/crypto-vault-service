@@ -1,4 +1,41 @@
-package contracts
+package keys
+
+// Define KeyType as a custom type (based on int)
+type KeyType int
+
+// Enum-like values using iota
+const (
+	AsymmetricPublic KeyType = iota
+	AsymmetricPrivate
+	Symmetric
+)
+
+// KeyManagement defines methods for managing cryptographic key operations.
+type KeyManagement interface {
+	// Upload handles the upload of blobs from file paths.
+	// Returns the created Blobs metadata and any error encountered.
+	Upload(filePath []string) ([]*CryptographicKey, error)
+
+	// Download retrieves a cryptographic key by its ID and key type, returning the metadata and key data.
+	// Returns the key metadata, key data as a byte slice, and any error.
+	Download(keyId string, keyType KeyType) (*CryptographicKey, []byte, error)
+
+	// DeleteByID removes a cryptographic key by its ID.
+	// Returns any error encountered.
+	DeleteByID(keyId string) error
+}
+
+// CryptographicKeyMetadataManagement defines the methods for managing CryptographicKey metadata
+type CryptographicKeyMetadataManagement interface {
+	// Create creates a new cryptographic key
+	Create(key *CryptographicKey) (*CryptographicKey, error)
+	// GetByID retrieves cryptographic key by ID
+	GetByID(keyID string) (*CryptographicKey, error)
+	// UpdateByID updates cryptographic key metadata
+	UpdateByID(keyID string, updates *CryptographicKey) (*CryptographicKey, error)
+	// DeleteByID deletes a cryptographic key by ID
+	DeleteByID(keyID string) error
+}
 
 // KeyOperations defines methods for key management, encryption, signing, and PKCS#11 operations.
 type KeyOperations interface {

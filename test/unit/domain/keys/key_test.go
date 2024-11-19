@@ -1,7 +1,7 @@
-package model
+package keys
 
 import (
-	"crypto_vault_service/internal/domain/model"
+	"crypto_vault_service/internal/domain/keys"
 	"testing"
 	"time"
 
@@ -12,7 +12,7 @@ import (
 // TestCryptographicKeyValidation tests the Validator method for CryptographicKey
 func TestCryptographicKeyValidation(t *testing.T) {
 	// Valid CryptographicKey
-	validKey := model.CryptographicKey{
+	validKey := keys.CryptographicKey{
 		ID:        uuid.New().String(), // Valid UUID
 		Type:      "AES",               // Valid Type
 		CreatedAt: time.Now(),
@@ -25,7 +25,7 @@ func TestCryptographicKeyValidation(t *testing.T) {
 	assert.Nil(t, err, "Expected no validation errors for valid CryptographicKey")
 
 	// Invalid CryptographicKey (empty ID, invalid Type, expired)
-	invalidKey := model.CryptographicKey{
+	invalidKey := keys.CryptographicKey{
 		ID:        "",            // Invalid empty ID
 		Type:      "InvalidType", // Invalid Type
 		CreatedAt: time.Now(),
@@ -44,7 +44,7 @@ func TestCryptographicKeyValidation(t *testing.T) {
 // TestCryptographicKeyValidations tests the validation edge cases for CryptographicKey
 func TestCryptographicKeyValidations(t *testing.T) {
 	// Test missing UserID (should fail)
-	invalidKey := model.CryptographicKey{
+	invalidKey := keys.CryptographicKey{
 		ID:        uuid.New().String(), // Valid UUID
 		Type:      "AES",               // Valid Type
 		CreatedAt: time.Now(),

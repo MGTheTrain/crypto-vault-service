@@ -3,11 +3,12 @@ package connector
 import (
 	"bytes"
 	"context"
-	"crypto_vault_service/internal/domain/model"
+	"crypto_vault_service/internal/domain/blobs"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/google/uuid"
@@ -16,7 +17,7 @@ import (
 // AzureBlobConnector is an interface for interacting with Azure Blob storage
 type AzureBlobConnector interface {
 	// Upload uploads multiple files to Azure Blob Storage and returns their metadata.
-	Upload(filePaths []string) ([]*model.Blob, error)
+	Upload(filePaths []string) ([]*blobs.Blob, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) (*bytes.Buffer, error)
 	// Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
@@ -49,9 +50,9 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 }
 
 // Upload uploads multiple files to Azure Blob Storage and returns their metadata.
-func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, error) {
-	var blobs []*model.Blob
-	blobId := uuid.New().String()
+func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.Blob, error) {
+	var uploadedBlobs []*blobs.Blob
+	blobID := uuid.New().String()
 
 	// Iterate through all file paths and upload each file
 	for _, filePath := range filePaths {
@@ -59,7 +60,7 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 		file, err := os.Open(filePath)
 		if err != nil {
 			err = fmt.Errorf("failed to open file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(blobs) // Rollback previously uploaded blobs
+			abc.rollbackUploadedBlobs(uploadedBlobs) // Rollback previously uploaded blobs
 			return nil, err
 		}
 		// Ensure file is closed after processing
@@ -69,7 +70,7 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 		fileInfo, err := file.Stat()
 		if err != nil {
 			err = fmt.Errorf("failed to stat file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(blobs)
+			abc.rollbackUploadedBlobs(uploadedBlobs)
 			return nil, err
 		}
 
@@ -78,21 +79,23 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 		_, err = buf.ReadFrom(file)
 		if err != nil {
 			err = fmt.Errorf("failed to read file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(blobs)
+			abc.rollbackUploadedBlobs(uploadedBlobs)
 			return nil, err
 		}
 
 		// Extract the file extension (type)
 		fileExt := filepath.Ext(fileInfo.Name()) // Gets the file extension (e.g. ".txt", ".jpg")
 
-		// Create a Blob object for metadata
-		blob := &model.Blob{
-			ID:   blobId,
-			Name: fileInfo.Name(),
-			Size: fileInfo.Size(),
-			Type: fileExt,
+		// Create a Blob object for metadata (Fill in missing fields)
+		blob := &blobs.Blob{
+			ID:         blobID,
+			Name:       fileInfo.Name(),
+			Size:       fileInfo.Size(),
+			Type:       fileExt,
+			UploadTime: time.Now(), // Set the current time
 		}
 
+		// Construct the full blob name (ID and Name)
 		fullBlobName := fmt.Sprintf("%s/%s", blob.ID, blob.Name) // Combine ID and name to form a full path
 		fullBlobName = filepath.ToSlash(fullBlobName)            // Ensure consistent slash usage across platforms
 
@@ -100,22 +103,22 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*model.Blob, er
 		_, err = abc.Client.UploadBuffer(context.Background(), abc.ContainerName, fullBlobName, buf.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
-			abc.rollbackUploadedBlobs(blobs)
+			abc.rollbackUploadedBlobs(uploadedBlobs)
 			return nil, err
 		}
 
 		log.Printf("Blob '%s' uploaded successfully.\n", blob.Name)
 
 		// Add the successfully uploaded blob to the list
-		blobs = append(blobs, blob)
+		uploadedBlobs = append(uploadedBlobs, blob)
 	}
 
 	// Return the list of blobs after successful upload.
-	return blobs, nil
+	return uploadedBlobs, nil
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
-func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*model.Blob) {
+func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*blobs.Blob) {
 	for _, blob := range blobs {
 		err := abc.Delete(blob.ID, blob.Name)
 		if err != nil {

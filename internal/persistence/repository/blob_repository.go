@@ -1,18 +1,17 @@
 package repository
 
 import (
+	"crypto_vault_service/internal/domain/blobs"
 	"fmt"
-
-	"crypto_vault_service/internal/domain/model"
 
 	"gorm.io/gorm"
 )
 
 // BlobRepository defines the interface for Blob-related operations
 type BlobRepository interface {
-	Create(blob *model.Blob) error
-	GetById(blobID string) (*model.Blob, error)
-	UpdateById(blob *model.Blob) error
+	Create(blob *blobs.Blob) error
+	GetById(blobID string) (*blobs.Blob, error)
+	UpdateById(blob *blobs.Blob) error
 	DeleteById(blobID string) error
 }
 
@@ -22,7 +21,7 @@ type BlobRepositoryImpl struct {
 }
 
 // Create adds a new Blob to the database
-func (r *BlobRepositoryImpl) Create(blob *model.Blob) error {
+func (r *BlobRepositoryImpl) Create(blob *blobs.Blob) error {
 	// Validate the Blob before saving
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -36,8 +35,8 @@ func (r *BlobRepositoryImpl) Create(blob *model.Blob) error {
 }
 
 // GetById retrieves a Blob by its ID from the database
-func (r *BlobRepositoryImpl) GetById(blobID string) (*model.Blob, error) {
-	var blob model.Blob
+func (r *BlobRepositoryImpl) GetById(blobID string) (*blobs.Blob, error) {
+	var blob blobs.Blob
 	if err := r.DB.Where("id = ?", blobID).First(&blob).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("blob with ID %s not found", blobID)
@@ -48,7 +47,7 @@ func (r *BlobRepositoryImpl) GetById(blobID string) (*model.Blob, error) {
 }
 
 // UpdateById updates an existing Blob in the database
-func (r *BlobRepositoryImpl) UpdateById(blob *model.Blob) error {
+func (r *BlobRepositoryImpl) UpdateById(blob *blobs.Blob) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -63,7 +62,7 @@ func (r *BlobRepositoryImpl) UpdateById(blob *model.Blob) error {
 
 // DeleteById removes a Blob from the database by its ID
 func (r *BlobRepositoryImpl) DeleteById(blobID string) error {
-	if err := r.DB.Where("id = ?", blobID).Delete(&model.Blob{}).Error; err != nil {
+	if err := r.DB.Where("id = ?", blobID).Delete(&blobs.Blob{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}
 	return nil
