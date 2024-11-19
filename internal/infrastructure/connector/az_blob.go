@@ -17,7 +17,7 @@ import (
 // AzureBlobConnector is an interface for interacting with Azure Blob storage
 type AzureBlobConnector interface {
 	// Upload uploads multiple files to Azure Blob Storage and returns their metadata.
-	Upload(filePaths []string) ([]*blobs.Blob, error)
+	Upload(filePaths []string) ([]*blobs.BlobMeta, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) (*bytes.Buffer, error)
 	// Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
@@ -50,8 +50,8 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 }
 
 // Upload uploads multiple files to Azure Blob Storage and returns their metadata.
-func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.Blob, error) {
-	var uploadedBlobs []*blobs.Blob
+func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
+	var uploadedBlobs []*blobs.BlobMeta
 	blobID := uuid.New().String()
 
 	// Iterate through all file paths and upload each file
@@ -87,7 +87,7 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.Blob, er
 		fileExt := filepath.Ext(fileInfo.Name()) // Gets the file extension (e.g. ".txt", ".jpg")
 
 		// Create a Blob object for metadata (Fill in missing fields)
-		blob := &blobs.Blob{
+		blob := &blobs.BlobMeta{
 			ID:         blobID,
 			Name:       fileInfo.Name(),
 			Size:       fileInfo.Size(),
@@ -118,7 +118,7 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.Blob, er
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
-func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*blobs.Blob) {
+func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
 	for _, blob := range blobs {
 		err := abc.Delete(blob.ID, blob.Name)
 		if err != nil {

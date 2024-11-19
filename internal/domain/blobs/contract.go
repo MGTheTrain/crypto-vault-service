@@ -1,28 +1,30 @@
 package blobs
 
-// BlobManagement defines methods for managing blob operations.
-type BlobManagement interface {
-	// Upload handles the upload of blobs from file paths.
-	// Returns the created Blobs metadata and any error encountered.
-	Upload(filePath []string) ([]*Blob, error)
-
-	// Download retrieves a blob by its ID and name, returning the metadata and file data.
-	// Returns the Blob metadata, file data as a byte slice, and any error.
-	Download(blobId, blobName string) (*Blob, []byte, error)
-
-	// DeleteByID removes a blob by its ID.
-	// Returns any error encountered.
-	DeleteByID(blobId string) error
+// BlobUploadService defines methods for uploading blobs.
+type BlobUploadService interface {
+	// Upload handles the upload of blobs from the specified file paths.
+	// It returns a slice of Blob for the uploaded blobs and any error encountered during the upload process.
+	Upload(filePaths []string) ([]*BlobMeta, error)
 }
 
-// BlobMetadataManagement defines the methods for managing Blob metadata
-type BlobMetadataManagement interface {
-	// Create creates a new blob
-	Create(blob *Blob) (*Blob, error)
-	// GetByID retrieves blob by ID
-	GetByID(blobID string) (*Blob, error)
-	// UpdateByID updates a blob's metadata
-	UpdateByID(blobID string, updates *Blob) (*Blob, error)
-	// DeleteByID deletes a blob by ID
+// BlobMetadataService defines methods for retrieving Blob and deleting a blob along with its metadata.
+type BlobMetadataService interface {
+	// List retrieves all blobs' metadata considering a query filter when set.
+	// It returns a slice of Blob and any error encountered during the retrieval.
+	List(query *BlobMetaQuery) ([]*BlobMeta, error)
+
+	// GetByID retrieves the metadata of a blob by its unique ID.
+	// It returns the Blob and any error encountered during the retrieval process.
+	GetByID(blobID string) (*BlobMeta, error)
+
+	// DeleteByID deletes a blob and its associated metadata by ID.
+	// It returns any error encountered during the deletion process.
 	DeleteByID(blobID string) error
+}
+
+// BlobDownloadService defines methods for downloading blobs.
+type BlobDownloadService interface {
+	// Download retrieves a blob by its ID and name.
+	// It returns the Blob, the file data as a byte slice, and any error encountered during the download process.
+	Download(blobID, blobName string) (*BlobMeta, []byte, error)
 }

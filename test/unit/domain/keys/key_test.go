@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestCryptographicKeyValidation tests the Validator method for CryptographicKey
-func TestCryptographicKeyValidation(t *testing.T) {
-	// Valid CryptographicKey
-	validKey := keys.CryptographicKey{
+// TestCryptoKeyValidation tests the Validator method for CryptoKey
+func TestCryptoKeyValidation(t *testing.T) {
+	// Valid CryptoKey
+	validKey := keys.CryptoKeyMeta{
 		ID:        uuid.New().String(), // Valid UUID
 		Type:      "AES",               // Valid Type
 		CreatedAt: time.Now(),
@@ -20,12 +20,12 @@ func TestCryptographicKeyValidation(t *testing.T) {
 		UserID:    uuid.New().String(),            // Valid UserID
 	}
 
-	// Validate the valid CryptographicKey
+	// Validate the valid CryptoKey
 	err := validKey.Validate()
-	assert.Nil(t, err, "Expected no validation errors for valid CryptographicKey")
+	assert.Nil(t, err, "Expected no validation errors for valid CryptoKey")
 
-	// Invalid CryptographicKey (empty ID, invalid Type, expired)
-	invalidKey := keys.CryptographicKey{
+	// Invalid CryptoKey (empty ID, invalid Type, expired)
+	invalidKey := keys.CryptoKeyMeta{
 		ID:        "",            // Invalid empty ID
 		Type:      "InvalidType", // Invalid Type
 		CreatedAt: time.Now(),
@@ -33,18 +33,18 @@ func TestCryptographicKeyValidation(t *testing.T) {
 		UserID:    "invalid-user-id",               // Invalid UserID
 	}
 
-	// Validate the invalid CryptographicKey
+	// Validate the invalid CryptoKey
 	err = invalidKey.Validate()
-	assert.NotNil(t, err, "Expected validation errors for invalid CryptographicKey")
+	assert.NotNil(t, err, "Expected validation errors for invalid CryptoKey")
 	assert.Contains(t, err.Error(), "Field: ID, Tag: required")
 	assert.Contains(t, err.Error(), "Field: Type, Tag: oneof")
 	assert.Contains(t, err.Error(), "Field: ExpiresAt, Tag: gtefield")
 }
 
-// TestCryptographicKeyValidations tests the validation edge cases for CryptographicKey
-func TestCryptographicKeyValidations(t *testing.T) {
+// TestCryptoKeyValidations tests the validation edge cases for CryptoKey
+func TestCryptoKeyValidations(t *testing.T) {
 	// Test missing UserID (should fail)
-	invalidKey := keys.CryptographicKey{
+	invalidKey := keys.CryptoKeyMeta{
 		ID:        uuid.New().String(), // Valid UUID
 		Type:      "AES",               // Valid Type
 		CreatedAt: time.Now(),
