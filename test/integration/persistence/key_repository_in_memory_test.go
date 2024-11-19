@@ -10,14 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestCryptographicKeyRepository_Create tests the Create method of CryptographicKeyRepositoryImpl
-func TestCryptographicKeyRepository_Create(t *testing.T) {
+// TestCryptoKeyRepository_Create tests the Create method of CryptoKeyRepositoryImpl
+func TestCryptoKeyRepository_Create(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
-	// Create a valid CryptographicKey object
-	cryptographicKey := &keys.CryptographicKey{
+	// Create a valid CryptoKey object
+	cryptographicKey := &keys.CryptoKeyMeta{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -30,21 +30,21 @@ func TestCryptographicKeyRepository_Create(t *testing.T) {
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the cryptographic key is created and exists in DB
-	var createdKey keys.CryptographicKey
+	var createdKey keys.CryptoKeyMeta
 	err = ctx.DB.First(&createdKey, "id = ?", cryptographicKey.ID).Error
 	assert.NoError(t, err, "Failed to find created cryptographic key")
 	assert.Equal(t, cryptographicKey.ID, createdKey.ID, "ID should match")
 	assert.Equal(t, cryptographicKey.Type, createdKey.Type, "Type should match")
 }
 
-// TestCryptographicKeyRepository_GetByID tests the GetByID method of CryptographicKeyRepositoryImpl
-func TestCryptographicKeyRepository_GetByID(t *testing.T) {
+// TestCryptoKeyRepository_GetByID tests the GetByID method of CryptoKeyRepositoryImpl
+func TestCryptoKeyRepository_GetByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
-	// Create a valid CryptographicKey object
-	cryptographicKey := &keys.CryptographicKey{
+	// Create a valid CryptoKey object
+	cryptographicKey := &keys.CryptoKeyMeta{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "RSA",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -63,14 +63,14 @@ func TestCryptographicKeyRepository_GetByID(t *testing.T) {
 	assert.Equal(t, cryptographicKey.ID, fetchedKey.ID, "ID should match")
 }
 
-// TestCryptographicKeyRepository_UpdateByID tests the UpdateByID method of CryptographicKeyRepositoryImpl
-func TestCryptographicKeyRepository_UpdateByID(t *testing.T) {
+// TestCryptoKeyRepository_UpdateByID tests the UpdateByID method of CryptoKeyRepositoryImpl
+func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
-	// Create a valid CryptographicKey object
-	cryptographicKey := &keys.CryptographicKey{
+	// Create a valid CryptoKey object
+	cryptographicKey := &keys.CryptoKeyMeta{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -88,20 +88,20 @@ func TestCryptographicKeyRepository_UpdateByID(t *testing.T) {
 	assert.NoError(t, err, "UpdateByID should not return an error")
 
 	// Verify the cryptographic key is updated
-	var updatedKey keys.CryptographicKey
+	var updatedKey keys.CryptoKeyMeta
 	err = ctx.DB.First(&updatedKey, "id = ?", cryptographicKey.ID).Error
 	assert.NoError(t, err, "Failed to find updated cryptographic key")
 	assert.Equal(t, "ECDSA", updatedKey.Type, "Type should be updated")
 }
 
-// TestCryptographicKeyRepository_DeleteByID tests the DeleteByID method of CryptographicKeyRepositoryImpl
-func TestCryptographicKeyRepository_DeleteByID(t *testing.T) {
+// TestCryptoKeyRepository_DeleteByID tests the DeleteByID method of CryptoKeyRepositoryImpl
+func TestCryptoKeyRepository_DeleteByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
-	// Create a valid CryptographicKey object
-	cryptographicKey := &keys.CryptographicKey{
+	// Create a valid CryptoKey object
+	cryptographicKey := &keys.CryptoKeyMeta{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -118,7 +118,7 @@ func TestCryptographicKeyRepository_DeleteByID(t *testing.T) {
 	assert.NoError(t, err, "DeleteByID should not return an error")
 
 	// Verify the cryptographic key is deleted
-	var deletedKey keys.CryptographicKey
+	var deletedKey keys.CryptoKeyMeta
 	err = ctx.DB.First(&deletedKey, "id = ?", cryptographicKey.ID).Error
 	assert.Error(t, err, "Cryptographic key should be deleted")
 	assert.Equal(t, gorm.ErrRecordNotFound, err, "Error should be 'record not found'")

@@ -7,8 +7,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// CryptographicKey represents the encryption key entity
-type CryptographicKey struct {
+// CryptoKeyMeta represents the encryption key entity
+type CryptoKeyMeta struct {
 	ID        string    `gorm:"primaryKey" validate:"required,uuid4"` // ID is required and must be a valid UUID
 	Type      string    `validate:"required,oneof=AES RSA ECDSA"`     // Type is required and must be one of the listed types
 	CreatedAt time.Time `validate:"required"`                         // CreatedAt is required
@@ -16,8 +16,8 @@ type CryptographicKey struct {
 	UserID    string    `gorm:"index" validate:"required,uuid4"`      // UserID is required and must be a valid UUID
 }
 
-// Validate for validating CryptographicKey struct
-func (k *CryptographicKey) Validate() error {
+// Validate for validating CryptoKeyMeta struct
+func (k *CryptoKeyMeta) Validate() error {
 	// Initialize the validator
 	validate := validator.New()
 

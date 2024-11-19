@@ -12,16 +12,16 @@ import (
 
 // BlobValidationTests struct encapsulates the test data and methods for blob validation
 type BlobValidationTests struct {
-	// TestData can be used for holding the Blob and CryptographicKey data
-	validBlob    blobs.Blob
-	invalidBlob  blobs.Blob
-	invalidBlob2 blobs.Blob
+	// TestData can be used for holding the Blob and CryptoKey data
+	validBlob    blobs.BlobMeta
+	invalidBlob  blobs.BlobMeta
+	invalidBlob2 blobs.BlobMeta
 }
 
 // NewBlobValidationTests is a constructor to create a new instance of BlobValidationTests
 func NewBlobValidationTests() *BlobValidationTests {
 	// Create valid and invalid test data
-	validBlob := blobs.Blob{
+	validBlob := blobs.BlobMeta{
 		ID:                  uuid.New().String(),
 		UploadTime:          time.Now(),
 		UserID:              uuid.New().String(),
@@ -32,11 +32,11 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    keys.CryptographicKey{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
-	invalidBlob := blobs.Blob{
+	invalidBlob := blobs.BlobMeta{
 		ID:                  "", // Invalid empty ID
 		UploadTime:          time.Now(),
 		UserID:              "invalid-uuid", // Invalid UserID
@@ -47,11 +47,11 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    keys.CryptographicKey{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
-	invalidBlob2 := blobs.Blob{
+	invalidBlob2 := blobs.BlobMeta{
 		ID:                  uuid.New().String(),
 		UploadTime:          time.Now(),
 		UserID:              uuid.New().String(),
@@ -62,7 +62,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptographicKey:    keys.CryptographicKey{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 

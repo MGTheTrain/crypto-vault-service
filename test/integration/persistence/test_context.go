@@ -15,7 +15,7 @@ import (
 type TestContext struct {
 	DB            *gorm.DB
 	BlobRepo      *repository.BlobRepositoryImpl
-	CryptoKeyRepo *repository.CryptographicKeyRepositoryImpl
+	CryptoKeyRepo *repository.CryptoKeyRepositoryImpl
 }
 
 // Setup function to initialize the test DB and repositories
@@ -27,15 +27,15 @@ func setupTestDB(t *testing.T) *TestContext {
 		t.Fatalf("Failed to setup DB: %v", err)
 	}
 
-	// Migrate the schema for Blob and CryptographicKey
-	err = db.AutoMigrate(&blobs.Blob{}, &keys.CryptographicKey{})
+	// Migrate the schema for Blob and CryptoKey
+	err = db.AutoMigrate(&blobs.BlobMeta{}, &keys.CryptoKeyMeta{})
 	if err != nil {
 		t.Fatalf("Failed to migrate schema: %v", err)
 	}
 
 	// Initialize the repositories with the DB instance
 	blobRepo := &repository.BlobRepositoryImpl{DB: db}
-	cryptoKeyRepo := &repository.CryptographicKeyRepositoryImpl{DB: db}
+	cryptoKeyRepo := &repository.CryptoKeyRepositoryImpl{DB: db}
 
 	// Return the test context that holds the DB and repositories
 	return &TestContext{

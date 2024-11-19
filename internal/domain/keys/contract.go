@@ -13,19 +13,19 @@ const (
 // CryptKeyUploadService defines methods for uploading cryptographic keys.
 type CryptKeyUploadService interface {
 	// Upload uploads cryptographic keys from specified file paths.
-	// It returns a slice of CryptographicKey metadata and any error encountered during the upload process.
-	Upload(filePaths []string) ([]*CryptographicKey, error)
+	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
+	Upload(filePaths []string) ([]*CryptoKeyMeta, error)
 }
 
 // CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
 type CryptoKeyMetadataService interface {
 	// List retrieves metadata for all cryptographic keys.
-	// It returns a slice of CryptographicKey metadata and any error encountered during the retrieval process.
-	List() ([]*CryptographicKey, error)
+	// It returns a slice of CryptoKeyMeta and any error encountered during the retrieval process.
+	List() ([]*CryptoKeyMeta, error)
 
 	// GetByID retrieves the metadata of a cryptographic key by its unique ID.
-	// It returns the CryptographicKey metadata and any error encountered during the retrieval process.
-	GetByID(keyID string) (*CryptographicKey, error)
+	// It returns the CryptoKeyMeta and any error encountered during the retrieval process.
+	GetByID(keyID string) (*CryptoKeyMeta, error)
 
 	// DeleteByID deletes a cryptographic key and its associated metadata by ID.
 	// It returns any error encountered during the deletion process.
@@ -35,8 +35,8 @@ type CryptoKeyMetadataService interface {
 // CryptoKeyDownloadService defines methods for downloading cryptographic keys.
 type CryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID and type.
-	// It returns the CryptographicKey metadata, the key data as a byte slice, and any error encountered during the download process.
-	Download(keyID string, keyType KeyType) (*CryptographicKey, []byte, error)
+	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
+	Download(keyID string, keyType KeyType) (*CryptoKeyMeta, []byte, error)
 }
 
 // KeyOperations defines methods for cryptographic key management, encryption, signing, and PKCS#11 operations.
