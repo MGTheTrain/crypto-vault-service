@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"crypto_vault_service/internal/domain/model"
+	"crypto_vault_service/internal/domain/keys"
 	"testing"
 	"time"
 
@@ -17,7 +17,7 @@ func TestCryptographicKeyRepository_Create(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := &model.CryptographicKey{
+	cryptographicKey := &keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -30,7 +30,7 @@ func TestCryptographicKeyRepository_Create(t *testing.T) {
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the cryptographic key is created and exists in DB
-	var createdKey model.CryptographicKey
+	var createdKey keys.CryptographicKey
 	err = ctx.DB.First(&createdKey, "id = ?", cryptographicKey.ID).Error
 	assert.NoError(t, err, "Failed to find created cryptographic key")
 	assert.Equal(t, cryptographicKey.ID, createdKey.ID, "ID should match")
@@ -44,7 +44,7 @@ func TestCryptographicKeyRepository_GetByID(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := &model.CryptographicKey{
+	cryptographicKey := &keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "RSA",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -70,7 +70,7 @@ func TestCryptographicKeyRepository_UpdateByID(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := &model.CryptographicKey{
+	cryptographicKey := &keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -88,7 +88,7 @@ func TestCryptographicKeyRepository_UpdateByID(t *testing.T) {
 	assert.NoError(t, err, "UpdateByID should not return an error")
 
 	// Verify the cryptographic key is updated
-	var updatedKey model.CryptographicKey
+	var updatedKey keys.CryptographicKey
 	err = ctx.DB.First(&updatedKey, "id = ?", cryptographicKey.ID).Error
 	assert.NoError(t, err, "Failed to find updated cryptographic key")
 	assert.Equal(t, "ECDSA", updatedKey.Type, "Type should be updated")
@@ -101,7 +101,7 @@ func TestCryptographicKeyRepository_DeleteByID(t *testing.T) {
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptographicKey object
-	cryptographicKey := &model.CryptographicKey{
+	cryptographicKey := &keys.CryptographicKey{
 		ID:        uuid.New().String(),            // Generate valid UUID for ID
 		Type:      "AES",                          // Example key type
 		CreatedAt: time.Now(),                     // Valid CreatedAt time
@@ -118,7 +118,7 @@ func TestCryptographicKeyRepository_DeleteByID(t *testing.T) {
 	assert.NoError(t, err, "DeleteByID should not return an error")
 
 	// Verify the cryptographic key is deleted
-	var deletedKey model.CryptographicKey
+	var deletedKey keys.CryptographicKey
 	err = ctx.DB.First(&deletedKey, "id = ?", cryptographicKey.ID).Error
 	assert.Error(t, err, "Cryptographic key should be deleted")
 	assert.Equal(t, gorm.ErrRecordNotFound, err, "Error should be 'record not found'")
