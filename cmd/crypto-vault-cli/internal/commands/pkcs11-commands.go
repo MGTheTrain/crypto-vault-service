@@ -12,7 +12,7 @@ func IsTokenSetCmd(cmd *cobra.Command, args []string) {
 	modulePath, _ := cmd.Flags().GetString("module")
 	Label, _ := cmd.Flags().GetString("token-label")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath: modulePath,
 		Label:      Label,
 	}
@@ -30,7 +30,7 @@ func IsObjectSetCmd(cmd *cobra.Command, args []string) {
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
@@ -51,7 +51,7 @@ func InitializeTokenCmd(cmd *cobra.Command, args []string) {
 	soPin, _ := cmd.Flags().GetString("so-pin")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath: modulePath,
 		Label:      Label,
 		SOPin:      soPin,
@@ -72,7 +72,7 @@ func AddKeyCmd(cmd *cobra.Command, args []string) {
 	keySize, _ := cmd.Flags().GetInt("key-size")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
@@ -94,7 +94,7 @@ func DeleteObjectCmd(cmd *cobra.Command, args []string) {
 	objectType, _ := cmd.Flags().GetString("object-type")
 	userPin, _ := cmd.Flags().GetString("user-pin")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
@@ -116,7 +116,7 @@ func EncryptCmd(cmd *cobra.Command, args []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
@@ -139,7 +139,7 @@ func DecryptCmd(cmd *cobra.Command, args []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
@@ -162,7 +162,7 @@ func SignCmd(cmd *cobra.Command, args []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
@@ -185,7 +185,7 @@ func VerifyCmd(cmd *cobra.Command, args []string) {
 	dataFilePath, _ := cmd.Flags().GetString("data-file")
 	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
 
-	token := &cryptography.PKCS11Token{
+	token := &cryptography.PKCS11TokenImpl{
 		ModulePath:  modulePath,
 		Label:       Label,
 		ObjectLabel: objectLabel,
