@@ -1,9 +1,14 @@
-graph TD;
+graph TB;
 
-%% Actors (Users)
-Admin["Administrator"]
-Owner["Owner"]
-Grantee["Grantee"]
+%% Actors (Users) with text below each actor and separators
+subgraph Roles ["Roles"]
+    direction TB
+    Admin["Administrator - Full access to all operations, including managing blobs, keys, and granting permissions."]
+    
+    Owner["Owner - Manage own blobs and metadata. Grant permissions to others."]
+    
+    Grantee["Grantee - View and download blobs with permission. Decrypt blobs."]
+end
 
 %% Use Cases Grouped by Domain
 subgraph Blob_Management ["Blob Management"]
@@ -36,30 +41,6 @@ subgraph Permission_Management ["Permission Management"]
     UC18["UC18: Grant Download Permission"]
     UC19["UC19: Grant View Permission"]
 end
-
-%% Actor -> Use Cases
-Admin --> UC1
-Admin --> UC9
-Admin --> UC10
-Admin --> UC11
-
-Owner --> UC2
-Owner --> UC3
-Owner --> UC4
-Owner --> UC5
-Owner --> UC6
-Owner --> UC7
-Owner --> UC8
-Owner --> UC14
-Owner --> UC15
-Owner --> UC16
-Owner --> UC17
-Owner --> UC18
-Owner --> UC19
-
-Grantee --> UC4
-Grantee --> UC5
-Grantee --> UC15
 
 %% Class definitions for actors
 classDef actor fill:#ADD8E6,stroke:#333,stroke-width:2px;
