@@ -10,8 +10,8 @@ import (
 
 // AES Interface
 type AES interface {
-	Encrypt(plainText []byte, key []byte) ([]byte, error)
-	Decrypt(ciphertext []byte, key []byte) ([]byte, error)
+	Encrypt(plainText, key []byte) ([]byte, error)
+	Decrypt(ciphertext, key []byte) ([]byte, error)
 	GenerateKey(keySize int) ([]byte, error)
 }
 
