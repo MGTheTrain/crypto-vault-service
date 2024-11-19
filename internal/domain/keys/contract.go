@@ -1,84 +1,108 @@
 package keys
 
-// Define KeyType as a custom type (based on int)
+// KeyType defines a custom type for key types based on an integer.
 type KeyType int
 
-// Enum-like values using iota
+// Enum-like values for different key types, using iota to generate sequential values.
 const (
-	AsymmetricPublic KeyType = iota
-	AsymmetricPrivate
-	Symmetric
+	AsymmetricPublic  KeyType = iota // Public key in asymmetric cryptography (e.g., RSA, ECDSA)
+	AsymmetricPrivate                // Private key in asymmetric cryptography (e.g., RSA, ECDSA)
+	Symmetric                        // Symmetric key (e.g., AES)
 )
 
-// KeyManagement defines methods for managing cryptographic key operations.
-type KeyManagement interface {
-	// Upload handles the upload of blobs from file paths.
-	// Returns the created Blobs metadata and any error encountered.
-	Upload(filePath []string) ([]*CryptographicKey, error)
-
-	// Download retrieves a cryptographic key by its ID and key type, returning the metadata and key data.
-	// Returns the key metadata, key data as a byte slice, and any error.
-	Download(keyId string, keyType KeyType) (*CryptographicKey, []byte, error)
-
-	// DeleteByID removes a cryptographic key by its ID.
-	// Returns any error encountered.
-	DeleteByID(keyId string) error
+// CryptKeyUploadService defines methods for uploading cryptographic keys.
+type CryptKeyUploadService interface {
+	// Upload uploads cryptographic keys from specified file paths.
+	// It returns a slice of CryptographicKey metadata and any error encountered during the upload process.
+	Upload(filePaths []string) ([]*CryptographicKey, error)
 }
 
-// CryptographicKeyMetadataManagement defines the methods for managing CryptographicKey metadata
-type CryptographicKeyMetadataManagement interface {
-	// Create creates a new cryptographic key
-	Create(key *CryptographicKey) (*CryptographicKey, error)
-	// GetByID retrieves cryptographic key by ID
+// CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
+type CryptoKeyMetadataService interface {
+	// List retrieves metadata for all cryptographic keys.
+	// It returns a slice of CryptographicKey metadata and any error encountered during the retrieval process.
+	List() ([]*CryptographicKey, error)
+
+	// GetByID retrieves the metadata of a cryptographic key by its unique ID.
+	// It returns the CryptographicKey metadata and any error encountered during the retrieval process.
 	GetByID(keyID string) (*CryptographicKey, error)
-	// UpdateByID updates cryptographic key metadata
-	UpdateByID(keyID string, updates *CryptographicKey) (*CryptographicKey, error)
-	// DeleteByID deletes a cryptographic key by ID
+
+	// DeleteByID deletes a cryptographic key and its associated metadata by ID.
+	// It returns any error encountered during the deletion process.
 	DeleteByID(keyID string) error
 }
 
-// KeyOperations defines methods for key management, encryption, signing, and PKCS#11 operations.
-type KeyOperations interface {
+// CryptoKeyDownloadService defines methods for downloading cryptographic keys.
+type CryptoKeyDownloadService interface {
+	// Download retrieves a cryptographic key by its ID and type.
+	// It returns the CryptographicKey metadata, the key data as a byte slice, and any error encountered during the download process.
+	Download(keyID string, keyType KeyType) (*CryptographicKey, []byte, error)
+}
 
-	// ---Key generation---
+// KeyOperations defines methods for cryptographic key management, encryption, signing, and PKCS#11 operations.
+type CryptoKeyOperationService interface {
 
-	// GenerateKey generates keys for specified type and size (e.g., AES, RSA, ECDSA)
+	// --- Key Generation ---
+
+	// GenerateKey generates a cryptographic key of the specified type and size (e.g., AES, RSA, ECDSA).
+	// It returns the generated key as a byte slice and any error encountered during the key generation.
 	GenerateKey(keyType string, keySize int) ([]byte, error)
 
-	// ---Key storage and retrieval---
+	// --- Key Storage and Retrieval ---
 
-	// SaveKey saves a key to a file
+	// SaveKey saves a cryptographic key to a specified file.
+	// It returns any error encountered during the saving process.
 	SaveKey(key []byte, filename string) error
-	// LoadKey loads a key from a file
+
+	// LoadKey loads a cryptographic key from a specified file.
+	// It returns the loaded key as a byte slice and any error encountered during the loading process.
 	LoadKey(filename string) ([]byte, error)
 
-	// ---Encryption and Decryption (Symmetric algorithms like AES)---
+	// --- Encryption and Decryption (Symmetric algorithms like AES) ---
 
-	// EncryptWithSymmetricKey encrypts data with symmetric keys (e.g. AES)
+	// EncryptWithSymmetricKey encrypts data using a symmetric key (e.g., AES).
+	// It returns the encrypted data as a byte slice and any error encountered during encryption.
 	EncryptWithSymmetricKey(plainText []byte, key []byte) ([]byte, error)
-	// DecryptWithSymmetricKey decrypts data with symmetric keys (e.g. AES)
+
+	// DecryptWithSymmetricKey decrypts data using a symmetric key (e.g., AES).
+	// It returns the decrypted data as a byte slice and any error encountered during decryption.
 	DecryptWithSymmetricKey(cipherText []byte, key []byte) ([]byte, error)
 
-	// ---Asymmetric Encryption (RSA, ECDSA, PKCS#11)---
+	// --- Asymmetric Encryption (RSA, ECDSA, PKCS#11) ---
 
-	// EncryptWithPublicKey encrypts with public key using asymmetric algorithms (RSA, ECDSA) and optionally a PKCS#11 interface
+	// EncryptWithPublicKey encrypts data with a public key using asymmetric encryption algorithms (e.g., RSA, ECDSA).
+	// It optionally supports PKCS#11 hardware tokens for key storage.
+	// It returns the encrypted data as a byte slice and any error encountered during encryption.
 	EncryptWithPublicKey(plainText []byte, publicKey interface{}) ([]byte, error)
-	// DecryptWithPrivateKey decrypt with private key using asymmetric algorithms (RSA, ECDSA) and optionally a PKCS#11 interface
+
+	// DecryptWithPrivateKey decrypts data with a private key using asymmetric encryption algorithms (e.g., RSA, ECDSA).
+	// It optionally supports PKCS#11 hardware tokens for key storage.
+	// It returns the decrypted data as a byte slice and any error encountered during decryption.
 	DecryptWithPrivateKey(cipherText []byte, privateKey interface{}) ([]byte, error)
 
-	// ---Signing and Verification (For RSA, ECDSA)---
+	// --- Signing and Verification (For RSA, ECDSA) ---
 
-	// SignWithPrivateKey signs message with private key using asymmetric algorithms (RSA, ECDSA) and optionally a PKCS#11 interface
+	// SignWithPrivateKey signs a message using a private key with asymmetric algorithms (e.g., RSA, ECDSA).
+	// It optionally supports PKCS#11 hardware tokens for key storage.
+	// It returns the signature and any error encountered during the signing process.
 	SignWithPrivateKey(message []byte, privateKey interface{}) ([]byte, error)
-	// VerifyWithPublicKey verifies signatures with public key using asymmetric algorithms (RSA, ECDSA) and optionally a PKCS#11 interface
+
+	// VerifyWithPublicKey verifies a signature using a public key with asymmetric algorithms (e.g., RSA, ECDSA).
+	// It optionally supports PKCS#11 hardware tokens for key storage.
+	// It returns true if the signature is valid, false otherwise, and any error encountered during the verification process.
 	VerifyWithPublicKey(message []byte, signature []byte, publicKey interface{}) (bool, error)
 
-	// ---PKCS#11 Operations---
+	// --- PKCS#11 Operations ---
 
-	// InitializeToken initializes PKCS#11 token in the specified slot
+	// InitializeToken initializes a PKCS#11 token in the specified hardware slot.
+	// It returns any error encountered during the initialization.
 	InitializeToken(slot string) error
-	// AddKeyToToken adds key to the PKCS#11 token
+
+	// AddKeyToToken adds a cryptographic key to a PKCS#11 token.
+	// It returns any error encountered during the addition of the key.
 	AddKeyToToken() error
-	// DeleteKeyFromToken deletes key from PKCS#11 token by type and label
+
+	// DeleteKeyFromToken deletes a cryptographic key from a PKCS#11 token by its type and label.
+	// It returns any error encountered during the deletion of the key.
 	DeleteKeyFromToken(objectType, objectLabel string) error
 }
