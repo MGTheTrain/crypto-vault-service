@@ -19,9 +19,9 @@ type CryptKeyUploadService interface {
 
 // CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
 type CryptoKeyMetadataService interface {
-	// List retrieves metadata for all cryptographic keys.
+	// List retrieves all cryptographic keys metadata considering a query filter when set.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the retrieval process.
-	List() ([]*CryptoKeyMeta, error)
+	List(query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
 
 	// GetByID retrieves the metadata of a cryptographic key by its unique ID.
 	// It returns the CryptoKeyMeta and any error encountered during the retrieval process.

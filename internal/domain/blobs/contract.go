@@ -7,11 +7,11 @@ type BlobUploadService interface {
 	Upload(filePaths []string) ([]*BlobMeta, error)
 }
 
-// MetadataService defines methods for retrieving Blob and deleting a blob along with its metadata.
-type MetadataService interface {
-	// List retrieves all blobs' metadata.
+// BlobMetadataService defines methods for retrieving Blob and deleting a blob along with its metadata.
+type BlobMetadataService interface {
+	// List retrieves all blobs' metadata considering a query filter when set.
 	// It returns a slice of Blob and any error encountered during the retrieval.
-	List() ([]*BlobMeta, error)
+	List(query *BlobMetaQuery) ([]*BlobMeta, error)
 
 	// GetByID retrieves the metadata of a blob by its unique ID.
 	// It returns the Blob and any error encountered during the retrieval process.
