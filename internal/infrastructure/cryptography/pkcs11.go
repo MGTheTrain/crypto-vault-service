@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// PKCS11TokenInterface defines the operations for working with a PKCS#11 token
-type PKCS11TokenInterface interface {
+// PKCS11Token defines the operations for working with a PKCS#11 token
+type PKCS11Token interface {
 	IsTokenSet() (bool, error)
 	IsObjectSet() (bool, error)
 	InitializeToken(slot string) error
@@ -20,8 +20,8 @@ type PKCS11TokenInterface interface {
 	DeleteObject(objectType, objectLabel string) error
 }
 
-// PKCS11Token represents the parameters and operations for interacting with a PKCS#11 token
-type PKCS11Token struct {
+// PKCS11TokenImpl represents the parameters and operations for interacting with a PKCS#11 token
+type PKCS11TokenImpl struct {
 	ModulePath  string
 	Label       string
 	SOPin       string
@@ -32,7 +32,7 @@ type PKCS11Token struct {
 }
 
 // Public method to execute pkcs11-tool commands and return output
-func (token *PKCS11Token) executePKCS11ToolCommand(args []string) (string, error) {
+func (token *PKCS11TokenImpl) executePKCS11ToolCommand(args []string) (string, error) {
 	cmd := exec.Command("pkcs11-tool", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -42,7 +42,7 @@ func (token *PKCS11Token) executePKCS11ToolCommand(args []string) (string, error
 }
 
 // IsTokenSet checks if the token exists in the given module path
-func (token *PKCS11Token) IsTokenSet() (bool, error) {
+func (token *PKCS11TokenImpl) IsTokenSet() (bool, error) {
 	if token.ModulePath == "" || token.Label == "" {
 		return false, fmt.Errorf("missing module path or token label")
 	}
@@ -63,7 +63,7 @@ func (token *PKCS11Token) IsTokenSet() (bool, error) {
 }
 
 // IsObjectSet checks if the specified object exists on the given token
-func (token *PKCS11Token) IsObjectSet() (bool, error) {
+func (token *PKCS11TokenImpl) IsObjectSet() (bool, error) {
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return false, fmt.Errorf("missing required arguments")
 	}
@@ -84,7 +84,7 @@ func (token *PKCS11Token) IsObjectSet() (bool, error) {
 }
 
 // InitializeToken initializes the token with the provided label and pins
-func (token *PKCS11Token) InitializeToken(slot string) error {
+func (token *PKCS11TokenImpl) InitializeToken(slot string) error {
 	if token.ModulePath == "" || token.Label == "" || token.SOPin == "" || token.UserPin == "" || slot == "" {
 		return fmt.Errorf("missing required parameters for token initialization")
 	}
@@ -112,7 +112,7 @@ func (token *PKCS11Token) InitializeToken(slot string) error {
 }
 
 // DeleteObject deletes a key or object from the token
-func (token *PKCS11Token) DeleteObject(objectType, objectLabel string) error {
+func (token *PKCS11TokenImpl) DeleteObject(objectType, objectLabel string) error {
 	if token.ModulePath == "" || token.Label == "" || objectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments to delete object")
 	}
@@ -150,7 +150,7 @@ func (token *PKCS11Token) DeleteObject(objectType, objectLabel string) error {
 }
 
 // AddKey adds the selected key (ECDSA or RSA) to the token
-func (token *PKCS11Token) AddKey() error {
+func (token *PKCS11TokenImpl) AddKey() error {
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments")
 	}
@@ -166,7 +166,7 @@ func (token *PKCS11Token) AddKey() error {
 }
 
 // addECDSASignKey adds an ECDSA signing key to the token
-func (token *PKCS11Token) addECDSASignKey() error {
+func (token *PKCS11TokenImpl) addECDSASignKey() error {
 	if token.KeySize != 256 && token.KeySize != 384 && token.KeySize != 521 {
 		return fmt.Errorf("ECDSA key size must be one of 256, 384, or 521 bits, but got %d", token.KeySize)
 	}
@@ -205,7 +205,7 @@ func (token *PKCS11Token) addECDSASignKey() error {
 }
 
 // addRSASignKey adds an RSA signing key to the token
-func (token *PKCS11Token) addRSASignKey() error {
+func (token *PKCS11TokenImpl) addRSASignKey() error {
 	// Supported RSA key sizes (for example, 2048, 3072, and 4096)
 	supportedRSASizes := []int{2048, 3072, 4096}
 
@@ -240,7 +240,7 @@ func (token *PKCS11Token) addRSASignKey() error {
 }
 
 // Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
+func (token *PKCS11TokenImpl) Encrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments for encryption")
@@ -271,7 +271,7 @@ func (token *PKCS11Token) Encrypt(inputFilePath, outputFilePath string) error {
 }
 
 // Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
+func (token *PKCS11TokenImpl) Decrypt(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments for decryption")
@@ -307,7 +307,7 @@ func (token *PKCS11Token) Decrypt(inputFilePath, outputFilePath string) error {
 }
 
 // Sign signs data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11Token) Sign(inputFilePath, outputFilePath string) error {
+func (token *PKCS11TokenImpl) Sign(inputFilePath, outputFilePath string) error {
 	// Validate required parameters
 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 		return fmt.Errorf("missing required arguments for signing")
@@ -356,7 +356,7 @@ func (token *PKCS11Token) Sign(inputFilePath, outputFilePath string) error {
 }
 
 // Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11Token) Verify(dataFilePath, signatureFilePath string) (bool, error) {
+func (token *PKCS11TokenImpl) Verify(dataFilePath, signatureFilePath string) (bool, error) {
 	valid := false
 
 	// Validate required parameters
