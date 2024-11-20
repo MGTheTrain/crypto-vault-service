@@ -17,7 +17,7 @@ import (
 // BlobConnector is an interface for interacting with Blob storage
 type BlobConnector interface {
 	// Upload uploads multiple files to Blob Storage and returns their metadata.
-	Upload(filePaths []string) ([]*blobs.BlobMeta, error)
+	Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) ([]byte, error)
 	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
@@ -50,7 +50,7 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 }
 
 // Upload uploads multiple files to Azure Blob Storage and returns their metadata.
-func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
+func (abc *AzureBlobConnector) Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 	blobID := uuid.New().String()
 
@@ -92,7 +92,13 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 			Name:            fileInfo.Name(),
 			Size:            fileInfo.Size(),
 			Type:            fileExt,
-			DateTimeCreated: time.Now(), // Set the current time
+			DateTimeCreated: time.Now(),
+			UserID:          userId,
+			// Size                int64
+			// EncryptionAlgorithm string
+			// HashAlgorithm       string
+			// CryptoKey           keys.CryptoKeyMeta
+			// KeyID               string
 		}
 
 		// Construct the full blob name (ID and Name)
