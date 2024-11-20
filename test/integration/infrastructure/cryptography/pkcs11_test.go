@@ -13,14 +13,14 @@ import (
 
 type PKCS11Test struct {
 	Slot  string
-	Token *cryptography.PKCS11TokenImpl
+	Token *cryptography.PKCS11TokenHandler
 }
 
 // NewPKCS11Test sets up the test environment for PKCS#11 integration tests
 func NewPKCS11Test(slot, modulePath, Label, soPin, userPin, objectLabel, keyType string, keySize int) *PKCS11Test {
 	return &PKCS11Test{
 		Slot: slot,
-		Token: &cryptography.PKCS11TokenImpl{
+		Token: &cryptography.PKCS11TokenHandler{
 			ModulePath:  modulePath,
 			Label:       Label,
 			SOPin:       soPin,

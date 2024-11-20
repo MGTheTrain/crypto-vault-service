@@ -14,25 +14,25 @@ import (
 	"github.com/google/uuid"
 )
 
-// AzureBlobConnector is an interface for interacting with Azure Blob storage
-type AzureBlobConnector interface {
-	// Upload uploads multiple files to Azure Blob Storage and returns their metadata.
+// BlobConnector is an interface for interacting with Blob storage
+type BlobConnector interface {
+	// Upload uploads multiple files to Blob Storage and returns their metadata.
 	Upload(filePaths []string) ([]*blobs.BlobMeta, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) (*bytes.Buffer, error)
-	// Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
+	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
 	Delete(blobId, blobName string) error
 }
 
-// AzureBlobConnectorImpl is a struct that holds the Azure Blob storage client.
-type AzureBlobConnectorImpl struct {
+// AzureBlobConnector is a struct that holds the Azure Blob storage client and implements the BlobConnector interfaces.
+type AzureBlobConnector struct {
 	Client        *azblob.Client
 	ContainerName string
 }
 
-// NewAzureBlobConnector creates a new AzureBlobConnectorImpl instance using a connection string.
+// NewAzureBlobConnector creates a new AzureBlobConnector instance using a connection string.
 // It returns the connector and any error encountered during the initialization.
-func NewAzureBlobConnector(connectionString string, containerName string) (*AzureBlobConnectorImpl, error) {
+func NewAzureBlobConnector(connectionString string, containerName string) (*AzureBlobConnector, error) {
 	client, err := azblob.NewClientFromConnectionString(connectionString, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
@@ -43,14 +43,14 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 		fmt.Printf("Failed to create Azure container: %v\n", err) // The container may already exist, so we should not return an error in this case.
 	}
 
-	return &AzureBlobConnectorImpl{
+	return &AzureBlobConnector{
 		Client:        client,
 		ContainerName: containerName,
 	}, nil
 }
 
 // Upload uploads multiple files to Azure Blob Storage and returns their metadata.
-func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
+func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
 	var uploadedBlobs []*blobs.BlobMeta
 	blobID := uuid.New().String()
 
@@ -118,7 +118,7 @@ func (abc *AzureBlobConnectorImpl) Upload(filePaths []string) ([]*blobs.BlobMeta
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
-func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
+func (abc *AzureBlobConnector) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
 	for _, blob := range blobs {
 		err := abc.Delete(blob.ID, blob.Name)
 		if err != nil {
@@ -130,7 +130,7 @@ func (abc *AzureBlobConnectorImpl) rollbackUploadedBlobs(blobs []*blobs.BlobMeta
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *AzureBlobConnectorImpl) Download(blobId, blobName string) (*bytes.Buffer, error) {
+func (abc *AzureBlobConnector) Download(blobId, blobName string) (*bytes.Buffer, error) {
 	ctx := context.Background()
 
 	// Construct the full blob path by combining blob ID and name
@@ -163,7 +163,7 @@ func (abc *AzureBlobConnectorImpl) Download(blobId, blobName string) (*bytes.Buf
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
-func (abc *AzureBlobConnectorImpl) Delete(blobId, blobName string) error {
+func (abc *AzureBlobConnector) Delete(blobId, blobName string) error {
 	ctx := context.Background()
 
 	// Construct the full blob path by combining blob ID and name

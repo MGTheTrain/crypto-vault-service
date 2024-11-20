@@ -26,13 +26,13 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// ECC implementation
-	ecdsaImpl := &cryptography.ECDSAImpl{}
+	ECCrypto := &cryptography.ECCrypto{}
 	var privateKey *ecdsa.PrivateKey
 	var publicKey *ecdsa.PublicKey
 	var err error
 
 	// Generate new ECC keys if no private key is provided
-	privateKey, publicKey, err = ecdsaImpl.GenerateKeys(elliptic.P256())
+	privateKey, publicKey, err = ECCrypto.GenerateKeys(elliptic.P256())
 	if err != nil {
 		log.Fatalf("Error generating ECC keys: %v\n", err)
 	}
@@ -44,7 +44,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Sign the file content (hash the content before signing)
-	signature, err := ecdsaImpl.Sign(fileContent, privateKey)
+	signature, err := ECCrypto.Sign(fileContent, privateKey)
 	if err != nil {
 		log.Fatalf("Error signing file content: %v\n", err)
 	}
@@ -57,7 +57,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	if privateKey != nil && keyDir != "" {
 		privateKeyFilePath := fmt.Sprintf("%s/%s-private_key.pem", keyDir, uniqueID.String())
 
-		err = ecdsaImpl.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
+		err = ECCrypto.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 		if err != nil {
 			log.Fatalf("Error saving private key: %v\n", err)
 		}
@@ -66,7 +66,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 
 	if publicKey != nil && keyDir != "" {
 		publicKeyFilePath := fmt.Sprintf("%s/%s-public_key.pem", keyDir, uniqueID.String())
-		err = ecdsaImpl.SavePublicKeyToFile(publicKey, publicKeyFilePath)
+		err = ECCrypto.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 		if err != nil {
 			log.Fatalf("Error saving public key: %v\n", err)
 		}
@@ -76,7 +76,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	// Save the signature to a file in the data folder (optional, based on the input file)
 	if keyDir != "" {
 		signatureFilePath := fmt.Sprintf("%s/%s-signature.sig", keyDir, uniqueID.String())
-		err = ecdsaImpl.SaveSignatureToFile(signatureFilePath, signature)
+		err = ECCrypto.SaveSignatureToFile(signatureFilePath, signature)
 		if err != nil {
 			log.Fatalf("Error saving signature: %v\n", err)
 		}
@@ -91,7 +91,7 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	signatureFile, _ := cmd.Flags().GetString("signature") // Path to signature file
 
 	// ECC implementation
-	ecdsaImpl := &cryptography.ECDSAImpl{}
+	ECCrypto := &cryptography.ECCrypto{}
 	var publicKey *ecdsa.PublicKey
 	var err error
 
@@ -99,7 +99,7 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	if publicKeyPath == "" {
 		log.Fatalf("Public key is required for ECC signature verification.\n")
 	} else {
-		publicKey, err = ecdsaImpl.ReadPublicKey(publicKeyPath, elliptic.P256())
+		publicKey, err = ECCrypto.ReadPublicKey(publicKeyPath, elliptic.P256())
 		if err != nil {
 			log.Fatalf("Error reading public key: %v\n", err)
 		}
@@ -124,7 +124,7 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Verify the signature
-	valid, err := ecdsaImpl.Verify(fileContent, signature, publicKey)
+	valid, err := ECCrypto.Verify(fileContent, signature, publicKey)
 	if err != nil {
 		log.Fatalf("Error verifying signature: %v\n", err)
 	}

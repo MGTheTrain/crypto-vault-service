@@ -15,8 +15,8 @@ type AES interface {
 	GenerateKey(keySize int) ([]byte, error)
 }
 
-// AESImpl struct that implements the AES interface
-type AESImpl struct{}
+// AESCrypto struct that implements the AES interface
+type AESCrypto struct{}
 
 // Pad data to make it a multiple of AES block size
 func pkcs7Pad(data []byte, blockSize int) []byte {
@@ -37,7 +37,7 @@ func pkcs7Unpad(data []byte, blockSize int) ([]byte, error) {
 }
 
 // GenerateRandomAESKey generates a random AES key of the specified size
-func (a *AESImpl) GenerateKey(keySize int) ([]byte, error) {
+func (a *AESCrypto) GenerateKey(keySize int) ([]byte, error) {
 	key := make([]byte, keySize)
 	_, err := rand.Read(key)
 	if err != nil {
@@ -47,7 +47,7 @@ func (a *AESImpl) GenerateKey(keySize int) ([]byte, error) {
 }
 
 // Encrypt data using AES in CBC mode
-func (a *AESImpl) Encrypt(plainText, key []byte) ([]byte, error) {
+func (a *AESCrypto) Encrypt(plainText, key []byte) ([]byte, error) {
 	if key == nil {
 		return nil, fmt.Errorf("key key cannot be nil")
 	}
@@ -72,7 +72,7 @@ func (a *AESImpl) Encrypt(plainText, key []byte) ([]byte, error) {
 }
 
 // Decrypt data using AES in CBC mode
-func (a *AESImpl) Decrypt(ciphertext, key []byte) ([]byte, error) {
+func (a *AESCrypto) Decrypt(ciphertext, key []byte) ([]byte, error) {
 	if key == nil {
 		return nil, fmt.Errorf("key key cannot be nil")
 	}

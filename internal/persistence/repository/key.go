@@ -15,13 +15,13 @@ type CryptoKeyRepository interface {
 	DeleteByID(keyID string) error
 }
 
-// CryptoKeyRepositoryImpl is the implementation of the CryptoKeyRepository interface
-type CryptoKeyRepositoryImpl struct {
+// GormCryptoKeyRepository is the implementation of the CryptoKeyRepository interface
+type GormCryptoKeyRepository struct {
 	DB *gorm.DB
 }
 
 // Create adds a new CryptoKey to the database
-func (r *CryptoKeyRepositoryImpl) Create(key *keys.CryptoKeyMeta) error {
+func (r *GormCryptoKeyRepository) Create(key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before saving
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -35,7 +35,7 @@ func (r *CryptoKeyRepositoryImpl) Create(key *keys.CryptoKeyMeta) error {
 }
 
 // GetByID retrieves a CryptoKey by its ID from the database
-func (r *CryptoKeyRepositoryImpl) GetByID(keyID string) (*keys.CryptoKeyMeta, error) {
+func (r *GormCryptoKeyRepository) GetByID(keyID string) (*keys.CryptoKeyMeta, error) {
 	var key keys.CryptoKeyMeta
 	if err := r.DB.Where("id = ?", keyID).First(&key).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -47,7 +47,7 @@ func (r *CryptoKeyRepositoryImpl) GetByID(keyID string) (*keys.CryptoKeyMeta, er
 }
 
 // UpdateByID updates an existing CryptoKey in the database
-func (r *CryptoKeyRepositoryImpl) UpdateByID(key *keys.CryptoKeyMeta) error {
+func (r *GormCryptoKeyRepository) UpdateByID(key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before updating
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -61,7 +61,7 @@ func (r *CryptoKeyRepositoryImpl) UpdateByID(key *keys.CryptoKeyMeta) error {
 }
 
 // DeleteByID removes a CryptoKey from the database by its ID
-func (r *CryptoKeyRepositoryImpl) DeleteByID(keyID string) error {
+func (r *GormCryptoKeyRepository) DeleteByID(keyID string) error {
 	if err := r.DB.Where("id = ?", keyID).Delete(&keys.CryptoKeyMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete cryptographic key: %w", err)
 	}

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestBlobRepository_Create tests the Create method of BlobRepositoryImpl
+// TestBlobRepository_Create tests the Create method of GormBlobRepository
 func TestBlobRepository_Create(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -52,7 +52,7 @@ func TestBlobRepository_Create(t *testing.T) {
 	assert.Equal(t, blob.Name, createdBlob.Name, "Name should match")
 }
 
-// TestBlobRepository_GetById tests the GetById method of BlobRepositoryImpl
+// TestBlobRepository_GetById tests the GetById method of GormBlobRepository
 func TestBlobRepository_GetById(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -92,7 +92,7 @@ func TestBlobRepository_GetById(t *testing.T) {
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
 }
 
-// TestBlobRepository_UpdateById tests the UpdateById method of BlobRepositoryImpl
+// TestBlobRepository_UpdateById tests the UpdateById method of GormBlobRepository
 func TestBlobRepository_UpdateById(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -137,7 +137,7 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	assert.Equal(t, "updated-blob-name", updatedBlob.Name, "Name should be updated")
 }
 
-// TestBlobRepository_DeleteById tests the DeleteById method of BlobRepositoryImpl
+// TestBlobRepository_DeleteById tests the DeleteById method of GormBlobRepository
 func TestBlobRepository_DeleteById(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)

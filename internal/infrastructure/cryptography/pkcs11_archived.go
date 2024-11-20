@@ -3,7 +3,7 @@ package cryptography
 // For reference only, to demonstrate experiments with pkcs11-tool for encryption, decryption, signing, and verification.
 
 // // Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Currently only supports RSA keys. Refer to: https://docs.nitrokey.com/nethsm/pkcs11-tool#pkcs11-tool
-// func (token *PKCS11TokenImpl) Encrypt(inputFilePath, outputFilePath string) error {
+// func (token *PKCS11TokenHandler) Encrypt(inputFilePath, outputFilePath string) error {
 // 	// Validate required parameters
 // 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 // 		return fmt.Errorf("missing required arguments for encryption")
@@ -55,7 +55,7 @@ package cryptography
 // }
 
 // // Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Currently only supports RSA keys. Refer to: https://docs.nitrokey.com/nethsm/pkcs11-tool#pkcs11-tool
-// func (token *PKCS11TokenImpl) Decrypt(inputFilePath, outputFilePath string) error {
+// func (token *PKCS11TokenHandler) Decrypt(inputFilePath, outputFilePath string) error {
 // 	// Validate required parameters
 // 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 // 		return fmt.Errorf("missing required arguments for decryption")
@@ -121,7 +121,7 @@ package cryptography
 // }
 
 // // Sign signs data using the cryptographic capabilities of the PKCS#11 token. Currently only supports RSA keys. Refer to: https://docs.nitrokey.com/nethsm/pkcs11-tool#pkcs11-tool
-// func (token *PKCS11TokenImpl) Sign(inputFilePath, outputFilePath string) error {
+// func (token *PKCS11TokenHandler) Sign(inputFilePath, outputFilePath string) error {
 // 	// Validate required parameters
 // 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
 // 		return fmt.Errorf("missing required arguments for signing")
@@ -185,7 +185,7 @@ package cryptography
 // }
 
 // // Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token.
-// func (token *PKCS11TokenImpl) Verify(dataFilePath, signatureFilePath string) (bool, error) {
+// func (token *PKCS11TokenHandler) Verify(dataFilePath, signatureFilePath string) (bool, error) {
 // 	valid := false
 // 	// Validate required parameters
 // 	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {

@@ -25,7 +25,7 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	// Generate RSA keys if no public key is provided
 	var publicKey *rsa.PublicKey
 	var err error
-	rsa := &cryptography.RSAImpl{}
+	rsa := &cryptography.RSACrypto{}
 
 	uniqueID := uuid.New()
 	// Generate RSA keys
@@ -78,7 +78,7 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 	// Generate RSA keys if no private key is provided
 	var privateKey *rsa.PrivateKey
 	var err error
-	rsa := &cryptography.RSAImpl{}
+	rsa := &cryptography.RSACrypto{}
 	if privateKeyPath == "" {
 		// Generate RSA keys
 		privKey, _, genErr := rsa.GenerateKeys(2048)
