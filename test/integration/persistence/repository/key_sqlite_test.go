@@ -2,6 +2,8 @@ package repository
 
 import (
 	"crypto_vault_service/internal/domain/keys"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -10,23 +12,26 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestCryptoKeyRepository_Create tests the Create method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_Create(t *testing.T) {
+// TestCryptoKeySqliteRepository_Create tests the Create method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_Create(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(),            // Generate valid UUID for ID
-		Type:      "AES",                          // Example key type
-		CreatedAt: time.Now(),                     // Valid CreatedAt time
-		ExpiresAt: time.Now().Add(24 * time.Hour), // Valid ExpiresAt time
-		UserID:    uuid.New().String(),            // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB
-	err := ctx.CryptoKeyRepo.Create(cryptographicKey)
+	err = ctx.CryptoKeyRepo.Create(cryptographicKey)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the cryptographic key is created and exists in DB
@@ -37,23 +42,26 @@ func TestCryptoKeyRepository_Create(t *testing.T) {
 	assert.Equal(t, cryptographicKey.Type, createdKey.Type, "Type should match")
 }
 
-// TestCryptoKeyRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_GetByID(t *testing.T) {
+// TestCryptoKeySqliteRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(),            // Generate valid UUID for ID
-		Type:      "RSA",                          // Example key type
-		CreatedAt: time.Now(),                     // Valid CreatedAt time
-		ExpiresAt: time.Now().Add(24 * time.Hour), // Valid ExpiresAt time
-		UserID:    uuid.New().String(),            // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "RSA",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB
-	err := ctx.CryptoKeyRepo.Create(cryptographicKey)
+	err = ctx.CryptoKeyRepo.Create(cryptographicKey)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Get the cryptographic key by ID
@@ -63,23 +71,26 @@ func TestCryptoKeyRepository_GetByID(t *testing.T) {
 	assert.Equal(t, cryptographicKey.ID, fetchedKey.ID, "ID should match")
 }
 
-// TestCryptoKeyRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
+// TestCryptoKeySqliteRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(),            // Generate valid UUID for ID
-		Type:      "AES",                          // Example key type
-		CreatedAt: time.Now(),                     // Valid CreatedAt time
-		ExpiresAt: time.Now().Add(24 * time.Hour), // Valid ExpiresAt time
-		UserID:    uuid.New().String(),            // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB
-	err := ctx.CryptoKeyRepo.Create(cryptographicKey)
+	err = ctx.CryptoKeyRepo.Create(cryptographicKey)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Update the cryptographic key's type
@@ -94,19 +105,18 @@ func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
 	assert.Equal(t, "ECDSA", updatedKey.Type, "Type should be updated")
 }
 
-// TestCryptoKeyRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_DeleteByID(t *testing.T) {
+// TestCryptoKeySqliteRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(),            // Generate valid UUID for ID
-		Type:      "AES",                          // Example key type
-		CreatedAt: time.Now(),                     // Valid CreatedAt time
-		ExpiresAt: time.Now().Add(24 * time.Hour), // Valid ExpiresAt time
-		UserID:    uuid.New().String(),            // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB

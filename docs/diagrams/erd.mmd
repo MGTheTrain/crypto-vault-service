@@ -2,14 +2,13 @@ erDiagram
     CRYPTOGRAPHIC_KEY {
         string id PK
         string type
-        datetime created_at
-        datetime expires_at
+        datetime date_time_created
         string user_id FK
     }
 
     BLOB {
         string id PK
-        datetime upload_time
+        datetime date_time_created
         string user_id FK
         string key_id FK
         string name
@@ -17,8 +16,6 @@ erDiagram
         string type
         string encryption_algorithm
         string hash_algorithm
-        bool is_encrypted
-        bool is_signed
     }
 
     CRYPTOGRAPHIC_KEY ||--o| BLOB : "associated with"

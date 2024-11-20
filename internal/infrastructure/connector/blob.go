@@ -19,7 +19,7 @@ type BlobConnector interface {
 	// Upload uploads multiple files to Blob Storage and returns their metadata.
 	Upload(filePaths []string) ([]*blobs.BlobMeta, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-	Download(blobId, blobName string) (*bytes.Buffer, error)
+	Download(blobId, blobName string) ([]byte, error)
 	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
 	Delete(blobId, blobName string) error
 }
@@ -51,7 +51,7 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 
 // Upload uploads multiple files to Azure Blob Storage and returns their metadata.
 func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
-	var uploadedBlobs []*blobs.BlobMeta
+	var blobMeta []*blobs.BlobMeta
 	blobID := uuid.New().String()
 
 	// Iterate through all file paths and upload each file
@@ -60,7 +60,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		file, err := os.Open(filePath)
 		if err != nil {
 			err = fmt.Errorf("failed to open file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs) // Rollback previously uploaded blobs
+			abc.rollbackUploadedBlobs(blobMeta) // Rollback previously uploaded blobs
 			return nil, err
 		}
 		// Ensure file is closed after processing
@@ -70,7 +70,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		fileInfo, err := file.Stat()
 		if err != nil {
 			err = fmt.Errorf("failed to stat file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs)
+			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
@@ -79,7 +79,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		_, err = buf.ReadFrom(file)
 		if err != nil {
 			err = fmt.Errorf("failed to read file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs)
+			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
@@ -88,11 +88,11 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 
 		// Create a Blob object for metadata (Fill in missing fields)
 		blob := &blobs.BlobMeta{
-			ID:         blobID,
-			Name:       fileInfo.Name(),
-			Size:       fileInfo.Size(),
-			Type:       fileExt,
-			UploadTime: time.Now(), // Set the current time
+			ID:              blobID,
+			Name:            fileInfo.Name(),
+			Size:            fileInfo.Size(),
+			Type:            fileExt,
+			DateTimeCreated: time.Now(), // Set the current time
 		}
 
 		// Construct the full blob name (ID and Name)
@@ -103,18 +103,18 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		_, err = abc.Client.UploadBuffer(context.Background(), abc.ContainerName, fullBlobName, buf.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs)
+			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
 		log.Printf("Blob '%s' uploaded successfully.\n", blob.Name)
 
 		// Add the successfully uploaded blob to the list
-		uploadedBlobs = append(uploadedBlobs, blob)
+		blobMeta = append(blobMeta, blob)
 	}
 
 	// Return the list of blobs after successful upload.
-	return uploadedBlobs, nil
+	return blobMeta, nil
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
@@ -130,7 +130,7 @@ func (abc *AzureBlobConnector) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *AzureBlobConnector) Download(blobId, blobName string) (*bytes.Buffer, error) {
+func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error) {
 	ctx := context.Background()
 
 	// Construct the full blob path by combining blob ID and name
@@ -159,7 +159,7 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) (*bytes.Buffer,
 	}
 
 	// Return the buffer containing the downloaded data
-	return &downloadedData, nil
+	return downloadedData.Bytes(), nil
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
