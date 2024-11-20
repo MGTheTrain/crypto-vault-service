@@ -4,7 +4,7 @@ package blobs
 type IBlobUploadService interface {
 	// Upload handles the upload of blobs from the specified file paths.
 	// It returns a slice of Blob for the uploaded blobs and any error encountered during the upload process.
-	Upload(filePaths []string) ([]*BlobMeta, error)
+	Upload(filePaths []string, userId string) ([]*BlobMeta, error)
 }
 
 // IBlobMetadataService defines methods for retrieving Blob and deleting a blob along with its metadata.

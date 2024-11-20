@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,7 +37,8 @@ func TestBlobUploadService_Upload(t *testing.T) {
 		mockBlobRepository.On("Create", mockBlobMeta[1]).Return(nil)
 
 		// Call the method under test
-		uploadedBlobs, err := service.Upload(filePaths)
+		userId := uuid.New().String()
+		uploadedBlobs, err := service.Upload(filePaths, userId)
 
 		// Assert the results
 		assert.NoError(t, err)
@@ -56,7 +58,8 @@ func TestBlobUploadService_Upload(t *testing.T) {
 		mockBlobConnector.On("Upload", filePaths).Return([]*blobs.BlobMeta(nil), fmt.Errorf("upload failed"))
 
 		// Call the method under test
-		uploadedBlobs, err := service.Upload(filePaths)
+		userId := uuid.New().String()
+		uploadedBlobs, err := service.Upload(filePaths, userId)
 
 		// Assert the results
 		assert.Error(t, err)
@@ -84,7 +87,8 @@ func TestBlobUploadService_Upload(t *testing.T) {
 		mockBlobRepository.On("Create", mockBlobMeta[0]).Return(fmt.Errorf("failed to store metadata"))
 
 		// Call the method under test
-		uploadedBlobs, err := service.Upload(filePaths)
+		userId := uuid.New().String()
+		uploadedBlobs, err := service.Upload(filePaths, userId)
 
 		// Assert the results
 		assert.Error(t, err)
