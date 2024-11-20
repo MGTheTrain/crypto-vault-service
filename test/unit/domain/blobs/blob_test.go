@@ -32,7 +32,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
@@ -47,7 +47,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
@@ -62,7 +62,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), ExpiresAt: time.Now().Add(24 * time.Hour), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 

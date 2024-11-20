@@ -19,8 +19,8 @@ type BlobMetaQuery struct {
 	Offset int `validate:"omitempty,min=0"` // Offset is optional but should be 0 or greater for pagination
 
 	// Sorting properties
-	SortBy    string `validate:"omitempty,oneof=ID Type CreatedAt ExpiresAt"` // SortBy is optional but can be one of the fields to sort by
-	SortOrder string `validate:"omitempty,oneof=asc desc"`                    // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
+	SortBy    string `validate:"omitempty,oneof=ID Type CreatedAt"` // SortBy is optional but can be one of the fields to sort by
+	SortOrder string `validate:"omitempty,oneof=asc desc"`          // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
 }
 
 // NewBlobMetaQuery creates a BlobMetaQuery with default values.
@@ -47,11 +47,6 @@ func (b *BlobMetaQuery) Validate() error {
 			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
 		}
 		return fmt.Errorf("Validation failed: %v", validationErrors)
-	}
-
-	// Custom validation logic: Check that ExpiresAt (if exists) is after CreatedAt
-	if !b.UploadTime.IsZero() && b.UploadTime.After(time.Now()) {
-		return fmt.Errorf("UploadTime cannot be in the future")
 	}
 
 	// Return nil if no validation errors are found

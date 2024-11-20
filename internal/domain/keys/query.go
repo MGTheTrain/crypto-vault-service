@@ -11,15 +11,14 @@ import (
 type CryptoKeyQuery struct {
 	Type      string    `validate:"omitempty,oneof=AES RSA ECDSA"` // Type is optional but if provided, must be one of the listed types (AES, RSA, ECDSA)
 	CreatedAt time.Time `validate:"omitempty,gtefield=CreatedAt"`  // CreatedAt is optional, but can be used for filtering
-	ExpiresAt time.Time `validate:"omitempty,gtefield=CreatedAt"`  // ExpiresAt is optional, but can be used for filtering
 
 	// Pagination properties
 	Limit  int `validate:"omitempty,min=1"` // Limit is optional but if provided, should be at least 1
 	Offset int `validate:"omitempty,min=0"` // Offset is optional but should be 0 or greater for pagination
 
 	// Sorting properties
-	SortBy    string `validate:"omitempty,oneof=ID Type CreatedAt ExpiresAt"` // SortBy is optional but can be one of the fields to sort by
-	SortOrder string `validate:"omitempty,oneof=asc desc"`                    // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
+	SortBy    string `validate:"omitempty,oneof=ID Type CreatedAt"` // SortBy is optional but can be one of the fields to sort by
+	SortOrder string `validate:"omitempty,oneof=asc desc"`          // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
 }
 
 // New function to create a CryptoKeyQuery with default values
