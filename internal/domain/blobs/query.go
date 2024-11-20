@@ -9,10 +9,10 @@ import (
 
 // BlobMetaQuery represents metadata on the actual blob being stored.
 type BlobMetaQuery struct {
-	DateTimeCreated time.Time `validate:"required"`               // DateTimeCreated is required
-	Name            string    `validate:"required,min=1,max=255"` // Name is required and its length must be between 1 and 255 characters
-	Size            int64     `validate:"required,min=1"`         // Size must be greater than 0
-	Type            string    `validate:"required,min=1,max=50"`  // Type is required, and its length must be between 1 and 50 characters
+	DateTimeCreated time.Time `validate:"omitempty"`               // DateTimeCreated is optional
+	Name            string    `validate:"omitempty,min=1,max=255"` // Name is optional and its length must be between 1 and 255 characters
+	Size            int64     `validate:"omitempty,min=1"`         // Size is optional and if set must be greater than 0
+	Type            string    `validate:"omitempty,min=1,max=50"`  // Type is optional, and its length must be between 1 and 50 characters
 
 	// Pagination properties
 	Limit  int `validate:"omitempty,min=1"` // Limit is optional but if provided, should be at least 1
