@@ -2,6 +2,8 @@ package repository
 
 import (
 	"crypto_vault_service/internal/domain/keys"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -10,8 +12,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestCryptoKeyRepository_Create tests the Create method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_Create(t *testing.T) {
+// TestCryptoKeySqliteRepository_Create tests the Create method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_Create(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -26,7 +32,7 @@ func TestCryptoKeyRepository_Create(t *testing.T) {
 	}
 
 	// Create the cryptographic key in DB
-	err := ctx.CryptoKeyRepo.Create(cryptographicKey)
+	err = ctx.CryptoKeyRepo.Create(cryptographicKey)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the cryptographic key is created and exists in DB
@@ -37,8 +43,12 @@ func TestCryptoKeyRepository_Create(t *testing.T) {
 	assert.Equal(t, cryptographicKey.Type, createdKey.Type, "Type should match")
 }
 
-// TestCryptoKeyRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_GetByID(t *testing.T) {
+// TestCryptoKeySqliteRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -53,7 +63,7 @@ func TestCryptoKeyRepository_GetByID(t *testing.T) {
 	}
 
 	// Create the cryptographic key in DB
-	err := ctx.CryptoKeyRepo.Create(cryptographicKey)
+	err = ctx.CryptoKeyRepo.Create(cryptographicKey)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Get the cryptographic key by ID
@@ -63,8 +73,12 @@ func TestCryptoKeyRepository_GetByID(t *testing.T) {
 	assert.Equal(t, cryptographicKey.ID, fetchedKey.ID, "ID should match")
 }
 
-// TestCryptoKeyRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
+// TestCryptoKeySqliteRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -79,7 +93,7 @@ func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
 	}
 
 	// Create the cryptographic key in DB
-	err := ctx.CryptoKeyRepo.Create(cryptographicKey)
+	err = ctx.CryptoKeyRepo.Create(cryptographicKey)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Update the cryptographic key's type
@@ -94,8 +108,8 @@ func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
 	assert.Equal(t, "ECDSA", updatedKey.Type, "Type should be updated")
 }
 
-// TestCryptoKeyRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
-func TestCryptoKeyRepository_DeleteByID(t *testing.T) {
+// TestCryptoKeySqliteRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
+func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)

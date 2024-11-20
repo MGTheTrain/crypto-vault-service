@@ -3,6 +3,8 @@ package repository
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -11,8 +13,12 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestBlobRepository_Create tests the Create method of GormBlobRepository
-func TestBlobRepository_Create(t *testing.T) {
+// TestBlobInSqliteRepository_Create tests the Create method of GormBlobRepository
+func TestBlobInSqliteRepository_Create(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -41,7 +47,7 @@ func TestBlobRepository_Create(t *testing.T) {
 	}
 
 	// Call the Create method
-	err := ctx.BlobRepo.Create(blob)
+	err = ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the blob is created and exists in DB
@@ -52,8 +58,12 @@ func TestBlobRepository_Create(t *testing.T) {
 	assert.Equal(t, blob.Name, createdBlob.Name, "Name should match")
 }
 
-// TestBlobRepository_GetById tests the GetById method of GormBlobRepository
-func TestBlobRepository_GetById(t *testing.T) {
+// TestBlobInSqliteRepository_GetById tests the GetById method of GormBlobRepository
+func TestBlobInSqliteRepository_GetById(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -82,7 +92,7 @@ func TestBlobRepository_GetById(t *testing.T) {
 	}
 
 	// Create the blob in DB
-	err := ctx.BlobRepo.Create(blob)
+	err = ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Get the blob by ID
@@ -92,8 +102,12 @@ func TestBlobRepository_GetById(t *testing.T) {
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
 }
 
-// TestBlobRepository_UpdateById tests the UpdateById method of GormBlobRepository
-func TestBlobRepository_UpdateById(t *testing.T) {
+// TestBlobInSqliteRepository_UpdateById tests the UpdateById method of GormBlobRepository
+func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -122,7 +136,7 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	}
 
 	// Create the blob in DB
-	err := ctx.BlobRepo.Create(blob)
+	err = ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err)
 
 	// Update the blob's name
@@ -137,8 +151,12 @@ func TestBlobRepository_UpdateById(t *testing.T) {
 	assert.Equal(t, "updated-blob-name", updatedBlob.Name, "Name should be updated")
 }
 
-// TestBlobRepository_DeleteById tests the DeleteById method of GormBlobRepository
-func TestBlobRepository_DeleteById(t *testing.T) {
+// TestBlobInSqliteRepository_DeleteById tests the DeleteById method of GormBlobRepository
+func TestBlobInSqliteRepository_DeleteById(t *testing.T) {
+	err := os.Setenv("DB_TYPE", "sqlite")
+	if err != nil {
+		fmt.Println("Error setting environment variable:", err)
+	}
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -167,7 +185,7 @@ func TestBlobRepository_DeleteById(t *testing.T) {
 	}
 
 	// Create the blob in DB
-	err := ctx.BlobRepo.Create(blob)
+	err = ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err)
 
 	// Delete the blob

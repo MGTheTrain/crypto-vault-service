@@ -5,8 +5,10 @@ import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
+	"os"
 	"testing"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -21,10 +23,36 @@ type TestContext struct {
 // Setup function to initialize the test DB and repositories
 func setupTestDB(t *testing.T) *TestContext {
 	var err error
-	// Set up an in-memory SQLite database for testing
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		t.Fatalf("Failed to setup DB: %v", err)
+	var db *gorm.DB
+
+	// Check for the DB type to use (SQLite in-memory or PostgreSQL)
+	dbType := os.Getenv("DB_TYPE")
+	if dbType == "" {
+		// Default to SQLite in-memory if DB_TYPE is not set
+		dbType = "sqlite"
+	}
+
+	switch dbType {
+	case "postgres":
+		// Setup PostgreSQL connection
+		dsn := os.Getenv("POSTGRES_DSN") // Example: "user=username dbname=test sslmode=disable"
+		if dsn == "" {
+			t.Fatalf("POSTGRES_DSN environment variable is not set")
+		}
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			t.Fatalf("Failed to connect to PostgreSQL: %v", err)
+		}
+
+	case "sqlite":
+		// Setup SQLite in-memory connection
+		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+		if err != nil {
+			t.Fatalf("Failed to connect to SQLite: %v", err)
+		}
+
+	default:
+		t.Fatalf("Unsupported DB_TYPE value: %s", dbType)
 	}
 
 	// Migrate the schema for Blob and CryptoKey
