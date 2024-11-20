@@ -10,8 +10,8 @@ const (
 	Symmetric                        // Symmetric key (e.g., AES)
 )
 
-// ICryptKeyUploadService defines methods for uploading cryptographic keys.
-type ICryptKeyUploadService interface {
+// ICryptoKeyUploadService defines methods for uploading cryptographic keys.
+type ICryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys from specified file paths.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
 	Upload(filePaths []string) ([]*CryptoKeyMeta, error)

@@ -10,12 +10,12 @@ import (
 	"github.com/google/uuid"
 )
 
-type CryptKeyUploadService struct {
+type CryptoKeyUploadService struct {
 	VaultConnector connector.VaultConnector
 	CryptoKeyRepo  repository.CryptoKeyRepository
 }
 
-func (s *CryptKeyUploadService) Upload(filePaths []string) ([]*keys.CryptoKeyMeta, error) {
+func (s *CryptoKeyUploadService) Upload(filePaths []string) ([]*keys.CryptoKeyMeta, error) {
 	// Step 1: Upload files to blob storage
 	userId := uuid.New().String()
 	blobMeta, err := s.VaultConnector.Upload(filePaths, userId)
