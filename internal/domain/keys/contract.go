@@ -10,15 +10,15 @@ const (
 	Symmetric                        // Symmetric key (e.g., AES)
 )
 
-// CryptKeyUploadService defines methods for uploading cryptographic keys.
-type CryptKeyUploadService interface {
+// ICryptKeyUploadService defines methods for uploading cryptographic keys.
+type ICryptKeyUploadService interface {
 	// Upload uploads cryptographic keys from specified file paths.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
 	Upload(filePaths []string) ([]*CryptoKeyMeta, error)
 }
 
-// CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
-type CryptoKeyMetadataService interface {
+// ICryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
+type ICryptoKeyMetadataService interface {
 	// List retrieves all cryptographic keys metadata considering a query filter when set.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the retrieval process.
 	List(query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
@@ -32,15 +32,15 @@ type CryptoKeyMetadataService interface {
 	DeleteByID(keyID string) error
 }
 
-// CryptoKeyDownloadService defines methods for downloading cryptographic keys.
-type CryptoKeyDownloadService interface {
+// ICryptoKeyDownloadService defines methods for downloading cryptographic keys.
+type ICryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID and type.
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
 	Download(keyID string, keyType KeyType) (*CryptoKeyMeta, []byte, error)
 }
 
 // KeyOperations defines methods for cryptographic key management, encryption, signing, and PKCS#11 operations.
-type CryptoKeyOperationService interface {
+type ICryptoKeyOperationService interface {
 
 	// --- Key Generation ---
 
