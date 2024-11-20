@@ -13,15 +13,15 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestContext struct to hold DB and repositories for each test
-type TestContext struct {
+// TestRepositoryContext struct to hold DB and repositories for each test
+type TestRepositoryContext struct {
 	DB            *gorm.DB
 	BlobRepo      *repository.GormBlobRepository
 	CryptoKeyRepo *repository.GormCryptoKeyRepository
 }
 
 // Setup function to initialize the test DB and repositories
-func setupTestDB(t *testing.T) *TestContext {
+func setupTestDB(t *testing.T) *TestRepositoryContext {
 	var err error
 	var db *gorm.DB
 
@@ -95,7 +95,7 @@ func setupTestDB(t *testing.T) *TestContext {
 	cryptoKeyRepo := &repository.GormCryptoKeyRepository{DB: db}
 
 	// Return the test context that holds the DB and repositories
-	return &TestContext{
+	return &TestRepositoryContext{
 		DB:            db,
 		BlobRepo:      blobRepo,
 		CryptoKeyRepo: cryptoKeyRepo,
@@ -103,7 +103,7 @@ func setupTestDB(t *testing.T) *TestContext {
 }
 
 // Teardown function to clean up after tests (optional, for DB cleanup)
-func teardownTestDB(t *testing.T, ctx *TestContext) {
+func teardownTestDB(t *testing.T, ctx *TestRepositoryContext) {
 	sqlDB, err := ctx.DB.DB()
 	if err != nil {
 		t.Fatalf("Failed to get DB connection: %v", err)
