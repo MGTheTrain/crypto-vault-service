@@ -19,9 +19,6 @@ type AzureBlobTest struct {
 	ContainerName   string
 }
 
-var connectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-var containerName = "blobs"
-
 // Helper function to create a test file
 func (abt *AzureBlobTest) createTestFile(t *testing.T) {
 	err := os.WriteFile(abt.TestFilePath, abt.TestFileContent, 0644)
@@ -36,6 +33,8 @@ func (abt *AzureBlobTest) removeTestFile(t *testing.T) {
 
 // Helper function to create a new AzureBlobTest instance
 func NewAzureBlobTest(t *testing.T) *AzureBlobTest {
+	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+	containerName := "testblobs"
 	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
 	require.NoError(t, err)
 
