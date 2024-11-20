@@ -18,7 +18,7 @@ type BlobMeta struct {
 	Type                string             `validate:"required,min=1,max=50"`             // Type is required, and its length must be between 1 and 50 characters
 	EncryptionAlgorithm string             `validate:"omitempty,oneof=AES RSA ECDSA"`     // EncryptionAlgorithm is optional and if set must be one of the listed algorithms
 	HashAlgorithm       string             `validate:"omitempty,oneof=SHA256 SHA512 MD5"` // HashAlgorithm is optional and if set must be one of the listed algorithms
-	CryptoKey           keys.CryptoKeyMeta `gorm:"foreignKey:KeyID" validate:"required"`  // CryptoKey is required
+	CryptoKey           keys.CryptoKeyMeta `gorm:"foreignKey:KeyID" validate:"omitempty"` // CryptoKey is optional
 	KeyID               string             `validate:"omitempty,uuid4"`                   // KeyID is optional and if set must be a valid UUID
 }
 
