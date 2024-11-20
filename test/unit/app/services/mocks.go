@@ -12,8 +12,8 @@ type MockBlobConnector struct {
 	mock.Mock
 }
 
-func (m *MockBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
-	args := m.Called(filePaths)
+func (m *MockBlobConnector) Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error) {
+	args := m.Called(filePaths, userId)
 	return args.Get(0).([]*blobs.BlobMeta), args.Error(1)
 }
 

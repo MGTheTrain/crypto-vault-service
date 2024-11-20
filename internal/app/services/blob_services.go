@@ -22,10 +22,10 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 }
 
 // Upload handles the upload of blobs and stores their metadata in the database.
-func (s *BlobUploadService) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
+func (s *BlobUploadService) Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error) {
 
 	// Use the BlobConnector to upload the files to Azure Blob Storage
-	blobMeta, err := s.BlobConnector.Upload(filePaths)
+	blobMeta, err := s.BlobConnector.Upload(filePaths, userId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload blobs: %w", err)
 	}

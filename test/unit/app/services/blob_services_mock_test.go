@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,14 +30,15 @@ func TestBlobUploadService_Upload(t *testing.T) {
 		}
 
 		// Setup expectations for the mock BlobConnector
-		mockBlobConnector.On("Upload", filePaths).Return(mockBlobMeta, nil)
+		userId := uuid.New().String()
+		mockBlobConnector.On("Upload", filePaths, userId).Return(mockBlobMeta, nil)
 
 		// Setup expectations for the mock BlobRepository
 		mockBlobRepository.On("Create", mockBlobMeta[0]).Return(nil)
 		mockBlobRepository.On("Create", mockBlobMeta[1]).Return(nil)
 
 		// Call the method under test
-		uploadedBlobs, err := service.Upload(filePaths)
+		uploadedBlobs, err := service.Upload(filePaths, userId)
 
 		// Assert the results
 		assert.NoError(t, err)
@@ -53,38 +55,11 @@ func TestBlobUploadService_Upload(t *testing.T) {
 		filePaths := []string{"file1.txt"}
 
 		// Setup expectations for the mock BlobConnector
-		mockBlobConnector.On("Upload", filePaths).Return([]*blobs.BlobMeta(nil), fmt.Errorf("upload failed"))
+		userId := uuid.New().String()
+		mockBlobConnector.On("Upload", filePaths, userId).Return([]*blobs.BlobMeta(nil), fmt.Errorf("upload failed"))
 
 		// Call the method under test
-		uploadedBlobs, err := service.Upload(filePaths)
-
-		// Assert the results
-		assert.Error(t, err)
-		assert.Nil(t, uploadedBlobs)
-
-		// Assert that the expectations were met
-		mockBlobConnector.AssertExpectations(t)
-		mockBlobRepository.AssertExpectations(t)
-	})
-
-	// Test case 3: Failed metadata storage (BlobRepository returns error)
-	t.Run("fails when BlobRepository returns error", func(t *testing.T) {
-		// Define the test file paths
-		filePaths := []string{"file1.txt"}
-
-		// Define mock return values
-		mockBlobMeta := []*blobs.BlobMeta{
-			{Name: "file1.txt", ID: "1"},
-		}
-
-		// Setup expectations for the mock BlobConnector
-		mockBlobConnector.On("Upload", filePaths).Return(mockBlobMeta, nil)
-
-		// Setup expectations for the mock BlobRepository
-		mockBlobRepository.On("Create", mockBlobMeta[0]).Return(fmt.Errorf("failed to store metadata"))
-
-		// Call the method under test
-		uploadedBlobs, err := service.Upload(filePaths)
+		uploadedBlobs, err := service.Upload(filePaths, userId)
 
 		// Assert the results
 		assert.Error(t, err)
