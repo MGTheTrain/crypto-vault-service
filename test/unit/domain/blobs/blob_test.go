@@ -30,8 +30,6 @@ func NewBlobValidationTests() *BlobValidationTests {
 		Type:                "text",
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
-		IsEncrypted:         true,
-		IsSigned:            false,
 		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
@@ -45,8 +43,6 @@ func NewBlobValidationTests() *BlobValidationTests {
 		Type:                "text",
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
-		IsEncrypted:         true,
-		IsSigned:            false,
 		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
@@ -60,8 +56,6 @@ func NewBlobValidationTests() *BlobValidationTests {
 		Type:                "text",
 		EncryptionAlgorithm: "AES",
 		HashAlgorithm:       "SHA256",
-		IsEncrypted:         true,
-		IsSigned:            false,
 		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}

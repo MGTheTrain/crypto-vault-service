@@ -39,8 +39,6 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
 		CryptoKey:       cryptographicKey,    // Set the CryptoKey
 		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
@@ -83,10 +81,9 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
+
+		CryptoKey: cryptographicKey,    // Set the CryptoKey
+		KeyID:     cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Create the blob in DB
@@ -126,10 +123,9 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
+
+		CryptoKey: cryptographicKey,    // Set the CryptoKey
+		KeyID:     cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Create the blob in DB
@@ -170,10 +166,9 @@ func TestBlobPsqlRepository_DeleteById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
+
+		CryptoKey: cryptographicKey,    // Set the CryptoKey
+		KeyID:     cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Create the blob in DB

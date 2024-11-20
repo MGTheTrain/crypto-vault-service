@@ -39,8 +39,6 @@ func TestBlobInSqliteRepository_Create(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
 		CryptoKey:       cryptographicKey,    // Set the CryptoKey
 		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
@@ -83,8 +81,6 @@ func TestBlobInSqliteRepository_GetById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
 		CryptoKey:       cryptographicKey,    // Set the CryptoKey
 		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
@@ -126,8 +122,6 @@ func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
 		CryptoKey:       cryptographicKey,    // Set the CryptoKey
 		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
@@ -174,8 +168,6 @@ func TestBlobInSqliteRepository_DeleteById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		IsEncrypted:     false,
-		IsSigned:        true,
 		CryptoKey:       cryptographicKey,    // Set the CryptoKey
 		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
