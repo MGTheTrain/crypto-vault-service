@@ -25,13 +25,18 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 // Upload handles the upload of blobs and stores their metadata in the database.
 func (s *BlobUploadService) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
 	// Use the BlobConnector to upload the files to Azure Blob Storage
-	uploadedBlobs, err := s.BlobConnector.Upload(filePaths)
+	blobMeta, err := s.BlobConnector.Upload(filePaths)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload blobs: %w", err)
 	}
 
+	// If no blobs are uploaded, return early
+	if len(blobMeta) == 0 {
+		return nil, fmt.Errorf("no blobs uploaded")
+	}
+
 	// Store the metadata in the database using the BlobRepository
-	for _, blob := range uploadedBlobs {
+	for _, blob := range blobMeta {
 		err := s.BlobRepository.Create(blob)
 		if err != nil {
 			// Rollback any previously uploaded blobs if the metadata fails to store
@@ -41,7 +46,7 @@ func (s *BlobUploadService) Upload(filePaths []string) ([]*blobs.BlobMeta, error
 	}
 
 	// Return the metadata of uploaded blobs
-	return uploadedBlobs, nil
+	return blobMeta, nil
 }
 
 // BlobMetadataService implements the BlobMetadataService interface for retrieving and deleting blob metadata
