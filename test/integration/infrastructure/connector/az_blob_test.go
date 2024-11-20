@@ -6,33 +6,58 @@ import (
 
 	"crypto_vault_service/internal/infrastructure/connector"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var connectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+// Define a struct for the test context to reuse across multiple tests
+type AzureBlobTest struct {
+	Connector       *connector.AzureBlobConnector
+	TestFilePath    string
+	TestFileContent []byte
+	ContainerName   string
+}
 
+var connectionString = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
 var containerName = "blobs"
 
 // Helper function to create a test file
-func createTestFile(t *testing.T, filePath string, content []byte) {
-	err := os.WriteFile(filePath, content, 0644)
+func (abt *AzureBlobTest) createTestFile(t *testing.T) {
+	err := os.WriteFile(abt.TestFilePath, abt.TestFileContent, 0644)
 	require.NoError(t, err)
+}
+
+// Helper function to remove the test file
+func (abt *AzureBlobTest) removeTestFile(t *testing.T) {
+	err := os.Remove(abt.TestFilePath)
+	require.NoError(t, err)
+}
+
+// Helper function to create a new AzureBlobTest instance
+func NewAzureBlobTest(t *testing.T) *AzureBlobTest {
+	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
+	require.NoError(t, err)
+
+	return &AzureBlobTest{
+		Connector:       abc,
+		TestFilePath:    "testfile.txt",
+		TestFileContent: []byte("This is a test file content."),
+		ContainerName:   containerName,
+	}
 }
 
 // TestUpload tests the Upload method of AzureBlobConnector
 func TestUpload(t *testing.T) {
-	// Create a connector instance using a local Azure Blob emulator connection string
-	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
-	require.NoError(t, err)
+	// Initialize test struct
+	azureTest := NewAzureBlobTest(t)
 
-	// Prepare test files
-	testFilePath := "testfile.txt"
-	testContent := []byte("This is a test file content.")
-	createTestFile(t, testFilePath, testContent)
+	// Prepare test file
+	azureTest.createTestFile(t)
 
 	// Upload the file
-	blobs, err := abc.Upload([]string{testFilePath})
+	userId := uuid.New().String()
+	blobs, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
 	require.NoError(t, err)
 
 	// Assert that we received one blob metadata
@@ -40,78 +65,66 @@ func TestUpload(t *testing.T) {
 	blob := blobs[0]
 	assert.NotEmpty(t, blob.ID)
 	assert.Equal(t, "testfile.txt", blob.Name)
-	assert.Equal(t, int64(len(testContent)), blob.Size)
+	assert.Equal(t, int64(len(azureTest.TestFileContent)), blob.Size)
 	assert.Equal(t, ".txt", blob.Type)
 
-	// Clean up the test file
-	err = os.Remove(testFilePath)
-	require.NoError(t, err)
-
-	// Clean up the blob in the Azure Blob storage (delete by ID)
-	err = abc.Delete(blob.ID, blob.Name)
+	// Clean up the test file and blob
+	azureTest.removeTestFile(t)
+	err = azureTest.Connector.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 }
 
 // TestDownload tests the Download method of AzureBlobConnector
 func TestDownload(t *testing.T) {
-	// Create a connector instance using a local Azure Blob emulator connection string
-	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
-	require.NoError(t, err)
+	// Initialize test struct
+	azureTest := NewAzureBlobTest(t)
 
-	// Upload a test file
-	testFilePath := "testfile.txt"
-	testContent := []byte("This is a test file content.")
-	createTestFile(t, testFilePath, testContent)
+	// Prepare test file
+	azureTest.createTestFile(t)
 
-	blobs, err := abc.Upload([]string{testFilePath})
+	// Upload the file
+	userId := uuid.New().String()
+	blobs, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
 	require.NoError(t, err)
 
 	// Download the uploaded file
 	blob := blobs[0]
-	downloadedData, err := abc.Download(blob.ID, blob.Name)
+	downloadedData, err := azureTest.Connector.Download(blob.ID, blob.Name)
 	require.NoError(t, err)
 
-	// Convert *bytes.Buffer to []byte
-	downloadedBytes := downloadedData
+	// Assert that the downloaded content matches the original content
+	assert.Equal(t, azureTest.TestFileContent, downloadedData)
 
-	// Assert that the downloaded content is the same as the original file content
-	assert.Equal(t, testContent, downloadedBytes) // testContent should be []byte
-
-	// Clean up the test file
-	err = os.Remove(testFilePath)
-	require.NoError(t, err)
-
-	// Clean up the blob in the Azure Blob storage (delete by ID)
-	err = abc.Delete(blob.ID, blob.Name)
+	// Clean up the test file and blob
+	azureTest.removeTestFile(t)
+	err = azureTest.Connector.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 }
 
 // TestDelete tests the Delete method of AzureBlobConnector
 func TestDelete(t *testing.T) {
-	// Create a connector instance using a local Azure Blob emulator connection string
-	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
-	require.NoError(t, err)
+	// Initialize test struct
+	azureTest := NewAzureBlobTest(t)
 
-	// Upload a test file
-	testFilePath := "testfile.txt"
-	testContent := []byte("This is a test file content.")
-	createTestFile(t, testFilePath, testContent)
+	// Prepare test file
+	azureTest.createTestFile(t)
 
-	blobs, err := abc.Upload([]string{testFilePath})
+	// Upload the file
+	userId := uuid.New().String()
+	blobs, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
 	require.NoError(t, err)
 
 	// Get the uploaded blob ID
 	blob := blobs[0]
 
 	// Now delete the uploaded blob by ID
-	err = abc.Delete(blob.ID, blob.Name)
+	err = azureTest.Connector.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 
 	// Try downloading the blob to ensure it was deleted (should fail)
-	_, err = abc.Download(blob.ID, blob.Name)
+	_, err = azureTest.Connector.Download(blob.ID, blob.Name)
 	assert.Error(t, err)
 
 	// Clean up the test file
-	err = os.Remove(testFilePath)
-	require.NoError(t, err)
+	azureTest.removeTestFile(t)
 }
