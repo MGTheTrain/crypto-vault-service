@@ -25,24 +25,24 @@ func TestBlobInSqliteRepository_Create(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &blobs.BlobMeta{
-		ID:          uuid.New().String(), // Generate valid UUID
-		UploadTime:  time.Now(),
-		UserID:      uuid.New().String(), // Generate valid UUID for UserID
-		Name:        "test-blob",
-		Size:        1024,
-		Type:        "text",
-		IsEncrypted: false,
-		IsSigned:    true,
-		CryptoKey:   cryptographicKey,    // Set the CryptoKey
-		KeyID:       cryptographicKey.ID, // Ensure ID is set
+		ID:              uuid.New().String(), // Generate valid UUID
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
+		Name:            "test-blob",
+		Size:            1024,
+		Type:            "text",
+		IsEncrypted:     false,
+		IsSigned:        true,
+		CryptoKey:       cryptographicKey,    // Set the CryptoKey
+		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Call the Create method
@@ -69,24 +69,24 @@ func TestBlobInSqliteRepository_GetById(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &blobs.BlobMeta{
-		ID:          uuid.New().String(), // Generate valid UUID
-		UploadTime:  time.Now(),
-		UserID:      cryptographicKey.UserID, // Link to valid UserID from CryptoKey
-		Name:        "test-blob",
-		Size:        1024,
-		Type:        "text",
-		IsEncrypted: false,
-		IsSigned:    true,
-		CryptoKey:   cryptographicKey,    // Set the CryptoKey
-		KeyID:       cryptographicKey.ID, // Ensure ID is set
+		ID:              uuid.New().String(), // Generate valid UUID
+		DateTimeCreated: time.Now(),
+		UserID:          cryptographicKey.UserID, // Link to valid UserID from CryptoKey
+		Name:            "test-blob",
+		Size:            1024,
+		Type:            "text",
+		IsEncrypted:     false,
+		IsSigned:        true,
+		CryptoKey:       cryptographicKey,    // Set the CryptoKey
+		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Create the blob in DB
@@ -112,24 +112,24 @@ func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &blobs.BlobMeta{
-		ID:          uuid.New().String(), // Generate valid UUID
-		UploadTime:  time.Now(),
-		UserID:      uuid.New().String(), // Generate valid UUID for UserID
-		Name:        "test-blob",
-		Size:        1024,
-		Type:        "text",
-		IsEncrypted: false,
-		IsSigned:    true,
-		CryptoKey:   cryptographicKey,    // Set the CryptoKey
-		KeyID:       cryptographicKey.ID, // Ensure ID is set
+		ID:              uuid.New().String(), // Generate valid UUID
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
+		Name:            "test-blob",
+		Size:            1024,
+		Type:            "text",
+		IsEncrypted:     false,
+		IsSigned:        true,
+		CryptoKey:       cryptographicKey,    // Set the CryptoKey
+		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Create the blob in DB
@@ -160,24 +160,24 @@ func TestBlobInSqliteRepository_DeleteById(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create a test Blob object with valid UUIDs and required fields
 	blob := &blobs.BlobMeta{
-		ID:          uuid.New().String(), // Generate valid UUID
-		UploadTime:  time.Now(),
-		UserID:      uuid.New().String(), // Generate valid UUID for UserID
-		Name:        "test-blob",
-		Size:        1024,
-		Type:        "text",
-		IsEncrypted: false,
-		IsSigned:    true,
-		CryptoKey:   cryptographicKey,    // Set the CryptoKey
-		KeyID:       cryptographicKey.ID, // Ensure ID is set
+		ID:              uuid.New().String(), // Generate valid UUID
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
+		Name:            "test-blob",
+		Size:            1024,
+		Type:            "text",
+		IsEncrypted:     false,
+		IsSigned:        true,
+		CryptoKey:       cryptographicKey,    // Set the CryptoKey
+		KeyID:           cryptographicKey.ID, // Ensure ID is set
 	}
 
 	// Create the blob in DB

@@ -23,7 +23,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 	// Create valid and invalid test data
 	validBlob := blobs.BlobMeta{
 		ID:                  uuid.New().String(),
-		UploadTime:          time.Now(),
+		DateTimeCreated:     time.Now(),
 		UserID:              uuid.New().String(),
 		Name:                "test_blobs.txt",
 		Size:                12345,
@@ -32,13 +32,13 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
 	invalidBlob := blobs.BlobMeta{
 		ID:                  "", // Invalid empty ID
-		UploadTime:          time.Now(),
+		DateTimeCreated:     time.Now(),
 		UserID:              "invalid-uuid", // Invalid UserID
 		Name:                "test_blobs.txt",
 		Size:                -12345, // Invalid Size (negative)
@@ -47,13 +47,13 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 
 	invalidBlob2 := blobs.BlobMeta{
 		ID:                  uuid.New().String(),
-		UploadTime:          time.Now(),
+		DateTimeCreated:     time.Now(),
 		UserID:              uuid.New().String(),
 		Name:                "", // Invalid empty Name
 		Size:                12345,
@@ -62,7 +62,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		HashAlgorithm:       "SHA256",
 		IsEncrypted:         true,
 		IsSigned:            false,
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", CreatedAt: time.Now(), UserID: uuid.New().String()},
+		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), Type: "AES", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
 		KeyID:               uuid.New().String(),
 	}
 

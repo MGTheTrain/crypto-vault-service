@@ -11,7 +11,7 @@ import (
 // BlobMeta represents metadata on the actual blob metadata being stored
 type BlobMeta struct {
 	ID                  string             `gorm:"primaryKey" validate:"required,uuid4"`  // ID is required and must be a valid UUID
-	UploadTime          time.Time          `validate:"required"`                          // UploadTime is required
+	DateTimeCreated     time.Time          `validate:"required"`                          // DateTimeCreated is required
 	UserID              string             `validate:"required,uuid4"`                    // UserID is required and must be a valid UUID
 	Name                string             `validate:"required,min=1,max=255"`            // Name is required, and its length must be between 1 and 255 characters
 	Size                int64              `validate:"required,min=1"`                    // Size must be greater than 0

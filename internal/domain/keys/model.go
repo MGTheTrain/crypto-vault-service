@@ -9,10 +9,10 @@ import (
 
 // CryptoKeyMeta represents the encryption key entity
 type CryptoKeyMeta struct {
-	ID        string    `gorm:"primaryKey" validate:"required,uuid4"` // ID is required and must be a valid UUID
-	Type      string    `validate:"required,oneof=AES RSA ECDSA"`     // Type is required and must be one of the listed types
-	CreatedAt time.Time `validate:"required"`                         // CreatedAt is required
-	UserID    string    `gorm:"index" validate:"required,uuid4"`      // UserID is required and must be a valid UUID
+	ID              string    `gorm:"primaryKey" validate:"required,uuid4"` // ID is required and must be a valid UUID
+	Type            string    `validate:"required,oneof=AES RSA ECDSA"`     // Type is required and must be one of the listed types
+	DateTimeCreated time.Time `validate:"required"`                         // DateTimeCreated is required
+	UserID          string    `gorm:"index" validate:"required,uuid4"`      // UserID is required and must be a valid UUID
 }
 
 // Validate for validating CryptoKeyMeta struct

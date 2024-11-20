@@ -24,10 +24,10 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB
@@ -54,10 +54,10 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "RSA",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "RSA",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB
@@ -83,10 +83,10 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB
@@ -113,10 +113,10 @@ func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 
 	// Create a valid CryptoKey object
 	cryptographicKey := &keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Generate valid UUID for ID
-		Type:      "AES",               // Example key type
-		CreatedAt: time.Now(),          // Valid CreatedAt time
-		UserID:    uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(), // Generate valid UUID for ID
+		Type:            "AES",               // Example key type
+		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
+		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
 
 	// Create the cryptographic key in DB

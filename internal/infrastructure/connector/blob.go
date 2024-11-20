@@ -88,11 +88,11 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 
 		// Create a Blob object for metadata (Fill in missing fields)
 		blob := &blobs.BlobMeta{
-			ID:         blobID,
-			Name:       fileInfo.Name(),
-			Size:       fileInfo.Size(),
-			Type:       fileExt,
-			UploadTime: time.Now(), // Set the current time
+			ID:              blobID,
+			Name:            fileInfo.Name(),
+			Size:            fileInfo.Size(),
+			Type:            fileExt,
+			DateTimeCreated: time.Now(), // Set the current time
 		}
 
 		// Construct the full blob name (ID and Name)

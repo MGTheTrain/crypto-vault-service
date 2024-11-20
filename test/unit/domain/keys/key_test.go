@@ -13,10 +13,10 @@ import (
 func TestCryptoKeyValidation(t *testing.T) {
 	// Valid CryptoKey
 	validKey := keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Valid UUID
-		Type:      "AES",               // Valid Type
-		CreatedAt: time.Now(),
-		UserID:    uuid.New().String(), // Valid UserID
+		ID:              uuid.New().String(), // Valid UUID
+		Type:            "AES",               // Valid Type
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(), // Valid UserID
 	}
 
 	// Validate the valid CryptoKey
@@ -25,10 +25,10 @@ func TestCryptoKeyValidation(t *testing.T) {
 
 	// Invalid CryptoKey (empty ID, invalid Type, expired)
 	invalidKey := keys.CryptoKeyMeta{
-		ID:        "",            // Invalid empty ID
-		Type:      "InvalidType", // Invalid Type
-		CreatedAt: time.Now(),
-		UserID:    "invalid-user-id", // Invalid UserID
+		ID:              "",            // Invalid empty ID
+		Type:            "InvalidType", // Invalid Type
+		DateTimeCreated: time.Now(),
+		UserID:          "invalid-user-id", // Invalid UserID
 	}
 
 	// Validate the invalid CryptoKey
@@ -42,10 +42,10 @@ func TestCryptoKeyValidation(t *testing.T) {
 func TestCryptoKeyValidations(t *testing.T) {
 	// Test missing UserID (should fail)
 	invalidKey := keys.CryptoKeyMeta{
-		ID:        uuid.New().String(), // Valid UUID
-		Type:      "AES",               // Valid Type
-		CreatedAt: time.Now(),
-		UserID:    "", // Invalid empty UserID
+		ID:              uuid.New().String(), // Valid UUID
+		Type:            "AES",               // Valid Type
+		DateTimeCreated: time.Now(),
+		UserID:          "", // Invalid empty UserID
 	}
 
 	err := invalidKey.Validate()
