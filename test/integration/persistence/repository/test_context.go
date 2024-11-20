@@ -14,8 +14,8 @@ import (
 // TestContext struct to hold DB and repositories for each test
 type TestContext struct {
 	DB            *gorm.DB
-	BlobRepo      *repository.BlobRepositoryImpl
-	CryptoKeyRepo *repository.CryptoKeyRepositoryImpl
+	BlobRepo      *repository.GormBlobRepository
+	CryptoKeyRepo *repository.GormCryptoKeyRepository
 }
 
 // Setup function to initialize the test DB and repositories
@@ -34,8 +34,8 @@ func setupTestDB(t *testing.T) *TestContext {
 	}
 
 	// Initialize the repositories with the DB instance
-	blobRepo := &repository.BlobRepositoryImpl{DB: db}
-	cryptoKeyRepo := &repository.CryptoKeyRepositoryImpl{DB: db}
+	blobRepo := &repository.GormBlobRepository{DB: db}
+	cryptoKeyRepo := &repository.GormCryptoKeyRepository{DB: db}
 
 	// Return the test context that holds the DB and repositories
 	return &TestContext{

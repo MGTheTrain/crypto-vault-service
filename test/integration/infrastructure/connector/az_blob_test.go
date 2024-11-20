@@ -20,7 +20,7 @@ func createTestFile(t *testing.T, filePath string, content []byte) {
 	require.NoError(t, err)
 }
 
-// TestUpload tests the Upload method of AzureBlobConnectorImpl
+// TestUpload tests the Upload method of AzureBlobConnector
 func TestUpload(t *testing.T) {
 	// Create a connector instance using a local Azure Blob emulator connection string
 	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
@@ -52,7 +52,7 @@ func TestUpload(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// TestDownload tests the Download method of AzureBlobConnectorImpl
+// TestDownload tests the Download method of AzureBlobConnector
 func TestDownload(t *testing.T) {
 	// Create a connector instance using a local Azure Blob emulator connection string
 	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
@@ -83,7 +83,7 @@ func TestDownload(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// TestDelete tests the Delete method of AzureBlobConnectorImpl
+// TestDelete tests the Delete method of AzureBlobConnector
 func TestDelete(t *testing.T) {
 	// Create a connector instance using a local Azure Blob emulator connection string
 	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)

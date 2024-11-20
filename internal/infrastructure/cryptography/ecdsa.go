@@ -12,8 +12,8 @@ import (
 	"os"
 )
 
-// ECDSA Interface
-type ECDSA interface {
+// EC Interface
+type EC interface {
 	GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error)
 	Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, error)
 	Verify(message, signature []byte, publicKey *ecdsa.PublicKey) (bool, error)
@@ -24,11 +24,11 @@ type ECDSA interface {
 	ReadPublicKey(publicKeyPath string) (*ecdsa.PublicKey, error)
 }
 
-// ECDSAImpl struct that implements the ECDSA interface
-type ECDSAImpl struct{}
+// ECCrypto struct that implements the EC interface
+type ECCrypto struct{}
 
 // GenerateKeys generates an elliptic curve key pair
-func (e *ECDSAImpl) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
+func (e *ECCrypto) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	privateKey, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate elliptic curve keys: %v", err)
@@ -39,7 +39,7 @@ func (e *ECDSAImpl) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecds
 }
 
 // Sign signs a message with the private key
-func (e *ECDSAImpl) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+func (e *ECCrypto) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
 		return nil, fmt.Errorf("private key cannot be nil")
 	}
@@ -62,7 +62,7 @@ func (e *ECDSAImpl) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, 
 }
 
 // Verify verifies the signature of a message with the public key
-func (e *ECDSAImpl) Verify(message, signature []byte, publicKey *ecdsa.PublicKey) (bool, error) {
+func (e *ECCrypto) Verify(message, signature []byte, publicKey *ecdsa.PublicKey) (bool, error) {
 	if publicKey == nil {
 		return false, fmt.Errorf("public key cannot be nil")
 	}
@@ -81,7 +81,7 @@ func (e *ECDSAImpl) Verify(message, signature []byte, publicKey *ecdsa.PublicKey
 }
 
 // SavePrivateKeyToFile saves the private key to a PEM file using encoding/pem
-func (e *ECDSAImpl) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename string) error {
+func (e *ECCrypto) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename string) error {
 	// Marshal private key components (private key 'D' and public key components 'X' and 'Y')
 	privKeyBytes := append(privateKey.D.Bytes(), privateKey.PublicKey.X.Bytes()...)
 	privKeyBytes = append(privKeyBytes, privateKey.PublicKey.Y.Bytes()...)
@@ -109,7 +109,7 @@ func (e *ECDSAImpl) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename 
 }
 
 // SavePublicKeyToFile saves the public key to a PEM file using encoding/pem
-func (e *ECDSAImpl) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename string) error {
+func (e *ECCrypto) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename string) error {
 	pubKeyBytes := append(publicKey.X.Bytes(), publicKey.Y.Bytes()...)
 
 	// Prepare the PEM block for the public key
@@ -135,7 +135,7 @@ func (e *ECDSAImpl) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename str
 }
 
 // SaveSignatureToFile can be used for storing signature files in hex format
-func (e *ECDSAImpl) SaveSignatureToFile(filename string, data []byte) error {
+func (e *ECCrypto) SaveSignatureToFile(filename string, data []byte) error {
 	hexData := hex.EncodeToString(data)
 	err := os.WriteFile(filename, []byte(hexData), 0644)
 	if err != nil {
@@ -145,7 +145,7 @@ func (e *ECDSAImpl) SaveSignatureToFile(filename string, data []byte) error {
 }
 
 // ReadPrivateKey reads an ECDSA private key from a PEM file using encoding/pem
-func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
+func (e *ECCrypto) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
 	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %v", err)
@@ -178,7 +178,7 @@ func (e *ECDSAImpl) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) 
 }
 
 // ReadPublicKey reads an ECDSA public key from a PEM file using encoding/pem
-func (e *ECDSAImpl) ReadPublicKey(publicKeyPath string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
+func (e *ECCrypto) ReadPublicKey(publicKeyPath string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
 	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %v", err)

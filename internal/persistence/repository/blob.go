@@ -15,13 +15,13 @@ type BlobRepository interface {
 	DeleteById(blobID string) error
 }
 
-// BlobRepositoryImpl is the implementation of the BlobRepository interface
-type BlobRepositoryImpl struct {
+// GormBlobRepository is the implementation of the BlobRepository interface
+type GormBlobRepository struct {
 	DB *gorm.DB
 }
 
 // Create adds a new Blob to the database
-func (r *BlobRepositoryImpl) Create(blob *blobs.BlobMeta) error {
+func (r *GormBlobRepository) Create(blob *blobs.BlobMeta) error {
 	// Validate the Blob before saving
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -35,7 +35,7 @@ func (r *BlobRepositoryImpl) Create(blob *blobs.BlobMeta) error {
 }
 
 // GetById retrieves a Blob by its ID from the database
-func (r *BlobRepositoryImpl) GetById(blobID string) (*blobs.BlobMeta, error) {
+func (r *GormBlobRepository) GetById(blobID string) (*blobs.BlobMeta, error) {
 	var blob blobs.BlobMeta
 	if err := r.DB.Where("id = ?", blobID).First(&blob).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -47,7 +47,7 @@ func (r *BlobRepositoryImpl) GetById(blobID string) (*blobs.BlobMeta, error) {
 }
 
 // UpdateById updates an existing Blob in the database
-func (r *BlobRepositoryImpl) UpdateById(blob *blobs.BlobMeta) error {
+func (r *GormBlobRepository) UpdateById(blob *blobs.BlobMeta) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
@@ -61,7 +61,7 @@ func (r *BlobRepositoryImpl) UpdateById(blob *blobs.BlobMeta) error {
 }
 
 // DeleteById removes a Blob from the database by its ID
-func (r *BlobRepositoryImpl) DeleteById(blobID string) error {
+func (r *GormBlobRepository) DeleteById(blobID string) error {
 	if err := r.DB.Where("id = ?", blobID).Delete(&blobs.BlobMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}

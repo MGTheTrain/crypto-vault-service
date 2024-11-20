@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestCryptoKeyRepository_Create tests the Create method of CryptoKeyRepositoryImpl
+// TestCryptoKeyRepository_Create tests the Create method of GormCryptoKeyRepository
 func TestCryptoKeyRepository_Create(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -37,7 +37,7 @@ func TestCryptoKeyRepository_Create(t *testing.T) {
 	assert.Equal(t, cryptographicKey.Type, createdKey.Type, "Type should match")
 }
 
-// TestCryptoKeyRepository_GetByID tests the GetByID method of CryptoKeyRepositoryImpl
+// TestCryptoKeyRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
 func TestCryptoKeyRepository_GetByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -63,7 +63,7 @@ func TestCryptoKeyRepository_GetByID(t *testing.T) {
 	assert.Equal(t, cryptographicKey.ID, fetchedKey.ID, "ID should match")
 }
 
-// TestCryptoKeyRepository_UpdateByID tests the UpdateByID method of CryptoKeyRepositoryImpl
+// TestCryptoKeyRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
 func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -94,7 +94,7 @@ func TestCryptoKeyRepository_UpdateByID(t *testing.T) {
 	assert.Equal(t, "ECDSA", updatedKey.Type, "Type should be updated")
 }
 
-// TestCryptoKeyRepository_DeleteByID tests the DeleteByID method of CryptoKeyRepositoryImpl
+// TestCryptoKeyRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
 func TestCryptoKeyRepository_DeleteByID(t *testing.T) {
 	// Set up test context
 	ctx := setupTestDB(t)
