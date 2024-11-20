@@ -51,7 +51,7 @@ func NewAzureBlobConnector(connectionString string, containerName string) (*Azur
 
 // Upload uploads multiple files to Azure Blob Storage and returns their metadata.
 func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
-	var uploadedBlobs []*blobs.BlobMeta
+	var blobMeta []*blobs.BlobMeta
 	blobID := uuid.New().String()
 
 	// Iterate through all file paths and upload each file
@@ -60,7 +60,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		file, err := os.Open(filePath)
 		if err != nil {
 			err = fmt.Errorf("failed to open file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs) // Rollback previously uploaded blobs
+			abc.rollbackUploadedBlobs(blobMeta) // Rollback previously uploaded blobs
 			return nil, err
 		}
 		// Ensure file is closed after processing
@@ -70,7 +70,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		fileInfo, err := file.Stat()
 		if err != nil {
 			err = fmt.Errorf("failed to stat file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs)
+			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
@@ -79,7 +79,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		_, err = buf.ReadFrom(file)
 		if err != nil {
 			err = fmt.Errorf("failed to read file '%s': %w", filePath, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs)
+			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
@@ -103,18 +103,18 @@ func (abc *AzureBlobConnector) Upload(filePaths []string) ([]*blobs.BlobMeta, er
 		_, err = abc.Client.UploadBuffer(context.Background(), abc.ContainerName, fullBlobName, buf.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
-			abc.rollbackUploadedBlobs(uploadedBlobs)
+			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
 		log.Printf("Blob '%s' uploaded successfully.\n", blob.Name)
 
 		// Add the successfully uploaded blob to the list
-		uploadedBlobs = append(uploadedBlobs, blob)
+		blobMeta = append(blobMeta, blob)
 	}
 
 	// Return the list of blobs after successful upload.
-	return uploadedBlobs, nil
+	return blobMeta, nil
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
