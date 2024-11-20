@@ -19,7 +19,7 @@ type BlobConnector interface {
 	// Upload uploads multiple files to Blob Storage and returns their metadata.
 	Upload(filePaths []string) ([]*blobs.BlobMeta, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-	Download(blobId, blobName string) (*bytes.Buffer, error)
+	Download(blobId, blobName string) ([]byte, error)
 	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
 	Delete(blobId, blobName string) error
 }
@@ -130,7 +130,7 @@ func (abc *AzureBlobConnector) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *AzureBlobConnector) Download(blobId, blobName string) (*bytes.Buffer, error) {
+func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error) {
 	ctx := context.Background()
 
 	// Construct the full blob path by combining blob ID and name
@@ -159,7 +159,7 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) (*bytes.Buffer,
 	}
 
 	// Return the buffer containing the downloaded data
-	return &downloadedData, nil
+	return downloadedData.Bytes(), nil
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.

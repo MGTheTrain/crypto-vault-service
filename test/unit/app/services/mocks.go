@@ -1,8 +1,8 @@
 package services
 
 import (
-	"bytes"
 	"crypto_vault_service/internal/domain/blobs"
+	"fmt"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -22,9 +22,13 @@ func (m *MockBlobConnector) Delete(blobID, blobName string) error {
 	return args.Error(0)
 }
 
-func (m *MockBlobConnector) Download(blobID, blobName string) (*bytes.Buffer, error) {
+func (m *MockBlobConnector) Download(blobID, blobName string) ([]byte, error) {
 	args := m.Called(blobID, blobName)
-	return args.Get(0).(*bytes.Buffer), args.Error(1)
+	data, ok := args.Get(0).([]byte)
+	if !ok {
+		return nil, fmt.Errorf("expected []byte, but got %T", args.Get(0))
+	}
+	return data, args.Error(1)
 }
 
 // MockBlobRepository is a mock for the BlobRepository interface

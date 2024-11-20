@@ -1,7 +1,6 @@
 package services
 
 import (
-	"bytes"
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
 	"fmt"
@@ -139,10 +138,9 @@ func TestBlobDownloadService(t *testing.T) {
 	t.Run("successfully downloads a blob", func(t *testing.T) {
 		blobID := "1"
 		blobName := "file1.txt"
-		mockContent := &bytes.Buffer{}
-		mockContent.WriteString("file content")
+		mockContent := []byte("file content")
 
-		// Setup expectations for the mock BlobConnector to return the content
+		// Setup expectations for the mock BlobConnector to return the content as []byte
 		mockBlobConnector.On("Download", blobID, blobName).Return(mockContent, nil)
 
 		// Call the method under test
@@ -150,7 +148,7 @@ func TestBlobDownloadService(t *testing.T) {
 
 		// Assert the results
 		assert.NoError(t, err)
-		assert.Equal(t, mockContent, downloadedBlob)
+		assert.Equal(t, mockContent, downloadedBlob) // Assert equality of byte slices
 
 		// Assert that the expectations were met
 		mockBlobConnector.AssertExpectations(t)

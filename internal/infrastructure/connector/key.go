@@ -1,7 +1,6 @@
 package connector
 
 import (
-	"bytes"
 	"crypto_vault_service/internal/domain/keys"
 )
 
@@ -11,7 +10,7 @@ type VaultConnector interface {
 	Upload(filePaths []string) ([]*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-	Download(blobId, blobName string) (*bytes.Buffer, error)
+	Download(blobId, blobName string) ([]byte, error)
 
 	//
 	// Rotate()

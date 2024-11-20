@@ -36,5 +36,5 @@ type ICryptoKeyMetadataService interface {
 type ICryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID and type.
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	Download(keyID string, keyType KeyType) (*CryptoKeyMeta, []byte, error)
+	Download(keyID string, keyType KeyType) ([]byte, error)
 }

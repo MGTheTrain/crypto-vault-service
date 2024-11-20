@@ -1,7 +1,6 @@
 package services
 
 import (
-	"bytes"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/persistence/repository"
@@ -24,6 +23,7 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 
 // Upload handles the upload of blobs and stores their metadata in the database.
 func (s *BlobUploadService) Upload(filePaths []string) ([]*blobs.BlobMeta, error) {
+
 	// Use the BlobConnector to upload the files to Azure Blob Storage
 	blobMeta, err := s.BlobConnector.Upload(filePaths)
 	if err != nil {
@@ -119,7 +119,7 @@ func NewBlobDownloadService(blobConnector connector.BlobConnector) *BlobDownload
 }
 
 // Download retrieves a blob's content by its ID and name
-func (s *BlobDownloadService) Download(blobID, blobName string) (*bytes.Buffer, error) {
+func (s *BlobDownloadService) Download(blobID, blobName string) ([]byte, error) {
 	// Retrieve the blob metadata from the BlobRepository to ensure it exists
 	// Here you might want to consider validating the blob's existence.
 	blob, err := s.BlobConnector.Download(blobID, blobName)

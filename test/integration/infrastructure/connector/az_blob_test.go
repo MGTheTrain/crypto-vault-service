@@ -71,8 +71,11 @@ func TestDownload(t *testing.T) {
 	downloadedData, err := abc.Download(blob.ID, blob.Name)
 	require.NoError(t, err)
 
+	// Convert *bytes.Buffer to []byte
+	downloadedBytes := downloadedData
+
 	// Assert that the downloaded content is the same as the original file content
-	assert.Equal(t, string(testContent), downloadedData.String())
+	assert.Equal(t, testContent, downloadedBytes) // testContent should be []byte
 
 	// Clean up the test file
 	err = os.Remove(testFilePath)
