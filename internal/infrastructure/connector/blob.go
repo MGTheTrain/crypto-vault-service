@@ -14,13 +14,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// BlobConnector is an interface for interacting with Azure Blob storage
+// BlobConnector is an interface for interacting with Blob storage
 type BlobConnector interface {
-	// Upload uploads multiple files to Azure Blob Storage and returns their metadata.
+	// Upload uploads multiple files to Blob Storage and returns their metadata.
 	Upload(filePaths []string) ([]*blobs.BlobMeta, error)
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) (*bytes.Buffer, error)
-	// Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
+	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
 	Delete(blobId, blobName string) error
 }
 
