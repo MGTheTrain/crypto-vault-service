@@ -1,5 +1,7 @@
 package blobs
 
+import "bytes"
+
 // IBlobUploadService defines methods for uploading blobs.
 type IBlobUploadService interface {
 	// Upload handles the upload of blobs from the specified file paths.
@@ -25,6 +27,6 @@ type IBlobMetadataService interface {
 // IBlobDownloadService defines methods for downloading blobs.
 type IBlobDownloadService interface {
 	// Download retrieves a blob by its ID and name.
-	// It returns the Blob, the file data as a byte slice, and any error encountered during the download process.
-	Download(blobID, blobName string) (*BlobMeta, []byte, error)
+	// It returns the file data as a byte slice, and any error encountered during the download process.
+	Download(blobID, blobName string) (*bytes.Buffer, error)
 }
