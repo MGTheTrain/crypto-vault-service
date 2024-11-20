@@ -6,5 +6,3 @@ type CryptoKeyMetadataService struct {
 }
 type CryptoKeyDownloadService struct {
 }
-type CryptoKeyOperationService struct {
-}
