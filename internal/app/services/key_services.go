@@ -12,22 +12,19 @@ type CryptoKeyUploadService struct {
 	CryptoKeyRepo  repository.CryptoKeyRepository
 }
 
-func (s *CryptoKeyUploadService) Upload(filePaths []string, userId string) ([]*keys.CryptoKeyMeta, error) {
+func (s *CryptoKeyUploadService) Upload(filePath, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
 	// Step 1: Upload files to blob storage
-	keyMetas, err := s.VaultConnector.Upload(filePaths, userId)
+	keyMeta, err := s.VaultConnector.Upload(filePath, userId, keyType, keyAlgorihm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload files: %w", err)
 	}
 
 	// Step 2: Store the metadata in the database
-	for _, keyMeta := range keyMetas {
-		if err := s.CryptoKeyRepo.Create(keyMeta); err != nil {
-			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", keyMeta.Type, err)
-		}
+	if err := s.CryptoKeyRepo.Create(keyMeta); err != nil {
+		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", keyMeta.Type, err)
 	}
 
-	// Return metadata
-	return keyMetas, nil
+	return keyMeta, nil
 }
 
 // CryptoKeyMetadataService manages cryptographic key metadata.
