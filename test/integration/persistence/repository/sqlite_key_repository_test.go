@@ -15,8 +15,9 @@ import (
 func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -45,8 +46,9 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -74,8 +76,9 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)

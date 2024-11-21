@@ -16,8 +16,9 @@ import (
 func TestBlobPsqlRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "postgres")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -58,8 +59,9 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 func TestBlobPsqlRepository_GetById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "postgres")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -100,8 +102,9 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "postgres")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)

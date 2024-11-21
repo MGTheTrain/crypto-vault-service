@@ -16,8 +16,9 @@ import (
 func TestBlobInSqliteRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -58,8 +59,9 @@ func TestBlobInSqliteRepository_Create(t *testing.T) {
 func TestBlobInSqliteRepository_GetById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -99,8 +101,9 @@ func TestBlobInSqliteRepository_GetById(t *testing.T) {
 func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
@@ -145,8 +148,9 @@ func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
 func TestBlobInSqliteRepository_DeleteById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		t.Fatalf("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable: %v", err)
 	}
+
 	// Set up test context
 	ctx := setupTestDB(t)
 	defer teardownTestDB(t, ctx)
