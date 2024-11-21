@@ -21,12 +21,6 @@ func (s *CryptoKeyUploadService) Upload(filePaths []string, userId string) ([]*k
 
 	// Step 2: Store the metadata in the database
 	for _, keyMeta := range keyMetas {
-		// Validate CryptoKeyMeta
-		if err := keyMeta.Validate(); err != nil {
-			return nil, fmt.Errorf("invalid key metadata: %w", err)
-		}
-
-		// Save metadata to DB
 		if err := s.CryptoKeyRepo.Create(keyMeta); err != nil {
 			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", keyMeta.Type, err)
 		}
@@ -43,7 +37,6 @@ type CryptoKeyMetadataService struct {
 
 // List retrieves all cryptographic key metadata based on a query.
 func (s *CryptoKeyMetadataService) List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
-	// For now, let's just retrieve all metadata from the database
 	var keyMetas []*keys.CryptoKeyMeta
 	// TBD
 
@@ -52,7 +45,6 @@ func (s *CryptoKeyMetadataService) List(query *keys.CryptoKeyQuery) ([]*keys.Cry
 
 // GetByID retrieves the metadata of a cryptographic key by its ID.
 func (s *CryptoKeyMetadataService) GetByID(keyID string) (*keys.CryptoKeyMeta, error) {
-	// Retrieve the metadata from the database
 	keyMeta, err := s.CryptoKeyRepo.GetByID(keyID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve key metadata: %w", err)
@@ -78,14 +70,14 @@ type CryptoKeyDownloadService struct {
 
 // Download retrieves a cryptographic key by its ID and type.
 func (s *CryptoKeyDownloadService) Download(keyID string, keyType keys.KeyType) ([]byte, error) {
-	blobName := "" // Declare the variable outside the blocks
+	blobName := ""
 
 	if keyType == keys.AsymmetricPublic {
-		blobName = "asymmetric-public-key" // Assign to the already declared variable
+		blobName = "public"
 	} else if keyType == keys.AsymmetricPrivate {
-		blobName = "asymmetric-private-key" // Assign to the already declared variable
+		blobName = "private"
 	} else if keyType == keys.Symmetric {
-		blobName = "symmetric-key" // Assign to the already declared variable
+		blobName = "symmetric"
 	} else {
 		return nil, fmt.Errorf("unsupported key type: %v", keyType)
 	}
@@ -95,6 +87,5 @@ func (s *CryptoKeyDownloadService) Download(keyID string, keyType keys.KeyType) 
 		return nil, fmt.Errorf("failed to download key from blob storage: %w", err)
 	}
 
-	// Return the metadata and the downloaded content (as a byte slice)
 	return blobData, nil
 }
