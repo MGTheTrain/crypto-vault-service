@@ -113,12 +113,8 @@ func teardownTestDB(t *testing.T, ctx *TestRepositoryContext) {
 
 // TestMain setup and teardown for the entire test suite
 func TestMain(m *testing.M) {
-	// Set up test context
-	ctx := setupTestDB(nil)
 	// Run tests
 	code := m.Run()
-	// Clean up after tests
-	teardownTestDB(nil, ctx)
 	// Exit with the test result code
 	if code != 0 {
 		fmt.Println("Tests failed.")
