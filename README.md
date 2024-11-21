@@ -10,7 +10,7 @@
 
 ## Summary
 
-RESTful Web API for managing cryptographic keys and securing data at rest (metadata, BLOB)
+Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys and securing data at rest (metadata, BLOB)
 
 ## References
 
