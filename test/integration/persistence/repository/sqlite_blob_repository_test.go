@@ -3,7 +3,6 @@ package repository
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -17,7 +16,7 @@ import (
 func TestBlobInSqliteRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -59,7 +58,7 @@ func TestBlobInSqliteRepository_Create(t *testing.T) {
 func TestBlobInSqliteRepository_GetById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -100,7 +99,7 @@ func TestBlobInSqliteRepository_GetById(t *testing.T) {
 func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -146,7 +145,7 @@ func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
 func TestBlobInSqliteRepository_DeleteById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)

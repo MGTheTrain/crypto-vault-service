@@ -3,7 +3,6 @@ package repository
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -17,7 +16,7 @@ import (
 func TestBlobPsqlRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "postgres")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -59,7 +58,7 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 func TestBlobPsqlRepository_GetById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "postgres")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -101,7 +100,7 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "postgres")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)

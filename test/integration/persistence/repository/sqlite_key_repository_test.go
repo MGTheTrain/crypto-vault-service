@@ -2,7 +2,6 @@ package repository
 
 import (
 	"crypto_vault_service/internal/domain/keys"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -16,7 +15,7 @@ import (
 func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -46,7 +45,7 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
@@ -75,7 +74,7 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
-		fmt.Println("Error setting environment variable:", err)
+		t.Fatalf("Error setting environment variable:", err)
 	}
 	// Set up test context
 	ctx := setupTestDB(t)
