@@ -26,7 +26,8 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "AES",               // Example key type
+		Type:            "public",            // Example key type
+		Algorithm:       "EC",                // Example algorithm
 		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
 		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
@@ -69,7 +70,8 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "AES",               // Example key type
+		Type:            "public",            // Example key type
+		Algorithm:       "EC",                // Example algorithm
 		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
 		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
@@ -112,7 +114,8 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "AES",               // Example key type
+		Type:            "public",            // Example key type
+		Algorithm:       "EC",                // Example algorithm
 		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
 		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}
@@ -155,7 +158,8 @@ func TestBlobPsqlRepository_DeleteById(t *testing.T) {
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "AES",               // Example key type
+		Type:            "public",            // Example key type
+		Algorithm:       "EC",                // Example algorithm
 		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
 		UserID:          uuid.New().String(), // Generate valid UUID for UserID
 	}

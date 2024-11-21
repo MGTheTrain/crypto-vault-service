@@ -1,12 +1,13 @@
 erDiagram
-    CRYPTOGRAPHIC_KEY {
+    CRYPTO_KEY_META {
         string id PK
+        string algorithm
         string type
         datetime date_time_created
         string user_id FK
     }
 
-    BLOB {
+    BLOB_META {
         string id PK
         datetime date_time_created
         string user_id FK
@@ -18,4 +19,4 @@ erDiagram
         string hash_algorithm
     }
 
-    CRYPTOGRAPHIC_KEY ||--o| BLOB : "associated with"
+    CRYPTO_KEY_META ||--o| BLOB_META : "associated with"
