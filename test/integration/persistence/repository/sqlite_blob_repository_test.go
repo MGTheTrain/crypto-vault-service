@@ -4,6 +4,8 @@ package repository
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
+	"crypto_vault_service/test/helpers"
+
 	"os"
 	"testing"
 	"time"
@@ -19,8 +21,8 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 	}
 
 	// Set up test context
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -62,8 +64,8 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 	}
 
 	// Set up test context
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{

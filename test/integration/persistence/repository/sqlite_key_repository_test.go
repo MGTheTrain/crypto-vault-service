@@ -2,6 +2,8 @@ package repository
 
 import (
 	"crypto_vault_service/internal/domain/keys"
+	"crypto_vault_service/test/helpers"
+
 	"os"
 	"testing"
 	"time"
@@ -19,8 +21,8 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 	}
 
 	// Set up test context
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -51,8 +53,8 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 	}
 
 	// Set up test context
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -82,8 +84,8 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 	}
 
 	// Set up test context
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -113,8 +115,8 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 // TestCryptoKeySqliteRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 	// Set up test context
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{

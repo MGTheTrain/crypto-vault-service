@@ -4,6 +4,7 @@ import (
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/connector"
+	"crypto_vault_service/test/helpers"
 	"fmt"
 	"os"
 	"testing"
@@ -39,8 +40,8 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	require.NoError(t, err, "Error setting environment variable")
 
 	// Set up test context and ensure proper teardown
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Initialize Vault Connector
 	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
@@ -86,8 +87,8 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 	require.NoError(t, err, "Error setting environment variable")
 
 	// Set up test context and ensure proper teardown
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a key metadata instance in the database for testing
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -127,8 +128,8 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 	require.NoError(t, err, "Error setting environment variable")
 
 	// Set up test context and ensure proper teardown
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Create a key metadata instance in the database for testing
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -168,8 +169,8 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	require.NoError(t, err, "Error setting environment variable")
 
 	// Set up test context and ensure proper teardown
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
+	ctx := helpers.SetupTestDB(t)
+	defer helpers.TeardownTestDB(t, ctx)
 
 	// Initialize Vault Connector
 	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"

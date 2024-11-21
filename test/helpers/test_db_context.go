@@ -1,4 +1,4 @@
-package repository
+package helpers
 
 import (
 	"crypto_vault_service/internal/domain/blobs"
@@ -13,14 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type TestRepositoryContext struct {
+type TestDBContext struct {
 	DB            *gorm.DB
 	BlobRepo      *repository.GormBlobRepository
 	CryptoKeyRepo *repository.GormCryptoKeyRepository
 }
 
 // SetupTestDB initializes the test database and repositories based on the DB_TYPE environment variable
-func SetupTestDB(t *testing.T) *TestRepositoryContext {
+func SetupTestDB(t *testing.T) *TestDBContext {
 	var err error
 	var db *gorm.DB
 
@@ -90,7 +90,7 @@ func SetupTestDB(t *testing.T) *TestRepositoryContext {
 	blobRepo := &repository.GormBlobRepository{DB: db}
 	cryptoKeyRepo := &repository.GormCryptoKeyRepository{DB: db}
 
-	return &TestRepositoryContext{
+	return &TestDBContext{
 		DB:            db,
 		BlobRepo:      blobRepo,
 		CryptoKeyRepo: cryptoKeyRepo,
@@ -98,7 +98,7 @@ func SetupTestDB(t *testing.T) *TestRepositoryContext {
 }
 
 // TeardownTestDB closes the DB connection after the test
-func TeardownTestDB(t *testing.T, ctx *TestRepositoryContext) {
+func TeardownTestDB(t *testing.T, ctx *TestDBContext) {
 	sqlDB, err := ctx.DB.DB()
 	if err != nil {
 		t.Fatalf("Failed to get DB connection: %v", err)
