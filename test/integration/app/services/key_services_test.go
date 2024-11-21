@@ -5,7 +5,6 @@ import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/test/helpers"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -14,24 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
-
-// Helper function to create a test file
-func createTestFile(testFilePath string, testFileContent []byte) error {
-	err := os.WriteFile(testFilePath, testFileContent, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to create test file at %s: %v", testFilePath, err)
-	}
-	return nil
-}
-
-// Helper function to remove the test file
-func removeTestFile(testFilePath string) error {
-	err := os.Remove(testFilePath)
-	if err != nil {
-		return fmt.Errorf("failed to remove test file at %s: %v", testFilePath, err)
-	}
-	return nil
-}
 
 // Test case for successful file upload and metadata creation
 func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
@@ -55,12 +36,12 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	// Prepare test file
 	testFilePath := "testfile.pem"
 	testFileContent := []byte("This is a test file content.")
-	err = createTestFile(testFilePath, testFileContent)
-	require.NoError(t, err, "Error creating test file")
-	defer func() {
-		err := removeTestFile(testFilePath)
-		require.NoError(t, err, "Error deleting test file")
-	}()
+	// Create test file
+	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	require.NoError(t, err)
+
+	// Clean up the test file after the test
+	defer os.Remove(testFilePath)
 
 	// Call the method under test
 	userId := uuid.New().String()
@@ -175,12 +156,12 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	// Prepare test file
 	testFilePath := "testfile.pem"
 	testFileContent := []byte("This is a test file content.")
-	err = createTestFile(testFilePath, testFileContent)
-	require.NoError(t, err, "Error creating test file")
-	defer func() {
-		err := removeTestFile(testFilePath)
-		require.NoError(t, err, "Error deleting test file")
-	}()
+	// Create test file
+	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	require.NoError(t, err)
+
+	// Clean up the test file after the test
+	defer os.Remove(testFilePath)
 
 	// Call the method under test
 	userId := uuid.New().String()
