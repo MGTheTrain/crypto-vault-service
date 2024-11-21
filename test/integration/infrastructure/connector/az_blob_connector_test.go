@@ -12,7 +12,7 @@ import (
 )
 
 // Define a struct for the test context to reuse across multiple tests
-type AzureBlobTest struct {
+type AzureBlobConnectorTest struct {
 	Connector       *connector.AzureBlobConnector
 	TestFilePath    string
 	TestFileContent []byte
@@ -20,25 +20,25 @@ type AzureBlobTest struct {
 }
 
 // Helper function to create a test file
-func (abt *AzureBlobTest) createTestFile(t *testing.T) {
+func (abt *AzureBlobConnectorTest) createTestFile(t *testing.T) {
 	err := os.WriteFile(abt.TestFilePath, abt.TestFileContent, 0644)
 	require.NoError(t, err)
 }
 
 // Helper function to remove the test file
-func (abt *AzureBlobTest) removeTestFile(t *testing.T) {
+func (abt *AzureBlobConnectorTest) removeTestFile(t *testing.T) {
 	err := os.Remove(abt.TestFilePath)
 	require.NoError(t, err)
 }
 
-// Helper function to create a new AzureBlobTest instance
-func NewAzureBlobTest(t *testing.T) *AzureBlobTest {
+// Helper function to create a new AzureBlobConnectorTest instance
+func NewAzureBlobConnectorTest(t *testing.T) *AzureBlobConnectorTest {
 	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
 	containerName := "testblobs"
 	abc, err := connector.NewAzureBlobConnector(connectionString, containerName)
 	require.NoError(t, err)
 
-	return &AzureBlobTest{
+	return &AzureBlobConnectorTest{
 		Connector:       abc,
 		TestFilePath:    "testfile.txt",
 		TestFileContent: []byte("This is a test file content."),
@@ -49,7 +49,7 @@ func NewAzureBlobTest(t *testing.T) *AzureBlobTest {
 // TestUpload tests the Upload method of AzureBlobConnector
 func TestUpload(t *testing.T) {
 	// Initialize test struct
-	azureTest := NewAzureBlobTest(t)
+	azureTest := NewAzureBlobConnectorTest(t)
 
 	// Prepare test file
 	azureTest.createTestFile(t)
@@ -76,7 +76,7 @@ func TestUpload(t *testing.T) {
 // TestDownload tests the Download method of AzureBlobConnector
 func TestDownload(t *testing.T) {
 	// Initialize test struct
-	azureTest := NewAzureBlobTest(t)
+	azureTest := NewAzureBlobConnectorTest(t)
 
 	// Prepare test file
 	azureTest.createTestFile(t)
@@ -103,7 +103,7 @@ func TestDownload(t *testing.T) {
 // TestDelete tests the Delete method of AzureBlobConnector
 func TestDelete(t *testing.T) {
 	// Initialize test struct
-	azureTest := NewAzureBlobTest(t)
+	azureTest := NewAzureBlobConnectorTest(t)
 
 	// Prepare test file
 	azureTest.createTestFile(t)

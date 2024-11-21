@@ -12,7 +12,7 @@ import (
 )
 
 // Define a struct for the test context to reuse across multiple tests
-type AzureVaultTest struct {
+type AzureVaultConnectorTest struct {
 	Connector        *connector.AzureVaultConnector
 	TestFilePath     string
 	TestFileContent  []byte
@@ -21,26 +21,26 @@ type AzureVaultTest struct {
 }
 
 // Helper function to create a test file
-func (abt *AzureVaultTest) createTestFile(t *testing.T) {
+func (abt *AzureVaultConnectorTest) createTestFile(t *testing.T) {
 	err := os.WriteFile(abt.TestFilePath, abt.TestFileContent, 0644)
 	require.NoError(t, err)
 }
 
 // Helper function to remove the test file
-func (abt *AzureVaultTest) removeTestFile(t *testing.T) {
+func (abt *AzureVaultConnectorTest) removeTestFile(t *testing.T) {
 	err := os.Remove(abt.TestFilePath)
 	require.NoError(t, err)
 }
 
-// Helper function to create a new AzureVaultTest instance
-func NewAzureVaultTest(t *testing.T) *AzureVaultTest {
+// Helper function to create a new AzureVaultConnectorTest instance
+func NewAzureVaultConnectorTest(t *testing.T) *AzureVaultConnectorTest {
 	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
 	containerName := "testblobs"
 	// Create the Azure Vault Connector
 	abc, err := connector.NewAzureVaultConnector(connectionString, containerName)
 	require.NoError(t, err)
 
-	return &AzureVaultTest{
+	return &AzureVaultConnectorTest{
 		Connector:        abc,
 		TestFilePath:     "testfile.txt",
 		TestFileContent:  []byte("This is a test file content."),
@@ -52,7 +52,7 @@ func NewAzureVaultTest(t *testing.T) *AzureVaultTest {
 // TestUpload tests the Upload method of AzureVaultConnector
 func TestAzureVaultConnector_Upload(t *testing.T) {
 	// Initialize test struct
-	azureTest := NewAzureVaultTest(t)
+	azureTest := NewAzureVaultConnectorTest(t)
 
 	// Prepare test file
 	azureTest.createTestFile(t)
@@ -79,7 +79,7 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 // TestDownload tests the Download method of AzureVaultConnector
 func TestAzureVaultConnector_Download(t *testing.T) {
 	// Initialize test struct
-	azureTest := NewAzureVaultTest(t)
+	azureTest := NewAzureVaultConnectorTest(t)
 
 	// Prepare test file
 	azureTest.createTestFile(t)
@@ -108,7 +108,7 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 // TestDelete tests the Delete method of AzureVaultConnector
 func TestAzureVaultConnector_Delete(t *testing.T) {
 	// Initialize test struct
-	azureTest := NewAzureVaultTest(t)
+	azureTest := NewAzureVaultConnectorTest(t)
 
 	// Prepare test file
 	azureTest.createTestFile(t)
