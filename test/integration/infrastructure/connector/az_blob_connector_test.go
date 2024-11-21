@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Define a struct for the test context to reuse across multiple tests
+// Define a struct to represent the test context for Azure Blob Connector tests.
 type AzureBlobConnectorTest struct {
 	Connector       *connector.AzureBlobConnector
 	TestFilePath    string
