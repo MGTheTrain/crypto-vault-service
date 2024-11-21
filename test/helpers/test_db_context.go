@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -37,37 +38,33 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 			t.Fatalf("POSTGRES_DSN environment variable is not set")
 		}
 
+		// Connect to PostgreSQL without specifying a database (so we can create one if necessary)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			t.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}
 
-		// Ensure the `blobs` database exists
+		// Generate a unique database name using UUID
+		uniqueDBName := "blobs_" + uuid.New().String()
+
+		// Ensure the unique `blobs` database exists, create if necessary
 		sqlDB, err := db.DB()
 		if err != nil {
 			t.Fatalf("Failed to get raw DB connection: %v", err)
 		}
 
-		// Query to check if the `blobs` database exists
-		var dbExists bool
-		err = sqlDB.QueryRow("SELECT 1 FROM pg_database WHERE datname = 'blobs'").Scan(&dbExists)
+		// Create the new database
+		_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", uniqueDBName))
 		if err != nil {
-			if err.Error() != "sql: no rows in result set" {
-				t.Fatalf("Failed to check if database exists: %v", err)
-			}
-			// The database does not exist, create it
-			_, err = sqlDB.Exec("CREATE DATABASE blobs")
-			if err != nil {
-				t.Fatalf("Failed to create database: %v", err)
-			}
-			fmt.Println("Database 'blobs' created successfully.")
+			t.Fatalf("Failed to create database '%s': %v", uniqueDBName, err)
 		}
+		fmt.Printf("Database '%s' created successfully.\n", uniqueDBName)
 
-		// Open the connection to `blobs` database
-		dsn = "user=postgres password=postgres host=localhost port=5432 dbname=blobs sslmode=disable"
+		// Now that the unique `blobs` database is created, connect to it
+		dsn = fmt.Sprintf("user=postgres password=postgres host=localhost port=5432 dbname=%s sslmode=disable", uniqueDBName)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			t.Fatalf("Failed to connect to PostgreSQL database 'blobs': %v", err)
+			t.Fatalf("Failed to connect to PostgreSQL database '%s': %v", uniqueDBName, err)
 		}
 
 	case "sqlite":
@@ -97,11 +94,36 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 	}
 }
 
-// TeardownTestDB closes the DB connection after the test
-func TeardownTestDB(t *testing.T, ctx *TestDBContext) {
+// TeardownTestDB closes the DB connection and cleans up the database after the test
+func TeardownTestDB(t *testing.T, ctx *TestDBContext, dbType string) {
 	sqlDB, err := ctx.DB.DB()
 	if err != nil {
 		t.Fatalf("Failed to get DB connection: %v", err)
 	}
-	sqlDB.Close()
+
+	// If using PostgreSQL, drop the unique database created during the test
+	if dbType == "postgres" {
+		// Get the database name from the DSN or context (you might store it during DB setup)
+		databaseName := ctx.DB.Migrator().CurrentDatabase()
+
+		// Close the current DB connection before dropping the database
+		sqlDB.Close()
+
+		// Connect again to PostgreSQL without specifying a database (connect to the default one)
+		dsn := "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
+		db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err != nil {
+			t.Fatalf("Failed to reconnect to PostgreSQL: %v", err)
+		}
+
+		// Drop the unique database
+		tx := db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", databaseName))
+		if tx.Error != nil {
+			t.Fatalf("Failed to drop database '%s': %v", databaseName, tx.Error)
+		}
+		fmt.Printf("Database '%s' dropped successfully.\n", databaseName)
+	} else {
+		// For SQLite, no need to drop the in-memory database, just close the connection
+		sqlDB.Close()
+	}
 }

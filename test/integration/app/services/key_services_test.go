@@ -35,13 +35,10 @@ func removeTestFile(testFilePath string) error {
 
 // Test case for successful file upload and metadata creation
 func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
-	// Set up environment variable
-	err := os.Setenv("DB_TYPE", "postgres")
-	require.NoError(t, err, "Error setting environment variable")
-
-	// Set up test context and ensure proper teardown
+	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Initialize Vault Connector
 	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
@@ -82,13 +79,10 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 
 // Test case for successful retrieval of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
-	// Set up environment variable
-	err := os.Setenv("DB_TYPE", "postgres")
-	require.NoError(t, err, "Error setting environment variable")
-
-	// Set up test context and ensure proper teardown
+	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a key metadata instance in the database for testing
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -100,7 +94,7 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 	}
 
 	// Store the cryptographic key metadata in the database
-	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	require.NoError(t, err, "Error creating test cryptographic key metadata")
 
 	// Set up the CryptoKeyMetadataService
@@ -123,13 +117,10 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
 // Test case for successful deletion of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
-	// Set up environment variable
-	err := os.Setenv("DB_TYPE", "postgres")
-	require.NoError(t, err, "Error setting environment variable")
-
-	// Set up test context and ensure proper teardown
+	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a key metadata instance in the database for testing
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -141,7 +132,7 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 	}
 
 	// Store the cryptographic key metadata in the database
-	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	require.NoError(t, err, "Error creating test cryptographic key metadata")
 
 	// Set up the CryptoKeyMetadataService
@@ -164,13 +155,10 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 
 // Test case for successful download of cryptographic key
 func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
-	// Set up environment variable
-	err := os.Setenv("DB_TYPE", "postgres")
-	require.NoError(t, err, "Error setting environment variable")
-
-	// Set up test context and ensure proper teardown
+	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Initialize Vault Connector
 	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"

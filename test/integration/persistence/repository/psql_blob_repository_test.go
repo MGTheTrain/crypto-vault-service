@@ -6,7 +6,6 @@ import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/test/helpers"
 
-	"os"
 	"testing"
 	"time"
 
@@ -15,14 +14,10 @@ import (
 )
 
 func TestBlobPsqlRepository_Create(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "postgres")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
 	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "postgres"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -46,7 +41,7 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 	}
 
 	// Call the Create method
-	err = ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the blob is created and exists in DB
@@ -58,14 +53,10 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_GetById(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "postgres")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
 	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "postgres"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -89,7 +80,7 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 	}
 
 	// Create the blob in DB
-	err = ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Get the blob by ID

@@ -4,7 +4,6 @@ import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/test/helpers"
 
-	"os"
 	"testing"
 	"time"
 
@@ -15,14 +14,10 @@ import (
 
 // TestCryptoKeySqliteRepository_Create tests the Create method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_Create(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "sqlite")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
 	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -34,7 +29,7 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 	}
 
 	// Create the cryptographic key in DB
-	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Verify the cryptographic key is created and exists in DB
@@ -47,14 +42,10 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 
 // TestCryptoKeySqliteRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "sqlite")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
 	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -66,7 +57,7 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 	}
 
 	// Create the cryptographic key in DB
-	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Get the cryptographic key by ID
@@ -78,14 +69,10 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 
 // TestCryptoKeySqliteRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "sqlite")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
 	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -97,7 +84,7 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 	}
 
 	// Create the cryptographic key in DB
-	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Update the cryptographic key's type
@@ -116,7 +103,8 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 	// Set up test context
 	ctx := helpers.SetupTestDB(t)
-	defer helpers.TeardownTestDB(t, ctx)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
 	// Create a valid CryptoKey object
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
