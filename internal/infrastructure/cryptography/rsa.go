@@ -10,8 +10,8 @@ import (
 	"os"
 )
 
-// RSA Interface
-type RSA interface {
+// IRSA Interface
+type IRSA interface {
 	Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error)
 	Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error)
 	GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error)
@@ -21,11 +21,11 @@ type RSA interface {
 	ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error)
 }
 
-// RSACrypto struct that implements the RSA interface
-type RSACrypto struct{}
+// RSA struct that implements the IRSA interface
+type RSA struct{}
 
 // GenerateRSAKeys generates RSA key pair
-func (r *RSACrypto) GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
+func (r *RSA) GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate RSA keys: %v", err)
@@ -35,7 +35,7 @@ func (r *RSACrypto) GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, err
 }
 
 // Encrypt data using RSA public key
-func (r *RSACrypto) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error) {
+func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error) {
 	if publicKey == nil {
 		return nil, errors.New("public key cannot be nil")
 	}
@@ -48,7 +48,7 @@ func (r *RSACrypto) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte,
 }
 
 // Decrypt data using RSA private key
-func (r *RSACrypto) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
 		return nil, fmt.Errorf("private key cannot be nil")
 	}
@@ -60,7 +60,7 @@ func (r *RSACrypto) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]by
 	return decryptedData, nil
 }
 
-func (r *RSACrypto) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error {
+func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error {
 	privKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	privKeyPem := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
@@ -81,7 +81,7 @@ func (r *RSACrypto) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename st
 	return nil
 }
 
-func (r *RSACrypto) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
+func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
 	pubKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
 		return fmt.Errorf("failed to marshal public key: %v", err)
@@ -107,7 +107,7 @@ func (r *RSACrypto) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename strin
 }
 
 // Read RSA private key from PEM file
-func (r *RSACrypto) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
+func (r *RSA) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %v", err)
@@ -140,7 +140,7 @@ func (r *RSACrypto) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, erro
 }
 
 // Read RSA public key from PEM file
-func (r *RSACrypto) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
+func (r *RSA) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
 	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %v", err)

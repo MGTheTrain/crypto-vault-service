@@ -24,7 +24,7 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error: input, output, and keyDir flags are required\n")
 	}
 
-	aes := &cryptography.AESCrypto{}
+	aes := &cryptography.AES{}
 
 	// Generate AES Key
 	key, err := aes.GenerateKey(keySize)
@@ -85,7 +85,7 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
 
-	aes := &cryptography.AESCrypto{}
+	aes := &cryptography.AES{}
 
 	decryptedData, err := aes.Decrypt(encryptedData, key)
 	if err != nil {

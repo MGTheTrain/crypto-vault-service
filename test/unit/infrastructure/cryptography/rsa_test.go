@@ -11,20 +11,20 @@ import (
 
 // RSATests struct to encapsulate RSA-related test cases
 type RSATests struct {
-	RSACrypto *cryptography.RSACrypto
+	RSA *cryptography.RSA
 }
 
 // NewRSATests is a constructor that creates a new instance of RSATests
 func NewRSATests() *RSATests {
 	return &RSATests{
-		RSACrypto: &cryptography.RSACrypto{},
+		RSA: &cryptography.RSA{},
 	}
 }
 
 // TestGenerateRSAKeys tests the generation of RSA keys
 func (rt *RSATests) TestGenerateRSAKeys(t *testing.T) {
 	// Generate RSA keys with 2048-bit size
-	privateKey, publicKey, err := rt.RSACrypto.GenerateKeys(2048)
+	privateKey, publicKey, err := rt.RSA.GenerateKeys(2048)
 	assert.NoError(t, err, "Error generating RSA keys")
 	assert.NotNil(t, privateKey, "Private key should not be nil")
 	assert.NotNil(t, publicKey, "Public key should not be nil")
@@ -37,18 +37,18 @@ func (rt *RSATests) TestGenerateRSAKeys(t *testing.T) {
 // TestEncryptDecrypt tests the encryption and decryption methods of RSA
 func (rt *RSATests) TestEncryptDecrypt(t *testing.T) {
 	// Generate RSA keys
-	privateKey, publicKey, err := rt.RSACrypto.GenerateKeys(2048)
+	privateKey, publicKey, err := rt.RSA.GenerateKeys(2048)
 	assert.NoError(t, err)
 
 	// Message to encrypt
 	plainText := []byte("This is a secret message")
 
 	// Encrypt the message
-	encryptedData, err := rt.RSACrypto.Encrypt(plainText, publicKey)
+	encryptedData, err := rt.RSA.Encrypt(plainText, publicKey)
 	assert.NoError(t, err, "Error encrypting data")
 
 	// Decrypt the message
-	decryptedData, err := rt.RSACrypto.Decrypt(encryptedData, privateKey)
+	decryptedData, err := rt.RSA.Decrypt(encryptedData, privateKey)
 	assert.NoError(t, err, "Error decrypting data")
 
 	// Ensure the decrypted data matches the original message
@@ -58,26 +58,26 @@ func (rt *RSATests) TestEncryptDecrypt(t *testing.T) {
 // TestSaveAndReadKeys tests saving and reading RSA keys to and from files
 func (rt *RSATests) TestSaveAndReadKeys(t *testing.T) {
 	// Generate RSA keys
-	privateKey, publicKey, err := rt.RSACrypto.GenerateKeys(2048)
+	privateKey, publicKey, err := rt.RSA.GenerateKeys(2048)
 	assert.NoError(t, err)
 
 	// Save keys to files
 	privateKeyFile := "private.pem"
 	publicKeyFile := "public.pem"
 
-	err = rt.RSACrypto.SavePrivateKeyToFile(privateKey, privateKeyFile)
+	err = rt.RSA.SavePrivateKeyToFile(privateKey, privateKeyFile)
 	assert.NoError(t, err, "Error saving private key to file")
 
-	err = rt.RSACrypto.SavePublicKeyToFile(publicKey, publicKeyFile)
+	err = rt.RSA.SavePublicKeyToFile(publicKey, publicKeyFile)
 	assert.NoError(t, err, "Error saving public key to file")
 
 	// Read the keys back from the files
-	readPrivateKey, err := rt.RSACrypto.ReadPrivateKey(privateKeyFile)
+	readPrivateKey, err := rt.RSA.ReadPrivateKey(privateKeyFile)
 	assert.NoError(t, err, "Error reading private key from file")
 	assert.Equal(t, privateKey.N, readPrivateKey.N, "Private key N component should match")
 	assert.Equal(t, privateKey.E, readPrivateKey.E, "Private key E component should match")
 
-	readPublicKey, err := rt.RSACrypto.ReadPublicKey(publicKeyFile)
+	readPublicKey, err := rt.RSA.ReadPublicKey(publicKeyFile)
 	assert.NoError(t, err, "Error reading public key from file")
 	assert.Equal(t, publicKey.N, readPublicKey.N, "Public key N component should match")
 	assert.Equal(t, publicKey.E, readPublicKey.E, "Public key E component should match")
@@ -90,42 +90,42 @@ func (rt *RSATests) TestSaveAndReadKeys(t *testing.T) {
 // TestEncryptWithInvalidKey tests encryption with an invalid public key
 func (rt *RSATests) TestEncryptWithInvalidKey(t *testing.T) {
 	// Generate RSA keys
-	_, _, err := rt.RSACrypto.GenerateKeys(2048)
+	_, _, err := rt.RSA.GenerateKeys(2048)
 	assert.NoError(t, err)
 
 	// Attempt to encrypt with a nil public key (invalid case)
 	plainText := []byte("This should fail encryption")
-	_, err = rt.RSACrypto.Encrypt(plainText, nil)
+	_, err = rt.RSA.Encrypt(plainText, nil)
 	assert.Error(t, err, "Encryption should fail with an invalid public key")
 
 	// Attempt to decrypt with a nil private key (invalid case)
-	_, err = rt.RSACrypto.Decrypt(plainText, nil)
+	_, err = rt.RSA.Decrypt(plainText, nil)
 	assert.Error(t, err, "Decryption should fail with an invalid private key")
 
 	// Attempt to decrypt with a different private key (invalid case)
-	_, err = rt.RSACrypto.Decrypt(plainText, &rsa.PrivateKey{})
+	_, err = rt.RSA.Decrypt(plainText, &rsa.PrivateKey{})
 	assert.Error(t, err, "Decryption should fail with an invalid private key")
 }
 
 // TestSavePrivateKeyInvalidPath tests saving a private key to an invalid path
 func (rt *RSATests) TestSavePrivateKeyInvalidPath(t *testing.T) {
 	// Generate RSA keys
-	privateKey, _, err := rt.RSACrypto.GenerateKeys(2048)
+	privateKey, _, err := rt.RSA.GenerateKeys(2048)
 	assert.NoError(t, err)
 
 	// Try saving the private key to an invalid file path
-	err = rt.RSACrypto.SavePrivateKeyToFile(privateKey, "/invalid/path/private.pem")
+	err = rt.RSA.SavePrivateKeyToFile(privateKey, "/invalid/path/private.pem")
 	assert.Error(t, err, "Saving private key to an invalid path should return an error")
 }
 
 // TestSavePublicKeyInvalidPath tests saving a public key to an invalid path
 func (rt *RSATests) TestSavePublicKeyInvalidPath(t *testing.T) {
 	// Generate RSA keys
-	_, publicKey, err := rt.RSACrypto.GenerateKeys(2048)
+	_, publicKey, err := rt.RSA.GenerateKeys(2048)
 	assert.NoError(t, err)
 
 	// Try saving the public key to an invalid file path
-	err = rt.RSACrypto.SavePublicKeyToFile(publicKey, "/invalid/path/public.pem")
+	err = rt.RSA.SavePublicKeyToFile(publicKey, "/invalid/path/public.pem")
 	assert.Error(t, err, "Saving public key to an invalid path should return an error")
 }
 
