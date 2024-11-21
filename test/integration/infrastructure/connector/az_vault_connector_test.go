@@ -13,11 +13,9 @@ import (
 
 // Define a struct to represent the test context for Azure Vault Connector tests.
 type AzureVaultConnectorTest struct {
-	Connector        *connector.AzureVaultConnector
-	TestFilePath     string
-	TestFileContent  []byte
-	ContainerName    string
-	ConnectionString string
+	Connector       *connector.AzureVaultConnector
+	TestFilePath    string
+	TestFileContent []byte
 }
 
 // Helper function to create a test file
@@ -41,11 +39,9 @@ func NewAzureVaultConnectorTest(t *testing.T) *AzureVaultConnectorTest {
 	require.NoError(t, err)
 
 	return &AzureVaultConnectorTest{
-		Connector:        abc,
-		TestFilePath:     "testfile.txt",
-		TestFileContent:  []byte("This is a test file content."),
-		ContainerName:    containerName,
-		ConnectionString: connectionString,
+		Connector:       abc,
+		TestFilePath:    "testfile.txt",
+		TestFileContent: []byte("This is a test file content."),
 	}
 }
 

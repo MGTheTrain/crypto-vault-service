@@ -16,7 +16,6 @@ type AzureBlobConnectorTest struct {
 	Connector       *connector.AzureBlobConnector
 	TestFilePath    string
 	TestFileContent []byte
-	ContainerName   string
 }
 
 // Helper function to create a test file
@@ -42,7 +41,6 @@ func NewAzureBlobConnectorTest(t *testing.T) *AzureBlobConnectorTest {
 		Connector:       abc,
 		TestFilePath:    "testfile.txt",
 		TestFileContent: []byte("This is a test file content."),
-		ContainerName:   containerName,
 	}
 }
 
