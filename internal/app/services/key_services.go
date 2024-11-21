@@ -5,9 +5,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 type CryptoKeyUploadService struct {
@@ -15,37 +12,24 @@ type CryptoKeyUploadService struct {
 	CryptoKeyRepo  repository.CryptoKeyRepository
 }
 
-func (s *CryptoKeyUploadService) Upload(filePaths []string) ([]*keys.CryptoKeyMeta, error) {
+func (s *CryptoKeyUploadService) Upload(filePaths []string, userId string) ([]*keys.CryptoKeyMeta, error) {
 	// Step 1: Upload files to blob storage
-	userId := uuid.New().String()
-	blobMeta, err := s.VaultConnector.Upload(filePaths, userId)
+	keyMetas, err := s.VaultConnector.Upload(filePaths, userId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload files: %w", err)
 	}
 
 	// Step 2: Store the metadata in the database
-	var keyMetas []*keys.CryptoKeyMeta
-	for _, blob := range blobMeta {
-		// Map Blob metadata to CryptoKey metadata
-		keyMeta := &keys.CryptoKeyMeta{
-			ID:              uuid.New().String(), // Generate valid UUID for ID
-			Type:            "RSA",               // Example key type
-			DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
-			UserID:          uuid.New().String(), // Generate valid UUID for UserID
-		}
-
+	for _, keyMeta := range keyMetas {
 		// Validate CryptoKeyMeta
 		if err := keyMeta.Validate(); err != nil {
 			return nil, fmt.Errorf("invalid key metadata: %w", err)
 		}
 
 		// Save metadata to DB
-		if err := s.CryptoKeyRepo.Create(blob); err != nil {
+		if err := s.CryptoKeyRepo.Create(keyMeta); err != nil {
 			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", keyMeta.Type, err)
 		}
-
-		// Append to list
-		keyMetas = append(keyMetas, keyMeta)
 	}
 
 	// Return metadata

@@ -14,7 +14,7 @@ const (
 type ICryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys from specified file paths.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(filePaths []string) ([]*CryptoKeyMeta, error)
+	Upload(filePaths []string, userId string) ([]*CryptoKeyMeta, error)
 }
 
 // ICryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
