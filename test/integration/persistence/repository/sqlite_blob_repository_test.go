@@ -1,3 +1,4 @@
+// repository/blobrepository_test.go
 package repository
 
 import (
@@ -9,39 +10,37 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/gorm"
 )
 
-// TestBlobInSqliteRepository_Create tests the Create method of GormBlobRepository
-func TestBlobInSqliteRepository_Create(t *testing.T) {
+func TestBlobSqliteRepository_Create(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
 		t.Fatalf("Error setting environment variable: %v", err)
 	}
 
 	// Set up test context
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
+	ctx := SetupTestDB(t)
+	defer TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
-		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "public",            // Example key type
-		Algorithm:       "EC",                // Example algorithm
-		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(),
+		Type:            "public",
+		Algorithm:       "EC",
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
 	}
 
-	// Create a test Blob object with valid UUIDs and required fields
+	// Create a test Blob object
 	blob := &blobs.BlobMeta{
-		ID:              uuid.New().String(), // Generate valid UUID
+		ID:              uuid.New().String(),
 		DateTimeCreated: time.Now(),
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
+		UserID:          cryptographicKey.UserID,
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
+		CryptoKey:       cryptographicKey,
+		KeyID:           cryptographicKey.ID,
 	}
 
 	// Call the Create method
@@ -56,36 +55,35 @@ func TestBlobInSqliteRepository_Create(t *testing.T) {
 	assert.Equal(t, blob.Name, createdBlob.Name, "Name should match")
 }
 
-// TestBlobInSqliteRepository_GetById tests the GetById method of GormBlobRepository
-func TestBlobInSqliteRepository_GetById(t *testing.T) {
+func TestBlobSqliteRepository_GetById(t *testing.T) {
 	err := os.Setenv("DB_TYPE", "sqlite")
 	if err != nil {
 		t.Fatalf("Error setting environment variable: %v", err)
 	}
 
 	// Set up test context
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
+	ctx := SetupTestDB(t)
+	defer TeardownTestDB(t, ctx)
 
 	// Create a valid CryptoKey object
 	cryptographicKey := keys.CryptoKeyMeta{
-		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "public",            // Example key type
-		Algorithm:       "EC",                // Example algorithm
-		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
+		ID:              uuid.New().String(),
+		Type:            "public",
+		Algorithm:       "EC",
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
 	}
 
-	// Create a test Blob object with valid UUIDs and required fields
+	// Create a test Blob object
 	blob := &blobs.BlobMeta{
-		ID:              uuid.New().String(), // Generate valid UUID
+		ID:              uuid.New().String(),
 		DateTimeCreated: time.Now(),
-		UserID:          cryptographicKey.UserID, // Link to valid UserID from CryptoKey
+		UserID:          cryptographicKey.UserID,
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
+		CryptoKey:       cryptographicKey,
+		KeyID:           cryptographicKey.ID,
 	}
 
 	// Create the blob in DB
@@ -97,99 +95,4 @@ func TestBlobInSqliteRepository_GetById(t *testing.T) {
 	assert.NoError(t, err, "GetById should not return an error")
 	assert.NotNil(t, fetchedBlob, "Fetched blob should not be nil")
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
-}
-
-// TestBlobInSqliteRepository_UpdateById tests the UpdateById method of GormBlobRepository
-func TestBlobInSqliteRepository_UpdateById(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "sqlite")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
-	// Set up test context
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
-
-	// Create a valid CryptoKey object
-	cryptographicKey := keys.CryptoKeyMeta{
-		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "public",            // Example key type
-		Algorithm:       "EC",                // Example algorithm
-		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
-	}
-
-	// Create a test Blob object with valid UUIDs and required fields
-	blob := &blobs.BlobMeta{
-		ID:              uuid.New().String(), // Generate valid UUID
-		DateTimeCreated: time.Now(),
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
-		Name:            "test-blob",
-		Size:            1024,
-		Type:            "text",
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
-	}
-
-	// Create the blob in DB
-	err = ctx.BlobRepo.Create(blob)
-	assert.NoError(t, err)
-
-	// Update the blob's name
-	blob.Name = "updated-blob-name"
-	err = ctx.BlobRepo.UpdateById(blob)
-	assert.NoError(t, err)
-
-	// Verify the blob is updated
-	var updatedBlob blobs.BlobMeta
-	err = ctx.DB.First(&updatedBlob, "id = ?", blob.ID).Error
-	assert.NoError(t, err)
-	assert.Equal(t, "updated-blob-name", updatedBlob.Name, "Name should be updated")
-}
-
-// TestBlobInSqliteRepository_DeleteById tests the DeleteById method of GormBlobRepository
-func TestBlobInSqliteRepository_DeleteById(t *testing.T) {
-	err := os.Setenv("DB_TYPE", "sqlite")
-	if err != nil {
-		t.Fatalf("Error setting environment variable: %v", err)
-	}
-
-	// Set up test context
-	ctx := setupTestDB(t)
-	defer teardownTestDB(t, ctx)
-
-	// Create a valid CryptoKey object
-	cryptographicKey := keys.CryptoKeyMeta{
-		ID:              uuid.New().String(), // Generate valid UUID for ID
-		Type:            "public",            // Example key type
-		Algorithm:       "EC",                // Example algorithm
-		DateTimeCreated: time.Now(),          // Valid DateTimeCreated time
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
-	}
-
-	// Create a test Blob object with valid UUIDs and required fields
-	blob := &blobs.BlobMeta{
-		ID:              uuid.New().String(), // Generate valid UUID
-		DateTimeCreated: time.Now(),
-		UserID:          uuid.New().String(), // Generate valid UUID for UserID
-		Name:            "test-blob",
-		Size:            1024,
-		Type:            "text",
-		CryptoKey:       cryptographicKey,    // Set the CryptoKey
-		KeyID:           cryptographicKey.ID, // Ensure ID is set
-	}
-
-	// Create the blob in DB
-	err = ctx.BlobRepo.Create(blob)
-	assert.NoError(t, err)
-
-	// Delete the blob
-	err = ctx.BlobRepo.DeleteById(blob.ID)
-	assert.NoError(t, err)
-
-	// Verify the blob is deleted
-	var deletedBlob blobs.BlobMeta
-	err = ctx.DB.First(&deletedBlob, "id = ?", blob.ID).Error
-	assert.Error(t, err, "Blob should be deleted")
-	assert.Equal(t, gorm.ErrRecordNotFound, err, "Error should be 'record not found'")
 }

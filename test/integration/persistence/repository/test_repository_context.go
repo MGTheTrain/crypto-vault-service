@@ -13,28 +13,25 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestRepositoryContext struct to hold DB and repositories for each test
 type TestRepositoryContext struct {
 	DB            *gorm.DB
 	BlobRepo      *repository.GormBlobRepository
 	CryptoKeyRepo *repository.GormCryptoKeyRepository
 }
 
-// Setup function to initialize the test DB and repositories
-func setupTestDB(t *testing.T) *TestRepositoryContext {
+// SetupTestDB initializes the test database and repositories based on the DB_TYPE environment variable
+func SetupTestDB(t *testing.T) *TestRepositoryContext {
 	var err error
 	var db *gorm.DB
 
-	// Check for the DB type to use (SQLite in-memory or PostgreSQL)
 	dbType := os.Getenv("DB_TYPE")
 	if dbType == "" {
-		// Default to SQLite in-memory if DB_TYPE is not set
-		dbType = "sqlite"
+		dbType = "sqlite" // Default to SQLite in-memory if DB_TYPE is not set
 	}
 
 	switch dbType {
 	case "postgres":
-		// Setup PostgreSQL connection
+		// PostgreSQL setup
 		dsn := "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
 		if dsn == "" {
 			t.Fatalf("POSTGRES_DSN environment variable is not set")
@@ -45,7 +42,7 @@ func setupTestDB(t *testing.T) *TestRepositoryContext {
 			t.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}
 
-		// Check if the `blobs` database exists
+		// Ensure the `blobs` database exists
 		sqlDB, err := db.DB()
 		if err != nil {
 			t.Fatalf("Failed to get raw DB connection: %v", err)
@@ -66,7 +63,7 @@ func setupTestDB(t *testing.T) *TestRepositoryContext {
 			fmt.Println("Database 'blobs' created successfully.")
 		}
 
-		// Now, open a connection to the `blobs` database
+		// Open the connection to `blobs` database
 		dsn = "user=postgres password=postgres host=localhost port=5432 dbname=blobs sslmode=disable"
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
@@ -74,7 +71,6 @@ func setupTestDB(t *testing.T) *TestRepositoryContext {
 		}
 
 	case "sqlite":
-		// Setup SQLite in-memory connection
 		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 		if err != nil {
 			t.Fatalf("Failed to connect to SQLite: %v", err)
@@ -101,21 +97,11 @@ func setupTestDB(t *testing.T) *TestRepositoryContext {
 	}
 }
 
-// Teardown function to clean up after tests (optional, for DB cleanup)
-func teardownTestDB(t *testing.T, ctx *TestRepositoryContext) {
+// TeardownTestDB closes the DB connection after the test
+func TeardownTestDB(t *testing.T, ctx *TestRepositoryContext) {
 	sqlDB, err := ctx.DB.DB()
 	if err != nil {
 		t.Fatalf("Failed to get DB connection: %v", err)
 	}
 	sqlDB.Close()
-}
-
-// TestMain setup and teardown for the entire test suite
-func TestMain(m *testing.M) {
-	// Run tests
-	code := m.Run()
-	// Exit with the test result code
-	if code != 0 {
-		fmt.Println("Tests failed.")
-	}
 }
