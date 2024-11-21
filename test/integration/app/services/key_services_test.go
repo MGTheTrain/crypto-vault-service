@@ -59,7 +59,10 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	testFileContent := []byte("This is a test file content.")
 	err = createTestFile(testFilePath, testFileContent)
 	require.NoError(t, err, "Error creating test file")
-	defer removeTestFile(testFilePath)
+	defer func() {
+		err := removeTestFile(testFilePath)
+		require.NoError(t, err, "Error deleting test file")
+	}()
 
 	// Call the method under test
 	userId := uuid.New().String()
@@ -185,7 +188,10 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	testFileContent := []byte("This is a test file content.")
 	err = createTestFile(testFilePath, testFileContent)
 	require.NoError(t, err, "Error creating test file")
-	defer removeTestFile(testFilePath)
+	defer func() {
+		err := removeTestFile(testFilePath)
+		require.NoError(t, err, "Error deleting test file")
+	}()
 
 	// Call the method under test
 	userId := uuid.New().String()
