@@ -51,22 +51,23 @@ func TestUpload(t *testing.T) {
 
 	// Prepare test file
 	azureTest.createTestFile(t)
+	// Clean up the test file and blob
+	defer azureTest.removeTestFile(t)
 
 	// Upload the file
 	userId := uuid.New().String()
-	blobs, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
+	filePaths := []string{azureTest.TestFilePath}
+	blobs, err := azureTest.Connector.Upload(filePaths, userId)
 	require.NoError(t, err)
 
 	// Assert that we received one blob metadata
 	assert.Len(t, blobs, 1)
 	blob := blobs[0]
 	assert.NotEmpty(t, blob.ID)
-	assert.Equal(t, "testfile.txt", blob.Name)
+	assert.Equal(t, azureTest.TestFilePath, blob.Name)
 	assert.Equal(t, int64(len(azureTest.TestFileContent)), blob.Size)
 	assert.Equal(t, ".txt", blob.Type)
 
-	// Clean up the test file and blob
-	azureTest.removeTestFile(t)
 	err = azureTest.Connector.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 }
@@ -78,10 +79,13 @@ func TestDownload(t *testing.T) {
 
 	// Prepare test file
 	azureTest.createTestFile(t)
+	// Clean up the test file and blob
+	defer azureTest.removeTestFile(t)
 
 	// Upload the file
 	userId := uuid.New().String()
-	blobs, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
+	filePaths := []string{azureTest.TestFilePath}
+	blobs, err := azureTest.Connector.Upload(filePaths, userId)
 	require.NoError(t, err)
 
 	// Download the uploaded file
@@ -92,8 +96,6 @@ func TestDownload(t *testing.T) {
 	// Assert that the downloaded content matches the original content
 	assert.Equal(t, azureTest.TestFileContent, downloadedData)
 
-	// Clean up the test file and blob
-	azureTest.removeTestFile(t)
 	err = azureTest.Connector.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 }
@@ -105,10 +107,13 @@ func TestDelete(t *testing.T) {
 
 	// Prepare test file
 	azureTest.createTestFile(t)
+	// Clean up the test file and blob
+	defer azureTest.removeTestFile(t)
 
 	// Upload the file
 	userId := uuid.New().String()
-	blobs, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
+	filePaths := []string{azureTest.TestFilePath}
+	blobs, err := azureTest.Connector.Upload(filePaths, userId)
 	require.NoError(t, err)
 
 	// Get the uploaded blob ID
@@ -121,7 +126,4 @@ func TestDelete(t *testing.T) {
 	// Try downloading the blob to ensure it was deleted (should fail)
 	_, err = azureTest.Connector.Download(blob.ID, blob.Name)
 	assert.Error(t, err)
-
-	// Clean up the test file
-	azureTest.removeTestFile(t)
 }

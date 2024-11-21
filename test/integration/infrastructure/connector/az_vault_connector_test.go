@@ -52,22 +52,23 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 
 	// Prepare test file
 	azureTest.createTestFile(t)
+	// Clean up the test file and delete the uploaded key
+	defer azureTest.removeTestFile(t)
 
 	// Upload the file
 	userId := uuid.New().String()
-	uploadedKeys, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
+	filePaths := []string{azureTest.TestFilePath}
+	uploadedKeys, err := azureTest.Connector.Upload(filePaths, userId)
 	require.NoError(t, err)
 
 	// Assert that we received key metadata
 	require.Len(t, uploadedKeys, 1)
 	keyMeta := uploadedKeys[0]
 	assert.NotEmpty(t, keyMeta.ID)
-	assert.Equal(t, "testfile.txt", keyMeta.Type) // Type based on file name
+	assert.Equal(t, azureTest.TestFilePath, keyMeta.Type) // Type based on file name
 	assert.Equal(t, userId, keyMeta.UserID)
 	assert.WithinDuration(t, time.Now(), keyMeta.DateTimeCreated, time.Second)
 
-	// Clean up the test file and delete the uploaded key
-	azureTest.removeTestFile(t)
 	err = azureTest.Connector.Delete(keyMeta.ID, keyMeta.Type)
 	require.NoError(t, err)
 }
@@ -79,10 +80,13 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 
 	// Prepare test file
 	azureTest.createTestFile(t)
+	// Clean up the test file and delete the uploaded key
+	defer azureTest.removeTestFile(t)
 
 	// Upload the file
 	userId := uuid.New().String()
-	uploadedKeys, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
+	filePaths := []string{azureTest.TestFilePath}
+	uploadedKeys, err := azureTest.Connector.Upload(filePaths, userId)
 	require.NoError(t, err)
 
 	// Get the metadata of the uploaded file
@@ -95,8 +99,6 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 	// Assert that the downloaded content matches the original content
 	assert.Equal(t, azureTest.TestFileContent, downloadedData)
 
-	// Clean up the test file and delete the uploaded key
-	azureTest.removeTestFile(t)
 	err = azureTest.Connector.Delete(keyMeta.ID, keyMeta.Type)
 	require.NoError(t, err)
 }
@@ -108,10 +110,13 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 
 	// Prepare test file
 	azureTest.createTestFile(t)
+	// Clean up the test file and delete the uploaded key
+	defer azureTest.removeTestFile(t)
 
 	// Upload the file
 	userId := uuid.New().String()
-	uploadedKeys, err := azureTest.Connector.Upload([]string{azureTest.TestFilePath}, userId)
+	filePaths := []string{azureTest.TestFilePath}
+	uploadedKeys, err := azureTest.Connector.Upload(filePaths, userId)
 	require.NoError(t, err)
 
 	// Get the metadata of the uploaded file
@@ -124,7 +129,4 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 	// Try downloading the key to ensure it was deleted (should fail)
 	_, err = azureTest.Connector.Download(keyMeta.ID, keyMeta.Type)
 	assert.Error(t, err)
-
-	// Clean up the test file (key is already deleted)
-	azureTest.removeTestFile(t)
 }
