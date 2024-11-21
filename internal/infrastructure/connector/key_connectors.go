@@ -44,11 +44,9 @@ func NewAzureVaultConnector(connectionString string, containerName string) (*Azu
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	// Ensure the container exists (this could be a simple placeholder, or it could be updated later to use a dedicated container for keys)
 	_, err = client.CreateContainer(context.Background(), containerName, nil)
 	if err != nil {
-		// Log container creation failure, but do not fail if container already exists
-		log.Printf("Failed to create Azure container: %v\n", err)
+		log.Printf("Failed to create Azure container: %v\n", err) // The container may already exist, so we should not return an error in this case.
 	}
 
 	return &AzureVaultConnector{
