@@ -45,7 +45,6 @@ func (s *BlobUploadService) Upload(filePaths []string, userId string) ([]*blobs.
 		}
 	}
 
-	// Return the metadata of uploaded blobs
 	return blobMetas, nil
 }
 
@@ -127,6 +126,5 @@ func (s *BlobDownloadService) Download(blobID, blobName string) ([]byte, error) 
 		return nil, fmt.Errorf("failed to download blob '%s': %w", blobName, err)
 	}
 
-	// Return the metadata and content of the downloaded blob
 	return blob, nil
 }

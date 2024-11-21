@@ -94,7 +94,6 @@ func setupTestDB(t *testing.T) *TestRepositoryContext {
 	blobRepo := &repository.GormBlobRepository{DB: db}
 	cryptoKeyRepo := &repository.GormCryptoKeyRepository{DB: db}
 
-	// Return the test context that holds the DB and repositories
 	return &TestRepositoryContext{
 		DB:            db,
 		BlobRepo:      blobRepo,

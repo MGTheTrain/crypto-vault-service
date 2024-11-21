@@ -94,7 +94,6 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
 	}
 
-	// Return the metadata of the uploaded keys
 	return keyMeta, nil
 }
 
@@ -117,7 +116,6 @@ func (vc *AzureVaultConnector) Download(keyId, keyType string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to read data from blob '%s': %w", fullKeyName, err)
 	}
 
-	// Return the downloaded data
 	return downloadedData.Bytes(), nil
 }
 
