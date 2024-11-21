@@ -25,28 +25,28 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 func (s *BlobUploadService) Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error) {
 
 	// Use the BlobConnector to upload the files to Azure Blob Storage
-	blobMeta, err := s.BlobConnector.Upload(filePaths, userId)
+	blobMetas, err := s.BlobConnector.Upload(filePaths, userId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload blobs: %w", err)
 	}
 
 	// If no blobs are uploaded, return early
-	if len(blobMeta) == 0 {
+	if len(blobMetas) == 0 {
 		return nil, fmt.Errorf("no blobs uploaded")
 	}
 
 	// Store the metadata in the database using the BlobRepository
-	for _, blob := range blobMeta {
-		err := s.BlobRepository.Create(blob)
+	for _, blobMeta := range blobMetas {
+		err := s.BlobRepository.Create(blobMeta)
 		if err != nil {
 			// Rollback any previously uploaded blobs if the metadata fails to store
 			// (you can call delete method to handle this as needed)
-			return nil, fmt.Errorf("failed to store metadata for blob '%s': %w", blob.Name, err)
+			return nil, fmt.Errorf("failed to store metadata for blob '%s': %w", blobMeta.Name, err)
 		}
 	}
 
 	// Return the metadata of uploaded blobs
-	return blobMeta, nil
+	return blobMetas, nil
 }
 
 // BlobMetadataService implements the BlobMetadataService interface for retrieving and deleting blob metadata
@@ -66,27 +66,27 @@ func NewBlobMetadataService(blobRepository repository.BlobRepository, blobConnec
 // List retrieves all blobs' metadata considering a query filter
 func (s *BlobMetadataService) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
 	// Assuming BlobRepository has a method to query metadata, you can adapt to GORM queries.
-	var blobsList []*blobs.BlobMeta
+	var blobMetas []*blobs.BlobMeta
 
 	// TBD
 
-	return blobsList, nil
+	return blobMetas, nil
 }
 
 // GetByID retrieves a blob's metadata by its unique ID
 func (s *BlobMetadataService) GetByID(blobID string) (*blobs.BlobMeta, error) {
 	// Retrieve the blob metadata using the BlobRepository
-	blob, err := s.BlobRepository.GetById(blobID)
+	blobMeta, err := s.BlobRepository.GetById(blobID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve blob metadata by ID '%s': %w", blobID, err)
 	}
-	return blob, nil
+	return blobMeta, nil
 }
 
 // DeleteByID deletes a blob and its associated metadata by ID
 func (s *BlobMetadataService) DeleteByID(blobID string) error {
 	// Retrieve the blob metadata to ensure it exists
-	blob, err := s.BlobRepository.GetById(blobID)
+	blobMeta, err := s.BlobRepository.GetById(blobID)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve blob metadata by ID '%s' for deletion: %w", blobID, err)
 	}
@@ -98,9 +98,9 @@ func (s *BlobMetadataService) DeleteByID(blobID string) error {
 	}
 
 	// Now, delete the actual blob from the Blob Storage
-	err = s.BlobConnector.Delete(blob.ID, blob.Name)
+	err = s.BlobConnector.Delete(blobMeta.ID, blobMeta.Name)
 	if err != nil {
-		return fmt.Errorf("failed to delete blob '%s' from Blob Storage: %w", blob.Name, err)
+		return fmt.Errorf("failed to delete blob '%s' from Blob Storage: %w", blobMeta.Name, err)
 	}
 
 	return nil
