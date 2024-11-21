@@ -57,19 +57,19 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 
 	// Upload the file
 	userId := uuid.New().String()
-	filePaths := []string{azureTest.TestFilePath}
-	uploadedKeys, err := azureTest.Connector.Upload(filePaths, userId)
+	filePath := azureTest.TestFilePath
+	keyAlgorithm := "RSA"
+	keyType := "private"
+	cryptoKeyMeta, err := azureTest.Connector.Upload(filePath, userId, keyType, keyAlgorithm)
 	require.NoError(t, err)
 
 	// Assert that we received key metadata
-	require.Len(t, uploadedKeys, 1)
-	keyMeta := uploadedKeys[0]
-	assert.NotEmpty(t, keyMeta.ID)
-	assert.Equal(t, azureTest.TestFilePath, keyMeta.Type) // Type based on file name
-	assert.Equal(t, userId, keyMeta.UserID)
-	assert.WithinDuration(t, time.Now(), keyMeta.DateTimeCreated, time.Second)
+	assert.NotEmpty(t, cryptoKeyMeta.ID)
+	assert.Equal(t, keyType, cryptoKeyMeta.Type)
+	assert.Equal(t, userId, cryptoKeyMeta.UserID)
+	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
 
-	err = azureTest.Connector.Delete(keyMeta.ID, keyMeta.Type)
+	err = azureTest.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
@@ -85,21 +85,22 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 
 	// Upload the file
 	userId := uuid.New().String()
-	filePaths := []string{azureTest.TestFilePath}
-	uploadedKeys, err := azureTest.Connector.Upload(filePaths, userId)
+	filePath := azureTest.TestFilePath
+	keyAlgorithm := "RSA"
+	keyType := "private"
+	cryptoKeyMeta, err := azureTest.Connector.Upload(filePath, userId, keyType, keyAlgorithm)
 	require.NoError(t, err)
 
 	// Get the metadata of the uploaded file
-	keyMeta := uploadedKeys[0]
 
 	// Download the uploaded file
-	downloadedData, err := azureTest.Connector.Download(keyMeta.ID, keyMeta.Type)
+	downloadedData, err := azureTest.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	// Assert that the downloaded content matches the original content
 	assert.Equal(t, azureTest.TestFileContent, downloadedData)
 
-	err = azureTest.Connector.Delete(keyMeta.ID, keyMeta.Type)
+	err = azureTest.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
@@ -115,18 +116,19 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 
 	// Upload the file
 	userId := uuid.New().String()
-	filePaths := []string{azureTest.TestFilePath}
-	uploadedKeys, err := azureTest.Connector.Upload(filePaths, userId)
+	filePath := azureTest.TestFilePath
+	keyAlgorithm := "RSA"
+	keyType := "private"
+	cryptoKeyMeta, err := azureTest.Connector.Upload(filePath, userId, keyType, keyAlgorithm)
 	require.NoError(t, err)
 
 	// Get the metadata of the uploaded file
-	keyMeta := uploadedKeys[0]
 
 	// Now delete the uploaded key by ID
-	err = azureTest.Connector.Delete(keyMeta.ID, keyMeta.Type)
+	err = azureTest.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	// Try downloading the key to ensure it was deleted (should fail)
-	_, err = azureTest.Connector.Download(keyMeta.ID, keyMeta.Type)
+	_, err = azureTest.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
 	assert.Error(t, err)
 }
