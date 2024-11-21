@@ -66,20 +66,8 @@ type CryptoKeyDownloadService struct {
 }
 
 // Download retrieves a cryptographic key by its ID and type.
-func (s *CryptoKeyDownloadService) Download(keyID string, keyType keys.KeyType) ([]byte, error) {
-	blobName := ""
-
-	if keyType == keys.AsymmetricPublic {
-		blobName = "public"
-	} else if keyType == keys.AsymmetricPrivate {
-		blobName = "private"
-	} else if keyType == keys.Symmetric {
-		blobName = "symmetric"
-	} else {
-		return nil, fmt.Errorf("unsupported key type: %v", keyType)
-	}
-
-	blobData, err := s.VaultConnector.Download(keyID, blobName)
+func (s *CryptoKeyDownloadService) Download(keyID, keyType string) ([]byte, error) {
+	blobData, err := s.VaultConnector.Download(keyID, keyType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download key from blob storage: %w", err)
 	}

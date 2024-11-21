@@ -1,15 +1,5 @@
 package keys
 
-// KeyType defines a custom type for key types based on an integer.
-type KeyType int
-
-// Enum-like values for different key types, using iota to generate sequential values.
-const (
-	AsymmetricPublic  KeyType = iota // Public key in asymmetric cryptography (e.g., RSA, ECDSA)
-	AsymmetricPrivate                // Private key in asymmetric cryptography (e.g., RSA, ECDSA)
-	Symmetric                        // Symmetric key (e.g., AES)
-)
-
 // ICryptoKeyUploadService defines methods for uploading cryptographic keys.
 type ICryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys from specified file paths.
@@ -36,5 +26,5 @@ type ICryptoKeyMetadataService interface {
 type ICryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID and type.
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	Download(keyID string, keyType KeyType) ([]byte, error)
+	Download(keyID, keyType string) ([]byte, error)
 }
