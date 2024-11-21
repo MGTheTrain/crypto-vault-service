@@ -3,6 +3,8 @@ package services
 import (
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
+	"crypto_vault_service/test/helpers"
+
 	"fmt"
 	"testing"
 
@@ -12,8 +14,8 @@ import (
 
 func TestBlobUploadService_Upload(t *testing.T) {
 	// Prepare mock dependencies
-	mockBlobConnector := new(MockBlobConnector)
-	mockBlobRepository := new(MockBlobRepository)
+	mockBlobConnector := new(helpers.MockBlobConnector)
+	mockBlobRepository := new(helpers.MockBlobRepository)
 
 	// Initialize the service with mock dependencies
 	service := services.NewBlobUploadService(mockBlobConnector, mockBlobRepository)
@@ -73,8 +75,8 @@ func TestBlobUploadService_Upload(t *testing.T) {
 
 func TestBlobMetadataService(t *testing.T) {
 	// Prepare mock dependencies
-	mockBlobConnector := new(MockBlobConnector)
-	mockBlobRepository := new(MockBlobRepository)
+	mockBlobConnector := new(helpers.MockBlobConnector)
+	mockBlobRepository := new(helpers.MockBlobRepository)
 
 	// Initialize the service with mock dependencies
 	metadataService := services.NewBlobMetadataService(mockBlobRepository, mockBlobConnector)
@@ -104,7 +106,7 @@ func TestBlobMetadataService(t *testing.T) {
 
 func TestBlobDownloadService(t *testing.T) {
 	// Prepare mock dependencies
-	mockBlobConnector := new(MockBlobConnector)
+	mockBlobConnector := new(helpers.MockBlobConnector)
 
 	// Initialize the service with mock dependencies
 	downloadService := services.NewBlobDownloadService(mockBlobConnector)

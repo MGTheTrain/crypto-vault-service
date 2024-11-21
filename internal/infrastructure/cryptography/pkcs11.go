@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-// PKCS11Token defines the operations for working with a PKCS#11 token
-type PKCS11Token interface {
+// IPKCS11TokenHandler defines the operations for working with a PKCS#11 token
+type IPKCS11TokenHandler interface {
 	IsTokenSet() (bool, error)
 	IsObjectSet() (bool, error)
 	InitializeToken(slot string) error

@@ -49,6 +49,5 @@ func (b *BlobMetaQuery) Validate() error {
 		return fmt.Errorf("Validation failed: %v", validationErrors)
 	}
 
-	// Return nil if no validation errors are found
 	return nil
 }

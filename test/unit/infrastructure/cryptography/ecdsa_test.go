@@ -14,13 +14,13 @@ import (
 )
 
 type ECDSATests struct {
-	ecc *cryptography.ECCrypto
+	ecc *cryptography.EC
 }
 
 // NewECDSATests is a constructor that creates a new instance of ECDSATests
 func NewECDSATests() *ECDSATests {
 	return &ECDSATests{
-		ecc: &cryptography.ECCrypto{},
+		ecc: &cryptography.EC{},
 	}
 }
 

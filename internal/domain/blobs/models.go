@@ -37,5 +37,5 @@ func (b *BlobMeta) Validate() error {
 		}
 		return fmt.Errorf("Validation failed: %v", validationErrors)
 	}
-	return nil // Return nil if validation passes
+	return nil
 }

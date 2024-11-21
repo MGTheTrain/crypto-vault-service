@@ -8,15 +8,15 @@ import (
 	"fmt"
 )
 
-// AES Interface
-type AES interface {
+// IAES Interface
+type IAES interface {
 	Encrypt(plainText, key []byte) ([]byte, error)
 	Decrypt(ciphertext, key []byte) ([]byte, error)
 	GenerateKey(keySize int) ([]byte, error)
 }
 
-// AESCrypto struct that implements the AES interface
-type AESCrypto struct{}
+// AES struct that implements the IAES interface
+type AES struct{}
 
 // Pad data to make it a multiple of AES block size
 func pkcs7Pad(data []byte, blockSize int) []byte {
@@ -37,7 +37,7 @@ func pkcs7Unpad(data []byte, blockSize int) ([]byte, error) {
 }
 
 // GenerateRandomAESKey generates a random AES key of the specified size
-func (a *AESCrypto) GenerateKey(keySize int) ([]byte, error) {
+func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 	key := make([]byte, keySize)
 	_, err := rand.Read(key)
 	if err != nil {
@@ -47,7 +47,7 @@ func (a *AESCrypto) GenerateKey(keySize int) ([]byte, error) {
 }
 
 // Encrypt data using AES in CBC mode
-func (a *AESCrypto) Encrypt(plainText, key []byte) ([]byte, error) {
+func (a *AES) Encrypt(plainText, key []byte) ([]byte, error) {
 	if key == nil {
 		return nil, fmt.Errorf("key key cannot be nil")
 	}
@@ -72,7 +72,7 @@ func (a *AESCrypto) Encrypt(plainText, key []byte) ([]byte, error) {
 }
 
 // Decrypt data using AES in CBC mode
-func (a *AESCrypto) Decrypt(ciphertext, key []byte) ([]byte, error) {
+func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
 	if key == nil {
 		return nil, fmt.Errorf("key key cannot be nil")
 	}

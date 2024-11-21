@@ -119,7 +119,6 @@ func (abc *AzureBlobConnector) Upload(filePaths []string, userId string) ([]*blo
 		blobMeta = append(blobMeta, blob)
 	}
 
-	// Return the list of blobs after successful upload.
 	return blobMeta, nil
 }
 
@@ -164,7 +163,6 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error)
 		return nil, fmt.Errorf("failed to close retryReader for blob '%s': %w", fullBlobName, err)
 	}
 
-	// Return the buffer containing the downloaded data
 	return downloadedData.Bytes(), nil
 }
 

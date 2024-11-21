@@ -1,4 +1,4 @@
-package services
+package helpers
 
 import (
 	"crypto_vault_service/internal/domain/blobs"
