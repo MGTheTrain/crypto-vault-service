@@ -28,8 +28,8 @@ type TokenObject struct {
 
 // IPKCS11Handler defines the operations for working with a PKCS#11 token
 type IPKCS11Handler interface {
-	// ListTokens lists all available tokens in the available slots
-	ListTokens() ([]Token, error)
+	// ListTokenSlots lists all available tokens in the available slots
+	ListTokenSlots() ([]Token, error)
 	// ListObjects lists all objects (e.g. keys) in a specific token based on the token label
 	ListObjects(tokenLabel string) ([]TokenObject, error)
 	// InitializeToken initializes the token with the provided label and pins
@@ -74,8 +74,8 @@ func (token *PKCS11Handler) executePKCS11ToolCommand(args []string) (string, err
 	return string(output), nil
 }
 
-// ListTokens lists all available tokens in the available slots
-func (token *PKCS11Handler) ListTokens() ([]Token, error) {
+// ListTokenSlots lists all available tokens in the available slots
+func (token *PKCS11Handler) ListTokenSlots() ([]Token, error) {
 	if err := utils.CheckNonEmptyStrings(token.Settings.ModulePath); err != nil {
 		return nil, err
 	}

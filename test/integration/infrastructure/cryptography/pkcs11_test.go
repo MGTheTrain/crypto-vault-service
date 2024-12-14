@@ -88,7 +88,7 @@ func TestListTokens(t *testing.T) {
 	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
 	test.InitializeToken(t) // creates a token slot
 
-	tokens, err := test.TokenHandler.ListTokens()
+	tokens, err := test.TokenHandler.ListTokenSlots()
 	require.NoError(t, err, "Failed to list tokens")
 
 	require.NotEmpty(t, tokens, "Token list should not be empty")
