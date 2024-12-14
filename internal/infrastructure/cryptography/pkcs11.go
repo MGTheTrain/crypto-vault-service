@@ -30,8 +30,6 @@ type IPKCS11TokenHandler interface {
 	ListTokens() ([]Token, error)
 	// ListObjects lists all objects (e.g. keys) in a specific token based on the token label
 	ListObjects(tokenLabel string) ([]TokenObject, error)
-	// ObjectExists checks if the specified object exists on the given token
-	ObjectExists(label, objectLabel string) (bool, error)
 	// InitializeToken initializes the token with the provided label and pins
 	InitializeToken(label string) error
 	// AddKey adds the selected key (ECDSA or RSA) to the token
@@ -194,27 +192,6 @@ func (token *PKCS11TokenHandler) isTokenSet(label string) (bool, error) {
 	}
 
 	fmt.Printf("Error: Token with label '%s' does not exist.\n", label)
-	return false, nil
-}
-
-// ObjectExists checks if the specified object exists on the given token
-func (token *PKCS11TokenHandler) ObjectExists(label, objectLabel string) (bool, error) {
-	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
-		return false, err
-	}
-
-	args := []string{"-O", "--module", token.Settings.ModulePath, "--token-label", label, "--pin", token.Settings.UserPin}
-	output, err := token.executePKCS11ToolCommand(args)
-	if err != nil {
-		return false, err
-	}
-
-	if strings.Contains(output, objectLabel) {
-		fmt.Printf("Object with label '%s' exists.\n", objectLabel)
-		return true, nil
-	}
-
-	fmt.Printf("Error: Object with label '%s' does not exist.\n", objectLabel)
 	return false, nil
 }
 

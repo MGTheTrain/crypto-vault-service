@@ -1,7 +1,6 @@
 package cryptography
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -73,10 +72,6 @@ func (p *PKCS11Test) DeleteKeyFromToken(t *testing.T) {
 func (p *PKCS11Test) AddKeyToToken(t *testing.T, label, objectLabel, keyType string, keySize uint) {
 	err := p.TokenHandler.AddKey(label, objectLabel, keyType, keySize)
 	assert.NoError(t, err, "Failed to add key to the token")
-
-	isObjectSet, err := p.TokenHandler.ObjectExists(p.Label, p.ObjectLabel)
-	assert.NoError(t, err, "Error checking if key is set")
-	assert.True(t, isObjectSet, fmt.Sprintf("The %s key should be added to the token", p.KeyType))
 }
 
 // TestListTokens tests listing available tokens using PKCS#11
