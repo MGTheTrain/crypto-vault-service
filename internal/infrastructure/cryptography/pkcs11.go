@@ -5,11 +5,13 @@ import (
 	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
 // Token represents a PKCS#11 token with its label and other metadata.
 type Token struct {
+	SlotId       string
 	Label        string
 	Manufacturer string
 	Model        string
@@ -93,12 +95,25 @@ func (token *PKCS11Handler) ListTokens() ([]Token, error) {
 
 	for _, line := range lines {
 
-		if strings.Contains(line, "token label") {
+		if strings.Contains(line, "Slot") {
 			if currentToken != nil {
 				tokens = append(tokens, *currentToken)
 			}
 
-			currentToken = &Token{}
+			currentToken = &Token{
+				SlotId:       "",
+				Label:        "",
+				Manufacturer: "",
+				Model:        "",
+				SerialNumber: "",
+			}
+
+			re := regexp.MustCompile(`\((0x[0-9a-fA-F]+)\)`) // e.g. `(0x39e9d82d)` in `Slot 1 (0x39e9d82d): SoftHSM slot ID 0x39e9d82d`
+			matches := re.FindStringSubmatch(line)
+			currentToken.SlotId = matches[1]
+		}
+
+		if strings.Contains(line, "token label") {
 			currentToken.Label = strings.TrimSpace(strings.Split(line, ":")[1])
 		}
 		if currentToken != nil {

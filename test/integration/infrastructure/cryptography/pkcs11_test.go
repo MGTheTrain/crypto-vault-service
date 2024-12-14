@@ -94,6 +94,7 @@ func TestListTokens(t *testing.T) {
 	require.NotEmpty(t, tokens, "Token list should not be empty")
 
 	token := tokens[0]
+	assert.NotEmpty(t, token.SlotId, "Token serial number should not be empty")
 	assert.NotEmpty(t, token.Label, "Token label should not be empty")
 	assert.NotEmpty(t, token.Manufacturer, "Token manufacturer should not be empty")
 	assert.NotEmpty(t, token.Model, "Token model should not be empty")
