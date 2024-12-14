@@ -31,17 +31,14 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// Validate input arguments
 	if inputFile == "" || outputFile == "" || keyDir == "" {
 		log.Fatalf("Error: input, output and keyDir flags are required\n")
 	}
 
-	// Generate RSA keys if no public key is provided
 	var publicKey *rsa.PublicKey
 	rsa := &cryptography.RSA{}
 
 	uniqueID := uuid.New()
-	// Generate RSA keys
 
 	privateKey, publicKey, err := rsa.GenerateKeys(2048)
 	if err != nil {
@@ -49,7 +46,7 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
-	// Optionally save the private and public keys
+
 	err = rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
 		log.Fatalf("Error saving private key: %v\n", err)
@@ -64,7 +61,6 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	fmt.Println("Private key path:", privateKeyFilePath)
 	fmt.Println("Public key path:", publicKeyFilePath)
 
-	// Encrypt the file
 	plainText, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
@@ -75,7 +71,6 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error encrypting data: %v\n", err)
 	}
 
-	// Save encrypted file
 	err = os.WriteFile(outputFile, encryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing encrypted file: %v\n", err)
@@ -102,32 +97,29 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// Generate RSA keys if no private key is provided
 	var privateKey *rsa.PrivateKey
 	rsa := &cryptography.RSA{}
 	if privateKeyPath == "" {
-		// Generate RSA keys
+
 		privKey, _, err := rsa.GenerateKeys(2048)
 		if err != nil {
 			log.Fatalf("Error generating RSA keys: %v\n", err)
 		}
 		privateKey = privKey
 
-		// Optionally save the private and public keys
 		err = rsa.SavePrivateKeyToFile(privateKey, "private-key.pem")
 		if err != nil {
 			log.Fatalf("Error saving private key: %v\n", err)
 		}
 		fmt.Println("Generated and saved private key.")
 	} else {
-		// Read the provided private key
+
 		privateKey, err = rsa.ReadPrivateKey(privateKeyPath)
 		if err != nil {
 			log.Fatalf("Error reading private key: %v\n", err)
 		}
 	}
 
-	// Decrypt the file
 	encryptedData, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
@@ -138,7 +130,6 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error decrypting data: %v\n", err)
 	}
 
-	// Save decrypted file
 	err = os.WriteFile(outputFile, decryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing decrypted file: %v\n", err)

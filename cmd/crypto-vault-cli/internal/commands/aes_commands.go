@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/google/uuid" // Import UUID package
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -40,13 +40,11 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 
 	aes := &cryptography.AES{}
 
-	// Generate AES Key
 	key, err := aes.GenerateKey(keySize)
 	if err != nil {
 		log.Fatalf("Error generating AES key: %v\n", err)
 	}
 
-	// Encrypt the file
 	plainText, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
@@ -57,17 +55,14 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error encrypting data: %v\n", err)
 	}
 
-	// Save encrypted file
 	err = os.WriteFile(outputFile, encryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing encrypted file: %v\n", err)
 	}
 	fmt.Printf("Encrypted data saved to %s\n", outputFile)
 
-	// Generate a UUID for the key filename
 	uniqueID := uuid.New().String()
 
-	// Save the AES key with the UUID prefix in the specified key directory
 	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric-key.bin", uniqueID))
 	err = os.WriteFile(keyFilePath, key, 0644)
 	if err != nil {
@@ -96,18 +91,15 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// Validate input arguments
 	if inputFile == "" || outputFile == "" || symmetricKey == "" {
 		log.Fatalf("Error: input, output and symmetricKey flags are required\n")
 	}
 
-	// Read the symmetric key from the file
 	key, err := os.ReadFile(symmetricKey)
 	if err != nil {
 		log.Fatalf("Error reading symmetric key from file: %v\n", err)
 	}
 
-	// Decrypt the file
 	encryptedData, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
@@ -120,7 +112,6 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("Error decrypting data: %v\n", err)
 	}
 
-	// Save decrypted file
 	err = os.WriteFile(outputFile, decryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing decrypted file: %v\n", err)
@@ -129,7 +120,6 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 }
 
 func InitAESCommands(rootCmd *cobra.Command) {
-	// AES Commands
 	var encryptAESFileCmd = &cobra.Command{
 		Use:   "encrypt-aes",
 		Short: "Encrypt a file using AES",

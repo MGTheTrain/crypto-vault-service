@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ECDSA command
 // signECCCmd signs the contents of a file with ECDSA
 func SignECCCmd(cmd *cobra.Command, args []string) {
 
@@ -29,34 +28,29 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// ECC implementation
 	EC := &cryptography.EC{}
 	var privateKey *ecdsa.PrivateKey
 	var publicKey *ecdsa.PublicKey
 
-	// Generate new ECC keys if no private key is provided
 	privateKey, publicKey, err = EC.GenerateKeys(elliptic.P256())
 	if err != nil {
 		log.Fatalf("Error generating ECC keys: %v\n", err)
 	}
 
-	// Read the file content
 	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
 
-	// Sign the file content (hash the content before signing)
 	signature, err := EC.Sign(fileContent, privateKey)
 	if err != nil {
 		log.Fatalf("Error signing file content: %v\n", err)
 	}
 
-	// Output the signature
 	fmt.Printf("Signature: %x\n", signature)
 
 	uniqueID := uuid.New()
-	// Save the private and public keys to files (if they were generated)
+
 	if privateKey != nil && keyDir != "" {
 		privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 
@@ -76,7 +70,6 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 		fmt.Printf("Public key saved to: %s\n", publicKeyFilePath)
 	}
 
-	// Save the signature to a file in the data folder (optional, based on the input file)
 	if keyDir != "" {
 		signatureFilePath := fmt.Sprintf("%s/%s-signature.sig", keyDir, uniqueID.String())
 		err = EC.SaveSignatureToFile(signatureFilePath, signature)
@@ -107,11 +100,9 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// ECC implementation
 	EC := &cryptography.EC{}
 	var publicKey *ecdsa.PublicKey
 
-	// Read the public key
 	if publicKeyPath == "" {
 		log.Fatalf("Public key is required for ECC signature verification.\n")
 	} else {
@@ -121,25 +112,21 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// Read the file content (optional: you can also hash the content before verifying)
 	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
 
-	// Read the signature (from hex file)
 	signatureHex, err := os.ReadFile(signatureFile)
 	if err != nil {
 		log.Fatalf("Error reading signature file: %v\n", err)
 	}
 
-	// Decode the hex string back to bytes
 	signature, err := hex.DecodeString(string(signatureHex))
 	if err != nil {
 		log.Fatalf("Error decoding signature hex: %v\n", err)
 	}
 
-	// Verify the signature
 	valid, err := EC.Verify(fileContent, signature, publicKey)
 	if err != nil {
 		log.Fatalf("Error verifying signature: %v\n", err)
