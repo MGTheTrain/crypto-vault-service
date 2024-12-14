@@ -4,7 +4,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 )
@@ -223,6 +222,10 @@ func (token *PKCS11TokenHandler) Encrypt(label, objectLabel, inputFilePath, outp
 		return err
 	}
 
+	if err := utils.CheckFilesExist(inputFilePath); err != nil {
+		return err
+	}
+
 	if keyType != "RSA" {
 		return fmt.Errorf("only RSA keys are supported for encryption")
 	}
@@ -252,13 +255,12 @@ func (token *PKCS11TokenHandler) Decrypt(label, objectLabel, inputFilePath, outp
 		return err
 	}
 
-	if keyType != "RSA" {
-		return fmt.Errorf("only RSA keys are supported for decryption")
+	if err := utils.CheckFilesExist(inputFilePath); err != nil {
+		return err
 	}
 
-	// Check if input file exists
-	if _, err := os.Stat(inputFilePath); os.IsNotExist(err) {
-		return fmt.Errorf("input file does not exist: %v", err)
+	if keyType != "RSA" {
+		return fmt.Errorf("only RSA keys are supported for decryption")
 	}
 
 	// Prepare the URI to use PKCS#11 engine for accessing the private key
@@ -286,13 +288,12 @@ func (token *PKCS11TokenHandler) Sign(label, objectLabel, inputFilePath, outputF
 		return err
 	}
 
-	if keyType != "RSA" && keyType != "ECDSA" {
-		return fmt.Errorf("only RSA and ECDSA keys are supported for signing")
+	if err := utils.CheckFilesExist(inputFilePath); err != nil {
+		return err
 	}
 
-	// Check if the input file exists
-	if _, err := os.Stat(inputFilePath); os.IsNotExist(err) {
-		return fmt.Errorf("input file does not exist: %v", err)
+	if keyType != "RSA" && keyType != "ECDSA" {
+		return fmt.Errorf("only RSA and ECDSA keys are supported for signing")
 	}
 
 	// Prepare the OpenSSL command based on key type
@@ -336,16 +337,12 @@ func (token *PKCS11TokenHandler) Verify(label, objectLabel, keyType, dataFilePat
 		return valid, err
 	}
 
-	if keyType != "RSA" && keyType != "ECDSA" {
-		return valid, fmt.Errorf("only RSA and ECDSA keys are supported for verification")
+	if err := utils.CheckFilesExist(dataFilePath, signatureFilePath); err != nil {
+		return valid, err
 	}
 
-	// Check if the input files exist
-	if _, err := os.Stat(dataFilePath); os.IsNotExist(err) {
-		return valid, fmt.Errorf("data file does not exist: %v", err)
-	}
-	if _, err := os.Stat(signatureFilePath); os.IsNotExist(err) {
-		return valid, fmt.Errorf("signature file does not exist: %v", err)
+	if keyType != "RSA" && keyType != "ECDSA" {
+		return valid, fmt.Errorf("only RSA and ECDSA keys are supported for verification")
 	}
 
 	// Prepare the OpenSSL command based on key type
