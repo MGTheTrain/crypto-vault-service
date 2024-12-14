@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	utils "crypto_vault_service/internal/infrastructure/utils"
+	"crypto_vault_service/internal/infrastructure/utils"
 
 	"github.com/stretchr/testify/assert"
 )
