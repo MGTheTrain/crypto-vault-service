@@ -1,14 +1,13 @@
 package commands
 
 import (
+	"crypto_vault_service/cmd/crypto-vault-cli/internal/status"
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"encoding/json"
 	"fmt"
 	"os"
-
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -75,27 +74,32 @@ func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin
 func (h *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
 	modulePath, err := cmd.Flags().GetString("module")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	soPin, err := cmd.Flags().GetString("so-pin")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	userPin, err := cmd.Flags().GetString("user-pin")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	slotId, err := cmd.Flags().GetString("slot-id")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	h.writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
-	fmt.Println("created pkcs11-settings.json")
+	info := status.NewInfo("created pkcs11-settings.json")
+	info.PrintJsonInfo(false)
 }
 
 // getTokenHandler reads the PKCS#11 config file and validates the settings.
@@ -122,70 +126,83 @@ func (h *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, 
 func (h *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokens, err := tokenHandler.ListTokenSlots()
 	if err != nil {
-		log.Fatalf("Error initializing token: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokensJSON, err := json.MarshalIndent(tokens, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshalling tokens to JSON: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
-	fmt.Println(string(tokensJSON))
+	info := status.NewInfo(string(tokensJSON))
+	info.PrintJsonInfo(true)
 }
 
 // ListObjectsSlotsCmd lists PKCS#11 token objects
 func (h *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	objects, err := tokenHandler.ListObjects(tokenLabel)
 	if err != nil {
-		log.Fatalf("Error initializing token: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	objectsJSON, err := json.MarshalIndent(objects, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshalling objects to JSON: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
-	fmt.Println(string(objectsJSON))
+	info := status.NewInfo(string(objectsJSON))
+	info.PrintJsonInfo(true)
 }
 
 // InitializeTokenCmd initializes a PKCS#11 token
 func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	if err := tokenHandler.InitializeToken(tokenLabel); err != nil {
-		log.Fatalf("Error initializing token: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 
@@ -193,33 +210,41 @@ func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []st
 func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	keySize, err := cmd.Flags().GetUint("key-size")
 
 	if err != nil {
-		log.Panicf("Error fetching key-size path flag: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	if err := tokenHandler.AddKey(tokenLabel, objectLabel, keyType, keySize); err != nil {
-		log.Fatalf("Error adding key: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 
@@ -227,28 +252,34 @@ func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectType, err := cmd.Flags().GetString("object-type")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	if err := tokenHandler.DeleteObject(tokenLabel, objectType, objectLabel); err != nil {
-		log.Fatalf("Error deleting object: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 
@@ -256,38 +287,46 @@ func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []strin
 func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	inputFilePath, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	outputFilePath, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	if err := tokenHandler.Encrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
-		log.Fatalf("Error encrypting data: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 
@@ -295,38 +334,46 @@ func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	inputFilePath, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	outputFilePath, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	if err := tokenHandler.Decrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
-		log.Fatalf("Error decrypting data: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 
@@ -334,38 +381,46 @@ func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	dataFilePath, err := cmd.Flags().GetString("data-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	signatureFilePath, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	if err := tokenHandler.Sign(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
-		log.Fatalf("Error signing data: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 
@@ -373,38 +428,46 @@ func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
 	tokenHandler, err := h.getTokenHandler()
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	dataFilePath, err := cmd.Flags().GetString("data-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	signatureFilePath, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	if _, err := tokenHandler.Verify(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
-		log.Fatalf("Error verifying signature: %v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 }
 

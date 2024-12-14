@@ -3,6 +3,7 @@ package commands
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto_vault_service/cmd/crypto-vault-cli/internal/status"
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"encoding/hex"
 	"fmt"
@@ -18,13 +19,15 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 
 	inputFile, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	keyDir, err := cmd.Flags().GetString("key-dir")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
@@ -34,20 +37,27 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 
 	privateKey, publicKey, err = EC.GenerateKeys(elliptic.P256())
 	if err != nil {
-		log.Fatalf("Error generating ECC keys: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
-		log.Fatalf("Error reading input file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	signature, err := EC.Sign(fileContent, privateKey)
 	if err != nil {
-		log.Fatalf("Error signing file content: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
-	fmt.Printf("Signature: %x\n", signature)
+	info := status.NewInfo(fmt.Sprintf("Signature: %x", signature))
+	info.PrintJsonInfo(false)
 
 	uniqueID := uuid.New()
 
@@ -56,27 +66,38 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 
 		err = EC.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 		if err != nil {
-			log.Fatalf("Error saving private key: %v\n", err)
+			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+			e.PrintJsonError()
+			return
 		}
-		fmt.Printf("Private key saved to: %s\n", privateKeyFilePath)
+		info := status.NewInfo(fmt.Sprintf("Private key saved to: %s", privateKeyFilePath))
+		info.PrintJsonInfo(false)
 	}
 
 	if publicKey != nil && keyDir != "" {
 		publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
 		err = EC.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 		if err != nil {
-			log.Fatalf("Error saving public key: %v\n", err)
+			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+			e.PrintJsonError()
+			return
 		}
-		fmt.Printf("Public key saved to: %s\n", publicKeyFilePath)
+		info := status.NewInfo(fmt.Sprintf("Public key saved to: %s", publicKeyFilePath))
+		info.PrintJsonInfo(false)
 	}
 
 	if keyDir != "" {
 		signatureFilePath := fmt.Sprintf("%s/%s-signature.sig", keyDir, uniqueID.String())
 		err = EC.SaveSignatureToFile(signatureFilePath, signature)
 		if err != nil {
-			log.Fatalf("Error saving signature: %v\n", err)
+			if err != nil {
+				e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+				e.PrintJsonError()
+				return
+			}
 		}
-		fmt.Printf("Signature saved to: %s\n", signatureFilePath)
+		info := status.NewInfo(fmt.Sprintf("Signature file saved to: %s", signatureFilePath))
+		info.PrintJsonInfo(false)
 	}
 }
 
@@ -84,19 +105,22 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	inputFile, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	publicKeyPath, err := cmd.Flags().GetString("public-key")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	signatureFile, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
@@ -104,38 +128,53 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	var publicKey *ecdsa.PublicKey
 
 	if publicKeyPath == "" {
-		log.Fatalf("Public key is required for ECC signature verification.\n")
+		log.Fatalf("Public key is required for ECC signature verification.")
+		e := status.NewError("Public key is required for ECC signature verification", status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	} else {
 		publicKey, err = EC.ReadPublicKey(publicKeyPath, elliptic.P256())
 		if err != nil {
-			log.Fatalf("Error reading public key: %v\n", err)
+			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+			e.PrintJsonError()
+			return
 		}
 	}
 
 	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
-		log.Fatalf("Error reading input file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	signatureHex, err := os.ReadFile(signatureFile)
 	if err != nil {
-		log.Fatalf("Error reading signature file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	signature, err := hex.DecodeString(string(signatureHex))
 	if err != nil {
-		log.Fatalf("Error decoding signature hex: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	valid, err := EC.Verify(fileContent, signature, publicKey)
 	if err != nil {
-		log.Fatalf("Error verifying signature: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	if valid {
-		fmt.Println("Signature is valid.")
+		info := status.NewInfo("Signature is valid")
+		info.PrintJsonInfo(false)
 	} else {
-		fmt.Println("Signature is invalid.")
+		info := status.NewInfo("Signature is invalid")
+		info.PrintJsonInfo(false)
 	}
 }
 

@@ -2,9 +2,9 @@ package commands
 
 import (
 	"crypto/rsa"
+	"crypto_vault_service/cmd/crypto-vault-cli/internal/status"
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/google/uuid"
@@ -15,24 +15,23 @@ import (
 func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	inputFile, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	outputFile, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	keyDir, err := cmd.Flags().GetString("key-dir")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
-	}
-
-	if inputFile == "" || outputFile == "" || keyDir == "" {
-		log.Fatalf("Error: input, output and keyDir flags are required\n")
 	}
 
 	var publicKey *rsa.PublicKey
@@ -42,58 +41,71 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 
 	privateKey, publicKey, err := rsa.GenerateKeys(2048)
 	if err != nil {
-		log.Fatalf("Error generating RSA keys: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 
 	err = rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
-		log.Fatalf("Error saving private key: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
 	err = rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 	if err != nil {
-		log.Fatalf("Error saving public key: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
-	fmt.Println("Generated and saved RSA keys.")
-	fmt.Println("Private key path:", privateKeyFilePath)
-	fmt.Println("Public key path:", publicKeyFilePath)
 
 	plainText, err := os.ReadFile(inputFile)
 	if err != nil {
-		log.Fatalf("Error reading input file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	encryptedData, err := rsa.Encrypt(plainText, publicKey)
 	if err != nil {
-		log.Fatalf("Error encrypting data: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	err = os.WriteFile(outputFile, encryptedData, 0644)
 	if err != nil {
-		log.Fatalf("Error writing encrypted file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
-	fmt.Printf("Encrypted data saved to %s\n", outputFile)
+	info := status.NewInfo(fmt.Sprintf("Generated and saved RSA keys. Private key path: %s. Public key path: %s. Encrypted data saved to %s", privateKeyFilePath, publicKeyFilePath, outputFile))
+	info.PrintJsonInfo(false)
 }
 
 func DecryptRSACmd(cmd *cobra.Command, args []string) {
 	inputFile, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	outputFile, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
 	privateKeyPath, err := cmd.Flags().GetString("private-key")
 	if err != nil {
-		log.Fatalf("%v", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
 		return
 	}
 
@@ -103,38 +115,52 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 
 		privKey, _, err := rsa.GenerateKeys(2048)
 		if err != nil {
-			log.Fatalf("Error generating RSA keys: %v\n", err)
+			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+			e.PrintJsonError()
+			return
 		}
 		privateKey = privKey
 
 		err = rsa.SavePrivateKeyToFile(privateKey, "private-key.pem")
 		if err != nil {
-			log.Fatalf("Error saving private key: %v\n", err)
+			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+			e.PrintJsonError()
+			return
 		}
-		fmt.Println("Generated and saved private key.")
+		info := status.NewInfo("Generated and saved private key")
+		info.PrintJsonInfo(false)
 	} else {
 
 		privateKey, err = rsa.ReadPrivateKey(privateKeyPath)
 		if err != nil {
-			log.Fatalf("Error reading private key: %v\n", err)
+			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+			e.PrintJsonError()
+			return
 		}
 	}
 
 	encryptedData, err := os.ReadFile(inputFile)
 	if err != nil {
-		log.Fatalf("Error reading encrypted file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	decryptedData, err := rsa.Decrypt(encryptedData, privateKey)
 	if err != nil {
-		log.Fatalf("Error decrypting data: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
 
 	err = os.WriteFile(outputFile, decryptedData, 0644)
 	if err != nil {
-		log.Fatalf("Error writing decrypted file: %v\n", err)
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
 	}
-	fmt.Printf("Decrypted data saved to %s\n", outputFile)
+	info := status.NewInfo(fmt.Sprintf("Decrypted data saved to %s", outputFile))
+	info.PrintJsonInfo(false)
 }
 
 func InitRSACommands(rootCmd *cobra.Command) {
