@@ -48,7 +48,7 @@ type IPKCS11TokenHandler interface {
 
 // PKCS11TokenHandler represents the parameters and operations for interacting with a PKCS#11 token
 type PKCS11TokenHandler struct {
-	Settings settings.PKCS11Settings
+	Settings *settings.PKCS11Settings
 }
 
 // NewPKCS11TokenHandler creates and returns a new instance of PKCS11TokenHandler
@@ -58,7 +58,7 @@ func NewPKCS11TokenHandler(settings settings.PKCS11Settings) (*PKCS11TokenHandle
 	}
 
 	return &PKCS11TokenHandler{
-		Settings: settings,
+		Settings: &settings,
 	}, nil
 }
 
