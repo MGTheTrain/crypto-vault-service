@@ -11,14 +11,23 @@ import (
 
 // IPKCS11TokenHandler defines the operations for working with a PKCS#11 token
 type IPKCS11TokenHandler interface {
+	// IsTokenSet checks if the token exists in the given module path
 	IsTokenSet(label string) (bool, error)
+	// ObjectExists checks if the specified object exists on the given token
 	ObjectExists(label, objectLabel string) (bool, error)
+	// InitializeToken initializes the token with the provided label and pins
 	InitializeToken(label string) error
+	// AddKey adds the selected key (ECDSA or RSA) to the token
 	AddKey(label, objectLabel, keyType string, keySize uint) error
+	// Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token
 	Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	// Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token
 	Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	// Sign signs data using the cryptographic capabilities of the PKCS#11 token
 	Sign(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	// Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token
 	Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath string) (bool, error)
+	// DeleteObject deletes a key or object from the token
 	DeleteObject(label, objectType, objectLabel string) error
 }
 
@@ -38,7 +47,7 @@ func NewPKCS11TokenHandler(settings settings.PKCS11Settings) (*PKCS11TokenHandle
 	}, nil
 }
 
-// Public method to execute pkcs11-tool commands and return output
+// Private method to execute pkcs11-tool commands and return output
 func (token *PKCS11TokenHandler) executePKCS11ToolCommand(args []string) (string, error) {
 	cmd := exec.Command("pkcs11-tool", args...)
 	output, err := cmd.CombinedOutput()
