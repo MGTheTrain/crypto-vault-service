@@ -10,8 +10,6 @@ import (
 
 // IPKCS11TokenHandler defines the operations for working with a PKCS#11 token
 type IPKCS11TokenHandler interface {
-	// IsTokenSet checks if the token exists in the given module path
-	IsTokenSet(label string) (bool, error)
 	// ObjectExists checks if the specified object exists on the given token
 	ObjectExists(label, objectLabel string) (bool, error)
 	// InitializeToken initializes the token with the provided label and pins
@@ -56,8 +54,8 @@ func (token *PKCS11TokenHandler) executePKCS11ToolCommand(args []string) (string
 	return string(output), nil
 }
 
-// IsTokenSet checks if the token exists in the given module path
-func (token *PKCS11TokenHandler) IsTokenSet(label string) (bool, error) {
+// isTokenSet checks if the token exists in the given module path
+func (token *PKCS11TokenHandler) isTokenSet(label string) (bool, error) {
 	if err := utils.CheckNonEmptyStrings(label); err != nil {
 		return false, err
 	}
@@ -104,7 +102,7 @@ func (token *PKCS11TokenHandler) InitializeToken(label string) error {
 		return err
 	}
 
-	tokenExists, err := token.IsTokenSet(label)
+	tokenExists, err := token.isTokenSet(label)
 	if err != nil {
 		return err
 	}
