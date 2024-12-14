@@ -1,6 +1,8 @@
 package cryptography
 
 import (
+	"crypto_vault_service/internal/infrastructure/settings"
+	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"os"
 	"os/exec"
@@ -9,26 +11,31 @@ import (
 
 // IPKCS11TokenHandler defines the operations for working with a PKCS#11 token
 type IPKCS11TokenHandler interface {
-	IsTokenSet() (bool, error)
-	IsObjectSet() (bool, error)
-	InitializeToken(slot string) error
-	AddKey() error
-	Encrypt(inputFilePath, outputFilePath string) error
-	Decrypt(inputFilePath, outputFilePath string) error
-	Sign(inputFilePath, outputFilePath string) error
-	Verify(dataFilePath, signatureFilePath string) (bool, error)
-	DeleteObject(objectType, objectLabel string) error
+	IsTokenSet(label string) (bool, error)
+	ObjectExists(label, objectLabel string) (bool, error)
+	InitializeToken(label string) error
+	AddKey(label, objectLabel, keyType string, keySize uint) error
+	Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	Sign(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath string) (bool, error)
+	DeleteObject(label, objectType, objectLabel string) error
 }
 
 // PKCS11TokenHandler represents the parameters and operations for interacting with a PKCS#11 token
 type PKCS11TokenHandler struct {
-	ModulePath  string
-	Label       string
-	SOPin       string
-	UserPin     string
-	ObjectLabel string
-	KeyType     string // "ECDSA" or "RSA"
-	KeySize     int    // Key size in bits for RSA or ECDSA (e.g., 256 for ECDSA, 2048 for RSA)
+	Settings settings.PKCS11Settings
+}
+
+// NewPKCS11TokenHandler creates and returns a new instance of PKCS11TokenHandler
+func NewPKCS11TokenHandler(settings settings.PKCS11Settings) (*PKCS11TokenHandler, error) {
+	if err := settings.Validate(); err != nil {
+		return nil, err
+	}
+
+	return &PKCS11TokenHandler{
+		Settings: settings,
+	}, nil
 }
 
 // Public method to execute pkcs11-tool commands and return output
@@ -42,55 +49,54 @@ func (token *PKCS11TokenHandler) executePKCS11ToolCommand(args []string) (string
 }
 
 // IsTokenSet checks if the token exists in the given module path
-func (token *PKCS11TokenHandler) IsTokenSet() (bool, error) {
-	if token.ModulePath == "" || token.Label == "" {
-		return false, fmt.Errorf("missing module path or token label")
+func (token *PKCS11TokenHandler) IsTokenSet(label string) (bool, error) {
+	if err := utils.CheckNonEmptyStrings(label); err != nil {
+		return false, err
 	}
 
-	args := []string{"--module", token.ModulePath, "-T"}
+	args := []string{"--module", token.Settings.ModulePath, "-T"}
 	output, err := token.executePKCS11ToolCommand(args)
 	if err != nil {
 		return false, err
 	}
 
-	if strings.Contains(output, token.Label) && strings.Contains(output, "token initialized") {
-		fmt.Printf("Token with label '%s' exists.\n", token.Label)
+	if strings.Contains(output, label) && strings.Contains(output, "token initialized") {
+		fmt.Printf("Token with label '%s' exists.\n", label)
 		return true, nil
 	}
 
-	fmt.Printf("Error: Token with label '%s' does not exist.\n", token.Label)
+	fmt.Printf("Error: Token with label '%s' does not exist.\n", label)
 	return false, nil
 }
 
-// IsObjectSet checks if the specified object exists on the given token
-func (token *PKCS11TokenHandler) IsObjectSet() (bool, error) {
-	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
-		return false, fmt.Errorf("missing required arguments")
+// ObjectExists checks if the specified object exists on the given token
+func (token *PKCS11TokenHandler) ObjectExists(label, objectLabel string) (bool, error) {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
+		return false, err
 	}
 
-	args := []string{"-O", "--module", token.ModulePath, "--token-label", token.Label, "--pin", token.UserPin}
+	args := []string{"-O", "--module", token.Settings.ModulePath, "--token-label", label, "--pin", token.Settings.UserPin}
 	output, err := token.executePKCS11ToolCommand(args)
 	if err != nil {
 		return false, err
 	}
 
-	if strings.Contains(output, token.ObjectLabel) {
-		fmt.Printf("Object with label '%s' exists.\n", token.ObjectLabel)
+	if strings.Contains(output, objectLabel) {
+		fmt.Printf("Object with label '%s' exists.\n", objectLabel)
 		return true, nil
 	}
 
-	fmt.Printf("Error: Object with label '%s' does not exist.\n", token.ObjectLabel)
+	fmt.Printf("Error: Object with label '%s' does not exist.\n", objectLabel)
 	return false, nil
 }
 
 // InitializeToken initializes the token with the provided label and pins
-func (token *PKCS11TokenHandler) InitializeToken(slot string) error {
-	if token.ModulePath == "" || token.Label == "" || token.SOPin == "" || token.UserPin == "" || slot == "" {
-		return fmt.Errorf("missing required parameters for token initialization")
+func (token *PKCS11TokenHandler) InitializeToken(label string) error {
+	if err := utils.CheckNonEmptyStrings(label); err != nil {
+		return err
 	}
 
-	// Check if the token is already initialized
-	tokenExists, err := token.IsTokenSet()
+	tokenExists, err := token.IsTokenSet(label)
 	if err != nil {
 		return err
 	}
@@ -100,98 +106,57 @@ func (token *PKCS11TokenHandler) InitializeToken(slot string) error {
 		return nil
 	}
 
-	// Initialize the token
-	args := []string{"--module", token.ModulePath, "--init-token", "--label", token.Label, "--so-pin", token.SOPin, "--init-pin", "--pin", token.UserPin, "--slot", slot}
+	args := []string{"--module", token.Settings.ModulePath, "--init-token", "--label", label, "--so-pin", token.Settings.SOPin, "--init-pin", "--pin", token.Settings.UserPin, "--slot", token.Settings.SlotId}
 	_, err = token.executePKCS11ToolCommand(args)
 	if err != nil {
-		return fmt.Errorf("failed to initialize token with label '%s': %v", token.Label, err)
+		return fmt.Errorf("failed to initialize token with label '%s': %v", label, err)
 	}
 
-	fmt.Printf("Token with label '%s' initialized successfully.\n", token.Label)
-	return nil
-}
-
-// DeleteObject deletes a key or object from the token
-func (token *PKCS11TokenHandler) DeleteObject(objectType, objectLabel string) error {
-	if token.ModulePath == "" || token.Label == "" || objectLabel == "" || token.UserPin == "" {
-		return fmt.Errorf("missing required arguments to delete object")
-	}
-
-	// Ensure the object type is valid (privkey, pubkey, secrkey, cert, data)
-	validObjectTypes := map[string]bool{
-		"privkey": true,
-		"pubkey":  true,
-		"secrkey": true,
-		"cert":    true,
-		"data":    true,
-	}
-
-	if !validObjectTypes[objectType] {
-		return fmt.Errorf("invalid object type '%s'. Valid types are privkey, pubkey, secrkey, cert, data", objectType)
-	}
-
-	// Execute the pkcs11-tool command to delete the object
-	args := []string{
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
-		"--pin", token.UserPin,
-		"--delete-object",
-		"--type", objectType,
-		"--label", objectLabel,
-	}
-
-	_, err := token.executePKCS11ToolCommand(args)
-	if err != nil {
-		return fmt.Errorf("failed to delete object of type '%s' with label '%s': %v", objectType, objectLabel, err)
-	}
-
-	fmt.Printf("Object of type '%s' with label '%s' deleted successfully.\n", objectType, objectLabel)
+	fmt.Printf("Token with label '%s' initialized successfully.\n", label)
 	return nil
 }
 
 // AddKey adds the selected key (ECDSA or RSA) to the token
-func (token *PKCS11TokenHandler) AddKey() error {
-	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
-		return fmt.Errorf("missing required arguments")
+func (token *PKCS11TokenHandler) AddKey(label, objectLabel, keyType string, keySize uint) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType); err != nil {
+		return err
 	}
 
-	// Determine key type and call the appropriate function to generate the key
-	if token.KeyType == "ECDSA" {
-		return token.addECDSASignKey()
-	} else if token.KeyType == "RSA" {
-		return token.addRSASignKey()
+	if keyType == "ECDSA" {
+		return token.addECDSASignKey(label, objectLabel, keySize)
+	} else if keyType == "RSA" {
+		return token.addRSASignKey(label, objectLabel, keySize)
 	} else {
-		return fmt.Errorf("unsupported key type: %s", token.KeyType)
+		return fmt.Errorf("unsupported key type: %s", keyType)
 	}
 }
 
 // addECDSASignKey adds an ECDSA signing key to the token
-func (token *PKCS11TokenHandler) addECDSASignKey() error {
-	if token.KeySize != 256 && token.KeySize != 384 && token.KeySize != 521 {
-		return fmt.Errorf("ECDSA key size must be one of 256, 384, or 521 bits, but got %d", token.KeySize)
+func (token *PKCS11TokenHandler) addECDSASignKey(label, objectLabel string, keySize uint) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
+		return err
 	}
 
 	// Generate the key pair (example using secp256r1)
 	// Supported ECDSA key sizes and their corresponding elliptic curves
-	ecdsaCurves := map[int]string{
+	ecdsaCurves := map[uint]string{
 		256: "secp256r1",
 		384: "secp384r1",
 		521: "secp521r1",
 	}
 
-	curve, supported := ecdsaCurves[token.KeySize]
+	curve, supported := ecdsaCurves[keySize]
 	if !supported {
-		return fmt.Errorf("ECDSA key size must be one of 256, 384, or 521 bits, but got %d", token.KeySize)
+		return fmt.Errorf("ECDSA key size must be one of 256, 384, or 521 bits, but got %d", keySize)
 	}
 
-	// Generate the key pair using the correct elliptic curve
 	args := []string{
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
+		"--module", token.Settings.ModulePath,
+		"--token-label", label,
 		"--keypairgen",
 		"--key-type", fmt.Sprintf("EC:%s", curve), // Use the dynamically selected curve
-		"--label", token.ObjectLabel,
-		"--pin", token.UserPin,
+		"--label", objectLabel,
+		"--pin", token.Settings.UserPin,
 		"--usage-sign",
 	}
 
@@ -200,34 +165,38 @@ func (token *PKCS11TokenHandler) addECDSASignKey() error {
 		return fmt.Errorf("failed to add ECDSA key to token: %v", err)
 	}
 
-	fmt.Printf("ECDSA key with label '%s' added to token '%s'.\n", token.ObjectLabel, token.Label)
+	fmt.Printf("ECDSA key with label '%s' added to token '%s'.\n", objectLabel, label)
 	return nil
 }
 
 // addRSASignKey adds an RSA signing key to the token
-func (token *PKCS11TokenHandler) addRSASignKey() error {
+func (token *PKCS11TokenHandler) addRSASignKey(label, objectLabel string, keySize uint) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
+		return err
+	}
+
 	// Supported RSA key sizes (for example, 2048, 3072, and 4096)
-	supportedRSASizes := []int{2048, 3072, 4096}
+	supportedRSASizes := []uint{2048, 3072, 4096}
 
 	validKeySize := false
 	for _, size := range supportedRSASizes {
-		if token.KeySize == size {
+		if keySize == size {
 			validKeySize = true
 			break
 		}
 	}
 
 	if !validKeySize {
-		return fmt.Errorf("RSA key size must be one of %v bits, but got %d", supportedRSASizes, token.KeySize)
+		return fmt.Errorf("RSA key size must be one of %v bits, but got %d", supportedRSASizes, keySize)
 	}
 
 	args := []string{
-		"--module", token.ModulePath,
-		"--token-label", token.Label,
+		"--module", token.Settings.ModulePath,
+		"--token-label", label,
 		"--keypairgen",
-		"--key-type", fmt.Sprintf("RSA:%d", token.KeySize),
-		"--label", token.ObjectLabel,
-		"--pin", token.UserPin,
+		"--key-type", fmt.Sprintf("RSA:%d", keySize),
+		"--label", objectLabel,
+		"--pin", token.Settings.UserPin,
 		"--usage-sign",
 	}
 	_, err := token.executePKCS11ToolCommand(args)
@@ -235,25 +204,24 @@ func (token *PKCS11TokenHandler) addRSASignKey() error {
 		return fmt.Errorf("failed to add RSA key to token: %v", err)
 	}
 
-	fmt.Printf("RSA key with label '%s' added to token '%s'.\n", token.ObjectLabel, token.Label)
+	fmt.Printf("RSA key with label '%s' added to token '%s'.\n", objectLabel, label)
 	return nil
 }
 
 // Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11TokenHandler) Encrypt(inputFilePath, outputFilePath string) error {
-	// Validate required parameters
-	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
-		return fmt.Errorf("missing required arguments for encryption")
+func (token *PKCS11TokenHandler) Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
+		return err
 	}
 
-	if token.KeyType != "RSA" {
+	if keyType != "RSA" {
 		return fmt.Errorf("only RSA keys are supported for encryption")
 	}
 
-	// Step 1: Prepare the URI to use PKCS#11 engine for accessing the public key
-	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=public;pin-value=%s", token.Label, token.ObjectLabel, token.UserPin)
+	// Prepare the URI to use PKCS#11 engine for accessing the public key
+	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=public;pin-value=%s", label, objectLabel, token.Settings.UserPin)
 
-	// Step 2: Run OpenSSL command to encrypt using the public key from the PKCS#11 token
+	// Run OpenSSL command to encrypt using the public key from the PKCS#11 token
 	encryptCmd := exec.Command(
 		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-pubin", "-encrypt",
 		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
@@ -265,19 +233,17 @@ func (token *PKCS11TokenHandler) Encrypt(inputFilePath, outputFilePath string) e
 		return fmt.Errorf("failed to encrypt data with OpenSSL: %v\nOutput: %s", err, encryptOutput)
 	}
 
-	// Output success message
 	fmt.Printf("Encryption successful. Encrypted data written to %s\n", outputFilePath)
 	return nil
 }
 
 // Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11TokenHandler) Decrypt(inputFilePath, outputFilePath string) error {
-	// Validate required parameters
-	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
-		return fmt.Errorf("missing required arguments for decryption")
+func (token *PKCS11TokenHandler) Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
+		return err
 	}
 
-	if token.KeyType != "RSA" {
+	if keyType != "RSA" {
 		return fmt.Errorf("only RSA keys are supported for decryption")
 	}
 
@@ -286,10 +252,10 @@ func (token *PKCS11TokenHandler) Decrypt(inputFilePath, outputFilePath string) e
 		return fmt.Errorf("input file does not exist: %v", err)
 	}
 
-	// Step 1: Prepare the URI to use PKCS#11 engine for accessing the private key
-	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=private;pin-value=%s", token.Label, token.ObjectLabel, token.UserPin)
+	// Prepare the URI to use PKCS#11 engine for accessing the private key
+	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=private;pin-value=%s", label, objectLabel, token.Settings.UserPin)
 
-	// Step 2: Run OpenSSL command to decrypt the data using the private key from the PKCS#11 token
+	// Run OpenSSL command to decrypt the data using the private key from the PKCS#11 token
 	decryptCmd := exec.Command(
 		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-decrypt",
 		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
@@ -301,19 +267,17 @@ func (token *PKCS11TokenHandler) Decrypt(inputFilePath, outputFilePath string) e
 		return fmt.Errorf("failed to decrypt data with OpenSSL: %v\nOutput: %s", err, decryptOutput)
 	}
 
-	// Output success message
 	fmt.Printf("Decryption successful. Decrypted data written to %s\n", outputFilePath)
 	return nil
 }
 
 // Sign signs data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11TokenHandler) Sign(inputFilePath, outputFilePath string) error {
-	// Validate required parameters
-	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
-		return fmt.Errorf("missing required arguments for signing")
+func (token *PKCS11TokenHandler) Sign(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
+		return err
 	}
 
-	if token.KeyType != "RSA" && token.KeyType != "ECDSA" {
+	if keyType != "RSA" && keyType != "ECDSA" {
 		return fmt.Errorf("only RSA and ECDSA keys are supported for signing")
 	}
 
@@ -322,24 +286,24 @@ func (token *PKCS11TokenHandler) Sign(inputFilePath, outputFilePath string) erro
 		return fmt.Errorf("input file does not exist: %v", err)
 	}
 
-	// Step 1: Prepare the OpenSSL command based on key type
+	// Prepare the OpenSSL command based on key type
 	var signCmd *exec.Cmd
 	var signatureFormat string
-	if token.KeyType == "RSA" {
+	if keyType == "RSA" {
 		signatureFormat = "rsa_padding_mode:pss"
 		// Command for signing with RSA-PSS
 		signCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
-			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=private;pin-value="+token.UserPin,
+			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
 			"-sigopt", signatureFormat,
 			"-sha384", // Use SHA-384
 			"-out", outputFilePath, inputFilePath,
 		)
-	} else if token.KeyType == "ECDSA" {
+	} else if keyType == "ECDSA" {
 		// Command for signing with ECDSA
 		signCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
-			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=private;pin-value="+token.UserPin,
+			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
 			"-sha384", // ECDSA typically uses SHA-384
 			"-out", outputFilePath, inputFilePath,
 		)
@@ -356,15 +320,14 @@ func (token *PKCS11TokenHandler) Sign(inputFilePath, outputFilePath string) erro
 }
 
 // Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11TokenHandler) Verify(dataFilePath, signatureFilePath string) (bool, error) {
+func (token *PKCS11TokenHandler) Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath string) (bool, error) {
 	valid := false
 
-	// Validate required parameters
-	if token.ModulePath == "" || token.Label == "" || token.ObjectLabel == "" || token.UserPin == "" {
-		return valid, fmt.Errorf("missing required arguments for verification")
+	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType, dataFilePath, signatureFilePath); err != nil {
+		return valid, err
 	}
 
-	if token.KeyType != "RSA" && token.KeyType != "ECDSA" {
+	if keyType != "RSA" && keyType != "ECDSA" {
 		return valid, fmt.Errorf("only RSA and ECDSA keys are supported for verification")
 	}
 
@@ -376,22 +339,22 @@ func (token *PKCS11TokenHandler) Verify(dataFilePath, signatureFilePath string) 
 		return valid, fmt.Errorf("signature file does not exist: %v", err)
 	}
 
-	// Step 1: Prepare the OpenSSL command based on key type
+	// Prepare the OpenSSL command based on key type
 	var verifyCmd *exec.Cmd
-	if token.KeyType == "RSA" {
+	if keyType == "RSA" {
 		// Command for verifying with RSA-PSS
 		verifyCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
-			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=public;pin-value="+token.UserPin,
+			"pkcs11:token="+label+";object="+objectLabel+";type=public;pin-value="+token.Settings.UserPin,
 			"-sigopt", "rsa_padding_mode:pss",
 			"-sha384", // Use SHA-384 for verification
 			"-signature", signatureFilePath, "-binary", dataFilePath,
 		)
-	} else if token.KeyType == "ECDSA" {
+	} else if keyType == "ECDSA" {
 		// Command for verifying with ECDSA
 		verifyCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
-			"pkcs11:token="+token.Label+";object="+token.ObjectLabel+";type=public;pin-value="+token.UserPin,
+			"pkcs11:token="+label+";object="+objectLabel+";type=public;pin-value="+token.Settings.UserPin,
 			"-sha384", // ECDSA typically uses SHA-384
 			"-signature", signatureFilePath, "-binary", dataFilePath,
 		)
@@ -412,4 +375,41 @@ func (token *PKCS11TokenHandler) Verify(dataFilePath, signatureFilePath string) 
 	}
 
 	return valid, nil
+}
+
+// DeleteObject deletes a key or object from the token
+func (token *PKCS11TokenHandler) DeleteObject(label, objectType, objectLabel string) error {
+	if err := utils.CheckNonEmptyStrings(label, objectType, objectLabel); err != nil {
+		return err
+	}
+
+	// Ensure the object type is valid (privkey, pubkey, secrkey, cert, data)
+	validObjectTypes := map[string]bool{
+		"privkey": true,
+		"pubkey":  true,
+		"secrkey": true,
+		"cert":    true,
+		"data":    true,
+	}
+
+	if !validObjectTypes[objectType] {
+		return fmt.Errorf("invalid object type '%s'. Valid types are privkey, pubkey, secrkey, cert, data", objectType)
+	}
+
+	args := []string{
+		"--module", token.Settings.ModulePath,
+		"--token-label", label,
+		"--pin", token.Settings.UserPin,
+		"--delete-object",
+		"--type", objectType,
+		"--label", objectLabel,
+	}
+
+	_, err := token.executePKCS11ToolCommand(args)
+	if err != nil {
+		return fmt.Errorf("failed to delete object of type '%s' with label '%s': %v", objectType, objectLabel, err)
+	}
+
+	fmt.Printf("Object of type '%s' with label '%s' deleted successfully.\n", objectType, objectLabel)
+	return nil
 }
