@@ -41,7 +41,7 @@ type IPKCS11TokenHandler interface {
 	// Sign signs data using the cryptographic capabilities of the PKCS#11 token
 	Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error
 	// Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token
-	Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath string) (bool, error)
+	Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType string) (bool, error)
 	// DeleteObject deletes a key or object from the token
 	DeleteObject(label, objectType, objectLabel string) error
 }
@@ -427,7 +427,7 @@ func (token *PKCS11TokenHandler) Sign(label, objectLabel, dataFilePath, signatur
 }
 
 // Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11TokenHandler) Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath string) (bool, error) {
+func (token *PKCS11TokenHandler) Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType string) (bool, error) {
 	valid := false
 
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType, dataFilePath, signatureFilePath); err != nil {

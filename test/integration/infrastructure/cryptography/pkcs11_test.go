@@ -257,7 +257,7 @@ func TestSignAndVerify(t *testing.T) {
 
 	assert.NotEmpty(t, signatureData, "Signature data should not be empty")
 
-	valid, err := test.TokenHandler.Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath)
+	valid, err := test.TokenHandler.Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType)
 	assert.NoError(t, err, "Failed to verify the signature using the PKCS#11 token")
 
 	assert.True(t, valid, "The signature should be valid")
