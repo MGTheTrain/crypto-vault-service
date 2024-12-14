@@ -24,7 +24,7 @@ func GetFlagString(cmd *cobra.Command, flagName, errMessage string) string {
 	return value
 }
 
-func (h *PKCS11CommandsHandler) PKCS11SettingsSet(tokenHandler *cryptography.PKCS11TokenHandler) {
+func (h *PKCS11CommandsHandler) PKCS11SettingsSet(tokenHandler *cryptography.PKCS11Handler) {
 	if err := utils.CheckNonEmptyStrings(
 		tokenHandler.Settings.ModulePath,
 		tokenHandler.Settings.SOPin,
@@ -93,7 +93,7 @@ func (h *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args 
 func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
@@ -109,7 +109,7 @@ func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []st
 func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
@@ -133,7 +133,7 @@ func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
@@ -152,7 +152,7 @@ func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []strin
 func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
@@ -173,7 +173,7 @@ func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
@@ -194,7 +194,7 @@ func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
@@ -215,7 +215,7 @@ func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
 func (h *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
 	pkcs11Settings := h.readPkcs11ConfigFile()
 
-	tokenHandler := &cryptography.PKCS11TokenHandler{
+	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 

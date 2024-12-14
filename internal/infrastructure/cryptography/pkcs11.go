@@ -24,8 +24,8 @@ type TokenObject struct {
 	Access string // Access controls for the object (e.g. sensitive, always sensitive)
 }
 
-// IPKCS11TokenHandler defines the operations for working with a PKCS#11 token
-type IPKCS11TokenHandler interface {
+// IPKCS11Handler defines the operations for working with a PKCS#11 token
+type IPKCS11Handler interface {
 	// ListTokens lists all available tokens in the available slots
 	ListTokens() ([]Token, error)
 	// ListObjects lists all objects (e.g. keys) in a specific token based on the token label
@@ -46,24 +46,24 @@ type IPKCS11TokenHandler interface {
 	DeleteObject(label, objectType, objectLabel string) error
 }
 
-// PKCS11TokenHandler represents the parameters and operations for interacting with a PKCS#11 token
-type PKCS11TokenHandler struct {
+// PKCS11Handler represents the parameters and operations for interacting with a PKCS#11 token
+type PKCS11Handler struct {
 	Settings *settings.PKCS11Settings
 }
 
-// NewPKCS11TokenHandler creates and returns a new instance of PKCS11TokenHandler
-func NewPKCS11TokenHandler(settings settings.PKCS11Settings) (*PKCS11TokenHandler, error) {
+// NewPKCS11Handler creates and returns a new instance of PKCS11Handler
+func NewPKCS11Handler(settings settings.PKCS11Settings) (*PKCS11Handler, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, err
 	}
 
-	return &PKCS11TokenHandler{
+	return &PKCS11Handler{
 		Settings: &settings,
 	}, nil
 }
 
 // Private method to execute pkcs11-tool commands and return output
-func (token *PKCS11TokenHandler) executePKCS11ToolCommand(args []string) (string, error) {
+func (token *PKCS11Handler) executePKCS11ToolCommand(args []string) (string, error) {
 	cmd := exec.Command("pkcs11-tool", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -73,7 +73,7 @@ func (token *PKCS11TokenHandler) executePKCS11ToolCommand(args []string) (string
 }
 
 // ListTokens lists all available tokens in the available slots
-func (token *PKCS11TokenHandler) ListTokens() ([]Token, error) {
+func (token *PKCS11Handler) ListTokens() ([]Token, error) {
 	if err := utils.CheckNonEmptyStrings(token.Settings.ModulePath); err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (token *PKCS11TokenHandler) ListTokens() ([]Token, error) {
 }
 
 // ListObjects lists all objects (e.g. keys) in a specific token based on the token label.
-func (token *PKCS11TokenHandler) ListObjects(tokenLabel string) ([]TokenObject, error) {
+func (token *PKCS11Handler) ListObjects(tokenLabel string) ([]TokenObject, error) {
 	//
 	if err := utils.CheckNonEmptyStrings(tokenLabel, token.Settings.ModulePath); err != nil {
 		return nil, err
@@ -175,7 +175,7 @@ func (token *PKCS11TokenHandler) ListObjects(tokenLabel string) ([]TokenObject, 
 }
 
 // isTokenSet checks if the token exists in the given module path
-func (token *PKCS11TokenHandler) isTokenSet(label string) (bool, error) {
+func (token *PKCS11Handler) isTokenSet(label string) (bool, error) {
 	if err := utils.CheckNonEmptyStrings(label); err != nil {
 		return false, err
 	}
@@ -196,7 +196,7 @@ func (token *PKCS11TokenHandler) isTokenSet(label string) (bool, error) {
 }
 
 // InitializeToken initializes the token with the provided label and pins
-func (token *PKCS11TokenHandler) InitializeToken(label string) error {
+func (token *PKCS11Handler) InitializeToken(label string) error {
 	if err := utils.CheckNonEmptyStrings(label); err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func (token *PKCS11TokenHandler) InitializeToken(label string) error {
 }
 
 // AddKey adds the selected key (ECDSA or RSA) to the token
-func (token *PKCS11TokenHandler) AddKey(label, objectLabel, keyType string, keySize uint) error {
+func (token *PKCS11Handler) AddKey(label, objectLabel, keyType string, keySize uint) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType); err != nil {
 		return err
 	}
@@ -237,7 +237,7 @@ func (token *PKCS11TokenHandler) AddKey(label, objectLabel, keyType string, keyS
 }
 
 // addECDSASignKey adds an ECDSA signing key to the token
-func (token *PKCS11TokenHandler) addECDSASignKey(label, objectLabel string, keySize uint) error {
+func (token *PKCS11Handler) addECDSASignKey(label, objectLabel string, keySize uint) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func (token *PKCS11TokenHandler) addECDSASignKey(label, objectLabel string, keyS
 }
 
 // addRSASignKey adds an RSA signing key to the token
-func (token *PKCS11TokenHandler) addRSASignKey(label, objectLabel string, keySize uint) error {
+func (token *PKCS11Handler) addRSASignKey(label, objectLabel string, keySize uint) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
 		return err
 	}
@@ -314,7 +314,7 @@ func (token *PKCS11TokenHandler) addRSASignKey(label, objectLabel string, keySiz
 }
 
 // Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11TokenHandler) Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+func (token *PKCS11Handler) Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		return err
 	}
@@ -347,7 +347,7 @@ func (token *PKCS11TokenHandler) Encrypt(label, objectLabel, inputFilePath, outp
 }
 
 // Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11TokenHandler) Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+func (token *PKCS11Handler) Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		return err
 	}
@@ -380,7 +380,7 @@ func (token *PKCS11TokenHandler) Decrypt(label, objectLabel, inputFilePath, outp
 }
 
 // Sign signs data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11TokenHandler) Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error {
+func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		return err
 	}
@@ -427,7 +427,7 @@ func (token *PKCS11TokenHandler) Sign(label, objectLabel, dataFilePath, signatur
 }
 
 // Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11TokenHandler) Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType string) (bool, error) {
+func (token *PKCS11Handler) Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType string) (bool, error) {
 	valid := false
 
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType, dataFilePath, signatureFilePath); err != nil {
@@ -481,7 +481,7 @@ func (token *PKCS11TokenHandler) Verify(label, objectLabel, dataFilePath, signat
 }
 
 // DeleteObject deletes a key or object from the token
-func (token *PKCS11TokenHandler) DeleteObject(label, objectType, objectLabel string) error {
+func (token *PKCS11Handler) DeleteObject(label, objectType, objectLabel string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectType, objectLabel); err != nil {
 		return err
 	}

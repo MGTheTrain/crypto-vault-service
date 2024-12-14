@@ -16,7 +16,7 @@ type PKCS11Test struct {
 	ObjectLabel  string
 	KeyType      string
 	KeySize      uint
-	TokenHandler *cryptography.PKCS11TokenHandler
+	TokenHandler *cryptography.PKCS11Handler
 }
 
 // NewPKCS11Test sets up the test environment for PKCS#11 integration tests
@@ -28,7 +28,7 @@ func NewPKCS11Test(t *testing.T, slotId, modulePath, label, soPin, userPin, obje
 		SlotId:     slotId,
 	}
 
-	tokenHandler, err := cryptography.NewPKCS11TokenHandler(settings)
+	tokenHandler, err := cryptography.NewPKCS11Handler(settings)
 	if err != nil {
 		t.Logf("%v\n", err)
 	}
