@@ -4,7 +4,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto_vault_service/internal/infrastructure/cryptography"
-	"crypto_vault_service/internal/infrastructure/utils"
 	"encoding/hex"
 	"fmt"
 	"log"
@@ -38,7 +37,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Read the file content
-	fileContent, err := utils.ReadFile(inputFile)
+	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
@@ -106,7 +105,7 @@ func VerifyECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Read the file content (optional: you can also hash the content before verifying)
-	fileContent, err := utils.ReadFile(inputFile)
+	fileContent, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}

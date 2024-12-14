@@ -2,7 +2,6 @@ package commands
 
 import (
 	"crypto_vault_service/internal/infrastructure/cryptography"
-	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"log"
 	"os"
@@ -33,7 +32,7 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Encrypt the file
-	plainText, err := utils.ReadFile(inputFile)
+	plainText, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
@@ -44,7 +43,7 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save encrypted file
-	err = utils.WriteFile(outputFile, encryptedData)
+	err = os.WriteFile(outputFile, encryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing encrypted file: %v\n", err)
 	}
@@ -55,7 +54,7 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 
 	// Save the AES key with the UUID prefix in the specified key directory
 	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric_key.bin", uniqueID))
-	err = utils.WriteFile(keyFilePath, key)
+	err = os.WriteFile(keyFilePath, key, 0644)
 	if err != nil {
 		log.Fatalf("Error writing AES key to file: %v\n", err)
 	}
@@ -80,7 +79,7 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Decrypt the file
-	encryptedData, err := utils.ReadFile(inputFile)
+	encryptedData, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
@@ -93,7 +92,7 @@ func DecryptAESCmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save decrypted file
-	err = utils.WriteFile(outputFile, decryptedData)
+	err = os.WriteFile(outputFile, decryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing decrypted file: %v\n", err)
 	}

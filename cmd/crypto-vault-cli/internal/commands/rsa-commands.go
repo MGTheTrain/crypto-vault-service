@@ -3,9 +3,9 @@ package commands
 import (
 	"crypto/rsa"
 	"crypto_vault_service/internal/infrastructure/cryptography"
-	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -52,7 +52,7 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	fmt.Println("Public key path:", publicKeyFilePath)
 
 	// Encrypt the file
-	plainText, err := utils.ReadFile(inputFile)
+	plainText, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading input file: %v\n", err)
 	}
@@ -63,7 +63,7 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save encrypted file
-	err = utils.WriteFile(outputFile, encryptedData)
+	err = os.WriteFile(outputFile, encryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing encrypted file: %v\n", err)
 	}
@@ -102,7 +102,7 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Decrypt the file
-	encryptedData, err := utils.ReadFile(inputFile)
+	encryptedData, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatalf("Error reading encrypted file: %v\n", err)
 	}
@@ -113,7 +113,7 @@ func DecryptRSACmd(cmd *cobra.Command, args []string) {
 	}
 
 	// Save decrypted file
-	err = utils.WriteFile(outputFile, decryptedData)
+	err = os.WriteFile(outputFile, decryptedData, 0644)
 	if err != nil {
 		log.Fatalf("Error writing decrypted file: %v\n", err)
 	}
