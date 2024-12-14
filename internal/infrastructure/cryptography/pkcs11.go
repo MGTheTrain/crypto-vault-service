@@ -39,7 +39,7 @@ type IPKCS11TokenHandler interface {
 	// Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token
 	Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
 	// Sign signs data using the cryptographic capabilities of the PKCS#11 token
-	Sign(label, objectLabel, inputFilePath, outputFilePath, keyType string) error
+	Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error
 	// Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token
 	Verify(label, objectLabel, keyType, dataFilePath, signatureFilePath string) (bool, error)
 	// DeleteObject deletes a key or object from the token
@@ -380,12 +380,12 @@ func (token *PKCS11TokenHandler) Decrypt(label, objectLabel, inputFilePath, outp
 }
 
 // Sign signs data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11TokenHandler) Sign(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
-	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
+func (token *PKCS11TokenHandler) Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error {
+	if err := utils.CheckNonEmptyStrings(label, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		return err
 	}
 
-	if err := utils.CheckFilesExist(inputFilePath); err != nil {
+	if err := utils.CheckFilesExist(dataFilePath); err != nil {
 		return err
 	}
 
@@ -404,7 +404,7 @@ func (token *PKCS11TokenHandler) Sign(label, objectLabel, inputFilePath, outputF
 			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
 			"-sigopt", signatureFormat,
 			"-sha384", // Use SHA-384
-			"-out", outputFilePath, inputFilePath,
+			"-out", signatureFilePath, dataFilePath,
 		)
 	} else if keyType == "ECDSA" {
 		// Command for signing with ECDSA
@@ -412,7 +412,7 @@ func (token *PKCS11TokenHandler) Sign(label, objectLabel, inputFilePath, outputF
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
 			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
 			"-sha384", // ECDSA typically uses SHA-384
-			"-out", outputFilePath, inputFilePath,
+			"-out", signatureFilePath, dataFilePath,
 		)
 	}
 
@@ -422,7 +422,7 @@ func (token *PKCS11TokenHandler) Sign(label, objectLabel, inputFilePath, outputF
 		return fmt.Errorf("failed to sign data: %v\nOutput: %s", err, signOutput)
 	}
 
-	fmt.Printf("Signing successful. Signature written to %s\n", outputFilePath)
+	fmt.Printf("Signing successful. Signature written to %s\n", signatureFilePath)
 	return nil
 }
 
