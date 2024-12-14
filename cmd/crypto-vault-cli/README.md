@@ -104,8 +104,9 @@ go run crypto-vault-cli.go verify --token-label my-token --object-label my-ecdsa
 # Configure settings
 go run crypto-vault-cli.go store-pkcs11-settings --module /usr/lib/softhsm/libsofthsm2.so --so-pin 1234 --user-pin 5678 --slot-id "0x0"
 
-# # Check available slots
-# pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -L
+# List token slots
+go run crypto-vault-cli.go list-slots
+
 # Initialize a PKCS#11 token
 go run crypto-vault-cli.go initialize-token --token-label my-token
 
@@ -115,8 +116,8 @@ go run crypto-vault-cli.go initialize-token --token-label my-token
 go run crypto-vault-cli.go add-key --token-label my-token --object-label my-rsa-key --key-type RSA --key-size 2048
 go run crypto-vault-cli.go add-key --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --key-size 256
 
-# # Check all keys of a token
-# pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -O --token-label "my-token" --pin 5678
+# List token objects
+go run crypto-vault-cli.go list-objects --token-label "my-token"
 
 # Deleting keys from tokens
 # Delete an object (e.g., RSA or EC key) from the PKCS#11 token

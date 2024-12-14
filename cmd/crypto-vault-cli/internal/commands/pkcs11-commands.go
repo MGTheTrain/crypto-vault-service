@@ -5,6 +5,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"log"
@@ -16,42 +17,44 @@ import (
 type PKCS11CommandsHandler struct{}
 
 // GetFlagString retrieves a flag value and logs an error if it is missing or invalid
-func GetFlagString(cmd *cobra.Command, flagName, errMessage string) string {
+func GetFlagString(cmd *cobra.Command, flagName, errMessage string) (string, error) {
 	value, err := cmd.Flags().GetString(flagName)
 	if err != nil || value == "" {
-		log.Panicf("%s: %v", errMessage, err)
+		return "", fmt.Errorf("%s: %v", errMessage, err)
 	}
-	return value
+	return value, nil
 }
 
-func (h *PKCS11CommandsHandler) PKCS11SettingsSet(tokenHandler *cryptography.PKCS11Handler) {
+// validatePKCS11Settings checks if the PKCS#11 settings (ModulePath, SOPin, UserPin, and SlotId)
+func (h *PKCS11CommandsHandler) validatePKCS11Settings(tokenHandler *cryptography.PKCS11Handler) error {
 	if err := utils.CheckNonEmptyStrings(
 		tokenHandler.Settings.ModulePath,
 		tokenHandler.Settings.SOPin,
 		tokenHandler.Settings.UserPin,
 		tokenHandler.Settings.SlotId); err != nil {
-		log.Panicf("Ensure PKCS#11 settings have been configured trough `configure-pkcs11-settings` command: %v", err)
+		return fmt.Errorf("ensure PKCS#11 settings have been configured trough `configure-pkcs11-settings` command: %v", err)
 	}
+	return nil
 }
 
 // readPkcs11ConfigFile reads the pkcs11-settings.json file and create the settings object
-func (h *PKCS11CommandsHandler) readPkcs11ConfigFile() *settings.PKCS11Settings {
+func (h *PKCS11CommandsHandler) readPkcs11ConfigFile() (*settings.PKCS11Settings, error) {
 	plainText, err := os.ReadFile("pkcs11-settings.json")
 	if err != nil {
-		log.Panicf("error reading JSON file: %v", err)
+		return nil, fmt.Errorf("error reading JSON file: %s", err)
 	}
 
 	var settings settings.PKCS11Settings
 	err = json.Unmarshal(plainText, &settings)
 	if err != nil {
-		log.Panicf("error unmarshalling JSON into struct: %v", err)
+		return nil, fmt.Errorf("error unmarshalling JSON into struct: %s", err)
 	}
 
-	return &settings
+	return &settings, nil
 }
 
 // writePkcs11ConfigFile writes the pkcs11-settings.json config file
-func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) {
+func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
 	settings := map[string]string{
 		"modulePath": modulePath,
 		"soPin":      soPin,
@@ -61,44 +64,134 @@ func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin
 
 	settingsJSON, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshalling settings to JSON: %v", err)
-		return
+		return fmt.Errorf("error marshalling settings to JSON: %v", err)
 	}
 
 	file, err := os.Create("pkcs11-settings.json")
 	if err != nil {
-		log.Fatalf("Error creating JSON file: %v", err)
-		return
+		return fmt.Errorf("error creating JSON file: %v", err)
 	}
 	defer file.Close()
 
 	_, err = file.Write(settingsJSON)
 	if err != nil {
-		log.Fatalf("Error writing to JSON file: %v", err)
-		return
+		return fmt.Errorf("error writing to JSON file: %v", err)
 	}
+	return nil
 }
 
 // storePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
 func (h *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
-	modulePath := GetFlagString(cmd, "module", "Error fetching module path flag")
-	soPin := GetFlagString(cmd, "so-pin", "Error fetching SO Pin flag")
-	userPin := GetFlagString(cmd, "user-pin", "Error fetching user pin flag")
-	slotId := GetFlagString(cmd, "slot-id", "Error fetching slot id flag")
+	modulePath, err := GetFlagString(cmd, "module", "Error fetching module path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	soPin, err := GetFlagString(cmd, "so-pin", "Error fetching SO Pin flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	userPin, err := GetFlagString(cmd, "user-pin", "Error fetching user pin flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	slotId, err := GetFlagString(cmd, "slot-id", "Error fetching slot id flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	h.writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
+	fmt.Println("created pkcs11-settings.json")
 }
 
-// InitializeTokenCmd initializes a PKCS#11 token
-func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
+// getTokenHandler reads the PKCS#11 config file and validates the settings.
+func (h *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, error) {
+
+	pkcs11Settings, err := h.readPkcs11ConfigFile()
+	if err != nil {
+		return nil, fmt.Errorf("error reading PKCS#11 config file: %v", err)
+	}
 
 	tokenHandler := &cryptography.PKCS11Handler{
 		Settings: pkcs11Settings,
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	err = h.validatePKCS11Settings(tokenHandler)
+	if err != nil {
+		return nil, fmt.Errorf("error validating PKCS#11 settings: %v", err)
+	}
+
+	return tokenHandler, nil
+}
+
+// ListTokenSlotsCmd lists PKCS#11 tokens
+func (h *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	tokens, err := tokenHandler.ListTokenSlots()
+	if err != nil {
+		log.Fatalf("Error initializing token: %v", err)
+		return
+	}
+
+	tokensJSON, err := json.MarshalIndent(tokens, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling tokens to JSON: %v", err)
+		return
+	}
+
+	fmt.Println(string(tokensJSON))
+}
+
+// ListObjectsSlotsCmd lists PKCS#11 token objects
+func (h *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	objects, err := tokenHandler.ListObjects(tokenLabel)
+	if err != nil {
+		log.Fatalf("Error initializing token: %v", err)
+		return
+	}
+
+	objectsJSON, err := json.MarshalIndent(objects, "", "  ")
+	if err != nil {
+		log.Fatalf("Error marshalling objects to JSON: %v", err)
+		return
+	}
+
+	fmt.Println(string(objectsJSON))
+}
+
+// InitializeTokenCmd initializes a PKCS#11 token
+func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	if err := tokenHandler.InitializeToken(tokenLabel); err != nil {
 		log.Fatalf("Error initializing token: %v", err)
@@ -107,17 +200,27 @@ func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []st
 
 // AddKeyCmd adds a key to the PKCS#11 token
 func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
-	objectLabel := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
-	keyType := GetFlagString(cmd, "key-type", "Error fetching key-type path flag")
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	keyType, err := GetFlagString(cmd, "key-type", "Error fetching key-type path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 	keySize, err := cmd.Flags().GetUint("key-size")
 
 	if err != nil {
@@ -131,17 +234,27 @@ func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
 
 // DeleteObjectCmd deletes an object (key) from the PKCS#11 token
 func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
-	objectType := GetFlagString(cmd, "object-type", "Error fetching object-type path flag")
-	objectLabel := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectType, err := GetFlagString(cmd, "object-type", "Error fetching object-type path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	if err := tokenHandler.DeleteObject(tokenLabel, objectType, objectLabel); err != nil {
 		log.Fatalf("Error deleting object: %v", err)
@@ -150,19 +263,37 @@ func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []strin
 
 // EncryptCmd encrypts data using the PKCS#11 token
 func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
-	objectLabel := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
-	inputFilePath := GetFlagString(cmd, "input-file", "Error input-file path flag")
-	outputFilePath := GetFlagString(cmd, "output-file", "Error output-file path flag")
-	keyType := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	inputFilePath, err := GetFlagString(cmd, "input-file", "Error input-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	outputFilePath, err := GetFlagString(cmd, "output-file", "Error output-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	if err := tokenHandler.Encrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		log.Fatalf("Error encrypting data: %v", err)
@@ -171,19 +302,37 @@ func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
 
 // DecryptCmd decrypts data using the PKCS#11 token
 func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
-	objectLabel := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
-	inputFilePath := GetFlagString(cmd, "input-file", "Error input-file path flag")
-	outputFilePath := GetFlagString(cmd, "output-file", "Error output-file path flag")
-	keyType := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	inputFilePath, err := GetFlagString(cmd, "input-file", "Error input-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	outputFilePath, err := GetFlagString(cmd, "output-file", "Error output-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	if err := tokenHandler.Decrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		log.Fatalf("Error decrypting data: %v", err)
@@ -192,19 +341,37 @@ func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
 
 // SignCmd signs data using the PKCS#11 token
 func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
-	objectLabel := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
-	dataFilePath := GetFlagString(cmd, "data-file", "Error data-file path flag")
-	signatureFilePath := GetFlagString(cmd, "signature-file", "Error signature-file path flag")
-	keyType := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	dataFilePath, err := GetFlagString(cmd, "data-file", "Error data-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	signatureFilePath, err := GetFlagString(cmd, "signature-file", "Error signature-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	if err := tokenHandler.Sign(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		log.Fatalf("Error signing data: %v", err)
@@ -213,19 +380,37 @@ func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
 
 // VerifyCmd verifies the signature using the PKCS#11 token
 func (h *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
-	pkcs11Settings := h.readPkcs11ConfigFile()
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
+	tokenHandler, err := h.getTokenHandler()
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
-	h.PKCS11SettingsSet(tokenHandler)
-
-	tokenLabel := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
-	objectLabel := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
-	dataFilePath := GetFlagString(cmd, "data-file", "Error data-file path flag")
-	signatureFilePath := GetFlagString(cmd, "signature-file", "Error signature-file path flag")
-	keyType := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	dataFilePath, err := GetFlagString(cmd, "data-file", "Error data-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	signatureFilePath, err := GetFlagString(cmd, "signature-file", "Error signature-file path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	if _, err := tokenHandler.Verify(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		log.Fatalf("Error verifying signature: %v", err)
@@ -254,6 +439,21 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	}
 	pkcs11InitializeTokenCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
 	rootCmd.AddCommand(pkcs11InitializeTokenCmd)
+
+	var listTokenSlotsCmd = &cobra.Command{
+		Use:   "list-slots",
+		Short: "List PKCS#11 token slots",
+		Run:   handler.ListTokenSlotsCmd,
+	}
+	rootCmd.AddCommand(listTokenSlotsCmd)
+
+	var listObjectsSlotsCmd = &cobra.Command{
+		Use:   "list-objects",
+		Short: "List PKCS#11 token objects",
+		Run:   handler.ListObjectsSlotsCmd,
+	}
+	listObjectsSlotsCmd.Flags().String("token-label", "", "Label of the PKCS#11 token")
+	rootCmd.AddCommand(listObjectsSlotsCmd)
 
 	var pkcs11AddKeyCmd = &cobra.Command{
 		Use:   "add-key",
