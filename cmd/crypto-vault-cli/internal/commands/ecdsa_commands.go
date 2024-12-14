@@ -16,19 +16,23 @@ import (
 // ECDSA command
 // signECCCmd signs the contents of a file with ECDSA
 func SignECCCmd(cmd *cobra.Command, args []string) {
-	inputFile, _ := cmd.Flags().GetString("input") // File to sign
-	keyDir, _ := cmd.Flags().GetString("keyDir")   // Directory to save keys
 
-	// Validate input arguments
-	if inputFile == "" || keyDir == "" {
-		log.Fatalf("Error: input and keyDir flags are required\n")
+	inputFile, err := cmd.Flags().GetString("input-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	keyDir, err := cmd.Flags().GetString("key-dir")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
 	// ECC implementation
 	EC := &cryptography.EC{}
 	var privateKey *ecdsa.PrivateKey
 	var publicKey *ecdsa.PublicKey
-	var err error
 
 	// Generate new ECC keys if no private key is provided
 	privateKey, publicKey, err = EC.GenerateKeys(elliptic.P256())
@@ -54,7 +58,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	uniqueID := uuid.New()
 	// Save the private and public keys to files (if they were generated)
 	if privateKey != nil && keyDir != "" {
-		privateKeyFilePath := fmt.Sprintf("%s/%s-private_key.pem", keyDir, uniqueID.String())
+		privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 
 		err = EC.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 		if err != nil {
@@ -64,7 +68,7 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if publicKey != nil && keyDir != "" {
-		publicKeyFilePath := fmt.Sprintf("%s/%s-public_key.pem", keyDir, uniqueID.String())
+		publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
 		err = EC.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 		if err != nil {
 			log.Fatalf("Error saving public key: %v\n", err)
@@ -85,14 +89,27 @@ func SignECCCmd(cmd *cobra.Command, args []string) {
 
 // verifyECCCmd verifies the signature of a file's content using ECDSA
 func VerifyECCCmd(cmd *cobra.Command, args []string) {
-	publicKeyPath, _ := cmd.Flags().GetString("publicKey") // Path to public key
-	inputFile, _ := cmd.Flags().GetString("input")         // Input file to verify
-	signatureFile, _ := cmd.Flags().GetString("signature") // Path to signature file
+	inputFile, err := cmd.Flags().GetString("input-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	publicKeyPath, err := cmd.Flags().GetString("public-key")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	signatureFile, err := cmd.Flags().GetString("signature-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	// ECC implementation
 	EC := &cryptography.EC{}
 	var publicKey *ecdsa.PublicKey
-	var err error
 
 	// Read the public key
 	if publicKeyPath == "" {
@@ -141,8 +158,8 @@ func InitECDSACommands(rootCmd *cobra.Command) {
 		Short: "Sign a message using ECC",
 		Run:   SignECCCmd,
 	}
-	signECCMessageCmd.Flags().StringP("input", "i", "", "Path to file that needs to be signed")
-	signECCMessageCmd.Flags().StringP("keyDir", "d", "", "Directory to save generated keys (optional)")
+	signECCMessageCmd.Flags().StringP("input-file", "", "", "Path to file that needs to be signed")
+	signECCMessageCmd.Flags().StringP("key-dir", "", "", "Directory to save generated keys (optional)")
 	rootCmd.AddCommand(signECCMessageCmd)
 
 	var verifyECCSignatureCmd = &cobra.Command{
@@ -150,8 +167,8 @@ func InitECDSACommands(rootCmd *cobra.Command) {
 		Short: "Verify a signature using ECC",
 		Run:   VerifyECCCmd,
 	}
-	verifyECCSignatureCmd.Flags().StringP("input", "i", "", "Path to ECC public key")
-	verifyECCSignatureCmd.Flags().StringP("publicKey", "p", "", "The public key used to verify the signature")
-	verifyECCSignatureCmd.Flags().StringP("signature", "s", "", "Signature to verify (hex format)")
+	verifyECCSignatureCmd.Flags().StringP("input-file", "", "", "Path to ECC public key")
+	verifyECCSignatureCmd.Flags().StringP("public-key", "", "", "The public key used to verify the signature")
+	verifyECCSignatureCmd.Flags().StringP("signature-file", "", "", "Signature to verify (hex format)")
 	rootCmd.AddCommand(verifyECCSignatureCmd)
 }

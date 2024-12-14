@@ -13,9 +13,23 @@ import (
 
 // RSA Command
 func EncryptRSACmd(cmd *cobra.Command, args []string) {
-	inputFile, _ := cmd.Flags().GetString("input")
-	outputFile, _ := cmd.Flags().GetString("output")
-	keyDir, _ := cmd.Flags().GetString("keyDir") // Directory to save keys
+	inputFile, err := cmd.Flags().GetString("input-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	outputFile, err := cmd.Flags().GetString("output-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	keyDir, err := cmd.Flags().GetString("key-dir")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	// Validate input arguments
 	if inputFile == "" || outputFile == "" || keyDir == "" {
@@ -24,25 +38,24 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 
 	// Generate RSA keys if no public key is provided
 	var publicKey *rsa.PublicKey
-	var err error
 	rsa := &cryptography.RSA{}
 
 	uniqueID := uuid.New()
 	// Generate RSA keys
 
-	privateKey, publicKey, genErr := rsa.GenerateKeys(2048)
-	if genErr != nil {
-		log.Fatalf("Error generating RSA keys: %v\n", genErr)
+	privateKey, publicKey, err := rsa.GenerateKeys(2048)
+	if err != nil {
+		log.Fatalf("Error generating RSA keys: %v\n", err)
 	}
 
-	privateKeyFilePath := fmt.Sprintf("%s/%s-private_key.pem", keyDir, uniqueID.String())
+	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 	// Optionally save the private and public keys
 	err = rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
 		log.Fatalf("Error saving private key: %v\n", err)
 	}
 
-	publicKeyFilePath := fmt.Sprintf("%s/%s-public_key.pem", keyDir, uniqueID.String())
+	publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
 	err = rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 	if err != nil {
 		log.Fatalf("Error saving public key: %v\n", err)
@@ -71,24 +84,37 @@ func EncryptRSACmd(cmd *cobra.Command, args []string) {
 }
 
 func DecryptRSACmd(cmd *cobra.Command, args []string) {
-	inputFile, _ := cmd.Flags().GetString("input")
-	outputFile, _ := cmd.Flags().GetString("output")
-	privateKeyPath, _ := cmd.Flags().GetString("privateKey")
+	inputFile, err := cmd.Flags().GetString("input-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	outputFile, err := cmd.Flags().GetString("output-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	privateKeyPath, err := cmd.Flags().GetString("private-key")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	// Generate RSA keys if no private key is provided
 	var privateKey *rsa.PrivateKey
-	var err error
 	rsa := &cryptography.RSA{}
 	if privateKeyPath == "" {
 		// Generate RSA keys
-		privKey, _, genErr := rsa.GenerateKeys(2048)
-		if genErr != nil {
-			log.Fatalf("Error generating RSA keys: %v\n", genErr)
+		privKey, _, err := rsa.GenerateKeys(2048)
+		if err != nil {
+			log.Fatalf("Error generating RSA keys: %v\n", err)
 		}
 		privateKey = privKey
 
 		// Optionally save the private and public keys
-		err = rsa.SavePrivateKeyToFile(privateKey, "private_key.pem")
+		err = rsa.SavePrivateKeyToFile(privateKey, "private-key.pem")
 		if err != nil {
 			log.Fatalf("Error saving private key: %v\n", err)
 		}
@@ -126,9 +152,9 @@ func InitRSACommands(rootCmd *cobra.Command) {
 		Short: "Encrypt a file using RSA",
 		Run:   EncryptRSACmd,
 	}
-	encryptRSAFileCmd.Flags().StringP("input", "i", "", "Input file path")
-	encryptRSAFileCmd.Flags().StringP("output", "o", "", "Output encrypted file path")
-	encryptRSAFileCmd.Flags().StringP("keyDir", "d", "", "Directory to store the encryption key")
+	encryptRSAFileCmd.Flags().StringP("input-file", "", "", "Input file path")
+	encryptRSAFileCmd.Flags().StringP("output-file", "", "", "Output encrypted file path")
+	encryptRSAFileCmd.Flags().StringP("key-dir", "", "", "Directory to store the encryption key")
 	rootCmd.AddCommand(encryptRSAFileCmd)
 
 	var decryptRSAFileCmd = &cobra.Command{
@@ -136,8 +162,8 @@ func InitRSACommands(rootCmd *cobra.Command) {
 		Short: "Decrypt a file using RSA",
 		Run:   DecryptRSACmd,
 	}
-	decryptRSAFileCmd.Flags().StringP("input", "i", "", "Input encrypted file path")
-	decryptRSAFileCmd.Flags().StringP("output", "o", "", "Output decrypted file path")
-	decryptRSAFileCmd.Flags().StringP("privateKey", "r", "", "Path to RSA private key")
+	decryptRSAFileCmd.Flags().StringP("input-file", "", "", "Input encrypted file path")
+	decryptRSAFileCmd.Flags().StringP("output-file", "", "", "Output decrypted file path")
+	decryptRSAFileCmd.Flags().StringP("private-key", "", "", "Path to RSA private key")
 	rootCmd.AddCommand(decryptRSAFileCmd)
 }

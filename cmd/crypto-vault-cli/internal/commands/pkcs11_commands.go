@@ -16,15 +16,6 @@ import (
 // PKCS11CommandsHandler holds settings and methods for managing PKCS#11 token operations
 type PKCS11CommandsHandler struct{}
 
-// GetFlagString retrieves a flag value and logs an error if it is missing or invalid
-func GetFlagString(cmd *cobra.Command, flagName, errMessage string) (string, error) {
-	value, err := cmd.Flags().GetString(flagName)
-	if err != nil || value == "" {
-		return "", fmt.Errorf("%s: %v", errMessage, err)
-	}
-	return value, nil
-}
-
 // validatePKCS11Settings checks if the PKCS#11 settings (ModulePath, SOPin, UserPin, and SlotId)
 func (h *PKCS11CommandsHandler) validatePKCS11Settings(tokenHandler *cryptography.PKCS11Handler) error {
 	if err := utils.CheckNonEmptyStrings(
@@ -82,22 +73,22 @@ func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin
 
 // storePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
 func (h *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
-	modulePath, err := GetFlagString(cmd, "module", "Error fetching module path flag")
+	modulePath, err := cmd.Flags().GetString("module")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	soPin, err := GetFlagString(cmd, "so-pin", "Error fetching SO Pin flag")
+	soPin, err := cmd.Flags().GetString("so-pin")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	userPin, err := GetFlagString(cmd, "user-pin", "Error fetching user pin flag")
+	userPin, err := cmd.Flags().GetString("user-pin")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	slotId, err := GetFlagString(cmd, "slot-id", "Error fetching slot id flag")
+	slotId, err := cmd.Flags().GetString("slot-id")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -158,7 +149,7 @@ func (h *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []s
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -187,7 +178,7 @@ func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []st
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -206,17 +197,17 @@ func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	keyType, err := GetFlagString(cmd, "key-type", "Error fetching key-type path flag")
+	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -240,17 +231,17 @@ func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []strin
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectType, err := GetFlagString(cmd, "object-type", "Error fetching object-type path flag")
+	objectType, err := cmd.Flags().GetString("object-type")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -269,27 +260,27 @@ func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	inputFilePath, err := GetFlagString(cmd, "input-file", "Error input-file path flag")
+	inputFilePath, err := cmd.Flags().GetString("input-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	outputFilePath, err := GetFlagString(cmd, "output-file", "Error output-file path flag")
+	outputFilePath, err := cmd.Flags().GetString("output-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -308,27 +299,27 @@ func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	inputFilePath, err := GetFlagString(cmd, "input-file", "Error input-file path flag")
+	inputFilePath, err := cmd.Flags().GetString("input-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	outputFilePath, err := GetFlagString(cmd, "output-file", "Error output-file path flag")
+	outputFilePath, err := cmd.Flags().GetString("output-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -347,27 +338,27 @@ func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	dataFilePath, err := GetFlagString(cmd, "data-file", "Error data-file path flag")
+	dataFilePath, err := cmd.Flags().GetString("data-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	signatureFilePath, err := GetFlagString(cmd, "signature-file", "Error signature-file path flag")
+	signatureFilePath, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
@@ -386,27 +377,27 @@ func (h *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	tokenLabel, err := GetFlagString(cmd, "token-label", "Error fetching token-label path flag")
+	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	objectLabel, err := GetFlagString(cmd, "object-label", "Error fetching object-label path flag")
+	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	dataFilePath, err := GetFlagString(cmd, "data-file", "Error data-file path flag")
+	dataFilePath, err := cmd.Flags().GetString("data-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	signatureFilePath, err := GetFlagString(cmd, "signature-file", "Error signature-file path flag")
+	signatureFilePath, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
-	keyType, err := GetFlagString(cmd, "key-type", "Error key-type path flag")
+	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
 		log.Fatalf("%v", err)
 		return

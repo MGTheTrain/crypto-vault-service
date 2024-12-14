@@ -13,14 +13,29 @@ import (
 
 // Encrypts a file using AES and saves the symmetric key with a UUID prefix
 func EncryptAESCmd(cmd *cobra.Command, args []string) {
-	inputFile, _ := cmd.Flags().GetString("input")
-	outputFile, _ := cmd.Flags().GetString("output")
-	keySize, _ := cmd.Flags().GetInt("keySize")
-	keyDir, _ := cmd.Flags().GetString("keyDir")
 
-	// Validate input arguments
-	if inputFile == "" || outputFile == "" || keyDir == "" {
-		log.Fatalf("Error: input, output, and keyDir flags are required\n")
+	inputFile, err := cmd.Flags().GetString("input-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	outputFile, err := cmd.Flags().GetString("output-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	keySize, err := cmd.Flags().GetInt("key-size")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	keyDir, _ := cmd.Flags().GetString("key-dir")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
 	}
 
 	aes := &cryptography.AES{}
@@ -50,10 +65,10 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 	fmt.Printf("Encrypted data saved to %s\n", outputFile)
 
 	// Generate a UUID for the key filename
-	uniqueID := uuid.New().String() // Generate a unique UUID
+	uniqueID := uuid.New().String()
 
 	// Save the AES key with the UUID prefix in the specified key directory
-	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric_key.bin", uniqueID))
+	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric-key.bin", uniqueID))
 	err = os.WriteFile(keyFilePath, key, 0644)
 	if err != nil {
 		log.Fatalf("Error writing AES key to file: %v\n", err)
@@ -63,9 +78,23 @@ func EncryptAESCmd(cmd *cobra.Command, args []string) {
 
 // Decrypts a file using AES and reads the corresponding symmetric key with a UUID prefix
 func DecryptAESCmd(cmd *cobra.Command, args []string) {
-	inputFile, _ := cmd.Flags().GetString("input")
-	outputFile, _ := cmd.Flags().GetString("output")
-	symmetricKey, _ := cmd.Flags().GetString("symmetricKey")
+	inputFile, err := cmd.Flags().GetString("input-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	outputFile, err := cmd.Flags().GetString("output-file")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
+
+	symmetricKey, err := cmd.Flags().GetString("symmetric-key")
+	if err != nil {
+		log.Fatalf("%v", err)
+		return
+	}
 
 	// Validate input arguments
 	if inputFile == "" || outputFile == "" || symmetricKey == "" {
@@ -106,10 +135,10 @@ func InitAESCommands(rootCmd *cobra.Command) {
 		Short: "Encrypt a file using AES",
 		Run:   EncryptAESCmd,
 	}
-	encryptAESFileCmd.Flags().StringP("input", "i", "", "Input file path")
-	encryptAESFileCmd.Flags().StringP("output", "o", "", "Output encrypted file path")
-	encryptAESFileCmd.Flags().IntP("keySize", "k", 16, "AES key size (default 16 bytes for AES-128)")
-	encryptAESFileCmd.Flags().StringP("keyDir", "d", "", "Directory to store the encryption key")
+	encryptAESFileCmd.Flags().StringP("input-file", "", "", "Input file path")
+	encryptAESFileCmd.Flags().StringP("output-file", "", "", "Output encrypted file path")
+	encryptAESFileCmd.Flags().IntP("key-size", "", 16, "AES key size (default 16 bytes for AES-128)")
+	encryptAESFileCmd.Flags().StringP("key-dir", "", "", "Directory to store the encryption key")
 	rootCmd.AddCommand(encryptAESFileCmd)
 
 	var decryptAESFileCmd = &cobra.Command{
@@ -117,8 +146,8 @@ func InitAESCommands(rootCmd *cobra.Command) {
 		Short: "Decrypt a file using AES",
 		Run:   DecryptAESCmd,
 	}
-	decryptAESFileCmd.Flags().StringP("input", "i", "", "Input encrypted file path")
-	decryptAESFileCmd.Flags().StringP("output", "o", "", "Output decrypted file path")
-	decryptAESFileCmd.Flags().StringP("symmetricKey", "k", "", "Path to the symmetric key")
+	decryptAESFileCmd.Flags().StringP("input-file", "i", "", "Input encrypted file path")
+	decryptAESFileCmd.Flags().StringP("output-file", "o", "", "Output decrypted file path")
+	decryptAESFileCmd.Flags().StringP("symmetric-key", "k", "", "Path to the symmetric key")
 	rootCmd.AddCommand(decryptAESFileCmd)
 }
