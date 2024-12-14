@@ -42,28 +42,26 @@ func NewPKCS11Test(t *testing.T, slotId, modulePath, label, soPin, userPin, obje
 	}
 }
 
-func (p *PKCS11Test) Setup(t *testing.T) {
+// InitializeToken initializes a PKCS#11 token by calling the TokenHandler's InitializeToken method
+func (p *PKCS11Test) InitializeToken(t *testing.T) {
 	err := p.TokenHandler.InitializeToken(p.Label)
 	require.NoError(t, err, "Failed to initialize PKCS#11 token")
 }
 
 // DeleteKeyFromToken deletes any existing key with the same label before adding a new key.
 func (p *PKCS11Test) DeleteKeyFromToken(t *testing.T) {
-	// Deleting the private key
 	objectType := "privkey"
 	err := p.TokenHandler.DeleteObject(p.Label, objectType, p.ObjectLabel)
 	if err != nil {
 		t.Logf("Warning: Failed to delete existing private key: %v\n", err)
 	}
 
-	// Deleting the public key
 	objectType = "pubkey"
 	err = p.TokenHandler.DeleteObject(p.Label, objectType, p.ObjectLabel)
 	if err != nil {
 		t.Logf("Warning: Failed to delete existing public key: %v\n", err)
 	}
 
-	// Deleting the secret key (only if it exists)
 	objectType = "secrkey"
 	err = p.TokenHandler.DeleteObject(p.Label, objectType, p.ObjectLabel)
 	if err != nil {
@@ -81,6 +79,32 @@ func (p *PKCS11Test) AddKeyToToken(t *testing.T, label, objectLabel, keyType str
 	assert.True(t, isObjectSet, fmt.Sprintf("The %s key should be added to the token", p.KeyType))
 }
 
+// TestListTokens tests listing available tokens using PKCS#11
+func TestListTokens(t *testing.T) {
+	slotId := "0x0"
+	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
+	label := "MyToken"
+	soPin := "123456"
+	userPin := "234567"
+	objectLabel := "TestRSAKey"
+	keyType := "RSA"
+	keySize := 2048
+
+	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test.InitializeToken(t) // creates a token slot
+
+	tokens, err := test.TokenHandler.ListTokens()
+	require.NoError(t, err, "Failed to list tokens")
+
+	require.NotEmpty(t, tokens, "Token list should not be empty")
+
+	token := tokens[0]
+	assert.NotEmpty(t, token.Label, "Token label should not be empty")
+	assert.NotEmpty(t, token.Manufacturer, "Token manufacturer should not be empty")
+	assert.NotEmpty(t, token.Model, "Token model should not be empty")
+	assert.NotEmpty(t, token.SerialNumber, "Token serial number should not be empty")
+}
+
 // TestAddRSAKey tests adding an RSA key to a PKCS#11 token
 func TestAddRSAKey(t *testing.T) {
 	slotId := "0x0"
@@ -94,7 +118,7 @@ func TestAddRSAKey(t *testing.T) {
 
 	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
 
-	test.Setup(t)
+	test.InitializeToken(t)
 
 	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
 
@@ -114,9 +138,38 @@ func TestAddECDSAKey(t *testing.T) {
 
 	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
 
-	test.Setup(t)
+	test.InitializeToken(t)
 
 	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+
+	test.DeleteKeyFromToken(t)
+}
+
+// TestListObjects tests listing available objects in a specific PKCS#11 token
+func TestListObjects(t *testing.T) {
+	slotId := "0x0"
+	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
+	label := "MyToken"
+	soPin := "123456"
+	userPin := "234567"
+	objectLabel := "TestRSAKey2"
+	keyType := "RSA"
+	keySize := 2048
+
+	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test.InitializeToken(t)
+
+	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+
+	objects, err := test.TokenHandler.ListObjects(label)
+	require.NoError(t, err, "Failed to list objects")
+
+	require.NotEmpty(t, objects, "Object list should not be empty")
+
+	object := objects[0]
+	assert.NotEmpty(t, object.Label, "Object label should not be empty")
+	assert.NotEmpty(t, object.Type, "Object type should not be empty")
+	assert.NotEmpty(t, object.Usage, "Object usage should not be empty")
 
 	test.DeleteKeyFromToken(t)
 }
@@ -133,7 +186,7 @@ func TestEncryptDecrypt(t *testing.T) {
 	keySize := 2048
 
 	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
-	test.Setup(t)
+	test.InitializeToken(t)
 
 	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
 
@@ -189,7 +242,7 @@ func TestSignAndVerify(t *testing.T) {
 	keySize := 2048
 
 	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
-	test.Setup(t)
+	test.InitializeToken(t)
 
 	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
 
@@ -229,7 +282,7 @@ func TestSignAndVerify(t *testing.T) {
 // func TestSignAndVerifyECDSA(t *testing.T) {
 // 	// Prepare the test PKCS#11Token for ECDSA
 // 	test := NewPKCS11Test(t, "0x1", "/usr/lib/softhsm/libsofthsm2.so", "MyToken2", "123456", "234567", "TestECDSAKey", "ECDSA", 256)
-// 	test.Setup(t)
+// 	test.InitializeToken(t)
 
 // 	// Add an ECDSA key to the token
 // 	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))

@@ -8,8 +8,28 @@ import (
 	"strings"
 )
 
+// Token represents a PKCS#11 token with its label and other metadata.
+type Token struct {
+	Label        string
+	Manufacturer string
+	Model        string
+	SerialNumber string
+}
+
+// TokenObject represents a PKCS#11 object (e.g. public or private key) with metadata.
+type TokenObject struct {
+	Label  string
+	Type   string // The type of the object (e.g. RSA, ECDSA)
+	Usage  string // The usage of the object (e.g. encrypt, sign, decrypt)
+	Access string // Access controls for the object (e.g. sensitive, always sensitive)
+}
+
 // IPKCS11TokenHandler defines the operations for working with a PKCS#11 token
 type IPKCS11TokenHandler interface {
+	// ListTokens lists all available tokens in the available slots
+	ListTokens() ([]Token, error)
+	// ListObjects lists all objects (e.g. keys) in a specific token based on the token label
+	ListObjects(tokenLabel string) ([]TokenObject, error)
 	// ObjectExists checks if the specified object exists on the given token
 	ObjectExists(label, objectLabel string) (bool, error)
 	// InitializeToken initializes the token with the provided label and pins
@@ -52,6 +72,108 @@ func (token *PKCS11TokenHandler) executePKCS11ToolCommand(args []string) (string
 		return "", fmt.Errorf("pkcs11-tool command failed: %v\nOutput: %s", err, output)
 	}
 	return string(output), nil
+}
+
+// ListTokens lists all available tokens in the available slots
+func (token *PKCS11TokenHandler) ListTokens() ([]Token, error) {
+	if err := utils.CheckNonEmptyStrings(token.Settings.ModulePath); err != nil {
+		return nil, err
+	}
+
+	listCmd := exec.Command(
+		"pkcs11-tool", "--module", token.Settings.ModulePath, "-L",
+	)
+
+	output, err := listCmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list tokens with pkcs11-tool: %v\nOutput: %s", err, output)
+	}
+
+	var tokens []Token
+	lines := strings.Split(string(output), "\n")
+	var currentToken *Token
+
+	for _, line := range lines {
+
+		if strings.Contains(line, "token label") {
+			if currentToken != nil {
+				tokens = append(tokens, *currentToken)
+			}
+
+			currentToken = &Token{}
+			currentToken.Label = strings.TrimSpace(strings.Split(line, ":")[1])
+		}
+		if currentToken != nil {
+			if strings.Contains(line, "token manufacturer") {
+				currentToken.Manufacturer = strings.TrimSpace(strings.Split(line, ":")[1])
+			}
+			if strings.Contains(line, "token model") {
+				currentToken.Model = strings.TrimSpace(strings.Split(line, ":")[1])
+			}
+			if strings.Contains(line, "serial num") {
+				currentToken.SerialNumber = strings.TrimSpace(strings.Split(line, ":")[1])
+			}
+		}
+	}
+
+	if currentToken != nil {
+		tokens = append(tokens, *currentToken)
+	}
+
+	return tokens, nil
+}
+
+// ListObjects lists all objects (e.g. keys) in a specific token based on the token label.
+func (token *PKCS11TokenHandler) ListObjects(tokenLabel string) ([]TokenObject, error) {
+	//
+	if err := utils.CheckNonEmptyStrings(tokenLabel, token.Settings.ModulePath); err != nil {
+		return nil, err
+	}
+
+	listObjectsCmd := exec.Command(
+		"pkcs11-tool", "--module", token.Settings.ModulePath, "-O", "--token-label", tokenLabel, "--pin", token.Settings.UserPin,
+	)
+
+	output, err := listObjectsCmd.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to list objects with pkcs11-tool: %v\nOutput: %s", err, output)
+	}
+
+	var objects []TokenObject
+	lines := strings.Split(string(output), "\n")
+	var currentObject *TokenObject
+
+	for _, line := range lines {
+
+		if strings.Contains(line, "Private") || strings.Contains(line, "Public") || strings.Contains(line, "Secret") {
+			if currentObject != nil {
+				objects = append(objects, *currentObject)
+			}
+
+			currentObject = &TokenObject{
+				Label:  "",
+				Type:   "",
+				Usage:  "",
+				Access: "",
+			}
+			currentObject.Type = line
+		}
+		if strings.Contains(line, "label:") {
+			currentObject.Label = strings.TrimSpace(strings.Split(line, ":")[1])
+		}
+		if strings.Contains(line, "Usage:") {
+			currentObject.Usage = strings.TrimSpace(strings.Split(line, ":")[1])
+		}
+		if strings.Contains(line, "Access:") {
+			currentObject.Access = strings.TrimSpace(strings.Split(line, ":")[1])
+		}
+	}
+
+	if currentObject != nil {
+		objects = append(objects, *currentObject)
+	}
+
+	return objects, nil
 }
 
 // isTokenSet checks if the token exists in the given module path
