@@ -97,28 +97,12 @@ func writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
 
 // StorePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
 func (commandHandler *PKCS11CommandsHandler) StorePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
-	modulePath, err := cmd.Flags().GetString("module")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	soPin, err := cmd.Flags().GetString("so-pin")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	userPin, err := cmd.Flags().GetString("user-pin")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	slotId, err := cmd.Flags().GetString("slot-id")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	modulePath, _ := cmd.Flags().GetString("module")
+	soPin, _ := cmd.Flags().GetString("so-pin")
+	userPin, _ := cmd.Flags().GetString("user-pin")
+	slotId, _ := cmd.Flags().GetString("slot-id")
 
-	err = writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
+	err := writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -147,12 +131,7 @@ func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Comman
 
 // ListObjectsSlotsCmd lists PKCS#11 token objects
 func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
 
 	objects, err := commandHandler.pkcs11Handler.ListObjects(tokenLabel)
 	if err != nil {
@@ -171,12 +150,7 @@ func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Comm
 
 // InitializeTokenCmd initializes a PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
 
 	if err := commandHandler.pkcs11Handler.InitializeToken(tokenLabel); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -186,28 +160,10 @@ func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Comma
 
 // AddKeyCmd adds a key to the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectLabel, err := cmd.Flags().GetString("object-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	keyType, err := cmd.Flags().GetString("key-type")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	keySize, err := cmd.Flags().GetUint("key-size")
-
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	keyType, _ := cmd.Flags().GetString("key-type")
+	keySize, _ := cmd.Flags().GetUint("key-size")
 
 	if err := commandHandler.pkcs11Handler.AddKey(tokenLabel, objectLabel, keyType, keySize); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -217,22 +173,9 @@ func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args 
 
 // DeleteObjectCmd deletes an object (key) from the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectType, err := cmd.Flags().GetString("object-type")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectLabel, err := cmd.Flags().GetString("object-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	objectType, _ := cmd.Flags().GetString("object-type")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
 
 	if err := commandHandler.pkcs11Handler.DeleteObject(tokenLabel, objectType, objectLabel); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -242,32 +185,11 @@ func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command,
 
 // EncryptCmd encrypts data using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectLabel, err := cmd.Flags().GetString("object-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	inputFilePath, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	outputFilePath, err := cmd.Flags().GetString("output-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	keyType, err := cmd.Flags().GetString("key-type")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+	keyType, _ := cmd.Flags().GetString("key-type")
 
 	if err := commandHandler.pkcs11Handler.Encrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -277,32 +199,11 @@ func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args
 
 // DecryptCmd decrypts data using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectLabel, err := cmd.Flags().GetString("object-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	inputFilePath, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	outputFilePath, err := cmd.Flags().GetString("output-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	keyType, err := cmd.Flags().GetString("key-type")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+	keyType, _ := cmd.Flags().GetString("key-type")
 
 	if err := commandHandler.pkcs11Handler.Decrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -312,32 +213,11 @@ func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args
 
 // SignCmd signs data using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectLabel, err := cmd.Flags().GetString("object-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	dataFilePath, err := cmd.Flags().GetString("data-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	signatureFilePath, err := cmd.Flags().GetString("signature-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	keyType, err := cmd.Flags().GetString("key-type")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	dataFilePath, _ := cmd.Flags().GetString("data-file")
+	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
+	keyType, _ := cmd.Flags().GetString("key-type")
 
 	if err := commandHandler.pkcs11Handler.Sign(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -347,32 +227,11 @@ func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []
 
 // VerifyCmd verifies the signature using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
-
-	tokenLabel, err := cmd.Flags().GetString("token-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	objectLabel, err := cmd.Flags().GetString("object-label")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	dataFilePath, err := cmd.Flags().GetString("data-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	signatureFilePath, err := cmd.Flags().GetString("signature-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-	keyType, err := cmd.Flags().GetString("key-type")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	tokenLabel, _ := cmd.Flags().GetString("token-label")
+	objectLabel, _ := cmd.Flags().GetString("object-label")
+	dataFilePath, _ := cmd.Flags().GetString("data-file")
+	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
+	keyType, _ := cmd.Flags().GetString("key-type")
 
 	if _, err := commandHandler.pkcs11Handler.Verify(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))

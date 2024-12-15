@@ -48,23 +48,9 @@ func NewRSACommandHandler() *RSACommandHandler {
 
 // EncryptRSACmd encrypts a file using RSA and saves asymmetric key pairs
 func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args []string) {
-	inputFile, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	outputFile, err := cmd.Flags().GetString("output-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	keyDir, err := cmd.Flags().GetString("key-dir")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	inputFile, _ := cmd.Flags().GetString("input-file")
+	outputFile, _ := cmd.Flags().GetString("output-file")
+	keyDir, _ := cmd.Flags().GetString("key-dir")
 
 	var publicKey *rsa.PublicKey
 
@@ -114,23 +100,9 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 
 // DecryptRSACmd decrypts a file using RSA
 func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args []string) {
-	inputFile, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	outputFile, err := cmd.Flags().GetString("output-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	privateKeyPath, err := cmd.Flags().GetString("private-key")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	inputFile, _ := cmd.Flags().GetString("input-file")
+	outputFile, _ := cmd.Flags().GetString("output-file")
+	privateKeyPath, _ := cmd.Flags().GetString("private-key")
 
 	var privateKey *rsa.PrivateKey
 
@@ -149,13 +121,11 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 			return
 		}
 
-	} else {
-
-		privateKey, err = commandHandler.rsa.ReadPrivateKey(privateKeyPath)
-		if err != nil {
-			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-			return
-		}
+	}
+	privateKey, err := commandHandler.rsa.ReadPrivateKey(privateKeyPath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
 	}
 
 	encryptedData, err := os.ReadFile(inputFile)

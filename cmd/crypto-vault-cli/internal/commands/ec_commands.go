@@ -50,22 +50,13 @@ func NewECCommandHandler() *ECCommandHandler {
 // SignECCCmd signs the contents of a file with ECDSA
 func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []string) {
 
-	inputFile, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	keyDir, err := cmd.Flags().GetString("key-dir")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	inputFile, _ := cmd.Flags().GetString("input-file")
+	keyDir, _ := cmd.Flags().GetString("key-dir")
 
 	var privateKey *ecdsa.PrivateKey
 	var publicKey *ecdsa.PublicKey
 
-	privateKey, publicKey, err = commandHandler.ec.GenerateKeys(elliptic.P256())
+	privateKey, publicKey, err := commandHandler.ec.GenerateKeys(elliptic.P256())
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -112,35 +103,21 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []st
 
 // verifyECCCmd verifies the signature of a file's content using ECDSA
 func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []string) {
-	inputFilePath, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	publicKeyPath, err := cmd.Flags().GetString("public-key")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	signatureFile, err := cmd.Flags().GetString("signature-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	publicKeyPath, _ := cmd.Flags().GetString("public-key")
+	signatureFile, _ := cmd.Flags().GetString("signature-file")
 
 	var publicKey *ecdsa.PublicKey
 
 	if publicKeyPath == "" {
 		commandHandler.Logger.Error("Public key is required for ECC signature verification")
 		return
-	} else {
-		publicKey, err = commandHandler.ec.ReadPublicKey(publicKeyPath, elliptic.P256())
-		if err != nil {
-			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-			return
-		}
+	}
+
+	publicKey, err := commandHandler.ec.ReadPublicKey(publicKeyPath, elliptic.P256())
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
 	}
 
 	fileContent, err := os.ReadFile(inputFilePath)

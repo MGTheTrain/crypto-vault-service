@@ -47,30 +47,10 @@ func NewAESCommandHandler() *AESCommandHandler {
 
 // EncryptAESCmd encrypts a file using AES and saves the symmetric key with a UUID prefix
 func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args []string) {
-
-	inputFilePath, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	outputFilePath, err := cmd.Flags().GetString("output-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	keySize, err := cmd.Flags().GetInt("key-size")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	key, err := commandHandler.aes.GenerateKey(keySize)
 	if err != nil {
@@ -110,23 +90,9 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 
 // DecryptAESCmd decrypts a file using AES and reads the corresponding symmetric key with a UUID prefix
 func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args []string) {
-	inputFilePath, err := cmd.Flags().GetString("input-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	outputFilePath, err := cmd.Flags().GetString("output-file")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	symmetricKey, err := cmd.Flags().GetString("symmetric-key")
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
 
 	key, err := os.ReadFile(symmetricKey)
 	if err != nil {
