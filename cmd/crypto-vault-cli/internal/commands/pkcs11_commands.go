@@ -4,7 +4,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/internal/infrastructure/utils"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -15,7 +14,7 @@ import (
 
 // PKCS11CommandsHandler holds settings and methods for managing PKCS#11 token operations
 type PKCS11CommandsHandler struct {
-	pkcs11Handler cryptography.PKCS11Handler
+	pkcs11Handler cryptography.IPKCS11Handler
 	Logger        logger.Logger
 }
 
@@ -48,21 +47,9 @@ func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
 	}
 
 	return &PKCS11CommandsHandler{
-		pkcs11Handler: *pkcs11Handler,
+		pkcs11Handler: pkcs11Handler,
 		Logger:        logger,
 	}
-}
-
-// validatePKCS11Settings checks if the PKCS#11 settings (ModulePath, SOPin, UserPin, and SlotId)
-func (commandHandler *PKCS11CommandsHandler) validatePKCS11Settings() error {
-	if err := utils.CheckNonEmptyStrings(
-		commandHandler.pkcs11Handler.Settings.ModulePath,
-		commandHandler.pkcs11Handler.Settings.SOPin,
-		commandHandler.pkcs11Handler.Settings.UserPin,
-		commandHandler.pkcs11Handler.Settings.SlotId); err != nil {
-		return fmt.Errorf("ensure PKCS#11 settings have been configured trough `configure-pkcs11-settings` command: %v", err)
-	}
-	return nil
 }
 
 // readPkcs11ConfigFile reads the pkcs11-settings.json file and create the settings object
@@ -108,8 +95,8 @@ func writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
 	return nil
 }
 
-// storePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
-func (commandHandler *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
+// StorePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
+func (commandHandler *PKCS11CommandsHandler) StorePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
 	modulePath, err := cmd.Flags().GetString("module")
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -140,35 +127,10 @@ func (commandHandler *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.C
 	commandHandler.Logger.Info("created pkcs11-settings.json")
 }
 
-// getTokenHandler reads the PKCS#11 config file and validates the settings.
-func (commandHandler *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, error) {
-
-	pkcs11Settings, err := readPkcs11ConfigFile()
-	if err != nil {
-		return nil, fmt.Errorf("error reading PKCS#11 config file: %v", err)
-	}
-
-	tokenHandler := &cryptography.PKCS11Handler{
-		Settings: pkcs11Settings,
-	}
-
-	err = commandHandler.validatePKCS11Settings()
-	if err != nil {
-		return nil, fmt.Errorf("error validating PKCS#11 settings: %v", err)
-	}
-
-	return tokenHandler, nil
-}
-
 // ListTokenSlotsCmd lists PKCS#11 tokens
 func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
-	tokens, err := tokenHandler.ListTokenSlots()
+	tokens, err := commandHandler.pkcs11Handler.ListTokenSlots()
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -185,11 +147,6 @@ func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Comman
 
 // ListObjectsSlotsCmd lists PKCS#11 token objects
 func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -197,7 +154,7 @@ func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Comm
 		return
 	}
 
-	objects, err := tokenHandler.ListObjects(tokenLabel)
+	objects, err := commandHandler.pkcs11Handler.ListObjects(tokenLabel)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -214,11 +171,6 @@ func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Comm
 
 // InitializeTokenCmd initializes a PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -226,7 +178,7 @@ func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Comma
 		return
 	}
 
-	if err := tokenHandler.InitializeToken(tokenLabel); err != nil {
+	if err := commandHandler.pkcs11Handler.InitializeToken(tokenLabel); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -234,11 +186,6 @@ func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Comma
 
 // AddKeyCmd adds a key to the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -262,7 +209,7 @@ func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	if err := tokenHandler.AddKey(tokenLabel, objectLabel, keyType, keySize); err != nil {
+	if err := commandHandler.pkcs11Handler.AddKey(tokenLabel, objectLabel, keyType, keySize); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -270,11 +217,6 @@ func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args 
 
 // DeleteObjectCmd deletes an object (key) from the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -292,7 +234,7 @@ func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command,
 		return
 	}
 
-	if err := tokenHandler.DeleteObject(tokenLabel, objectType, objectLabel); err != nil {
+	if err := commandHandler.pkcs11Handler.DeleteObject(tokenLabel, objectType, objectLabel); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -300,11 +242,6 @@ func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command,
 
 // EncryptCmd encrypts data using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -332,7 +269,7 @@ func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args
 		return
 	}
 
-	if err := tokenHandler.Encrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
+	if err := commandHandler.pkcs11Handler.Encrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -340,11 +277,6 @@ func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args
 
 // DecryptCmd decrypts data using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -372,7 +304,7 @@ func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args
 		return
 	}
 
-	if err := tokenHandler.Decrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
+	if err := commandHandler.pkcs11Handler.Decrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -380,11 +312,6 @@ func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args
 
 // SignCmd signs data using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -412,7 +339,7 @@ func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []
 		return
 	}
 
-	if err := tokenHandler.Sign(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
+	if err := commandHandler.pkcs11Handler.Sign(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -420,11 +347,6 @@ func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []
 
 // VerifyCmd verifies the signature using the PKCS#11 token
 func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := commandHandler.getTokenHandler()
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
@@ -452,7 +374,7 @@ func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	if _, err := tokenHandler.Verify(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
+	if _, err := commandHandler.pkcs11Handler.Verify(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
@@ -465,7 +387,7 @@ func InitPKCS11Commands(rootCmd *cobra.Command) {
 	var storePKCS11SettingsCmd = &cobra.Command{
 		Use:   "store-pkcs11-settings",
 		Short: "Stores PKCS#11 settings locally in the pkcs11-settings.json file",
-		Run:   handler.storePKCS11SettingsCmd,
+		Run:   handler.StorePKCS11SettingsCmd,
 	}
 	storePKCS11SettingsCmd.Flags().String("slot-id", "", "The token slot id")
 	storePKCS11SettingsCmd.Flags().String("module", "", "Path to the PKCS#11 module")
