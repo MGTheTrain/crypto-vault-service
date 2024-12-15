@@ -39,7 +39,7 @@ Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys a
 - [ ] **Security checks in CI workflows**: Consider non-functional testing (vulnerability scanning, SBOM generation, Static Code Analysis) in GitHub Actions.
 - [ ] **Performance optimization**: Ensure cryptographic operations are optimized for performance, especially for large files and high throughput environments.
 - [ ] **Logging**: Integrate logging (e.g. using structured logging with `logrus`) 
-- [ ] **Monitoring**: Integrate d monitoring (e.g. Prometheus, Grafana) to track API usage, performance and errors.
+- [ ] **Monitoring**: Integrate monitoring (e.g. Prometheus, Grafana) to track API usage, performance and errors.
 - [ ] **Error handling and resiliency**: Implement comprehensive error handling and retries for operations that may fail, with clear error messages and status codes for the API.
 - [ ] **Security**: Ensure that all cryptographic material is securely encrypted before storing it in a key vault using a master key. Additionally, protect APIs with authentication mechanisms such as OAuth2 or JWT, and follow best practices for handling sensitive data.
 - [ ] **Documentation**: Provide clear API documentation (e.g. Swagger/OpenAPI) for ease of integration by other developers.
