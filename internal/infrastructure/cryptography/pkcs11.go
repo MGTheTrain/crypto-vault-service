@@ -209,7 +209,7 @@ func (token *PKCS11Handler) isTokenSet(label string) (bool, error) {
 		return true, nil
 	}
 
-	token.Logger.Error(fmt.Sprintf("Token with label '%s' does not exist.\n", label))
+	token.Logger.Info(fmt.Sprintf("Token with label '%s' does not exist.\n", label))
 	return false, nil
 }
 
