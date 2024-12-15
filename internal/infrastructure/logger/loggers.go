@@ -100,6 +100,11 @@ type LoggerFactory struct{}
 
 // NewLogger creates a logger based on the given configuration.
 func (f *LoggerFactory) NewLogger(config *settings.LoggerSettings) (Logger, error) {
+	err := config.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	level, err := logrus.ParseLevel(config.LogLevel)
 	if err != nil {
 		return nil, err
