@@ -1,4 +1,4 @@
-# crypto-vault-cli
+# crypto_vault_cli
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@
 
 ## Summary
 
-`crypto-vault-cli` is a command-line tool for file encryption and decryption using AES, RSA and EC algorithms. It provides an easy interface to securely encrypt and decrypt files using symmetric (AES) and asymmetric (RSA, EC) cryptography.
+`crypto_vault_cli` is a command-line tool for file encryption and decryption using AES, RSA and EC algorithms. It provides an easy interface to securely encrypt and decrypt files using symmetric (AES) and asymmetric (RSA, EC) cryptography.
 
 ## Getting Started
 
@@ -28,9 +28,9 @@
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
 # Encryption
-go run crypto-vault-cli.go encrypt-aes --input data/input.txt --output data/${uuid}-output.enc --keySize 16 --keyDir data/
+go run crypto_vault_cli.go encrypt-aes --input-file data/input.txt --output-file data/${uuid}-output.enc --key-size 16 --key-dir data/
 # Decryption
-go run crypto-vault-cli.go decrypt-aes --input data/${uuid}-output.enc --output data/${uuid}-decrypted.txt --symmetricKey <your generated symmetric key from previous encryption operation>
+go run crypto_vault_cli.go decrypt-aes --input-file data/${uuid}-output.enc --output-file data/${uuid}-decrypted.txt --symmetric-key <your generated symmetric key from previous encryption operation>
 ```
 
 #### RSA Example
@@ -41,10 +41,10 @@ go run crypto-vault-cli.go decrypt-aes --input data/${uuid}-output.enc --output 
 uuid=$(cat /proc/sys/kernel/random/uuid)
 
 # Encryption
-go run crypto-vault-cli.go encrypt-rsa --input data/input.txt --output data/${uuid}-encrypted.txt --keyDir data/
+go run crypto_vault_cli.go encrypt-rsa --input-file data/input.txt --output-file data/${uuid}-encrypted.txt --key-dir data/
 
 # Decryption
-go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --output data/${uuid}-decrypted.txt --privateKey <your generated private key from previous encryption operation>
+go run crypto_vault_cli.go decrypt-rsa --input-file data/${uuid}-encrypted.txt --output-file data/${uuid}-decrypted.txt --private-key <your generated private key from previous encryption operation>
 ```
 
 #### PKCS#11 encryption and decryption
@@ -54,10 +54,10 @@ go run crypto-vault-cli.go decrypt-rsa --input data/${uuid}-encrypted.txt --outp
 ```sh
 # RSA-PKCS
 # Encryption
-go run crypto-vault-cli.go encrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --input-file data/input.txt --output-file data/encrypted-output.enc
+go run crypto_vault_cli.go encrypt --token-label my-token --object-label my-rsa-key --key-type RSA --input-file data/input.txt --output-file data/encrypted-output.enc
 
 # Decryption
-go run crypto-vault-cli.go decrypt --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --input-file data/encrypted-output.enc --output-file data/decrypted-output.txt
+go run crypto_vault_cli.go decrypt --token-label my-token --object-label my-rsa-key --key-type RSA --input-file data/encrypted-output.enc --output-file data/decrypted-output.txt
 ```
 
 ---
@@ -70,10 +70,10 @@ go run crypto-vault-cli.go decrypt --module /usr/lib/softhsm/libsofthsm2.so --to
 
 ```sh
 # Sign a file with a newly generated ECC key pair (internally generated)
-go run crypto-vault-cli.go sign-ecc --input data/input.txt --keyDir data
+go run crypto_vault_cli.go sign-ecc --input-file data/input.txt --key-dir data
 
 # Verify the signature using the generated public key
-go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your generated public key from previous signing operation> --signature <your generated signature file from previous signing operation>
+go run crypto_vault_cli.go verify-ecc --input-file data/input.txt --public-key <your generated public key from previous signing operation> --signature-file <your generated signature file from previous signing operation>
 ```
 
 #### PKCS#11 signing and verifying
@@ -83,17 +83,17 @@ go run crypto-vault-cli.go verify-ecc --input data/input.txt --publicKey <your g
 ```sh
 # RSA-PSS
 # Sign data with a PKCS#11 token
-go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --input-file data/input.txt --output-file data/signature.sig
+go run crypto_vault_cli.go sign --token-label my-token --object-label my-rsa-key --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
 
 # Verify the signature using the generated public key from the PKCS#11 token
-go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678 --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
+go run crypto_vault_cli.go verify --token-label my-token --object-label my-rsa-key --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
 
 # ECDSA
 # Sign data with a PKCS#11 token
-go run crypto-vault-cli.go sign --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --key-type ECDSA --input-file data/input.txt --output-file data/signature.sig
+go run crypto_vault_cli.go sign --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
 
 # Verify the signature using the generated public key from the PKCS#11 token
-go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-ecdsa-key --user-pin 5678 --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
+go run crypto_vault_cli.go verify --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
 ```
 
 ---
@@ -101,25 +101,26 @@ go run crypto-vault-cli.go verify --module /usr/lib/softhsm/libsofthsm2.so --tok
 ### PKCS#11 key management operations
 
 ```sh
-# Check available slots
-pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -L
+# Configure settings
+go run crypto_vault_cli.go store-pkcs11-settings --module /usr/lib/softhsm/libsofthsm2.so --so-pin 1234 --user-pin 5678 --slot-id "0x0"
+
+# List token slots
+go run crypto_vault_cli.go list-slots
+
 # Initialize a PKCS#11 token
-go run crypto-vault-cli.go initialize-token --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --so-pin 1234 --user-pin 5678 --slot "0x0"
+go run crypto_vault_cli.go initialize-token --token-label my-token
 
-# Check if PKCS#11 token is set
-go run crypto-vault-cli.go is-token-set --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token
-
-# Check if an object (e.g., key) exists in the PKCS#11 token
-go run crypto-vault-cli.go is-object-set --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --user-pin 5678
-# Check all keys of a token
-pkcs11-tool --module /usr/lib/softhsm/libsofthsm2.so -O --token-label "my-token" --pin 5678
 
 # Adding keys to tokens
-# Add an RSA or ECDSA key pair (private and public key) to a PKCS#11 token
-go run crypto-vault-cli.go add-key --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --key-type RSA --key-size 2048 --user-pin 5678
+# Add an RSA or EC key pair (private and public key) to a PKCS#11 token
+go run crypto_vault_cli.go add-key --token-label my-token --object-label my-rsa-key --key-type RSA --key-size 2048
+go run crypto_vault_cli.go add-key --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --key-size 256
+
+# List token objects
+go run crypto_vault_cli.go list-objects --token-label "my-token"
 
 # Deleting keys from tokens
-# Delete an object (e.g., RSA or ECDSA key) from the PKCS#11 token
-go run crypto-vault-cli.go delete-object --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --object-type pubkey --user-pin 5678
-go run crypto-vault-cli.go delete-object --module /usr/lib/softhsm/libsofthsm2.so --token-label my-token --object-label my-rsa-key --object-type privkey --user-pin 5678
+# Delete an object (e.g., RSA or EC key) from the PKCS#11 token
+go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type pubkey
+go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type privkey
 ```

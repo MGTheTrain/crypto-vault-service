@@ -41,6 +41,10 @@ jobs:
         run: sudo ./run-test.sh -i
         working-directory: ./scripts
 
+      - name: Shut down external storage services
+        run: |
+          docker compose down -v
+
       # Run static code analysis on source code
       # Run vulnerability scanner and generate SBOMs on third part dependencies
       # Create build artifacts, e.g. Build docker image with release tag for applications, scan docker image and push to container registry
