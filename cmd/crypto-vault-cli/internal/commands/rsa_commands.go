@@ -2,172 +2,190 @@ package commands
 
 import (
 	"crypto/rsa"
-	"crypto_vault_service/cmd/crypto-vault-cli/internal/status"
+
 	"crypto_vault_service/internal/infrastructure/cryptography"
+	"crypto_vault_service/internal/infrastructure/logger"
+	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
-// RSA Command
-func EncryptRSACmd(cmd *cobra.Command, args []string) {
+type RSACommandHandler struct {
+	rsa    *cryptography.RSA
+	Logger logger.Logger
+}
+
+func NewRSACommandHandler() *RSACommandHandler {
+	loggerSettings := &settings.LoggerSettings{
+		LogLevel: "info",
+		LogType:  "console",
+		FilePath: "",
+	}
+
+	factory := &logger.LoggerFactory{}
+
+	logger, err := factory.NewLogger(loggerSettings)
+	if err != nil {
+		log.Panicf("Error creating logger: %v", err)
+		return nil
+	}
+
+	rsa, err := cryptography.NewRSA(logger)
+	if err != nil {
+		log.Panicf("%v\n", err)
+		return nil
+	}
+
+	return &RSACommandHandler{
+		rsa:    rsa,
+		Logger: logger,
+	}
+}
+
+// EncryptRSACmd encrypts a file using RSA and saves asymmetric key pairs
+func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args []string) {
 	inputFile, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	outputFile, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	keyDir, err := cmd.Flags().GetString("key-dir")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	var publicKey *rsa.PublicKey
-	rsa := &cryptography.RSA{}
 
 	uniqueID := uuid.New()
 
-	privateKey, publicKey, err := rsa.GenerateKeys(2048)
+	privateKey, publicKey, err := commandHandler.rsa.GenerateKeys(2048)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 
-	err = rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
+	err = commandHandler.rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
-	err = rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
+	err = commandHandler.rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	plainText, err := os.ReadFile(inputFile)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	encryptedData, err := rsa.Encrypt(plainText, publicKey)
+	encryptedData, err := commandHandler.rsa.Encrypt(plainText, publicKey)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	err = os.WriteFile(outputFile, encryptedData, 0644)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
-	info := status.NewInfo(fmt.Sprintf("Generated and saved RSA keys. Private key path: %s. Public key path: %s. Encrypted data saved to %s", privateKeyFilePath, publicKeyFilePath, outputFile))
-	info.PrintJsonInfo(false)
+
+	commandHandler.Logger.Info(fmt.Sprintf("Generated and saved RSA keys. Private key path: %s. Public key path: %s. Encrypted data path %s", privateKeyFilePath, publicKeyFilePath, outputFile))
 }
 
-func DecryptRSACmd(cmd *cobra.Command, args []string) {
+// DecryptRSACmd decrypts a file using RSA
+func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args []string) {
 	inputFile, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	outputFile, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	privateKeyPath, err := cmd.Flags().GetString("private-key")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	var privateKey *rsa.PrivateKey
-	rsa := &cryptography.RSA{}
+
 	if privateKeyPath == "" {
 
-		privKey, _, err := rsa.GenerateKeys(2048)
+		privKey, _, err := commandHandler.rsa.GenerateKeys(2048)
 		if err != nil {
-			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-			e.PrintJsonError()
+			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 			return
 		}
 		privateKey = privKey
 
-		err = rsa.SavePrivateKeyToFile(privateKey, "private-key.pem")
+		err = commandHandler.rsa.SavePrivateKeyToFile(privateKey, "private-key.pem")
 		if err != nil {
-			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-			e.PrintJsonError()
+			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 			return
 		}
-		info := status.NewInfo("Generated and saved private key")
-		info.PrintJsonInfo(false)
+
 	} else {
 
-		privateKey, err = rsa.ReadPrivateKey(privateKeyPath)
+		privateKey, err = commandHandler.rsa.ReadPrivateKey(privateKeyPath)
 		if err != nil {
-			e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-			e.PrintJsonError()
+			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 			return
 		}
 	}
 
 	encryptedData, err := os.ReadFile(inputFile)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	decryptedData, err := rsa.Decrypt(encryptedData, privateKey)
+	decryptedData, err := commandHandler.rsa.Decrypt(encryptedData, privateKey)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	err = os.WriteFile(outputFile, decryptedData, 0644)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
-	info := status.NewInfo(fmt.Sprintf("Decrypted data saved to %s", outputFile))
-	info.PrintJsonInfo(false)
+
+	commandHandler.Logger.Info(fmt.Sprintf("Decrypted data path %s", outputFile))
 }
 
 func InitRSACommands(rootCmd *cobra.Command) {
+	handler := NewRSACommandHandler()
+
 	var encryptRSAFileCmd = &cobra.Command{
 		Use:   "encrypt-rsa",
 		Short: "Encrypt a file using RSA",
-		Run:   EncryptRSACmd,
+		Run:   handler.EncryptRSACmd,
 	}
 	encryptRSAFileCmd.Flags().StringP("input-file", "", "", "Input file path")
 	encryptRSAFileCmd.Flags().StringP("output-file", "", "", "Output encrypted file path")
@@ -177,7 +195,7 @@ func InitRSACommands(rootCmd *cobra.Command) {
 	var decryptRSAFileCmd = &cobra.Command{
 		Use:   "decrypt-rsa",
 		Short: "Decrypt a file using RSA",
-		Run:   DecryptRSACmd,
+		Run:   handler.DecryptRSACmd,
 	}
 	decryptRSAFileCmd.Flags().StringP("input-file", "", "", "Input encrypted file path")
 	decryptRSAFileCmd.Flags().StringP("output-file", "", "", "Output decrypted file path")

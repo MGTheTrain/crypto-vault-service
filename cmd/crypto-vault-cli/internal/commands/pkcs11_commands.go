@@ -1,34 +1,72 @@
 package commands
 
 import (
-	"crypto_vault_service/cmd/crypto-vault-cli/internal/status"
 	"crypto_vault_service/internal/infrastructure/cryptography"
+	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
 // PKCS11CommandsHandler holds settings and methods for managing PKCS#11 token operations
-type PKCS11CommandsHandler struct{}
+type PKCS11CommandsHandler struct {
+	pkcs11Handler cryptography.PKCS11Handler
+	Logger        logger.Logger
+}
+
+func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
+	loggerSettings := &settings.LoggerSettings{
+		LogLevel: "info",
+		LogType:  "console",
+		FilePath: "",
+	}
+
+	factory := &logger.LoggerFactory{}
+
+	logger, err := factory.NewLogger(loggerSettings)
+	if err != nil {
+		log.Panicf("Error creating logger: %v", err)
+		return nil
+	}
+
+	pkcs11Settings, err := readPkcs11ConfigFile()
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("%v", err))
+		return nil
+	}
+
+	pkcs11Handler, err := cryptography.NewPKCS11Handler(pkcs11Settings, logger)
+	if err != nil {
+		log.Panicf("%v\n", err)
+		return nil
+	}
+
+	return &PKCS11CommandsHandler{
+		pkcs11Handler: *pkcs11Handler,
+		Logger:        logger,
+	}
+}
 
 // validatePKCS11Settings checks if the PKCS#11 settings (ModulePath, SOPin, UserPin, and SlotId)
-func (h *PKCS11CommandsHandler) validatePKCS11Settings(tokenHandler *cryptography.PKCS11Handler) error {
+func (commandHandler *PKCS11CommandsHandler) validatePKCS11Settings() error {
 	if err := utils.CheckNonEmptyStrings(
-		tokenHandler.Settings.ModulePath,
-		tokenHandler.Settings.SOPin,
-		tokenHandler.Settings.UserPin,
-		tokenHandler.Settings.SlotId); err != nil {
+		commandHandler.pkcs11Handler.Settings.ModulePath,
+		commandHandler.pkcs11Handler.Settings.SOPin,
+		commandHandler.pkcs11Handler.Settings.UserPin,
+		commandHandler.pkcs11Handler.Settings.SlotId); err != nil {
 		return fmt.Errorf("ensure PKCS#11 settings have been configured trough `configure-pkcs11-settings` command: %v", err)
 	}
 	return nil
 }
 
 // readPkcs11ConfigFile reads the pkcs11-settings.json file and create the settings object
-func (h *PKCS11CommandsHandler) readPkcs11ConfigFile() (*settings.PKCS11Settings, error) {
+func readPkcs11ConfigFile() (*settings.PKCS11Settings, error) {
 	plainText, err := os.ReadFile("pkcs11-settings.json")
 	if err != nil {
 		return nil, fmt.Errorf("error reading JSON file: %s", err)
@@ -44,7 +82,7 @@ func (h *PKCS11CommandsHandler) readPkcs11ConfigFile() (*settings.PKCS11Settings
 }
 
 // writePkcs11ConfigFile writes the pkcs11-settings.json config file
-func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
+func writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
 	settings := map[string]string{
 		"modulePath": modulePath,
 		"soPin":      soPin,
@@ -71,47 +109,41 @@ func (h *PKCS11CommandsHandler) writePkcs11ConfigFile(modulePath, soPin, userPin
 }
 
 // storePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
-func (h *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
 	modulePath, err := cmd.Flags().GetString("module")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	soPin, err := cmd.Flags().GetString("so-pin")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	userPin, err := cmd.Flags().GetString("user-pin")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	slotId, err := cmd.Flags().GetString("slot-id")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	err = h.writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
+	err = writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	info := status.NewInfo("created pkcs11-settings.json")
-	info.PrintJsonInfo(false)
+	commandHandler.Logger.Info("created pkcs11-settings.json")
 }
 
 // getTokenHandler reads the PKCS#11 config file and validates the settings.
-func (h *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, error) {
+func (commandHandler *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, error) {
 
-	pkcs11Settings, err := h.readPkcs11ConfigFile()
+	pkcs11Settings, err := readPkcs11ConfigFile()
 	if err != nil {
 		return nil, fmt.Errorf("error reading PKCS#11 config file: %v", err)
 	}
@@ -120,7 +152,7 @@ func (h *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, 
 		Settings: pkcs11Settings,
 	}
 
-	err = h.validatePKCS11Settings(tokenHandler)
+	err = commandHandler.validatePKCS11Settings()
 	if err != nil {
 		return nil, fmt.Errorf("error validating PKCS#11 settings: %v", err)
 	}
@@ -129,357 +161,306 @@ func (h *PKCS11CommandsHandler) getTokenHandler() (*cryptography.PKCS11Handler, 
 }
 
 // ListTokenSlotsCmd lists PKCS#11 tokens
-func (h *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokens, err := tokenHandler.ListTokenSlots()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokensJSON, err := json.MarshalIndent(tokens, "", "  ")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	info := status.NewInfo(string(tokensJSON))
-	info.PrintJsonInfo(true)
+	commandHandler.Logger.Info(string(tokensJSON))
 }
 
 // ListObjectsSlotsCmd lists PKCS#11 token objects
-func (h *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	objects, err := tokenHandler.ListObjects(tokenLabel)
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	objectsJSON, err := json.MarshalIndent(objects, "", "  ")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	info := status.NewInfo(string(objectsJSON))
-	info.PrintJsonInfo(true)
+	commandHandler.Logger.Info(string(objectsJSON))
 }
 
 // InitializeTokenCmd initializes a PKCS#11 token
-func (h *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if err := tokenHandler.InitializeToken(tokenLabel); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // AddKeyCmd adds a key to the PKCS#11 token
-func (h *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	keySize, err := cmd.Flags().GetUint("key-size")
 
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if err := tokenHandler.AddKey(tokenLabel, objectLabel, keyType, keySize); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // DeleteObjectCmd deletes an object (key) from the PKCS#11 token
-func (h *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectType, err := cmd.Flags().GetString("object-type")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if err := tokenHandler.DeleteObject(tokenLabel, objectType, objectLabel); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // EncryptCmd encrypts data using the PKCS#11 token
-func (h *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	inputFilePath, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	outputFilePath, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if err := tokenHandler.Encrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // DecryptCmd decrypts data using the PKCS#11 token
-func (h *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	inputFilePath, err := cmd.Flags().GetString("input-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	outputFilePath, err := cmd.Flags().GetString("output-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if err := tokenHandler.Decrypt(tokenLabel, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // SignCmd signs data using the PKCS#11 token
-func (h *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	dataFilePath, err := cmd.Flags().GetString("data-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	signatureFilePath, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if err := tokenHandler.Sign(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // VerifyCmd verifies the signature using the PKCS#11 token
-func (h *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
-	tokenHandler, err := h.getTokenHandler()
+func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
+	tokenHandler, err := commandHandler.getTokenHandler()
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	tokenLabel, err := cmd.Flags().GetString("token-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	objectLabel, err := cmd.Flags().GetString("object-label")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	dataFilePath, err := cmd.Flags().GetString("data-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	signatureFilePath, err := cmd.Flags().GetString("signature-file")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 	keyType, err := cmd.Flags().GetString("key-type")
 	if err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	if _, err := tokenHandler.Verify(tokenLabel, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
-		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
-		e.PrintJsonError()
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 }
 
 // InitPKCS11Commands initializes all the PKCS#11 commands
 func InitPKCS11Commands(rootCmd *cobra.Command) {
-	handler := &PKCS11CommandsHandler{}
+	handler := NewPKCS11CommandsHandler()
 
 	var storePKCS11SettingsCmd = &cobra.Command{
 		Use:   "store-pkcs11-settings",
