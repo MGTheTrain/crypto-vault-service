@@ -225,7 +225,6 @@ func (token *PKCS11Handler) InitializeToken(label string) error {
 	}
 
 	if tokenExists {
-		token.Logger.Info("Skipping initialization. Token label exists")
 		return nil
 	}
 
