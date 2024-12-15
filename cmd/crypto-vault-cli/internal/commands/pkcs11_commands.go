@@ -97,7 +97,13 @@ func (h *PKCS11CommandsHandler) storePKCS11SettingsCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	h.writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
+	err = h.writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
+	if err != nil {
+		e := status.NewError(fmt.Sprintf("%v", err), status.ErrCodeInternalError)
+		e.PrintJsonError()
+		return
+	}
+
 	info := status.NewInfo("created pkcs11-settings.json")
 	info.PrintJsonInfo(false)
 }
