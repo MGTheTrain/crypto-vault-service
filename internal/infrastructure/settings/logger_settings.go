@@ -7,9 +7,9 @@ import (
 )
 
 type LoggerSettings struct {
-	LogLevel string `validate:"required"`
-	LogType  string `validate:"required,oneof=console file"` // Log type must be either "console" or "file"
-	FilePath string `validate:"required_if=LogType file"`    // File path is required only if LogType is "file"
+	LogLevel string `validate:"required,oneof=info debug error warning critical"`
+	LogType  string `validate:"required,oneof=console file"`
+	FilePath string `validate:"required_if=LogType file"` // File path is required only if LogType is "file"
 }
 
 // Validate checks that all fields in PKCS11Settings are valid (non-empty in this case)
