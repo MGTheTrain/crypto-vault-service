@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto_vault_service/internal/infrastructure/logger"
 	"fmt"
 )
 
@@ -16,7 +17,16 @@ type IAES interface {
 }
 
 // AES struct that implements the IAES interface
-type AES struct{}
+type AES struct {
+	Logger logger.Logger
+}
+
+// NewAES creates and returns a new instance of AES
+func NewAES(logger logger.Logger) (*AES, error) {
+	return &AES{
+		Logger: logger,
+	}, nil
+}
 
 // Pad data to make it a multiple of AES block size
 func pkcs7Pad(data []byte, blockSize int) []byte {
@@ -43,6 +53,8 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate AES key: %v", err)
 	}
+
+	a.Logger.Info("Generated AES key pairs")
 	return key, nil
 }
 
@@ -68,6 +80,7 @@ func (a *AES) Encrypt(plainText, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], plainText)
 
+	a.Logger.Info("AES encryption succeeded")
 	return ciphertext, nil
 }
 
@@ -92,5 +105,6 @@ func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(ciphertext, ciphertext)
 
+	a.Logger.Info("AES decryption succeeded")
 	return pkcs7Unpad(ciphertext, aes.BlockSize)
 }

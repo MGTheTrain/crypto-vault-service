@@ -3,8 +3,11 @@ package helpers
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
+	"crypto_vault_service/internal/infrastructure/logger"
+	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 
@@ -84,8 +87,27 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 	}
 
 	// Initialize the repositories with the DB instance
-	blobRepo := &repository.GormBlobRepository{DB: db}
-	cryptoKeyRepo := &repository.GormCryptoKeyRepository{DB: db}
+	loggerSettings := &settings.LoggerSettings{
+		LogLevel: "info",
+		LogType:  "console",
+		FilePath: "",
+	}
+
+	factory := &logger.LoggerFactory{}
+
+	logger, err := factory.NewLogger(loggerSettings)
+	if err != nil {
+		log.Fatalf("Error creating logger: %v", err)
+	}
+
+	blobRepo, err := repository.NewGormBlobRepository(db, logger)
+	if err != nil {
+		log.Fatalf("Error creating blob repository instance: %v", err)
+	}
+	cryptoKeyRepo, err := repository.NewGormCryptoKeyRepository(db, logger)
+	if err != nil {
+		log.Fatalf("Error creating crypto key repository instance: %v", err)
+	}
 
 	return &TestDBContext{
 		DB:            db,

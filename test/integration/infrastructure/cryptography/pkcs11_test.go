@@ -1,10 +1,12 @@
 package cryptography
 
 import (
+	"log"
 	"os"
 	"testing"
 
-	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
+	"crypto_vault_service/internal/infrastructure/cryptography"
+	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 
 	"github.com/stretchr/testify/assert"
@@ -21,14 +23,27 @@ type PKCS11Test struct {
 
 // NewPKCS11Test sets up the test environment for PKCS#11 integration tests
 func NewPKCS11Test(t *testing.T, slotId, modulePath, label, soPin, userPin, objectLabel, keyType string, keySize uint) *PKCS11Test {
-	settings := settings.PKCS11Settings{
+	pkcs11Settings := &settings.PKCS11Settings{
 		ModulePath: modulePath,
 		SOPin:      soPin,
 		UserPin:    userPin,
 		SlotId:     slotId,
 	}
 
-	tokenHandler, err := cryptography.NewPKCS11Handler(settings)
+	loggerSettings := &settings.LoggerSettings{
+		LogLevel: "info",
+		LogType:  "console",
+		FilePath: "",
+	}
+
+	factory := &logger.LoggerFactory{}
+
+	logger, err := factory.NewLogger(loggerSettings)
+	if err != nil {
+		log.Fatalf("Error creating logger: %v", err)
+	}
+
+	tokenHandler, err := cryptography.NewPKCS11Handler(pkcs11Settings, logger)
 	if err != nil {
 		t.Logf("%v\n", err)
 	}

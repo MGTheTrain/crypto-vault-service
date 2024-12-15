@@ -1,6 +1,7 @@
 package cryptography
 
 import (
+	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
@@ -51,16 +52,18 @@ type IPKCS11Handler interface {
 // PKCS11Handler represents the parameters and operations for interacting with a PKCS#11 token
 type PKCS11Handler struct {
 	Settings *settings.PKCS11Settings
+	Logger   logger.Logger
 }
 
 // NewPKCS11Handler creates and returns a new instance of PKCS11Handler
-func NewPKCS11Handler(settings settings.PKCS11Settings) (*PKCS11Handler, error) {
+func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (*PKCS11Handler, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, err
 	}
 
 	return &PKCS11Handler{
-		Settings: &settings,
+		Settings: settings,
+		Logger:   logger,
 	}, nil
 }
 
@@ -202,11 +205,11 @@ func (token *PKCS11Handler) isTokenSet(label string) (bool, error) {
 	}
 
 	if strings.Contains(output, label) && strings.Contains(output, "token initialized") {
-		fmt.Printf("Token with label '%s' exists.\n", label)
+		token.Logger.Info(fmt.Sprintf("Token with label '%s' exists.\n", label))
 		return true, nil
 	}
 
-	fmt.Printf("Error: Token with label '%s' does not exist.\n", label)
+	token.Logger.Info(fmt.Sprintf("Token with label '%s' does not exist.\n", label))
 	return false, nil
 }
 
@@ -222,7 +225,6 @@ func (token *PKCS11Handler) InitializeToken(label string) error {
 	}
 
 	if tokenExists {
-		fmt.Println("Skipping initialization. Token label exists.")
 		return nil
 	}
 
@@ -232,7 +234,7 @@ func (token *PKCS11Handler) InitializeToken(label string) error {
 		return fmt.Errorf("failed to initialize token with label '%s': %v", label, err)
 	}
 
-	fmt.Printf("Token with label '%s' initialized successfully.\n", label)
+	token.Logger.Info(fmt.Sprintf("Token with label '%s' initialized successfully.\n", label))
 	return nil
 }
 
@@ -285,7 +287,7 @@ func (token *PKCS11Handler) addECDSASignKey(label, objectLabel string, keySize u
 		return fmt.Errorf("failed to add ECDSA key to token: %v", err)
 	}
 
-	fmt.Printf("ECDSA key with label '%s' added to token '%s'.\n", objectLabel, label)
+	token.Logger.Info(fmt.Sprintf("ECDSA key with label '%s' added to token '%s'", objectLabel, label))
 	return nil
 }
 
@@ -324,7 +326,7 @@ func (token *PKCS11Handler) addRSASignKey(label, objectLabel string, keySize uin
 		return fmt.Errorf("failed to add RSA key to token: %v", err)
 	}
 
-	fmt.Printf("RSA key with label '%s' added to token '%s'.\n", objectLabel, label)
+	token.Logger.Info(fmt.Sprintf("RSA key with label '%s' added to token '%s'", objectLabel, label))
 	return nil
 }
 
@@ -357,7 +359,7 @@ func (token *PKCS11Handler) Encrypt(label, objectLabel, inputFilePath, outputFil
 		return fmt.Errorf("failed to encrypt data with OpenSSL: %v\nOutput: %s", err, encryptOutput)
 	}
 
-	fmt.Printf("Encryption successful. Encrypted data written to %s\n", outputFilePath)
+	token.Logger.Info(fmt.Sprintf("Encryption successful. Encrypted data written to %s", outputFilePath))
 	return nil
 }
 
@@ -390,7 +392,7 @@ func (token *PKCS11Handler) Decrypt(label, objectLabel, inputFilePath, outputFil
 		return fmt.Errorf("failed to decrypt data with OpenSSL: %v\nOutput: %s", err, decryptOutput)
 	}
 
-	fmt.Printf("Decryption successful. Decrypted data written to %s\n", outputFilePath)
+	token.Logger.Info(fmt.Sprintf("Decryption successful. Decrypted data written to %s", outputFilePath))
 	return nil
 }
 
@@ -437,7 +439,7 @@ func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 		return fmt.Errorf("failed to sign data: %v\nOutput: %s", err, signOutput)
 	}
 
-	fmt.Printf("Signing successful. Signature written to %s\n", signatureFilePath)
+	token.Logger.Info(fmt.Sprintf("Signing successful. Signature written to %s", signatureFilePath))
 	return nil
 }
 
@@ -486,10 +488,10 @@ func (token *PKCS11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 
 	// Check the output from OpenSSL to determine if the verification was successful
 	if strings.Contains(string(verifyOutput), "Verified OK") {
-		fmt.Println("Verification successful: The signature is valid.")
+		token.Logger.Info("The signature is valid")
 		valid = true
 	} else {
-		fmt.Println("Verification failed: The signature is invalid.")
+		token.Logger.Info("The signature is invalid")
 	}
 
 	return valid, nil
@@ -528,6 +530,6 @@ func (token *PKCS11Handler) DeleteObject(label, objectType, objectLabel string) 
 		return fmt.Errorf("failed to delete object of type '%s' with label '%s': %v", objectType, objectLabel, err)
 	}
 
-	fmt.Printf("Object of type '%s' with label '%s' deleted successfully.\n", objectType, objectLabel)
+	token.Logger.Info(fmt.Sprintf("Object of type '%s' with label '%s' deleted successfully.\n", objectType, objectLabel))
 	return nil
 }
