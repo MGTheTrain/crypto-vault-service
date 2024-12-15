@@ -12,6 +12,8 @@
     - [ECDSA Example](#ecdsa-example)
     - [PKCS#11 Signing and Verifying](#pkcs11-signing-and-verifying)
   - [PKCS#11 key management operations](#pkcs11-key-management-operations)
+  - [Running the e2e-test](#running-the-e2e-test)
+
 
 ## Summary
 
