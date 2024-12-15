@@ -287,7 +287,7 @@ func (token *PKCS11Handler) addECDSASignKey(label, objectLabel string, keySize u
 		return fmt.Errorf("failed to add ECDSA key to token: %v", err)
 	}
 
-	token.Logger.Info(fmt.Sprintf("ECDSA key with label '%s' added to token '%s'.\n", objectLabel, label))
+	token.Logger.Info(fmt.Sprintf("ECDSA key with label '%s' added to token '%s'", objectLabel, label))
 	return nil
 }
 
@@ -326,7 +326,7 @@ func (token *PKCS11Handler) addRSASignKey(label, objectLabel string, keySize uin
 		return fmt.Errorf("failed to add RSA key to token: %v", err)
 	}
 
-	token.Logger.Info(fmt.Sprintf("RSA key with label '%s' added to token '%s'.\n", objectLabel, label))
+	token.Logger.Info(fmt.Sprintf("RSA key with label '%s' added to token '%s'", objectLabel, label))
 	return nil
 }
 
@@ -359,7 +359,7 @@ func (token *PKCS11Handler) Encrypt(label, objectLabel, inputFilePath, outputFil
 		return fmt.Errorf("failed to encrypt data with OpenSSL: %v\nOutput: %s", err, encryptOutput)
 	}
 
-	token.Logger.Info(fmt.Sprintf("Encryption successful. Encrypted data written to %s\n", outputFilePath))
+	token.Logger.Info(fmt.Sprintf("Encryption successful. Encrypted data written to %s", outputFilePath))
 	return nil
 }
 
@@ -392,7 +392,7 @@ func (token *PKCS11Handler) Decrypt(label, objectLabel, inputFilePath, outputFil
 		return fmt.Errorf("failed to decrypt data with OpenSSL: %v\nOutput: %s", err, decryptOutput)
 	}
 
-	token.Logger.Info(fmt.Sprintf("Decryption successful. Decrypted data written to %s\n", outputFilePath))
+	token.Logger.Info(fmt.Sprintf("Decryption successful. Decrypted data written to %s", outputFilePath))
 	return nil
 }
 
@@ -439,7 +439,7 @@ func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 		return fmt.Errorf("failed to sign data: %v\nOutput: %s", err, signOutput)
 	}
 
-	token.Logger.Info(fmt.Sprintf("Signing successful. Signature written to %s\n", signatureFilePath))
+	token.Logger.Info(fmt.Sprintf("Signing successful. Signature written to %s", signatureFilePath))
 	return nil
 }
 

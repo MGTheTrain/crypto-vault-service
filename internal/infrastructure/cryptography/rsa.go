@@ -41,7 +41,7 @@ func (r *RSA) GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 		return nil, nil, fmt.Errorf("failed to generate RSA keys: %v", err)
 	}
 	publicKey := &privateKey.PublicKey
-	r.Logger.Info("Generated RSA key pairs.")
+	r.Logger.Info("Generated RSA key pairs")
 	return privateKey, publicKey, nil
 }
 
@@ -55,7 +55,7 @@ func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error
 	if err != nil {
 		return nil, fmt.Errorf("failed to encrypt data: %v", err)
 	}
-	r.Logger.Info("RSA encryption succeeded.")
+	r.Logger.Info("RSA encryption succeeded")
 	return encryptedData, nil
 }
 
@@ -69,7 +69,7 @@ func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, er
 	if err != nil {
 		return nil, fmt.Errorf("failed to decrypt data: %v", err)
 	}
-	r.Logger.Info("RSA decryption succeeded.")
+	r.Logger.Info("RSA decryption succeeded")
 	return decryptedData, nil
 }
 
@@ -91,7 +91,7 @@ func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) 
 		return fmt.Errorf("failed to encode private key: %v", err)
 	}
 
-	r.Logger.Info(fmt.Sprintf("Saved RSA private key %s.", filename))
+	r.Logger.Info(fmt.Sprintf("Saved RSA private key %s", filename))
 	return nil
 }
 
@@ -117,7 +117,7 @@ func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) err
 		return fmt.Errorf("failed to encode public key: %v", err)
 	}
 
-	r.Logger.Info(fmt.Sprintf("Saved RSA public key %s.", filename))
+	r.Logger.Info(fmt.Sprintf("Saved RSA public key %s", filename))
 
 	return nil
 }

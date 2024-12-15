@@ -54,7 +54,7 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 		return nil, fmt.Errorf("failed to generate AES key: %v", err)
 	}
 
-	a.Logger.Info("Generated AES key pairs.")
+	a.Logger.Info("Generated AES key pairs")
 	return key, nil
 }
 
@@ -80,7 +80,7 @@ func (a *AES) Encrypt(plainText, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], plainText)
 
-	a.Logger.Info("AES encryption succeeded.")
+	a.Logger.Info("AES encryption succeeded")
 	return ciphertext, nil
 }
 
@@ -105,6 +105,6 @@ func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(ciphertext, ciphertext)
 
-	a.Logger.Info("AES decryption succeeded.")
+	a.Logger.Info("AES decryption succeeded")
 	return pkcs7Unpad(ciphertext, aes.BlockSize)
 }

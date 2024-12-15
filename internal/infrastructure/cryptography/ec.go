@@ -45,7 +45,7 @@ func (e *EC) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.Publi
 	}
 
 	publicKey := &privateKey.PublicKey
-	e.Logger.Info("Generated RSA key pairs.")
+	e.Logger.Info("Generated RSA key pairs")
 	return privateKey, publicKey, nil
 }
 
@@ -70,7 +70,7 @@ func (e *EC) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, error) 
 	// Encode the signature as r and s
 	signature := append(r.Bytes(), s.Bytes()...)
 
-	e.Logger.Info("ECDSA signing succeeded.")
+	e.Logger.Info("ECDSA signing succeeded")
 	return signature, nil
 }
 
@@ -91,7 +91,7 @@ func (e *EC) Verify(message, signature []byte, publicKey *ecdsa.PublicKey) (bool
 	// Verify the signature
 	valid := ecdsa.Verify(publicKey, hash[:], rInt, sInt)
 
-	e.Logger.Info("ECDSA verification succeeded.")
+	e.Logger.Info("ECDSA verification succeeded")
 	return valid, nil
 }
 
@@ -120,7 +120,7 @@ func (e *EC) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename string)
 		return fmt.Errorf("failed to encode private key: %v", err)
 	}
 
-	e.Logger.Info(fmt.Sprintf("Saved EC private key %s.", filename))
+	e.Logger.Info(fmt.Sprintf("Saved EC private key %s", filename))
 	return nil
 }
 
@@ -146,7 +146,7 @@ func (e *EC) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename string) er
 	if err != nil {
 		return fmt.Errorf("failed to encode public key: %v", err)
 	}
-	e.Logger.Info(fmt.Sprintf("Saved EC public key %s.", filename))
+	e.Logger.Info(fmt.Sprintf("Saved EC public key %s", filename))
 
 	return nil
 }
@@ -158,7 +158,7 @@ func (e *EC) SaveSignatureToFile(filename string, data []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to write data to file %s: %v", filename, err)
 	}
-	e.Logger.Info(fmt.Sprintf("Saved signature file %s.", filename))
+	e.Logger.Info(fmt.Sprintf("Saved signature file %s", filename))
 	return nil
 }
 

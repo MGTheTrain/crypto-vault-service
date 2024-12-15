@@ -109,7 +109,7 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	commandHandler.Logger.Info(fmt.Sprintf("Generated and saved RSA keys. Private key path: %s. Public key path: %s. Encrypted data path %s", privateKeyFilePath, publicKeyFilePath, outputFile))
+	commandHandler.Logger.Info(fmt.Sprintf("Encrypted data path %s", outputFile))
 }
 
 // DecryptRSACmd decrypts a file using RSA

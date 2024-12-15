@@ -108,8 +108,6 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []st
 			return
 		}
 	}
-
-	commandHandler.Logger.Info(fmt.Sprintf("Generated and saved EC keys. Private key path: %s. Public key path: %s. Signature file path %s", privateKeyFilePath, publicKeyFilePath, signatureFilePath))
 }
 
 // verifyECCCmd verifies the signature of a file's content using ECDSA
