@@ -32,8 +32,8 @@ func NewPKCS11Test(t *testing.T, slotId, modulePath, label, soPin, userPin, obje
 
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
-		LogType:  "file",
-		FilePath: "app.log",
+		LogType:  "console",
+		FilePath: "",
 	}
 
 	factory := &logger.LoggerFactory{}
