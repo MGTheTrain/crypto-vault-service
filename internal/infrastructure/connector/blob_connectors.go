@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/infrastructure/logger"
+	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -27,26 +28,30 @@ type BlobConnector interface {
 // AzureBlobConnector is a struct that holds the Azure Blob storage client and implements the BlobConnector interfaces.
 type AzureBlobConnector struct {
 	Client        *azblob.Client
-	ContainerName string
+	containerName string
 	Logger        logger.Logger
 }
 
 // NewAzureBlobConnector creates a new AzureBlobConnector instance using a connection string.
 // It returns the connector and any error encountered during the initialization.
-func NewAzureBlobConnector(connectionString string, containerName string, logger logger.Logger) (*AzureBlobConnector, error) {
-	client, err := azblob.NewClientFromConnectionString(connectionString, nil)
+func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logger.Logger) (*AzureBlobConnector, error) {
+	if err := settings.Validate(); err != nil {
+		return nil, err
+	}
+
+	client, err := azblob.NewClientFromConnectionString(settings.ConnectionString, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	_, err = client.CreateContainer(context.Background(), containerName, nil)
+	_, err = client.CreateContainer(context.Background(), settings.ContainerName, nil)
 	if err != nil {
-		fmt.Printf("Failed to create Azure container: %v\n", err) // The container may already exist, so we should not return an error in this case.
+		fmt.Printf("Failed to create Azure container: %v\n", err)
 	}
 
 	return &AzureBlobConnector{
 		Client:        client,
-		ContainerName: containerName,
+		containerName: settings.ContainerName,
 		Logger:        logger,
 	}, nil
 }
@@ -102,7 +107,7 @@ func (abc *AzureBlobConnector) Upload(filePaths []string, userId string) ([]*blo
 		fullBlobName := fmt.Sprintf("%s/%s", blob.ID, blob.Name)
 		fullBlobName = filepath.ToSlash(fullBlobName)
 
-		_, err = abc.Client.UploadBuffer(context.Background(), abc.ContainerName, fullBlobName, buf.Bytes(), nil)
+		_, err = abc.Client.UploadBuffer(context.Background(), abc.containerName, fullBlobName, buf.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
 			abc.rollbackUploadedBlobs(blobMeta)
@@ -135,7 +140,7 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error)
 
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
-	get, err := abc.Client.DownloadStream(ctx, abc.ContainerName, fullBlobName, nil)
+	get, err := abc.Client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download blob '%s': %w", fullBlobName, err)
 	}
@@ -163,7 +168,7 @@ func (abc *AzureBlobConnector) Delete(blobId, blobName string) error {
 
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
-	_, err := abc.Client.DeleteBlob(ctx, abc.ContainerName, fullBlobName, nil)
+	_, err := abc.Client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {
 		return fmt.Errorf("failed to delete blob in %s", fullBlobName)
 	}
