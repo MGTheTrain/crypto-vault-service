@@ -1,8 +1,10 @@
 package cryptography
 
 import (
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"encoding/pem"
@@ -15,6 +17,8 @@ import (
 type IRSA interface {
 	Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error)
 	Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error)
+	Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error)
+	Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (bool, error)
 	GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error)
 	SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error
 	SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error
@@ -73,6 +77,45 @@ func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, er
 	return decryptedData, nil
 }
 
+// Sign data using RSA private key
+func (r *RSA) Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+	if privateKey == nil {
+		return nil, fmt.Errorf("private key cannot be nil")
+	}
+
+	// Use the SHA-256 hash algorithm for signing
+	hashed := sha256.Sum256(data)
+
+	// Sign the hashed data with the private key
+	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign data: %v", err)
+	}
+
+	r.Logger.Info("RSA signing succeeded")
+	return signature, nil
+}
+
+// Verify RSA signature with public key
+func (r *RSA) Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (bool, error) {
+	if publicKey == nil {
+		return false, fmt.Errorf("public key cannot be nil")
+	}
+
+	// Use the SHA-256 hash algorithm for verification
+	hashed := sha256.Sum256(data)
+
+	// Verify the signature using the public key
+	err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], signature)
+	if err != nil {
+		return false, fmt.Errorf("failed to verify signature: %v", err)
+	}
+
+	r.Logger.Info("RSA signature verified successfully")
+	return true, nil
+}
+
+// SavePrivateKeyToFile saves the private key to a PEM file using encoding/pem
 func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error {
 	privKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	privKeyPem := &pem.Block{
@@ -95,6 +138,7 @@ func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) 
 	return nil
 }
 
+// SavePublicKeyToFile saves the public key to a PEM file using encoding/pem
 func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
 	pubKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
