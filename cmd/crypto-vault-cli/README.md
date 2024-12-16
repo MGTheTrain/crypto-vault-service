@@ -66,8 +66,6 @@ go run crypto_vault_cli.go verify-ecc --input-file data/input.txt --signature-fi
 
 ### PKCS#11 example
 
-### PKCS#11 key management operations
-
 ```sh
 # Configure settings
 go run crypto_vault_cli.go store-pkcs11-settings --module /usr/lib/softhsm/libsofthsm2.so --so-pin 1234 --user-pin 5678 --slot-id "0x0"
