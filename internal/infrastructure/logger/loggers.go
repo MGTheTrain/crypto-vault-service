@@ -99,7 +99,8 @@ func (l *FileLogger) Panic(args ...interface{}) {
 var (
 	// Singleton logger instance, shared across the application
 	loggerInstance Logger
-	loggerOnce     sync.Once // Guarantees that the logger is created only once
+	loggerOnce     sync.Once  // Guarantees that the logger is created only once
+	loggerMutex    sync.Mutex // Ensures thread-safe access to the logger instance
 )
 
 // GetLogger returns a singleton logger instance, shared across the application.
@@ -113,7 +114,10 @@ func GetLogger(settings *settings.LoggerSettings) (Logger, error) {
 		}
 	})
 
-	// If the loggerInstance is already created, just return it
+	// Lock access to loggerInstance to ensure thread safety when returning it
+	loggerMutex.Lock()
+	defer loggerMutex.Unlock()
+
 	if loggerInstance != nil {
 		return loggerInstance, nil
 	}
