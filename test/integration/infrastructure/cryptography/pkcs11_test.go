@@ -36,9 +36,7 @@ func NewPKCS11Test(t *testing.T, slotId, modulePath, label, soPin, userPin, obje
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}

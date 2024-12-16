@@ -25,9 +25,7 @@ func NewRSATests(t *testing.T) *RSATests {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}

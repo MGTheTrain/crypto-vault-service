@@ -25,9 +25,7 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}
@@ -138,9 +136,7 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}

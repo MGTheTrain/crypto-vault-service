@@ -12,6 +12,8 @@
     - [ECDSA Example](#ecdsa-example)
     - [PKCS#11 Signing and Verifying](#pkcs11-signing-and-verifying)
   - [PKCS#11 key management operations](#pkcs11-key-management-operations)
+- [Running the e2e-test](#running-the-e2e-test)
+
 
 ## Summary
 
@@ -125,6 +127,6 @@ go run crypto_vault_cli.go delete-object --token-label my-token --object-label m
 go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type privkey
 ```
 
-### Running the e2e-test
+## Running the e2e-test
 
 In order to e2e-test the entire flow from encryption to decryption, key management, signing, and verifying signatures as outlined in previous [Getting Started](#getting-started) sections run `go test ./crypto_vault_cli_test.go`.
