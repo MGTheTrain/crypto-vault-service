@@ -22,13 +22,13 @@ func runCommand(t *testing.T, cmd string, args []string) (string, error) {
 	return out.String(), nil
 }
 
-func TestEncryptionAndDecryption(t *testing.T) {
+func TestAESEncryptionAndDecryption(t *testing.T) {
 	uuid := "test-uuid-1234"
 	inputFile := "data/input.txt"
 
 	encOutputFile := fmt.Sprintf("data/%s-output.enc", uuid)
 	cmdEncrypt := "go"
-	argsEncrypt := []string{"run", "crypto_vault_cli.go", "encrypt-aes", "--input-file", inputFile, "--output-file", encOutputFile, "--key-size", "16", "--key-dir", "data/"}
+	argsEncrypt := []string{"run", "crypto_vault_cli.go", "encrypt-aes", "--input-file", inputFile, "--output-file", encOutputFile, "--symmetric-key", "your-generated-symmetric-key"}
 
 	_, err := runCommand(t, cmdEncrypt, argsEncrypt)
 	if err != nil {
@@ -51,7 +51,7 @@ func TestRSAEncryptionAndDecryption(t *testing.T) {
 
 	encOutputFile := fmt.Sprintf("data/%s-encrypted.txt", uuid)
 	cmdEncryptRSA := "go"
-	argsEncryptRSA := []string{"run", "crypto_vault_cli.go", "encrypt-rsa", "--input-file", inputFile, "--output-file", encOutputFile, "--key-dir", "data/"}
+	argsEncryptRSA := []string{"run", "crypto_vault_cli.go", "encrypt-rsa", "--input-file", inputFile, "--output-file", encOutputFile, "--public-key", "your-generated-public-key"}
 
 	_, err := runCommand(t, cmdEncryptRSA, argsEncryptRSA)
 	if err != nil {
@@ -65,6 +65,58 @@ func TestRSAEncryptionAndDecryption(t *testing.T) {
 	_, err = runCommand(t, cmdDecryptRSA, argsDecryptRSA)
 	if err != nil {
 		t.Fatalf("RSA Decryption failed: %v", err)
+	}
+}
+
+func TestRSASignAndVerify(t *testing.T) {
+	uuid := "test-uuid-5678"
+	inputFile := "data/input.txt"
+	signatureFile := fmt.Sprintf("data/%s-signature.bin", uuid)
+
+	// Sign
+	cmdSignRSA := "go"
+	argsSignRSA := []string{"run", "crypto_vault_cli.go", "sign-rsa", "--input-file", inputFile, "--output-file", signatureFile, "--private-key", "your-generated-private-key"}
+
+	_, err := runCommand(t, cmdSignRSA, argsSignRSA)
+	if err != nil {
+		t.Fatalf("RSA Signing failed: %v", err)
+	}
+
+	// Verify
+	cmdVerifyRSA := "go"
+	argsVerifyRSA := []string{
+		"run", "crypto_vault_cli.go", "verify-rsa", "--input-file", inputFile, "--signature-file", signatureFile, "--public-key", "your-generated-public-key",
+	}
+
+	_, err = runCommand(t, cmdVerifyRSA, argsVerifyRSA)
+	if err != nil {
+		t.Fatalf("RSA Verification failed: %v", err)
+	}
+}
+
+func TestSigningAndVerificationECDSA(t *testing.T) {
+	uuid := "test-uuid-ecc"
+	inputFile := "data/input.txt"
+	signatureFile := fmt.Sprintf("data/%s-signature.bin", uuid)
+
+	// Sign
+	cmdSignECDSA := "go"
+	argsSignECDSA := []string{"run", "crypto_vault_cli.go", "sign-ecc", "--input-file", inputFile, "--output-file", signatureFile, "--private-key", "your-generated-private-key"}
+
+	_, err := runCommand(t, cmdSignECDSA, argsSignECDSA)
+	if err != nil {
+		t.Fatalf("ECDSA Signing failed: %v", err)
+	}
+
+	// Verify
+	cmdVerifyECDSA := "go"
+	argsVerifyECDSA := []string{
+		"run", "crypto_vault_cli.go", "verify-ecc", "--input-file", inputFile, "--signature-file", signatureFile, "--public-key", "your-generated-public-key",
+	}
+
+	_, err = runCommand(t, cmdVerifyECDSA, argsVerifyECDSA)
+	if err != nil {
+		t.Fatalf("ECDSA Verification failed: %v", err)
 	}
 }
 
@@ -95,31 +147,9 @@ func TestPKCS11EncryptionAndDecryption(t *testing.T) {
 	}
 }
 
-func TestSigningAndVerificationECDSA(t *testing.T) {
-	inputFile := "data/input.txt"
-	signatureFile := "data/signature.sig"
-
-	cmdSignECDSA := "go"
-	argsSignECDSA := []string{"run", "crypto_vault_cli.go", "sign-ecc", "--input-file", inputFile, "--key-dir", "data"}
-
-	_, err := runCommand(t, cmdSignECDSA, argsSignECDSA)
-	if err != nil {
-		t.Fatalf("ECDSA Signing failed: %v", err)
-	}
-
-	cmdVerifyECDSA := "go"
-	argsVerifyECDSA := []string{
-		"run", "crypto_vault_cli.go", "verify-ecc", "--input-file", inputFile, "--public-key", "your-generated-public-key", "--signature-file", signatureFile,
-	}
-
-	_, err = runCommand(t, cmdVerifyECDSA, argsVerifyECDSA)
-	if err != nil {
-		t.Fatalf("ECDSA Verification failed: %v", err)
-	}
-}
-
 func TestPKCS11KeyManagement(t *testing.T) {
 
+	// Store PKCS#11 settings
 	cmdStorePKCS11 := "go"
 	argsStorePKCS11 := []string{
 		"run", "crypto_vault_cli.go", "store-pkcs11-settings", "--module", "/usr/lib/softhsm/libsofthsm2.so", "--so-pin", "1234", "--user-pin", "5678", "--slot-id", "0x0",
@@ -130,6 +160,7 @@ func TestPKCS11KeyManagement(t *testing.T) {
 		t.Fatalf("Storing PKCS#11 settings failed: %v", err)
 	}
 
+	// Add RSA Key
 	cmdAddRSAKey := "go"
 	argsAddRSAKey := []string{"run", "crypto_vault_cli.go", "add-key", "--token-label", "my-token", "--object-label", "my-rsa-key", "--key-type", "RSA", "--key-size", "2048"}
 
@@ -138,6 +169,7 @@ func TestPKCS11KeyManagement(t *testing.T) {
 		t.Fatalf("Adding RSA Key to PKCS#11 failed: %v", err)
 	}
 
+	// List Objects
 	cmdListObjects := "go"
 	argsListObjects := []string{"run", "crypto_vault_cli.go", "list-objects", "--token-label", "my-token"}
 
@@ -146,6 +178,7 @@ func TestPKCS11KeyManagement(t *testing.T) {
 		t.Fatalf("Listing PKCS#11 objects failed: %v", err)
 	}
 
+	// Delete RSA Key
 	cmdDeleteRSAKey := "go"
 	argsDeleteRSAKey := []string{"run", "crypto_vault_cli.go", "delete-object", "--token-label", "my-token", "--object-label", "my-rsa-key", "--object-type", "pubkey"}
 
