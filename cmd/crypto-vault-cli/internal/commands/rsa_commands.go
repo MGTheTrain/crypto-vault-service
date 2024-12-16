@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"crypto/rsa"
-
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
@@ -44,17 +42,14 @@ func NewRSACommandHandler() *RSACommandHandler {
 	}
 }
 
-// EncryptRSACmd encrypts a file using RSA and saves asymmetric key pairs
-func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args []string) {
-	inputFile, _ := cmd.Flags().GetString("input-file")
-	outputFile, _ := cmd.Flags().GetString("output-file")
+// GenerateRSAKeysCmd generates RSA key pairs and persists those in a selected directory
+func (commandHandler *RSACommandHandler) GenerateRSAKeysCmd(cmd *cobra.Command, args []string) {
+	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
-
-	var publicKey *rsa.PublicKey
 
 	uniqueID := uuid.New()
 
-	privateKey, publicKey, err := commandHandler.rsa.GenerateKeys(2048)
+	privateKey, publicKey, err := commandHandler.rsa.GenerateKeys(keySize)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -70,6 +65,19 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 
 	publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
 	err = commandHandler.rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+}
+
+// EncryptRSACmd encrypts a file using RSA and saves asymmetric key pairs
+func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args []string) {
+	inputFile, _ := cmd.Flags().GetString("input-file")
+	outputFile, _ := cmd.Flags().GetString("output-file")
+	publicKeyPath, _ := cmd.Flags().GetString("public-key")
+
+	publicKey, err := commandHandler.rsa.ReadPublicKey(publicKeyPath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -102,24 +110,6 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 	outputFile, _ := cmd.Flags().GetString("output-file")
 	privateKeyPath, _ := cmd.Flags().GetString("private-key")
 
-	var privateKey *rsa.PrivateKey
-
-	if privateKeyPath == "" {
-
-		privKey, _, err := commandHandler.rsa.GenerateKeys(2048)
-		if err != nil {
-			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-			return
-		}
-		privateKey = privKey
-
-		err = commandHandler.rsa.SavePrivateKeyToFile(privateKey, "private-key.pem")
-		if err != nil {
-			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-			return
-		}
-
-	}
 	privateKey, err := commandHandler.rsa.ReadPrivateKey(privateKeyPath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -147,17 +137,103 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 	commandHandler.Logger.Info(fmt.Sprintf("Decrypted data path %s", outputFile))
 }
 
+// SignRSACmd signs a file using RSA and saves the signature
+func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []string) {
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	signatureFilePath, _ := cmd.Flags().GetString("output-file")
+	privateKeyPath, _ := cmd.Flags().GetString("private-key")
+
+	// Read private key
+	privateKey, err := commandHandler.rsa.ReadPrivateKey(privateKeyPath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	// Read data to sign
+	data, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	// Sign the data
+	signature, err := commandHandler.rsa.Sign(data, privateKey)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	// Save the signature to a file
+	err = os.WriteFile(signatureFilePath, signature, 0644)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	commandHandler.Logger.Info(fmt.Sprintf("Signature saved at %s", signatureFilePath))
+}
+
+// VerifyRSACmd verifies a signature using RSA
+func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, args []string) {
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
+	publicKeyPath, _ := cmd.Flags().GetString("public-key")
+
+	// Read public key
+	publicKey, err := commandHandler.rsa.ReadPublicKey(publicKeyPath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	// Read data and signature
+	data, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	signature, err := os.ReadFile(signatureFilePath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	// Verify the signature
+	valid, err := commandHandler.rsa.Verify(data, signature, publicKey)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	if valid {
+		commandHandler.Logger.Info("Signature is valid")
+	} else {
+		commandHandler.Logger.Error("Signature is invalid")
+	}
+}
+
 func InitRSACommands(rootCmd *cobra.Command) {
 	handler := NewRSACommandHandler()
+
+	var generateRSAKeysCmd = &cobra.Command{
+		Use:   "generate-rsa-keys",
+		Short: "Generate RSA keys",
+		Run:   handler.GenerateRSAKeysCmd,
+	}
+	generateRSAKeysCmd.Flags().IntP("key-size", "", 2048, "RSA key size (default 2048 bytes for RSA-2048)")
+	generateRSAKeysCmd.Flags().StringP("key-dir", "", "", "Directory to store the RSA keys")
+	rootCmd.AddCommand(generateRSAKeysCmd)
 
 	var encryptRSAFileCmd = &cobra.Command{
 		Use:   "encrypt-rsa",
 		Short: "Encrypt a file using RSA",
 		Run:   handler.EncryptRSACmd,
 	}
-	encryptRSAFileCmd.Flags().StringP("input-file", "", "", "Input file path")
-	encryptRSAFileCmd.Flags().StringP("output-file", "", "", "Output encrypted file path")
-	encryptRSAFileCmd.Flags().StringP("key-dir", "", "", "Directory to store the encryption key")
+	encryptRSAFileCmd.Flags().StringP("input-file", "", "", "Path to input file which needs to be encrypted")
+	encryptRSAFileCmd.Flags().StringP("output-file", "", "", "Path to encrypted output file")
+	encryptRSAFileCmd.Flags().StringP("public-key", "", "", "Path to RSA public private key")
 	rootCmd.AddCommand(encryptRSAFileCmd)
 
 	var decryptRSAFileCmd = &cobra.Command{
@@ -165,8 +241,30 @@ func InitRSACommands(rootCmd *cobra.Command) {
 		Short: "Decrypt a file using RSA",
 		Run:   handler.DecryptRSACmd,
 	}
-	decryptRSAFileCmd.Flags().StringP("input-file", "", "", "Input encrypted file path")
-	decryptRSAFileCmd.Flags().StringP("output-file", "", "", "Output decrypted file path")
+	decryptRSAFileCmd.Flags().StringP("input-file", "", "", "Path to encrypted file")
+	decryptRSAFileCmd.Flags().StringP("output-file", "", "", "Path to decrypted output file")
 	decryptRSAFileCmd.Flags().StringP("private-key", "", "", "Path to RSA private key")
 	rootCmd.AddCommand(decryptRSAFileCmd)
+
+	var signRSAFileCmd = &cobra.Command{
+		Use:   "sign-rsa",
+		Short: "Sign a file using RSA",
+		Run:   handler.SignRSACmd,
+	}
+
+	signRSAFileCmd.Flags().StringP("input-file", "", "", "Path to file which needs to be signed")
+	signRSAFileCmd.Flags().StringP("output-file", "", "", "Path to signature output file")
+	signRSAFileCmd.Flags().StringP("private-key", "", "", "Path to RSA private key")
+	rootCmd.AddCommand(signRSAFileCmd)
+
+	var verifyRSAFileCmd = &cobra.Command{
+		Use:   "verify-rsa",
+		Short: "Verify a file is valid using RSA",
+		Run:   handler.VerifyRSACmd,
+	}
+
+	verifyRSAFileCmd.Flags().StringP("input-file", "", "", "Path to file which needs to be validated")
+	verifyRSAFileCmd.Flags().StringP("signature-file", "", "", "Path to signature input file")
+	verifyRSAFileCmd.Flags().StringP("public-key", "", "", "Path to RSA public key")
+	rootCmd.AddCommand(verifyRSAFileCmd)
 }

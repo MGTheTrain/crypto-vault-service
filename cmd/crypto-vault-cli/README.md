@@ -4,14 +4,9 @@
 
 - [Summary](#summary)
 - [Getting Started](#getting-started)
-  - [Encryption and Decryption](#encryption-and-decryption)
-    - [AES Example](#aes-example)
-    - [RSA Example](#rsa-example)
-    - [PKCS#11 Encryption and Decryption](#pkcs11-encryption-and-decryption)
-  - [Signing and Verifying Signatures](#signing-and-verifying-signatures)
-    - [ECDSA Example](#ecdsa-example)
-    - [PKCS#11 Signing and Verifying](#pkcs11-signing-and-verifying)
-  - [PKCS#11 key management operations](#pkcs11-key-management-operations)
+  - [AES Example](#aes-example)
+  - [RSA Example](#rsa-example)
+  - [PKCS#11 Example](#pkcs11-example)
 - [Running the e2e-test](#running-the-e2e-test)
 
 
@@ -21,84 +16,55 @@
 
 ## Getting Started
 
-### Encryption and Decryption
-
-#### AES example
-
-*NOTE:* Keys will be generated internally during the encryption operations.
+### AES example
 
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
+# Generate AES keys
+go run crypto_vault_cli.go generate-aes-keys --key-size 16 --key-dir data/
 # Encryption
-go run crypto_vault_cli.go encrypt-aes --input-file data/input.txt --output-file data/${uuid}-output.enc --key-size 16 --key-dir data/
+go run crypto_vault_cli.go encrypt-aes --input-file data/input.txt --output-file data/${uuid}-output.enc --symmetric-key <your generated symmetric key>
 # Decryption
-go run crypto_vault_cli.go decrypt-aes --input-file data/${uuid}-output.enc --output-file data/${uuid}-decrypted.txt --symmetric-key <your generated symmetric key from previous encryption operation>
+go run crypto_vault_cli.go decrypt-aes --input-file data/${uuid}-output.enc --output-file data/${uuid}-decrypted.txt --symmetric-key <your generated symmetric key>
 ```
 
-#### RSA Example
-
-*NOTE:* Keys will be generated internally during the encryption operations.
+### RSA Example
 
 ```sh
 uuid=$(cat /proc/sys/kernel/random/uuid)
 
+# Generate RSA keys
+go run crypto_vault_cli.go generate-rsa-keys --key-size 2048 --key-dir data/
+
 # Encryption
-go run crypto_vault_cli.go encrypt-rsa --input-file data/input.txt --output-file data/${uuid}-encrypted.txt --key-dir data/
+go run crypto_vault_cli.go encrypt-rsa --input-file data/input.txt --output-file data/${uuid}-encrypted.txt --public-key <your generated public key>
 
 # Decryption
-go run crypto_vault_cli.go decrypt-rsa --input-file data/${uuid}-encrypted.txt --output-file data/${uuid}-decrypted.txt --private-key <your generated private key from previous encryption operation>
+go run crypto_vault_cli.go decrypt-rsa --input-file data/${uuid}-encrypted.txt --output-file data/${uuid}-decrypted.txt --private-key <your generated private key>
+
+# Sign
+go run crypto_vault_cli.go sign-rsa --input-file data/input.txt --output-file data/${uuid}-signature.bin --private-key <your generated private key>
+
+# Verify
+go run crypto_vault_cli.go verify-rsa --input-file data/input.txt --signature-file data/${uuid}-signature.bin --public-key <your generated public key>
 ```
 
-#### PKCS#11 encryption and decryption
-
-*NOTE:* Requires RSA keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or utilize commands in [PKCS#11 key management operations](#pkcs11-key-management-operations):
+### ECDSA Example
 
 ```sh
-# RSA-PKCS
-# Encryption
-go run crypto_vault_cli.go encrypt --token-label my-token --object-label my-rsa-key --key-type RSA --input-file data/input.txt --output-file data/encrypted-output.enc
+uuid=$(cat /proc/sys/kernel/random/uuid)
 
-# Decryption
-go run crypto_vault_cli.go decrypt --token-label my-token --object-label my-rsa-key --key-type RSA --input-file data/encrypted-output.enc --output-file data/decrypted-output.txt
-```
+# Generate ECC keys
+go run crypto_vault_cli.go generate-ecc-keys --key-size 256 --key-dir data/
 
----
-
-### Signing and Verifying signatures
-
-#### ECDSA Example
-
-*NOTE:* Keys will be generated internally during signature generation operations.
-
-```sh
 # Sign a file with a newly generated ECC key pair (internally generated)
-go run crypto_vault_cli.go sign-ecc --input-file data/input.txt --key-dir data
+go run crypto_vault_cli.go sign-ecc --input-file data/input.txt  --output-file data/${uuid}-signature.bin --private-key <your generated private key>
 
 # Verify the signature using the generated public key
-go run crypto_vault_cli.go verify-ecc --input-file data/input.txt --public-key <your generated public key from previous signing operation> --signature-file <your generated signature file from previous signing operation>
+go run crypto_vault_cli.go verify-ecc --input-file data/input.txt --signature-file data/${uuid}-signature.bin --public-key <your generated public key> 
 ```
 
-#### PKCS#11 signing and verifying
-
-*NOTE:* Requires RSA or EC keys managed in FIPS-compliant software or hardware trough `pkcs11-tool` or utilize commands in [PKCS#11 key management operations](#pkcs11-key-management-operations):
-
-```sh
-# RSA-PSS
-# Sign data with a PKCS#11 token
-go run crypto_vault_cli.go sign --token-label my-token --object-label my-rsa-key --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
-
-# Verify the signature using the generated public key from the PKCS#11 token
-go run crypto_vault_cli.go verify --token-label my-token --object-label my-rsa-key --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
-
-# ECDSA
-# Sign data with a PKCS#11 token
-go run crypto_vault_cli.go sign --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
-
-# Verify the signature using the generated public key from the PKCS#11 token
-go run crypto_vault_cli.go verify --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
-```
-
----
+### PKCS#11 example
 
 ### PKCS#11 key management operations
 
@@ -125,6 +91,27 @@ go run crypto_vault_cli.go list-objects --token-label "my-token"
 # Delete an object (e.g., RSA or EC key) from the PKCS#11 token
 go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type pubkey
 go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type privkey
+
+# RSA-PKCS
+# Encryption
+go run crypto_vault_cli.go encrypt --token-label my-token --object-label my-rsa-key --key-type RSA --input-file data/input.txt --output-file data/encrypted-output.enc
+
+# Decryption
+go run crypto_vault_cli.go decrypt --token-label my-token --object-label my-rsa-key --key-type RSA --input-file data/encrypted-output.enc --output-file data/decrypted-output.txt
+
+# RSA-PSS
+# Sign data with a PKCS#11 token
+go run crypto_vault_cli.go sign --token-label my-token --object-label my-rsa-key --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
+
+# Verify the signature using the generated public key from the PKCS#11 token
+go run crypto_vault_cli.go verify --token-label my-token --object-label my-rsa-key --key-type RSA --data-file data/input.txt --signature-file data/signature.sig
+
+# ECDSA
+# Sign data with a PKCS#11 token
+go run crypto_vault_cli.go sign --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
+
+# Verify the signature using the generated public key from the PKCS#11 token
+go run crypto_vault_cli.go verify --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
 ```
 
 ## Running the e2e-test

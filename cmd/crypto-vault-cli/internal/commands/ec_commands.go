@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
@@ -45,37 +44,33 @@ func NewECCommandHandler() *ECCommandHandler {
 	}
 }
 
-// SignECCCmd signs the contents of a file with ECDSA
-func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []string) {
-
-	inputFile, _ := cmd.Flags().GetString("input-file")
+// GenerateECKeysCmd generates EC key pairs and persists those in a selected directory
+func (commandHandler *ECCommandHandler) GenerateECKeysCmd(cmd *cobra.Command, args []string) {
+	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
-
-	var privateKey *ecdsa.PrivateKey
-	var publicKey *ecdsa.PublicKey
-
-	privateKey, publicKey, err := commandHandler.ec.GenerateKeys(elliptic.P256())
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	fileContent, err := os.ReadFile(inputFile)
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	signature, err := commandHandler.ec.Sign(fileContent, privateKey)
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
 
 	uniqueID := uuid.New()
 
-	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
+	var curve elliptic.Curve
+	if keySize == 224 {
+		curve = elliptic.P224()
+	} else if keySize == 256 {
+		curve = elliptic.P256()
+	} else if keySize == 384 {
+		curve = elliptic.P384()
+	} else if keySize == 521 {
+		curve = elliptic.P521()
+	} else {
+		commandHandler.Logger.Error(fmt.Sprintf("key size %v not supported", keySize))
+		return
+	}
+	privateKey, publicKey, err := commandHandler.ec.GenerateKeys(curve)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
 
+	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 	err = commandHandler.ec.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -88,8 +83,32 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []st
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
+}
 
-	signatureFilePath := fmt.Sprintf("%s/%s-signature.sig", keyDir, uniqueID.String())
+// SignECCCmd signs the contents of a file with ECDSA
+func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []string) {
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	privateKeyFilePath, _ := cmd.Flags().GetString("private-key")
+	signatureFilePath, _ := cmd.Flags().GetString("output-file")
+
+	fileContent, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	privateKey, err := commandHandler.ec.ReadPrivateKey(privateKeyFilePath, elliptic.P256())
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	signature, err := commandHandler.ec.Sign(fileContent, privateKey)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
 	err = commandHandler.ec.SaveSignatureToFile(signatureFilePath, signature)
 	if err != nil {
 		if err != nil {
@@ -104,13 +123,6 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
 	signatureFile, _ := cmd.Flags().GetString("signature-file")
-
-	var publicKey *ecdsa.PublicKey
-
-	if publicKeyPath == "" {
-		commandHandler.Logger.Error("Public key is required for ECC signature verification")
-		return
-	}
 
 	publicKey, err := commandHandler.ec.ReadPublicKey(publicKeyPath, elliptic.P256())
 	if err != nil {
@@ -152,13 +164,23 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []
 func InitECDSACommands(rootCmd *cobra.Command) {
 	handler := NewECCommandHandler()
 
+	var generateECKeysCmd = &cobra.Command{
+		Use:   "generate-ecc-keys",
+		Short: "Generate ECC keys",
+		Run:   handler.GenerateECKeysCmd,
+	}
+	generateECKeysCmd.Flags().IntP("key-size", "", 256, "ECC key size (default 256 bytes for ECC-256)")
+	generateECKeysCmd.Flags().StringP("key-dir", "", "", "Directory to store the ECC keys")
+	rootCmd.AddCommand(generateECKeysCmd)
+
 	var signECCMessageCmd = &cobra.Command{
 		Use:   "sign-ecc",
 		Short: "Sign a message using ECC",
 		Run:   handler.SignECCCmd,
 	}
 	signECCMessageCmd.Flags().StringP("input-file", "", "", "Path to file that needs to be signed")
-	signECCMessageCmd.Flags().StringP("key-dir", "", "", "Directory to save generated keys (optional)")
+	signECCMessageCmd.Flags().StringP("private-key", "", "", "Path to ECC private key")
+	signECCMessageCmd.Flags().StringP("output-file", "", "", "Path to signature output file")
 	rootCmd.AddCommand(signECCMessageCmd)
 
 	var verifyECCSignatureCmd = &cobra.Command{
@@ -166,8 +188,8 @@ func InitECDSACommands(rootCmd *cobra.Command) {
 		Short: "Verify a signature using ECC",
 		Run:   handler.VerifyECCCmd,
 	}
-	verifyECCSignatureCmd.Flags().StringP("input-file", "", "", "Path to ECC public key")
-	verifyECCSignatureCmd.Flags().StringP("public-key", "", "", "The public key used to verify the signature")
-	verifyECCSignatureCmd.Flags().StringP("signature-file", "", "", "Signature to verify (hex format)")
+	verifyECCSignatureCmd.Flags().StringP("input-file", "", "", "Path to file which needs to be validated")
+	verifyECCSignatureCmd.Flags().StringP("public-key", "", "", "Path to ECC public key")
+	verifyECCSignatureCmd.Flags().StringP("signature-file", "", "", "Path to signature input file")
 	rootCmd.AddCommand(verifyECCSignatureCmd)
 }

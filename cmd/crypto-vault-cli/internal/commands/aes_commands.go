@@ -43,20 +43,41 @@ func NewAESCommandHandler() *AESCommandHandler {
 	}
 }
 
-// EncryptAESCmd encrypts a file using AES and saves the symmetric key with a UUID prefix
-func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args []string) {
-	inputFilePath, _ := cmd.Flags().GetString("input-file")
-	outputFilePath, _ := cmd.Flags().GetString("output-file")
+// GenerateAESKeysCmd generates AES key pairs and persists those in a selected directory
+func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, args []string) {
 	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
 
-	key, err := commandHandler.aes.GenerateKey(keySize)
+	uniqueID := uuid.New()
+
+	secretKey, err := commandHandler.aes.GenerateKey(keySize)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
+	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric-key.bin", uniqueID))
+	err = os.WriteFile(keyFilePath, secretKey, 0644)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+	commandHandler.Logger.Info(fmt.Sprintf("AES key saved to %s", keyFilePath))
+}
+
+// EncryptAESCmd encrypts a file using AES and saves the symmetric key with a UUID prefix
+func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args []string) {
+	inputFilePath, _ := cmd.Flags().GetString("input-file")
+	outputFilePath, _ := cmd.Flags().GetString("output-file")
+	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
+
 	plainText, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
+		return
+	}
+
+	key, err := os.ReadFile(symmetricKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -74,16 +95,7 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	uniqueID := uuid.New().String()
-
-	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric-key.bin", uniqueID))
-	err = os.WriteFile(keyFilePath, key, 0644)
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
-	}
-
-	commandHandler.Logger.Info(fmt.Sprintf("Encrypted data saved to %s. AES key saved to %s", outputFilePath, keyFilePath))
+	commandHandler.Logger.Info(fmt.Sprintf("Encrypted data saved to %s", outputFilePath))
 }
 
 // DecryptAESCmd decrypts a file using AES and reads the corresponding symmetric key with a UUID prefix
@@ -122,15 +134,23 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args 
 func InitAESCommands(rootCmd *cobra.Command) {
 	handler := NewAESCommandHandler()
 
+	var generateAESKeysCmd = &cobra.Command{
+		Use:   "generate-aes-keys",
+		Short: "Generate AES keys",
+		Run:   handler.GenerateAESKeysCmd,
+	}
+	generateAESKeysCmd.Flags().IntP("key-size", "", 16, "AES key size (default 16 bytes for AES-128)")
+	generateAESKeysCmd.Flags().StringP("key-dir", "", "", "Directory to store the encryption key")
+	rootCmd.AddCommand(generateAESKeysCmd)
+
 	var encryptAESFileCmd = &cobra.Command{
 		Use:   "encrypt-aes",
 		Short: "Encrypt a file using AES",
 		Run:   handler.EncryptAESCmd,
 	}
-	encryptAESFileCmd.Flags().StringP("input-file", "", "", "Input file path")
-	encryptAESFileCmd.Flags().StringP("output-file", "", "", "Output encrypted file path")
-	encryptAESFileCmd.Flags().IntP("key-size", "", 16, "AES key size (default 16 bytes for AES-128)")
-	encryptAESFileCmd.Flags().StringP("key-dir", "", "", "Directory to store the encryption key")
+	encryptAESFileCmd.Flags().StringP("input-file", "", "", "Path to input file that needs to be encrypted")
+	encryptAESFileCmd.Flags().StringP("output-file", "", "", "Path to encrypted output file")
+	encryptAESFileCmd.Flags().StringP("symmetric-key", "", "", "Path to the symmetric key")
 	rootCmd.AddCommand(encryptAESFileCmd)
 
 	var decryptAESFileCmd = &cobra.Command{
@@ -138,8 +158,8 @@ func InitAESCommands(rootCmd *cobra.Command) {
 		Short: "Decrypt a file using AES",
 		Run:   handler.DecryptAESCmd,
 	}
-	decryptAESFileCmd.Flags().StringP("input-file", "i", "", "Input encrypted file path")
-	decryptAESFileCmd.Flags().StringP("output-file", "o", "", "Output decrypted file path")
-	decryptAESFileCmd.Flags().StringP("symmetric-key", "k", "", "Path to the symmetric key")
+	decryptAESFileCmd.Flags().StringP("input-file", "", "", "Input encrypted file path")
+	decryptAESFileCmd.Flags().StringP("output-file", "", "", "Path to decrypted output file")
+	decryptAESFileCmd.Flags().StringP("symmetric-key", "", "", "Path to the symmetric key")
 	rootCmd.AddCommand(decryptAESFileCmd)
 }
