@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/logger"
+	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
 	"log"
 	"os"
@@ -34,26 +35,30 @@ type VaultConnector interface {
 // like Azure Key Vault or AWS KMS.
 type AzureVaultConnector struct {
 	Client        *azblob.Client
-	ContainerName string
+	containerName string
 	Logger        logger.Logger
 }
 
 // NewAzureVaultConnector creates a new instance of AzureVaultConnector, which connects to Azure Blob Storage.
 // This method can be updated in the future to support a more sophisticated key management system like Azure Key Vault.
-func NewAzureVaultConnector(connectionString string, containerName string, logger logger.Logger) (*AzureVaultConnector, error) {
-	client, err := azblob.NewClientFromConnectionString(connectionString, nil)
+func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logger.Logger) (*AzureVaultConnector, error) {
+	if err := settings.Validate(); err != nil {
+		return nil, err
+	}
+
+	client, err := azblob.NewClientFromConnectionString(settings.ConnectionString, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	_, err = client.CreateContainer(context.Background(), containerName, nil)
+	_, err = client.CreateContainer(context.Background(), settings.ContainerName, nil)
 	if err != nil {
-		log.Printf("Failed to create Azure container: %v\n", err) // The container may already exist, so we should not return an error in this case.
+		log.Printf("Failed to create Azure container: %v\n", err)
 	}
 
 	return &AzureVaultConnector{
 		Client:        client,
-		ContainerName: containerName,
+		containerName: settings.ContainerName,
 		Logger:        logger,
 	}, nil
 }
@@ -85,7 +90,7 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 
 	fullKeyName := fmt.Sprintf("%s/%s", keyID, keyType)
 
-	_, err = vc.Client.UploadBuffer(context.Background(), vc.ContainerName, fullKeyName, buf.Bytes(), nil)
+	_, err = vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, buf.Bytes(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
 	}
@@ -100,7 +105,7 @@ func (vc *AzureVaultConnector) Download(keyId, keyType string) ([]byte, error) {
 	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
 
 	ctx := context.Background()
-	get, err := vc.Client.DownloadStream(ctx, vc.ContainerName, fullKeyName, nil)
+	get, err := vc.Client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download blob '%s': %w", fullKeyName, err)
 	}
@@ -120,7 +125,7 @@ func (vc *AzureVaultConnector) Delete(keyId, keyType string) error {
 	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
 
 	ctx := context.Background()
-	_, err := vc.Client.DeleteBlob(ctx, vc.ContainerName, fullKeyName, nil)
+	_, err := vc.Client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
 		return fmt.Errorf("failed to delete blob '%s': %w", fullKeyName, err)
 	}

@@ -12,7 +12,7 @@ type LoggerSettings struct {
 	FilePath string `validate:"required_if=LogType file"` // File path is required only if LogType is "file"
 }
 
-// Validate checks that all fields in PKCS11Settings are valid (non-empty in this case)
+// Validate checks that all fields in LoggerSettings are valid (non-empty in this case)
 func (settings *LoggerSettings) Validate() error {
 	validate := validator.New()
 

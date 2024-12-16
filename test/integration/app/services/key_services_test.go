@@ -34,9 +34,11 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
 
-	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-	containerName := "testblobs"
-	vaultConnector, err := connector.NewAzureVaultConnector(connectionString, containerName, logger)
+	keyConnectorSettings := &settings.KeyConnectorSettings{
+		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
+		ContainerName:    "testblobs",
+	}
+	vaultConnector, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
 	require.NoError(t, err, "Error creating vault connector")
 
 	cryptoKeyUploadService := &services.CryptoKeyUploadService{
@@ -145,9 +147,11 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
 
-	connectionString := "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-	containerName := "testblobs"
-	vaultConnector, err := connector.NewAzureVaultConnector(connectionString, containerName, logger)
+	blobConnectorSettings := &settings.BlobConnectorSettings{
+		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
+		ContainerName:    "testblobs",
+	}
+	vaultConnector, err := connector.NewAzureVaultConnector((*settings.KeyConnectorSettings)(blobConnectorSettings), logger)
 	require.NoError(t, err, "Error creating vault connector")
 
 	cryptoKeyUploadService := &services.CryptoKeyUploadService{

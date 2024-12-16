@@ -148,16 +148,44 @@ func (rt *RSATests) TestSavePublicKeyInvalidPath(t *testing.T) {
 	assert.Error(t, err, "Saving public key to an invalid path should return an error")
 }
 
+// TestSignAndVerify tests signing and verification with RSA keys
+func (rt *RSATests) TestSignAndVerify(t *testing.T) {
+	// Generate RSA keys
+	privateKey, publicKey, err := rt.rsa.GenerateKeys(2048)
+	assert.NoError(t, err, "Error generating RSA keys")
+
+	// Data to sign
+	data := []byte("This is a test message")
+
+	// Sign the data
+	signature, err := rt.rsa.Sign(data, privateKey)
+	assert.NoError(t, err, "Error signing the data")
+	assert.NotNil(t, signature, "Signature should not be nil")
+
+	// Verify the signature
+	valid, err := rt.rsa.Verify(data, signature, publicKey)
+	if err != nil {
+		t.Errorf("Error verifying the signature: %v", err)
+	}
+	assert.NoError(t, err, "Error verifying the signature")
+	assert.True(t, valid, "Signature should be valid")
+
+	// Tamper with the data and verify again (should fail)
+	tamperedData := []byte("This is a tampered message")
+	valid, err = rt.rsa.Verify(tamperedData, signature, publicKey)
+	assert.Error(t, err, "Error verifying the tampered signature")
+	assert.False(t, valid, "Signature should be invalid for tampered data")
+}
+
 // TestRSA is the entry point to run the RSA tests
 func TestRSA(t *testing.T) {
-	// Create a new RSA test suite instance
 	rt := NewRSATests(t)
 
-	// Run each test method
 	t.Run("TestGenerateRSAKeys", rt.TestGenerateRSAKeys)
 	t.Run("TestEncryptDecrypt", rt.TestEncryptDecrypt)
 	t.Run("TestSaveAndReadKeys", rt.TestSaveAndReadKeys)
 	t.Run("TestEncryptWithInvalidKey", rt.TestEncryptWithInvalidKey)
 	t.Run("TestSavePrivateKeyInvalidPath", rt.TestSavePrivateKeyInvalidPath)
 	t.Run("TestSavePublicKeyInvalidPath", rt.TestSavePublicKeyInvalidPath)
+	t.Run("TestSignAndVerify", rt.TestSignAndVerify)
 }

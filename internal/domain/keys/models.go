@@ -18,13 +18,12 @@ type CryptoKeyMeta struct {
 
 // Validate for validating CryptoKeyMeta struct
 func (k *CryptoKeyMeta) Validate() error {
-	// Initialize the validator
+
 	validate := validator.New()
 
-	// Validate the struct
 	err := validate.Struct(k)
 	if err != nil {
-		// If validation fails, return a formatted error
+
 		var validationErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
