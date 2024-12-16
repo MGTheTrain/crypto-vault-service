@@ -25,9 +25,7 @@ func NewAESCommandHandler() *AESCommandHandler {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Panicf("Error creating logger: %v", err)
 		return nil

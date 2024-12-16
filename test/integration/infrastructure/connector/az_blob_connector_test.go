@@ -22,9 +22,7 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}
@@ -66,9 +64,7 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}
@@ -109,9 +105,7 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 		FilePath: "",
 	}
 
-	factory := &logger.LoggerFactory{}
-
-	logger, err := factory.NewLogger(loggerSettings)
+	logger, err := logger.GetLogger(loggerSettings)
 	if err != nil {
 		log.Fatalf("Error creating logger: %v", err)
 	}

@@ -3,6 +3,7 @@ package logger
 import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
+	"sync"
 
 	"github.com/natefinch/lumberjack"
 	"github.com/sirupsen/logrus"
@@ -95,11 +96,33 @@ func (l *FileLogger) Panic(args ...interface{}) {
 	l.logger.Panic(args...)
 }
 
-// LoggerFactory is a factory that creates different types of loggers.
-type LoggerFactory struct{}
+var (
+	// Singleton logger instance, shared across the application
+	loggerInstance Logger
+	loggerOnce     sync.Once // Guarantees that the logger is created only once
+)
 
-// NewLogger creates a logger based on the given configuration.
-func (f *LoggerFactory) NewLogger(config *settings.LoggerSettings) (Logger, error) {
+// GetLogger returns a singleton logger instance, shared across the application.
+func GetLogger(settings *settings.LoggerSettings) (Logger, error) {
+	// Ensure that the logger is created only once
+	loggerOnce.Do(func() {
+		// Create the logger based on the config
+		logger, err := newLogger(settings)
+		if err == nil {
+			loggerInstance = logger
+		}
+	})
+
+	// If the loggerInstance is already created, just return it
+	if loggerInstance != nil {
+		return loggerInstance, nil
+	}
+
+	return nil, fmt.Errorf("failed to create logger")
+}
+
+// newLogger creates a logger based on the given configuration.
+func newLogger(config *settings.LoggerSettings) (Logger, error) {
 	err := config.Validate()
 	if err != nil {
 		return nil, err
