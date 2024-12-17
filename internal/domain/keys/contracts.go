@@ -1,10 +1,12 @@
 package keys
 
+import "mime/multipart"
+
 // ICryptoKeyUploadService defines methods for uploading cryptographic keys.
 type ICryptoKeyUploadService interface {
-	// Upload uploads cryptographic keys from specified file paths.
+	// Upload uploads cryptographic keys
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(filePath, userId, keyType, keyAlgorihm string) (*CryptoKeyMeta, error)
+	Upload(form *multipart.Form, userId, keyType, keyAlgorihm string) (*CryptoKeyMeta, error)
 }
 
 // ICryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
