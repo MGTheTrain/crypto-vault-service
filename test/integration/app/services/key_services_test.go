@@ -46,18 +46,21 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 		CryptoKeyRepo:  ctx.CryptoKeyRepo,
 	}
 
-	testFilePath := "testfile.pem"
-	testFileContent := []byte("This is a test file content.")
-
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	// Test file content
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+	err = helpers.CreateTestFile(testFileName, testFileContent)
 	require.NoError(t, err)
+	defer os.Remove(testFileName)
 
-	defer os.Remove(testFilePath)
+	// Create multipart form with file header
+	form, err := helpers.CreateForm(testFileContent, testFileName)
+	require.NoError(t, err)
 
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
-	keyMeta, err := cryptoKeyUploadService.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	keyMeta, err := cryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
 
 	require.NoError(t, err, "Error uploading file")
 
@@ -68,7 +71,7 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 
 // Test case for successful retrieval of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
-	//
+
 	ctx := helpers.SetupTestDB(t)
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
@@ -100,7 +103,7 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
 // Test case for successful deletion of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
-	//
+
 	ctx := helpers.SetupTestDB(t)
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
@@ -159,18 +162,21 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 		CryptoKeyRepo:  ctx.CryptoKeyRepo,
 	}
 
-	testFilePath := "testfile.pem"
-	testFileContent := []byte("This is a test file content.")
-
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	// Test file content
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+	err = helpers.CreateTestFile(testFileName, testFileContent)
 	require.NoError(t, err)
+	defer os.Remove(testFileName)
 
-	defer os.Remove(testFilePath)
+	// Create multipart form with file header
+	form, err := helpers.CreateForm(testFileContent, testFileName)
+	require.NoError(t, err)
 
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
-	cryptoKeyMeta, err := cryptoKeyUploadService.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := cryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
 	require.NoError(t, err, "Error uploading file")
 
 	cryptoKeyDownloadService := &services.CryptoKeyDownloadService{
