@@ -13,6 +13,14 @@ type CryptoKeyUploadService struct {
 	CryptoKeyRepo  repository.CryptoKeyRepository
 }
 
+// NewCryptoKeyUploadService creates a new CryptoKeyUploadService instance
+func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository) (*CryptoKeyUploadService, error) {
+	return &CryptoKeyUploadService{
+		VaultConnector: vaultConnector,
+		CryptoKeyRepo:  cryptoKeyRepo,
+	}, nil
+}
+
 // Upload uploads cryptographic keys
 // It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
 func (s *CryptoKeyUploadService) Upload(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
@@ -33,6 +41,14 @@ func (s *CryptoKeyUploadService) Upload(form *multipart.Form, userId, keyType, k
 type CryptoKeyMetadataService struct {
 	VaultConnector connector.VaultConnector
 	CryptoKeyRepo  repository.CryptoKeyRepository
+}
+
+// NewCryptoKeyMetadataService creates a new CryptoKeyMetadataService instance
+func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository) (*CryptoKeyMetadataService, error) {
+	return &CryptoKeyMetadataService{
+		VaultConnector: vaultConnector,
+		CryptoKeyRepo:  cryptoKeyRepo,
+	}, nil
 }
 
 // List retrieves all cryptographic key metadata based on a query.
@@ -75,6 +91,13 @@ func (s *CryptoKeyMetadataService) DeleteByID(keyId string) error {
 // CryptoKeyDownloadService handles the download of cryptographic keys.
 type CryptoKeyDownloadService struct {
 	VaultConnector connector.VaultConnector
+}
+
+// NewCryptoKeyDownloadService creates a new CryptoKeyDownloadService instance
+func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector) (*CryptoKeyDownloadService, error) {
+	return &CryptoKeyDownloadService{
+		VaultConnector: vaultConnector,
+	}, nil
 }
 
 // Download retrieves a cryptographic key by its ID and type.

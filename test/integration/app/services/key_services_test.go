@@ -1,24 +1,30 @@
-package services
+package services_test
 
 import (
+	"os"
+	"testing"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
+
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/test/helpers"
-	"log"
-	"os"
-	"testing"
-	"time"
-
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/require"
-	"gorm.io/gorm"
 )
 
-// Test case for successful file upload and metadata creation
-func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
+type KeyServicesTest struct {
+	CryptoKeyUploadService   *services.CryptoKeyUploadService
+	CryptoKeyMetadataService *services.CryptoKeyMetadataService
+	CryptoKeyDownloadService *services.CryptoKeyDownloadService
+	DBContext                *helpers.TestDBContext
+}
+
+func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
+	// Set up logger
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
 		LogType:  "console",
@@ -26,14 +32,12 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	}
 
 	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
+	require.NoError(t, err, "Error creating logger")
 
+	// Set up DB context (sqlite)
 	ctx := helpers.SetupTestDB(t)
-	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
 
+	// Set up connector
 	keyConnectorSettings := &settings.KeyConnectorSettings{
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
@@ -41,152 +45,132 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	vaultConnector, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
 	require.NoError(t, err, "Error creating vault connector")
 
-	cryptoKeyUploadService := &services.CryptoKeyUploadService{
-		VaultConnector: vaultConnector,
-		CryptoKeyRepo:  ctx.CryptoKeyRepo,
-	}
+	// Initialize services
+	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, ctx.CryptoKeyRepo)
+	require.NoError(t, err, "Error creating CryptoKeyUploadService")
 
-	// Test file content
+	cryptoKeyMetadataService, err := services.NewCryptoKeyMetadataService(vaultConnector, ctx.CryptoKeyRepo)
+	require.NoError(t, err, "Error creating CryptoKeyMetadataService")
+
+	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector)
+	require.NoError(t, err, "Error creating CryptoKeyDownloadService")
+
+	// Return struct with services and context
+	return &KeyServicesTest{
+		CryptoKeyUploadService:   cryptoKeyUploadService,
+		CryptoKeyMetadataService: cryptoKeyMetadataService,
+		CryptoKeyDownloadService: cryptoKeyDownloadService,
+		DBContext:                ctx,
+	}
+}
+
+// Test case for successful file upload and metadata creation
+func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
+	keyServices := NewKeyServicesTest(t)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
+
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err = helpers.CreateTestFile(testFileName, testFileContent)
+	err := helpers.CreateTestFile(testFileName, testFileContent)
 	require.NoError(t, err)
 	defer os.Remove(testFileName)
-
-	// Create multipart form with file header
 	form, err := helpers.CreateForm(testFileContent, testFileName)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
-	keyMeta, err := cryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
 
-	require.NoError(t, err, "Error uploading file")
-
-	require.NotNil(t, keyMeta, "Key metadata should not be nil")
-	require.NotEmpty(t, keyMeta.ID, "KeyID should not be empty")
-	require.Equal(t, userId, keyMeta.UserID, "UserID does not match")
+	keyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	require.NoError(t, err)
+	require.NotNil(t, keyMeta)
+	require.NotEmpty(t, keyMeta.ID)
+	require.Equal(t, userId, keyMeta.UserID)
 }
 
 // Test case for successful retrieval of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
-	ctx := helpers.SetupTestDB(t)
+	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
 
-	cryptoKeyMeta := &keys.CryptoKeyMeta{
-		ID:              uuid.New().String(),
-		Type:            "public",
-		Algorithm:       "EC",
-		DateTimeCreated: time.Now(),
-		UserID:          uuid.New().String(),
-	}
-
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
-	require.NoError(t, err, "Error creating test cryptographic key metadata")
-
-	cryptoKeyMetadataService := &services.CryptoKeyMetadataService{
-		CryptoKeyRepo: ctx.CryptoKeyRepo,
-	}
-
-	fetchedCryptoKeyMeta, err := cryptoKeyMetadataService.GetByID(cryptoKeyMeta.ID)
-
-	require.NoError(t, err, "Error retrieving cryptographic key metadata")
-
-	require.NotNil(t, fetchedCryptoKeyMeta, "Fetched cryptographic key metadata should not be nil")
-	require.Equal(t, cryptoKeyMeta.ID, fetchedCryptoKeyMeta.ID, "ID should match")
-	require.Equal(t, cryptoKeyMeta.Type, fetchedCryptoKeyMeta.Type, "Type should match")
-	require.Equal(t, cryptoKeyMeta.Algorithm, fetchedCryptoKeyMeta.Algorithm, "Algorithm should match")
-}
-
-// Test case for successful deletion of cryptographic key metadata by ID
-func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
-
-	ctx := helpers.SetupTestDB(t)
-	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
-
-	cryptoKeyMeta := &keys.CryptoKeyMeta{
-		ID:              uuid.New().String(),
-		Type:            "private",
-		Algorithm:       "RSA",
-		DateTimeCreated: time.Now(),
-		UserID:          uuid.New().String(),
-	}
-
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
-	require.NoError(t, err, "Error creating test cryptographic key metadata")
-
-	cryptoKeyMetadataService := &services.CryptoKeyMetadataService{
-		CryptoKeyRepo: ctx.CryptoKeyRepo,
-	}
-
-	err = cryptoKeyMetadataService.DeleteByID(cryptoKeyMeta.ID)
-
-	require.NoError(t, err, "Error deleting cryptographic key metadata")
-
-	var deletedCryptoKeyMeta keys.CryptoKeyMeta
-	err = ctx.DB.First(&deletedCryptoKeyMeta, "id = ?", cryptoKeyMeta.ID).Error
-	require.Error(t, err, "Cryptographic key metadata should be deleted")
-	require.Equal(t, gorm.ErrRecordNotFound, err, "Error should be 'record not found'")
-}
-
-// Test case for successful download of cryptographic key
-func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
-	loggerSettings := &settings.LoggerSettings{
-		LogLevel: "info",
-		LogType:  "console",
-		FilePath: "",
-	}
-
-	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
-
-	ctx := helpers.SetupTestDB(t)
-	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
-
-	blobConnectorSettings := &settings.BlobConnectorSettings{
-		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-		ContainerName:    "testblobs",
-	}
-	vaultConnector, err := connector.NewAzureVaultConnector((*settings.KeyConnectorSettings)(blobConnectorSettings), logger)
-	require.NoError(t, err, "Error creating vault connector")
-
-	cryptoKeyUploadService := &services.CryptoKeyUploadService{
-		VaultConnector: vaultConnector,
-		CryptoKeyRepo:  ctx.CryptoKeyRepo,
-	}
-
-	// Test file content
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err = helpers.CreateTestFile(testFileName, testFileContent)
+	err := helpers.CreateTestFile(testFileName, testFileContent)
 	require.NoError(t, err)
 	defer os.Remove(testFileName)
-
-	// Create multipart form with file header
 	form, err := helpers.CreateForm(testFileContent, testFileName)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
-	cryptoKeyMeta, err := cryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
-	require.NoError(t, err, "Error uploading file")
 
-	cryptoKeyDownloadService := &services.CryptoKeyDownloadService{
-		VaultConnector: vaultConnector,
-	}
+	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	require.NoError(t, err)
 
-	blobData, err := cryptoKeyDownloadService.Download(cryptoKeyMeta.ID, keyType)
+	fetchedCryptoKeyMeta, err := keyServices.CryptoKeyMetadataService.GetByID(cryptoKeyMeta.ID)
+	require.NoError(t, err)
+	require.NotNil(t, fetchedCryptoKeyMeta)
+	require.Equal(t, cryptoKeyMeta.ID, fetchedCryptoKeyMeta.ID)
+}
 
-	require.NoError(t, err, "Error downloading cryptographic key")
+// Test case for successful deletion of cryptographic key metadata by ID
+func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
+	keyServices := NewKeyServicesTest(t)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
 
-	require.NotNil(t, blobData, "Downloaded key data should not be nil")
-	require.NotEmpty(t, blobData, "Downloaded key data should not be empty")
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+	err := helpers.CreateTestFile(testFileName, testFileContent)
+	require.NoError(t, err)
+	defer os.Remove(testFileName)
+	form, err := helpers.CreateForm(testFileContent, testFileName)
+	require.NoError(t, err)
+
+	userId := uuid.New().String()
+	keyType := "private"
+	keyAlgorithm := "EC"
+
+	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	require.NoError(t, err)
+
+	err = keyServices.CryptoKeyMetadataService.DeleteByID(cryptoKeyMeta.ID)
+	require.NoError(t, err)
+
+	var deletedCryptoKeyMeta keys.CryptoKeyMeta
+	err = keyServices.DBContext.DB.First(&deletedCryptoKeyMeta, "id = ?", cryptoKeyMeta.ID).Error
+	require.Error(t, err)
+	require.Equal(t, gorm.ErrRecordNotFound, err)
+}
+
+// Test case for successful download of cryptographic key
+func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
+	keyServices := NewKeyServicesTest(t)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
+
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+	err := helpers.CreateTestFile(testFileName, testFileContent)
+	require.NoError(t, err)
+	defer os.Remove(testFileName)
+
+	form, err := helpers.CreateForm(testFileContent, testFileName)
+	require.NoError(t, err)
+
+	userId := uuid.New().String()
+	keyType := "private"
+	keyAlgorithm := "EC"
+
+	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	require.NoError(t, err)
+
+	blobData, err := keyServices.CryptoKeyDownloadService.Download(cryptoKeyMeta.ID, keyType)
+	require.NoError(t, err)
+	require.NotNil(t, blobData)
+	require.NotEmpty(t, blobData)
 }
