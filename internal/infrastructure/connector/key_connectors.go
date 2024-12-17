@@ -7,7 +7,9 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"os"
 	"time"
 
@@ -19,14 +21,18 @@ import (
 // The current implementation uses Azure Blob Storage, but this may be replaced
 // with Azure Key Vault, AWS KMS, or any other cloud-based key management system in the future.
 type VaultConnector interface {
-	// Upload uploads single file to Azure Blob Storage and returns their metadata.
-	// In the future, this may be refactored to integrate with more advanced key storage systems like Azure Key Vault.
+	// Upload uploads single file to Blob Storage and returns their metadata.
+	// In the future, this may be refactored to integrate with more advanced key storage systems like Key Vault.
 	Upload(filePath, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error)
 
-	// Download retrieves a key's content by its ID and name, and returns the data as a byte slice.
+	// UploadFromForm uploads single file to Blob Storage
+	// and returns the metadata for each uploaded byte stream.
+	UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error)
+
+	// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
 	Download(keyId, keyType string) ([]byte, error)
 
-	// Delete deletes a key from Vault Storage by its ID and Name, and returns any error encountered.
+	// Delete deletes a key from Vault Storage by its ID and Name and returns any error encountered.
 	Delete(keyId, keyType string) error
 }
 
@@ -99,7 +105,47 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 	return keyMeta, nil
 }
 
-// Download retrieves a key's content by its ID and name, and returns the data as a byte slice.
+// UploadFromForm uploads single file to Blob Storage
+// and returns the metadata for each uploaded byte stream.
+func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
+	fileHeaders := form.File["files"]
+
+	keyID := uuid.New().String()
+	fullKeyName := fmt.Sprintf("%s/%s", keyID, keyType)
+
+	file, err := fileHeaders[0].Open()
+	defer file.Close()
+	if err != nil {
+		err = fmt.Errorf("failed to open file '%s': %w", fullKeyName, err)
+		return nil, err
+	}
+
+	buffer := bytes.NewBuffer(make([]byte, 0))
+	_, err = io.Copy(buffer, file)
+
+	if err != nil {
+		err = fmt.Errorf("failed create new buffer for '%s': %w", fullKeyName, err)
+		return nil, err
+	}
+
+	keyMeta := &keys.CryptoKeyMeta{
+		ID:              keyID,
+		Type:            keyType,
+		Algorithm:       keyAlgorihm,
+		DateTimeCreated: time.Now(),
+		UserID:          userId,
+	}
+
+	_, err = vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, buffer.Bytes(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
+	}
+
+	vc.Logger.Info(fmt.Sprintf("uploaded blob %s", fullKeyName))
+	return keyMeta, nil
+}
+
+// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
 func (vc *AzureVaultConnector) Download(keyId, keyType string) ([]byte, error) {
 
 	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)

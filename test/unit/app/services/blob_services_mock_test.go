@@ -13,11 +13,10 @@ import (
 )
 
 func TestBlobUploadService_Upload(t *testing.T) {
-	// Prepare mock dependencies
+
 	mockBlobConnector := new(helpers.MockBlobConnector)
 	mockBlobRepository := new(helpers.MockBlobRepository)
 
-	// Initialize the service with mock dependencies
 	service := services.NewBlobUploadService(mockBlobConnector, mockBlobRepository)
 
 	// Test case 1: Successful upload and metadata storage

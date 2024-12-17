@@ -3,6 +3,7 @@ package helpers
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"fmt"
+	"mime/multipart"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -14,6 +15,11 @@ type MockBlobConnector struct {
 
 func (m *MockBlobConnector) Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error) {
 	args := m.Called(filePaths, userId)
+	return args.Get(0).([]*blobs.BlobMeta), args.Error(1)
+}
+
+func (m *MockBlobConnector) UploadWithFileHeaders(fileHeaders []*multipart.FileHeader, userId string) ([]*blobs.BlobMeta, error) {
+	args := m.Called(fileHeaders, userId)
 	return args.Get(0).([]*blobs.BlobMeta), args.Error(1)
 }
 

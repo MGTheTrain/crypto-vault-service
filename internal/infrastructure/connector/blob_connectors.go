@@ -7,6 +7,8 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	"time"
@@ -17,10 +19,17 @@ import (
 
 // BlobConnector is an interface for interacting with Blob storage
 type BlobConnector interface {
-	// Upload uploads multiple files to Blob Storage and returns their metadata.
+	// Upload uploads multiple files (specified by their file paths) to Blob Storage
+	// and returns the metadata for each uploaded file.
 	Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error)
+
+	// UploadFromForm uploads files from form to Blob Storage
+	// and returns the metadata for each uploaded byte stream.
+	UploadFromForm(form *multipart.Form, userId string) ([]*blobs.BlobMeta, error)
+
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) ([]byte, error)
+
 	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
 	Delete(blobId, blobName string) error
 }
@@ -56,12 +65,12 @@ func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logg
 	}, nil
 }
 
-// Upload uploads multiple files to Azure Blob Storage and returns their metadata.
+// Upload uploads multiple files (specified by their file paths) to Blob Storage
+// and returns the metadata for each uploaded file.
 func (abc *AzureBlobConnector) Upload(filePaths []string, userId string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 	blobID := uuid.New().String()
 
-	//
 	for _, filePath := range filePaths {
 
 		file, err := os.Open(filePath)
@@ -108,6 +117,63 @@ func (abc *AzureBlobConnector) Upload(filePaths []string, userId string) ([]*blo
 		fullBlobName = filepath.ToSlash(fullBlobName)
 
 		_, err = abc.Client.UploadBuffer(context.Background(), abc.containerName, fullBlobName, buf.Bytes(), nil)
+		if err != nil {
+			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
+			abc.rollbackUploadedBlobs(blobMeta)
+			return nil, err
+		}
+
+		abc.Logger.Info(fmt.Sprintf("Blob '%s' uploaded successfully", blob.Name))
+
+		blobMeta = append(blobMeta, blob)
+	}
+
+	return blobMeta, nil
+}
+
+// UploadFromForm uploads files from form to Blob Storage
+// and returns the metadata for each uploaded byte stream.
+func (abc *AzureBlobConnector) UploadFromForm(form *multipart.Form, userId string) ([]*blobs.BlobMeta, error) {
+	var blobMeta []*blobs.BlobMeta
+
+	fileHeaders := form.File["files"]
+
+	for _, fileHeader := range fileHeaders {
+
+		blobID := uuid.New().String()
+
+		fileExt := filepath.Ext(fileHeader.Filename)
+
+		blob := &blobs.BlobMeta{
+			ID:              blobID,
+			Name:            fileHeader.Filename,
+			Size:            fileHeader.Size,
+			Type:            fileExt,
+			DateTimeCreated: time.Now(),
+			UserID:          userId,
+		}
+
+		fullBlobName := fmt.Sprintf("%s/%s", blob.ID, blob.Name)
+		fullBlobName = filepath.ToSlash(fullBlobName)
+
+		file, err := fileHeader.Open()
+		defer file.Close()
+		if err != nil {
+			err = fmt.Errorf("failed to open file '%s': %w", fullBlobName, err)
+			abc.rollbackUploadedBlobs(blobMeta)
+			return nil, err
+		}
+
+		buffer := bytes.NewBuffer(make([]byte, 0))
+		_, err = io.Copy(buffer, file)
+
+		if err != nil {
+			err = fmt.Errorf("failed create new buffer for '%s': %w", fullBlobName, err)
+			abc.rollbackUploadedBlobs(blobMeta)
+			return nil, err
+		}
+
+		_, err = abc.Client.UploadBuffer(context.Background(), abc.containerName, fullBlobName, buffer.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
 			abc.rollbackUploadedBlobs(blobMeta)

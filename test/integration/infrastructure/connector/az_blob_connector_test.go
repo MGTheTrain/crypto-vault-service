@@ -1,7 +1,9 @@
 package connector
 
 import (
-	"log"
+	"bytes"
+	"fmt"
+	"mime/multipart"
 	"os"
 	"testing"
 
@@ -14,8 +16,45 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestAzureBlobConnector_Upload tests the Upload method of AzureBlobConnector
-func TestAzureBlobConnector_Upload(t *testing.T) {
+func createForm(content []byte, fileName string) (*multipart.Form, error) {
+
+	var buf bytes.Buffer
+
+	writer := multipart.NewWriter(&buf)
+
+	fileWriter, err := writer.CreateFormFile("files", fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = fileWriter.Write(content)
+	if err != nil {
+		return nil, err
+	}
+
+	writer.Close()
+
+	mr := multipart.NewReader(&buf, writer.Boundary())
+
+	form, err := mr.ReadForm(10 << 20)
+	if err != nil {
+		return nil, err
+	}
+
+	return form, nil
+}
+
+// Helper function to create test files
+func createTestFile(fileName string, content []byte) error {
+	err := os.WriteFile(fileName, content, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to create test file: %w", err)
+	}
+	return nil
+}
+
+// TestAzureBlobConnector_UploadWithFileHeaders tests the UploadWithFileHeaders method of AzureBlobConnector
+func TestAzureBlobConnector_UploadWithFileHeaders(t *testing.T) {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
 		LogType:  "console",
@@ -23,9 +62,7 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 	}
 
 	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
+	require.NoError(t, err)
 
 	blobConnectorSettings := &settings.BlobConnectorSettings{
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
@@ -35,32 +72,37 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 	abc, err := connector.NewAzureBlobConnector(blobConnectorSettings, logger)
 	require.NoError(t, err)
 
-	testFilePath := "testfile.txt"
-	testFileContent := []byte("This is a test file content.")
-
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	// Test file content
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+	err = createTestFile(testFileName, testFileContent)
 	require.NoError(t, err)
+	defer os.Remove(testFileName)
 
-	defer os.Remove(testFilePath)
+	// Create multipart form with file header
+	form, err := createForm(testFileContent, testFileName)
+	require.NoError(t, err)
 
 	userId := uuid.New().String()
-	filePaths := []string{testFilePath}
-	blobs, err := abc.Upload(filePaths, userId)
+	// Upload the file using UploadFromForm method
+	blobs, err := abc.UploadFromForm(form, userId)
 	require.NoError(t, err)
 
-	assert.Len(t, blobs, 1)
+	// Check the results
+	require.Len(t, blobs, 1)
 	blob := blobs[0]
 	assert.NotEmpty(t, blob.ID)
-	assert.Equal(t, testFilePath, blob.Name)
+	assert.Equal(t, testFileName, blob.Name)
 	assert.Equal(t, int64(len(testFileContent)), blob.Size)
 	assert.Equal(t, ".txt", blob.Type)
 
+	// Clean up (Delete the uploaded blob)
 	err = abc.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 }
 
-// TestAzureBlobConnector_Download tests the Download method of AzureBlobConnector
-func TestAzureBlobConnector_Download(t *testing.T) {
+// TestAzureBlobConnector_DownloadWithFileHeaders tests the Download method of AzureBlobConnector
+func TestAzureBlobConnector_DownloadWithFileHeaders(t *testing.T) {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
 		LogType:  "console",
@@ -68,42 +110,48 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 	}
 
 	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
+	require.NoError(t, err)
 
 	blobConnectorSettings := &settings.BlobConnectorSettings{
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
+
 	abc, err := connector.NewAzureBlobConnector(blobConnectorSettings, logger)
 	require.NoError(t, err)
 
-	testFilePath := "testfile.pem"
-	testFileContent := []byte("This is a test file content.")
+	// Test file content
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.pem"
+	err = createTestFile(testFileName, testFileContent)
+	require.NoError(t, err)
+	defer os.Remove(testFileName)
 
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	// Create multipart form with file header
+	form, err := createForm(testFileContent, testFileName)
 	require.NoError(t, err)
 
-	defer os.Remove(testFilePath)
-
 	userId := uuid.New().String()
-	filePaths := []string{testFilePath}
-	blobs, err := abc.Upload(filePaths, userId)
+	// Upload the file using UploadFromForm method
+	blobs, err := abc.UploadFromForm(form, userId)
 	require.NoError(t, err)
 
 	blob := blobs[0]
+
+	// Download the uploaded file
 	downloadedData, err := abc.Download(blob.ID, blob.Name)
 	require.NoError(t, err)
 
+	// Check if downloaded content matches the original content
 	assert.Equal(t, testFileContent, downloadedData)
 
+	// Clean up (Delete the uploaded blob)
 	err = abc.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 }
 
-// TestAzureBlobConnector_Delete tests the Delete method of AzureBlobConnector
-func TestAzureBlobConnector_Delete(t *testing.T) {
+// TestAzureBlobConnector_DeleteWithFileHeaders tests the Delete method of AzureBlobConnector
+func TestAzureBlobConnector_DeleteWithFileHeaders(t *testing.T) {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
 		LogType:  "console",
@@ -111,35 +159,39 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 	}
 
 	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
+	require.NoError(t, err)
 
 	blobConnectorSettings := &settings.BlobConnectorSettings{
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
+
 	abc, err := connector.NewAzureBlobConnector(blobConnectorSettings, logger)
 	require.NoError(t, err)
 
-	testFilePath := "testfile.pem"
-	testFileContent := []byte("This is a test file content.")
+	// Test file content
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.pem"
+	err = createTestFile(testFileName, testFileContent)
+	require.NoError(t, err)
+	defer os.Remove(testFileName)
 
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
+	// Create multipart form with file header
+	form, err := createForm(testFileContent, testFileName)
 	require.NoError(t, err)
 
-	defer os.Remove(testFilePath)
-
 	userId := uuid.New().String()
-	filePaths := []string{testFilePath}
-	blobs, err := abc.Upload(filePaths, userId)
+	// Upload the file using UploadFromForm method
+	blobs, err := abc.UploadFromForm(form, userId)
 	require.NoError(t, err)
 
 	blob := blobs[0]
 
+	// Delete the uploaded blob
 	err = abc.Delete(blob.ID, blob.Name)
 	require.NoError(t, err)
 
+	// Attempt to download the deleted blob (should result in an error)
 	_, err = abc.Download(blob.ID, blob.Name)
 	assert.Error(t, err)
 }
