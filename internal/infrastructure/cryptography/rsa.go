@@ -19,7 +19,7 @@ type IRSA interface {
 	Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error)
 	Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error)
 	Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (bool, error)
-	GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error)
+	GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error)
 	SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error
 	SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error
 	ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error)
@@ -39,8 +39,8 @@ func NewRSA(logger logger.Logger) (*RSA, error) {
 }
 
 // GenerateRSAKeys generates RSA key pair
-func (r *RSA) GenerateKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
-	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+func (r *RSA) GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, keySize)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate RSA keys: %v", err)
 	}
