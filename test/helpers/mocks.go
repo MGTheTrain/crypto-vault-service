@@ -18,8 +18,8 @@ func (m *MockBlobConnector) Upload(filePaths []string, userId string) ([]*blobs.
 	return args.Get(0).([]*blobs.BlobMeta), args.Error(1)
 }
 
-func (m *MockBlobConnector) UploadWithFileHeaders(fileHeaders []*multipart.FileHeader, userId string) ([]*blobs.BlobMeta, error) {
-	args := m.Called(fileHeaders, userId)
+func (m *MockBlobConnector) UploadFromForm(form *multipart.Form, userId string) ([]*blobs.BlobMeta, error) {
+	args := m.Called(form, userId)
 	return args.Get(0).([]*blobs.BlobMeta), args.Error(1)
 }
 
