@@ -110,15 +110,20 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
 	fileHeaders := form.File["files"]
 
+	if len(fileHeaders) != 1 {
+		err := fmt.Errorf("only 1 file can be uploaded")
+		return nil, err
+	}
+
 	keyID := uuid.New().String()
 	fullKeyName := fmt.Sprintf("%s/%s", keyID, keyType)
 
 	file, err := fileHeaders[0].Open()
-	defer file.Close()
 	if err != nil {
 		err = fmt.Errorf("failed to open file '%s': %w", fullKeyName, err)
 		return nil, err
 	}
+	defer file.Close()
 
 	buffer := bytes.NewBuffer(make([]byte, 0))
 	_, err = io.Copy(buffer, file)

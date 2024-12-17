@@ -157,12 +157,12 @@ func (abc *AzureBlobConnector) UploadFromForm(form *multipart.Form, userId strin
 		fullBlobName = filepath.ToSlash(fullBlobName)
 
 		file, err := fileHeader.Open()
-		defer file.Close()
 		if err != nil {
 			err = fmt.Errorf("failed to open file '%s': %w", fullBlobName, err)
 			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
+		defer file.Close()
 
 		buffer := bytes.NewBuffer(make([]byte, 0))
 		_, err = io.Copy(buffer, file)
