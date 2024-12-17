@@ -1,6 +1,7 @@
 package keys
 
 import (
+	"crypto_vault_service/internal/domain/validators"
 	"fmt"
 	"time"
 
@@ -9,26 +10,27 @@ import (
 
 // CryptoKeyMeta represents the encryption key entity
 type CryptoKeyMeta struct {
-	ID              string    `gorm:"primaryKey" validate:"required,uuid4"`         // ID is required and must be a valid UUID
-	Algorithm       string    `validate:"omitempty,oneof=AES RSA EC"`               // Type is required and must be one of the listed types
-	Type            string    `validate:"omitempty,oneof=private public symmetric"` // Type is required and must be one of the listed types
-	DateTimeCreated time.Time `validate:"required"`                                 // DateTimeCreated is required
-	UserID          string    `gorm:"index" validate:"required,uuid4"`              // UserID is required and must be a valid UUID
+	ID              string    `gorm:"primaryKey" validate:"required,uuid4"`
+	Algorithm       string    `validate:"omitempty,oneof=AES RSA EC"`
+	KeySize         uint      `json:"key_size" validate:"omitempty,keySizeValidation"`
+	Type            string    `validate:"omitempty,oneof=private public symmetric"`
+	DateTimeCreated time.Time `validate:"required"`
+	UserID          string    `gorm:"index" validate:"required,uuid4"`
 }
 
-// Validate for validating CryptoKeyMeta struct
+// Validate method for CryptoKeyMeta struct
 func (k *CryptoKeyMeta) Validate() error {
-
 	validate := validator.New()
+
+	validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation)
 
 	err := validate.Struct(k)
 	if err != nil {
-
 		var validationErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
 		}
-		return fmt.Errorf("Validation failed: %v", validationErrors)
+		return fmt.Errorf("validation failed: %v", validationErrors)
 	}
 	return nil
 }

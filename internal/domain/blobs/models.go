@@ -2,6 +2,7 @@ package blobs
 
 import (
 	"crypto_vault_service/internal/domain/keys"
+	"crypto_vault_service/internal/domain/validators"
 	"fmt"
 	"time"
 
@@ -27,6 +28,7 @@ func (b *BlobMeta) Validate() error {
 
 	validate := validator.New()
 
+	validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation)
 	err := validate.Struct(b)
 	if err != nil {
 
