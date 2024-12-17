@@ -14,7 +14,7 @@ import (
 )
 
 func TestBlobPsqlRepository_Create(t *testing.T) {
-	//
+
 	ctx := helpers.SetupTestDB(t)
 	dbType := "postgres"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
