@@ -23,9 +23,9 @@ func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKe
 
 // Upload uploads cryptographic keys
 // It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-func (s *CryptoKeyUploadService) Upload(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
+func (s *CryptoKeyUploadService) Upload(form *multipart.Form, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
 
-	keyMeta, err := s.VaultConnector.UploadFromForm(form, userId, keyType, keyAlgorihm)
+	keyMeta, err := s.VaultConnector.UploadFromForm(form, userId, keyType, keyAlgorihm, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload files: %w", err)
 	}

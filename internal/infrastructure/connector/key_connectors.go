@@ -23,11 +23,11 @@ import (
 type VaultConnector interface {
 	// Upload uploads single file to Blob Storage and returns their metadata.
 	// In the future, this may be refactored to integrate with more advanced key storage systems like Key Vault.
-	Upload(filePath, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error)
+	Upload(filePath, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
 	// UploadFromForm uploads single file to Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error)
+	UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
 	Download(keyId, keyType string) ([]byte, error)
@@ -71,7 +71,7 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 
 // Upload uploads single file to Azure Blob Storage and returns their metadata.
 // In the future, this may be refactored to integrate with more advanced key storage systems like Azure Key Vault.
-func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
+func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file '%s': %w", filePath, err)
@@ -107,7 +107,7 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 
 // UploadFromForm uploads single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string) (*keys.CryptoKeyMeta, error) {
+func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
 	fileHeaders := form.File["files"]
 
 	if len(fileHeaders) != 1 {
@@ -137,6 +137,7 @@ func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyT
 		ID:              keyID,
 		Type:            keyType,
 		Algorithm:       keyAlgorihm,
+		KeySize:         keySize,
 		DateTimeCreated: time.Now(),
 		UserID:          userId,
 	}

@@ -81,8 +81,9 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
+	keySize := 256
 
-	keyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	keyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 	require.NotNil(t, keyMeta)
 	require.NotEmpty(t, keyMeta.ID)
@@ -107,8 +108,9 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
+	keySize := 256
 
-	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	fetchedCryptoKeyMeta, err := keyServices.CryptoKeyMetadataService.GetByID(cryptoKeyMeta.ID)
@@ -134,8 +136,9 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
+	keySize := 521
 
-	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	err = keyServices.CryptoKeyMetadataService.DeleteByID(cryptoKeyMeta.ID)
@@ -165,8 +168,9 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyType := "private"
 	keyAlgorithm := "EC"
+	keySize := 256
 
-	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := keyServices.CryptoKeyUploadService.Upload(form, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	blobData, err := keyServices.CryptoKeyDownloadService.Download(cryptoKeyMeta.ID, keyType)

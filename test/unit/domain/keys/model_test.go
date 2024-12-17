@@ -13,11 +13,12 @@ import (
 func TestCryptoKeyValidation(t *testing.T) {
 	// Valid CryptoKey
 	validKey := keys.CryptoKeyMeta{
-		ID:              uuid.New().String(), // Valid UUID
-		Type:            "symmetric",         // Valid Type
-		Algorithm:       "AES",               // Valid Algorithm
+		ID:              uuid.New().String(),
+		Type:            "symmetric",
+		KeySize:         256,
+		Algorithm:       "AES",
 		DateTimeCreated: time.Now(),
-		UserID:          uuid.New().String(), // Valid UserID
+		UserID:          uuid.New().String(),
 	}
 
 	// Validate the valid CryptoKey

@@ -56,9 +56,10 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
+	keySize := 2048
 
 	// Upload the file
-	cryptoKeyMeta, err := helper.Connector.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := helper.Connector.Upload(testFilePath, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
@@ -87,9 +88,10 @@ func TestAzureVaultConnector_UploadFromForm(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
+	keySize := 2048
 
 	// Upload the file using UploadFromForm method
-	cryptoKeyMeta, err := helper.Connector.UploadFromForm(form, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := helper.Connector.UploadFromForm(form, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
@@ -114,9 +116,10 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
+	keySize := 2048
 
 	// Upload the file
-	cryptoKeyMeta, err := helper.Connector.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := helper.Connector.Upload(testFilePath, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	// Download the file
@@ -142,9 +145,10 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
+	keySize := 2048
 
 	// Upload the file
-	cryptoKeyMeta, err := helper.Connector.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	cryptoKeyMeta, err := helper.Connector.Upload(testFilePath, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	// Delete the file

@@ -23,6 +23,7 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 		ID:              uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
+		KeySize:         521,
 		DateTimeCreated: time.Now(),
 		UserID:          uuid.New().String(),
 	}
@@ -57,6 +58,7 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 		ID:              uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
+		KeySize:         256,
 		DateTimeCreated: time.Now(),
 		UserID:          uuid.New().String(),
 	}
