@@ -14,6 +14,7 @@ func TestCryptoKeyValidation(t *testing.T) {
 	// Valid CryptoKey
 	validKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "symmetric",
 		KeySize:         256,
 		Algorithm:       "AES",
@@ -44,7 +45,8 @@ func TestCryptoKeyValidation(t *testing.T) {
 func TestCryptoKeyValidations(t *testing.T) {
 	// Test missing UserID (should fail)
 	invalidKey := keys.CryptoKeyMeta{
-		ID:              uuid.New().String(), // Valid UUID
+		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(), // Valid UUID
 		Type:            "symmetric",         // Valid Type
 		Algorithm:       "AES",               // Valid Algorithm
 		DateTimeCreated: time.Now(),

@@ -21,6 +21,7 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
 		KeySize:         521,
@@ -56,6 +57,7 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 	defer helpers.TeardownTestDB(t, ctx, dbType)
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
 		KeySize:         256,

@@ -7,7 +7,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
@@ -20,13 +19,13 @@ import (
 type VaultConnector interface {
 	// Upload uploads bytes of a single file to Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	Upload(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
+	Upload(bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
-	// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
-	Download(keyId, keyType string) ([]byte, error)
+	// Download retrieves a key's content by its IDs and type and returns the data as a byte slice.
+	Download(keyId, keyPairId, keyType string) ([]byte, error)
 
-	// Delete deletes a key from Vault Storage by its ID and Name and returns any error encountered.
-	Delete(keyId, keyType string) error
+	// Delete deletes a key from Vault Storage by its IDs and type and returns any error encountered.
+	Delete(keyId, keyPairId, keyType string) error
 }
 
 // AzureVaultConnector is a struct that implements the VaultConnector interface using Azure Blob Storage.
@@ -50,10 +49,10 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	_, err = client.CreateContainer(context.Background(), settings.ContainerName, nil)
-	if err != nil {
-		log.Printf("Failed to create Azure container: %v\n", err)
-	}
+	_, _ = client.CreateContainer(context.Background(), settings.ContainerName, nil)
+	// if err != nil {
+	// 	log.Printf("Failed to create Azure container: %v\n", err)
+	// }
 
 	return &AzureVaultConnector{
 		Client:        client,
@@ -64,12 +63,13 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 
 // Upload uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
+func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
 	keyId := uuid.New().String()
-	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
 	keyMeta := &keys.CryptoKeyMeta{
 		ID:              keyId,
+		KeyPairID:       keyPairId,
 		Type:            keyType,
 		Algorithm:       keyAlgorihm,
 		KeySize:         keySize,
@@ -86,10 +86,10 @@ func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyType, keyAlgorihm
 	return keyMeta, nil
 }
 
-// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
-func (vc *AzureVaultConnector) Download(keyId, keyType string) ([]byte, error) {
+// Download retrieves a key's content by its IDs and Type and returns the data as a byte slice.
+func (vc *AzureVaultConnector) Download(keyId, keyPairId, keyType string) ([]byte, error) {
 
-	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
 	ctx := context.Background()
 	get, err := vc.Client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
@@ -107,9 +107,9 @@ func (vc *AzureVaultConnector) Download(keyId, keyType string) ([]byte, error) {
 	return downloadedData.Bytes(), nil
 }
 
-// Delete deletes a key from Azure Blob Storage by its ID and Name.
-func (vc *AzureVaultConnector) Delete(keyId, keyType string) error {
-	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
+// Delete deletes a key from Azure Blob Storage by its IDs and Type.
+func (vc *AzureVaultConnector) Delete(keyId, keyPairId, keyType string) error {
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
 	ctx := context.Background()
 	_, err := vc.Client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)

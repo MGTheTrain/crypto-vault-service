@@ -21,6 +21,7 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		KeySize:         521,
 		Algorithm:       "EC",
@@ -47,6 +48,7 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "private",
 		KeySize:         2048,
 		Algorithm:       "RSA",
@@ -72,6 +74,7 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		KeySize:         521,
 		Algorithm:       "EC",
@@ -101,6 +104,7 @@ func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		KeySize:         256,
 		Algorithm:       "EC",

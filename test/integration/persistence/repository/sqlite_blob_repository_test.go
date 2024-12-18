@@ -21,6 +21,7 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
 		KeySize:         521,
@@ -57,6 +58,7 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
 		KeySize:         256,

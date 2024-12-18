@@ -53,10 +53,10 @@ func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logg
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	_, err = client.CreateContainer(context.Background(), settings.ContainerName, nil)
-	if err != nil {
-		fmt.Printf("Failed to create Azure container: %v\n", err)
-	}
+	_, _ = client.CreateContainer(context.Background(), settings.ContainerName, nil)
+	// if err != nil {
+	// 	fmt.Printf("Failed to create Azure container: %v\n", err)
+	// }
 
 	return &AzureBlobConnector{
 		Client:        client,

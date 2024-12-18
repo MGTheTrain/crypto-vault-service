@@ -48,12 +48,13 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	testFileContent := []byte("This is a test file content.")
 
 	userId := uuid.New().String()
+	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
 
 	// Upload the file
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
@@ -62,31 +63,7 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
 
 	// Clean up
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
-	require.NoError(t, err)
-}
-
-func TestAzureVaultConnector_UploadFromForm(t *testing.T) {
-	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
-
-	testFileContent := []byte("This is a test file content.")
-
-	userId := uuid.New().String()
-	keyAlgorithm := "RSA"
-	keyType := "private"
-	keySize := 2048
-
-	// Upload the file using UploadFromForm method
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyType, keyAlgorithm, uint(keySize))
-	require.NoError(t, err)
-
-	assert.NotEmpty(t, cryptoKeyMeta.ID)
-	assert.Equal(t, keyType, cryptoKeyMeta.Type)
-	assert.Equal(t, userId, cryptoKeyMeta.UserID)
-	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
-
-	// Clean up
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
@@ -96,22 +73,23 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 	testFileContent := []byte("This is a test file content.")
 
 	userId := uuid.New().String()
+	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
 
 	// Upload the file
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	// Download the file
-	downloadedData, err := helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	downloadedData, err := helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	assert.Equal(t, testFileContent, downloadedData)
 
 	// Clean up
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
@@ -121,19 +99,20 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 	testFileContent := []byte("This is a test file content.")
 
 	userId := uuid.New().String()
+	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
 
 	// Upload the file
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	// Delete the file
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	// Attempt to download the deleted file (should result in an error)
-	_, err = helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	_, err = helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	assert.Error(t, err)
 }
