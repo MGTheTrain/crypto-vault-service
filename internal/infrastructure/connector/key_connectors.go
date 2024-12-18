@@ -7,9 +7,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
-	"io"
 	"log"
-	"mime/multipart"
 	"os"
 	"time"
 
@@ -25,9 +23,9 @@ type VaultConnector interface {
 	// In the future, this may be refactored to integrate with more advanced key storage systems like Key Vault.
 	Upload(filePath, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
-	// UploadFromForm uploads single file to Blob Storage
+	// UploadBytes uploads bytes of a single file to Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
+	UploadBytes(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
 	Download(keyId, keyType string) ([]byte, error)
@@ -84,17 +82,17 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 		return nil, fmt.Errorf("failed to read file '%s': %w", filePath, err)
 	}
 
-	keyID := uuid.New().String()
+	keyId := uuid.New().String()
 
 	keyMeta := &keys.CryptoKeyMeta{
-		ID:              keyID,
+		ID:              keyId,
 		Type:            keyType,
 		Algorithm:       keyAlgorihm,
 		DateTimeCreated: time.Now(),
 		UserID:          userId,
 	}
 
-	fullKeyName := fmt.Sprintf("%s/%s", keyID, keyType)
+	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
 
 	_, err = vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, buf.Bytes(), nil)
 	if err != nil {
@@ -105,36 +103,14 @@ func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm str
 	return keyMeta, nil
 }
 
-// UploadFromForm uploads single file to Blob Storage
+// UploadBytes uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
-	fileHeaders := form.File["files"]
-
-	if len(fileHeaders) != 1 {
-		err := fmt.Errorf("only 1 file can be uploaded")
-		return nil, err
-	}
-
-	keyID := uuid.New().String()
-	fullKeyName := fmt.Sprintf("%s/%s", keyID, keyType)
-
-	file, err := fileHeaders[0].Open()
-	if err != nil {
-		err = fmt.Errorf("failed to open file '%s': %w", fullKeyName, err)
-		return nil, err
-	}
-	defer file.Close()
-
-	buffer := bytes.NewBuffer(make([]byte, 0))
-	_, err = io.Copy(buffer, file)
-
-	if err != nil {
-		err = fmt.Errorf("failed create new buffer for '%s': %w", fullKeyName, err)
-		return nil, err
-	}
+func (vc *AzureVaultConnector) UploadBytes(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
+	keyId := uuid.New().String()
+	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
 
 	keyMeta := &keys.CryptoKeyMeta{
-		ID:              keyID,
+		ID:              keyId,
 		Type:            keyType,
 		Algorithm:       keyAlgorihm,
 		KeySize:         keySize,
@@ -142,7 +118,7 @@ func (vc *AzureVaultConnector) UploadFromForm(form *multipart.Form, userId, keyT
 		UserID:          userId,
 	}
 
-	_, err = vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, buffer.Bytes(), nil)
+	_, err := vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, bytes, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
 	}

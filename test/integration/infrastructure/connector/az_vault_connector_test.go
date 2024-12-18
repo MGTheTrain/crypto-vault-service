@@ -76,14 +76,6 @@ func TestAzureVaultConnector_UploadFromForm(t *testing.T) {
 	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
 
 	testFileContent := []byte("This is a test file content.")
-	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	// Create multipart form with file header
-	form, err := helpers.CreateForm(testFileContent, testFileName)
-	require.NoError(t, err)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "RSA"
@@ -91,7 +83,7 @@ func TestAzureVaultConnector_UploadFromForm(t *testing.T) {
 	keySize := 2048
 
 	// Upload the file using UploadFromForm method
-	cryptoKeyMeta, err := helper.Connector.UploadFromForm(form, userId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.UploadBytes(testFileContent, userId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
