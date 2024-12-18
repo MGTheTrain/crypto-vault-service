@@ -28,5 +28,5 @@ type IBlobMetadataService interface {
 type IBlobDownloadService interface {
 	// Download retrieves a blob by its ID and name.
 	// It returns the file data as a byte slice, and any error encountered during the download process.
-	Download(blobId string) ([]byte, error)
+	Download(blobId string, decryptionKeyId, verificationKeyId *string) ([]byte, error)
 }

@@ -100,6 +100,8 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 	return blobMetas, nil
 }
 
+// getCryptoKeyAndData retrieves the encryption or signing key along with its metadata by ID.
+// It downloads the key from the vault and returns the key bytes and associated metadata.
 func (s *BlobUploadService) getCryptoKeyAndData(cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
 	// Get meta info
 	cryptoKeyMeta, err := s.CryptoKeyRepo.GetByID(cryptoKeyId)
@@ -116,6 +118,8 @@ func (s *BlobUploadService) getCryptoKeyAndData(cryptoKeyId string) ([]byte, *ke
 	return keyBytes, cryptoKeyMeta, nil
 }
 
+// applyCryptographicOperation performs cryptographic operations (encryption or signing)
+// on files within a multipart form using the specified algorithm and key.
 func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte) ([][]byte, []string, error) {
 	var contents [][]byte
 	var fileNames []string
@@ -271,7 +275,7 @@ func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepositor
 }
 
 // Download retrieves a blob's content by its ID and name
-func (s *BlobDownloadService) Download(blobId string) ([]byte, error) {
+func (s *BlobDownloadService) Download(blobId string, decryptionKeyId, verificationKeyId *string) ([]byte, error) {
 	blobMeta, err := s.BlobRepository.GetById(blobId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
