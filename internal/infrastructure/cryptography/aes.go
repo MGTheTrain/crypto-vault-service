@@ -11,7 +11,7 @@ import (
 
 // IAES Interface
 type IAES interface {
-	Encrypt(plainText, key []byte) ([]byte, error)
+	Encrypt(data, key []byte) ([]byte, error)
 	Decrypt(ciphertext, key []byte) ([]byte, error)
 	GenerateKey(keySize int) ([]byte, error)
 }
@@ -59,7 +59,7 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 }
 
 // Encrypt data using AES in CBC mode
-func (a *AES) Encrypt(plainText, key []byte) ([]byte, error) {
+func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 	if key == nil {
 		return nil, fmt.Errorf("key key cannot be nil")
 	}
@@ -69,16 +69,16 @@ func (a *AES) Encrypt(plainText, key []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	plainText = pkcs7Pad(plainText, aes.BlockSize)
+	data = pkcs7Pad(data, aes.BlockSize)
 
-	ciphertext := make([]byte, aes.BlockSize+len(plainText))
+	ciphertext := make([]byte, aes.BlockSize+len(data))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := rand.Read(iv); err != nil {
 		return nil, err
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
-	mode.CryptBlocks(ciphertext[aes.BlockSize:], plainText)
+	mode.CryptBlocks(ciphertext[aes.BlockSize:], data)
 
 	a.Logger.Info("AES encryption succeeded")
 	return ciphertext, nil
