@@ -26,7 +26,7 @@ func (s *BlobUploadService) Upload(filePaths []string, userId string) ([]*blobs.
 
 	blobMetas, err := s.BlobConnector.Upload(filePaths, userId)
 	if err != nil {
-		return nil, fmt.Errorf("failed to upload blobs: %w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	if len(blobMetas) == 0 {
@@ -36,7 +36,7 @@ func (s *BlobUploadService) Upload(filePaths []string, userId string) ([]*blobs.
 	for _, blobMeta := range blobMetas {
 		err := s.BlobRepository.Create(blobMeta)
 		if err != nil {
-			return nil, fmt.Errorf("failed to store metadata for blob '%s': %w", blobMeta.Name, err)
+			return nil, fmt.Errorf("%w", err)
 		}
 	}
 

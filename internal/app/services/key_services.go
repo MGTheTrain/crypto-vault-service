@@ -70,7 +70,7 @@ func (s *CryptoKeyUploadService) uploadAESKey(userId, keyPairId, keyAlgorithm st
 	}
 
 	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	keyMetas = append(keyMetas, cryptoKeyMeta)
@@ -115,7 +115,7 @@ func (s *CryptoKeyUploadService) uploadECKey(userId, keyPairId, keyAlgorithm str
 	}
 
 	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	keyMetas = append(keyMetas, cryptoKeyMeta)
@@ -129,7 +129,7 @@ func (s *CryptoKeyUploadService) uploadECKey(userId, keyPairId, keyAlgorithm str
 	}
 
 	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	keyMetas = append(keyMetas, cryptoKeyMeta)
@@ -159,7 +159,7 @@ func (s *CryptoKeyUploadService) uploadRSAKey(userId, keyPairId, keyAlgorithm st
 	}
 
 	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	keyMetas = append(keyMetas, cryptoKeyMeta)
@@ -176,7 +176,7 @@ func (s *CryptoKeyUploadService) uploadRSAKey(userId, keyPairId, keyAlgorithm st
 	}
 
 	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	keyMetas = append(keyMetas, cryptoKeyMeta)
