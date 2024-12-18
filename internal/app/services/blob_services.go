@@ -72,7 +72,7 @@ func (s *BlobMetadataService) GetByID(blobID string) (*blobs.BlobMeta, error) {
 	// Retrieve the blob metadata using the BlobRepository
 	blobMeta, err := s.BlobRepository.GetById(blobID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve blob metadata by ID '%s': %w", blobID, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 	return blobMeta, nil
 }
@@ -82,19 +82,19 @@ func (s *BlobMetadataService) DeleteByID(blobID string) error {
 	// Retrieve the blob metadata to ensure it exists
 	blobMeta, err := s.BlobRepository.GetById(blobID)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve blob metadata by ID '%s' for deletion: %w", blobID, err)
+		return fmt.Errorf("%w", err)
 	}
 
 	// Delete the blob from Blob Storage using the BlobConnector
 	err = s.BlobRepository.DeleteById(blobID)
 	if err != nil {
-		return fmt.Errorf("failed to delete blob metadata by ID '%s': %w", blobID, err)
+		return fmt.Errorf("%w", err)
 	}
 
 	// Now, delete the actual blob from the Blob Storage
 	err = s.BlobConnector.Delete(blobMeta.ID, blobMeta.Name)
 	if err != nil {
-		return fmt.Errorf("failed to delete blob '%s' from Blob Storage: %w", blobMeta.Name, err)
+		return fmt.Errorf("%w", err)
 	}
 
 	return nil
@@ -118,7 +118,7 @@ func (s *BlobDownloadService) Download(blobID, blobName string) ([]byte, error) 
 	// Here you might want to consider validating the blob's existence.
 	blob, err := s.BlobConnector.Download(blobID, blobName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to download blob '%s': %w", blobName, err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	return blob, nil

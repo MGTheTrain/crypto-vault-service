@@ -34,17 +34,17 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 	if keyAlgorihm == "AES" {
 		aes, err := cryptography.NewAES(s.Logger)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create AES instance: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 		symmetricKeyBytes, err := aes.GenerateKey(int(keySize))
 		if err != nil {
-			return nil, fmt.Errorf("failed to generate AES key: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		keyType := "symmetric"
 		cryptoKeyMeta, err := s.VaultConnector.UploadBytes(symmetricKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload files: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
@@ -67,11 +67,11 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 		}
 		ec, err := cryptography.NewEC(s.Logger)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create EC instance: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 		privateKey, publicKey, err := ec.GenerateKeys(curve)
 		if err != nil {
-			return nil, fmt.Errorf("failed to generate EC key pairs: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		// PRIV
@@ -81,7 +81,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 
 		cryptoKeyMeta, err := s.VaultConnector.UploadBytes(privateKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload files: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
@@ -96,7 +96,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 
 		cryptoKeyMeta, err = s.VaultConnector.UploadBytes(publicKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload files: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
@@ -107,11 +107,11 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 	} else if keyAlgorihm == "RSA" {
 		rsa, err := cryptography.NewRSA(s.Logger)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create RSA instance: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 		privateKey, publicKey, err := rsa.GenerateKeys(int(keySize))
 		if err != nil {
-			return nil, fmt.Errorf("failed to generate RSA key pairs: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		// PRIV
@@ -120,7 +120,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 
 		cryptoKeyMeta, err := s.VaultConnector.UploadBytes(privateKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload files: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
@@ -139,7 +139,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 
 		cryptoKeyMeta, err = s.VaultConnector.UploadBytes(publicKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload files: %w", err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
@@ -180,7 +180,7 @@ func (s *CryptoKeyMetadataService) List(query *keys.CryptoKeyQuery) ([]*keys.Cry
 func (s *CryptoKeyMetadataService) GetByID(keyId string) (*keys.CryptoKeyMeta, error) {
 	keyMeta, err := s.CryptoKeyRepo.GetByID(keyId)
 	if err != nil {
-		return nil, fmt.Errorf("failed to retrieve key metadata: %w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	return keyMeta, nil
@@ -190,17 +190,17 @@ func (s *CryptoKeyMetadataService) GetByID(keyId string) (*keys.CryptoKeyMeta, e
 func (s *CryptoKeyMetadataService) DeleteByID(keyId string) error {
 	keyMeta, err := s.GetByID(keyId)
 	if err != nil {
-		return fmt.Errorf("failed to retrieve key metadata: %w", err)
+		return fmt.Errorf("failed to%w", err)
 	}
 
 	err = s.VaultConnector.Delete(keyId, keyMeta.Type)
 	if err != nil {
-		return fmt.Errorf("failed to delete key blob: %w", err)
+		return fmt.Errorf("failed to%w", err)
 	}
 
 	err = s.CryptoKeyRepo.DeleteByID(keyId)
 	if err != nil {
-		return fmt.Errorf("failed to delete key metadata: %w", err)
+		return fmt.Errorf("failed to%w", err)
 	}
 	return nil
 }
@@ -223,7 +223,7 @@ func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, logger
 func (s *CryptoKeyDownloadService) Download(keyId, keyType string) ([]byte, error) {
 	blobData, err := s.VaultConnector.Download(keyId, keyType)
 	if err != nil {
-		return nil, fmt.Errorf("failed to download key from blob storage: %w", err)
+		return nil, fmt.Errorf("%w", err)
 	}
 
 	return blobData, nil
