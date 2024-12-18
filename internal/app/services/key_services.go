@@ -239,20 +239,27 @@ func (s *CryptoKeyMetadataService) DeleteByID(keyId string) error {
 // CryptoKeyDownloadService handles the download of cryptographic keys.
 type CryptoKeyDownloadService struct {
 	VaultConnector connector.VaultConnector
+	CryptoKeyRepo  repository.CryptoKeyRepository
 	logger         logger.Logger
 }
 
 // NewCryptoKeyDownloadService creates a new CryptoKeyDownloadService instance
-func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, logger logger.Logger) (*CryptoKeyDownloadService, error) {
+func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyDownloadService, error) {
 	return &CryptoKeyDownloadService{
 		VaultConnector: vaultConnector,
+		CryptoKeyRepo:  cryptoKeyRepo,
 		logger:         logger,
 	}, nil
 }
 
-// Download retrieves a cryptographic key by its IDs and type.
-func (s *CryptoKeyDownloadService) Download(keyId, keyPairId, keyType string) ([]byte, error) {
-	blobData, err := s.VaultConnector.Download(keyId, keyPairId, keyType)
+// Download retrieves a cryptographic key by its ID.
+func (s *CryptoKeyDownloadService) Download(keyId string) ([]byte, error) {
+	keyMeta, err := s.CryptoKeyRepo.GetByID(keyId)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	blobData, err := s.VaultConnector.Download(keyMeta.ID, keyMeta.KeyPairID, keyMeta.Type)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

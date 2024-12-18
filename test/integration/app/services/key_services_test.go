@@ -51,7 +51,7 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 	cryptoKeyMetadataService, err := services.NewCryptoKeyMetadataService(vaultConnector, ctx.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyMetadataService")
 
-	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector, logger)
+	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector, ctx.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyDownloadService")
 
 	// Return struct with services and context
@@ -136,14 +136,13 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 
 	userId := uuid.New().String()
 	keyPairId := uuid.New().String()
-	keyType := "private"
 	keyAlgorithm := "EC"
 	keySize := 256
 
 	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(userId, keyPairId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	blobData, err := keyServices.CryptoKeyDownloadService.Download(cryptoKeyMetas[0].ID, cryptoKeyMetas[0].KeyPairID, keyType)
+	blobData, err := keyServices.CryptoKeyDownloadService.Download(cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, blobData)
 	require.NotEmpty(t, blobData)
