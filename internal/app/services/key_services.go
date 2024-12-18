@@ -9,8 +9,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type CryptoKeyUploadService struct {
@@ -30,133 +28,159 @@ func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKe
 
 // Upload uploads cryptographic keys
 // It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-func (s *CryptoKeyUploadService) Upload(userId, keyPairId, keyAlgorihm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+func (s *CryptoKeyUploadService) Upload(userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
 	var cryptKeyMetas []*keys.CryptoKeyMeta
 
-	if keyAlgorihm == "AES" {
-		aes, err := cryptography.NewAES(s.Logger)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-		symmetricKeyBytes, err := aes.GenerateKey(int(keySize))
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
+	var err error
+	switch keyAlgorithm {
+	case "AES":
+		cryptKeyMetas, err = s.uploadAESKey(userId, keyPairId, keyAlgorithm, keySize)
+	case "EC":
+		cryptKeyMetas, err = s.uploadECKey(userId, keyPairId, keyAlgorithm, keySize)
+	case "RSA":
+		cryptKeyMetas, err = s.uploadRSAKey(userId, keyPairId, keyAlgorithm, keySize)
+	default:
+		return nil, fmt.Errorf("unsupported algorithm: %s", keyAlgorithm)
+	}
 
-		keyPairId := uuid.New().String()
-		keyType := "symmetric"
-		cryptoKeyMeta, err := s.VaultConnector.Upload(symmetricKeyBytes, userId, keyPairId, keyType, keyAlgorihm, keySize)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
-		}
-
-		cryptKeyMetas = append(cryptKeyMetas, cryptoKeyMeta)
-	} else if keyAlgorihm == "EC" {
-		var curve elliptic.Curve
-		if keySize == 224 {
-			curve = elliptic.P224()
-		} else if keySize == 256 {
-			curve = elliptic.P256()
-		} else if keySize == 384 {
-			curve = elliptic.P384()
-		} else if keySize == 521 {
-			curve = elliptic.P521()
-		} else {
-			return nil, fmt.Errorf("key size %v not supported", keySize)
-		}
-		ec, err := cryptography.NewEC(s.Logger)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-		privateKey, publicKey, err := ec.GenerateKeys(curve)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		keyPairId := uuid.New().String() // in order to refer to both keys a key pair id is required
-
-		// PRIV
-		privateKeyBytes := append(privateKey.D.Bytes(), privateKey.PublicKey.X.Bytes()...)
-		privateKeyBytes = append(privateKeyBytes, privateKey.PublicKey.Y.Bytes()...)
-		keyType := "private"
-
-		cryptoKeyMeta, err := s.VaultConnector.Upload(privateKeyBytes, userId, keyPairId, keyType, keyAlgorihm, keySize)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
-		}
-
-		cryptKeyMetas = append(cryptKeyMetas, cryptoKeyMeta)
-
-		// PUB
-		publicKeyBytes := append(publicKey.X.Bytes(), publicKey.Y.Bytes()...)
-		keyType = "public"
-
-		cryptoKeyMeta, err = s.VaultConnector.Upload(publicKeyBytes, userId, keyPairId, keyType, keyAlgorihm, keySize)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
-		}
-
-		cryptKeyMetas = append(cryptKeyMetas, cryptoKeyMeta)
-	} else if keyAlgorihm == "RSA" {
-		rsa, err := cryptography.NewRSA(s.Logger)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-		privateKey, publicKey, err := rsa.GenerateKeys(int(keySize))
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		keyPairId := uuid.New().String() // in order to refer to both keys a key pair id is required
-
-		// PRIV
-		privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
-		keyType := "private"
-
-		cryptoKeyMeta, err := s.VaultConnector.Upload(privateKeyBytes, userId, keyPairId, keyType, keyAlgorihm, keySize)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
-		}
-
-		cryptKeyMetas = append(cryptKeyMetas, cryptoKeyMeta)
-
-		// PUB
-		publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
-		keyType = "public"
-
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal public key: %v", err)
-		}
-
-		cryptoKeyMeta, err = s.VaultConnector.Upload(publicKeyBytes, userId, keyPairId, keyType, keyAlgorihm, keySize)
-		if err != nil {
-			return nil, fmt.Errorf("%w", err)
-		}
-
-		if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
-			return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
-		}
-
-		cryptKeyMetas = append(cryptKeyMetas, cryptoKeyMeta)
+	if err != nil {
+		return nil, err
 	}
 
 	return cryptKeyMetas, nil
+}
+
+// Helper function for uploading AES key
+func (s *CryptoKeyUploadService) uploadAESKey(userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+	var keyMetas []*keys.CryptoKeyMeta
+
+	aes, err := cryptography.NewAES(s.Logger)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+	symmetricKeyBytes, err := aes.GenerateKey(int(keySize))
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	keyType := "symmetric"
+	cryptoKeyMeta, err := s.VaultConnector.Upload(symmetricKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+	}
+
+	keyMetas = append(keyMetas, cryptoKeyMeta)
+	return keyMetas, nil
+}
+
+// Helper function for uploading EC key pair (private and public)
+func (s *CryptoKeyUploadService) uploadECKey(userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+	var keyMetas []*keys.CryptoKeyMeta
+
+	var curve elliptic.Curve
+	switch keySize {
+	case 224:
+		curve = elliptic.P224()
+	case 256:
+		curve = elliptic.P256()
+	case 384:
+		curve = elliptic.P384()
+	case 521:
+		curve = elliptic.P521()
+	default:
+		return nil, fmt.Errorf("key size %v not supported for EC", keySize)
+	}
+
+	ec, err := cryptography.NewEC(s.Logger)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	privateKey, publicKey, err := ec.GenerateKeys(curve)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	// Upload Private Key
+	privateKeyBytes := append(privateKey.D.Bytes(), privateKey.PublicKey.X.Bytes()...)
+	privateKeyBytes = append(privateKeyBytes, privateKey.PublicKey.Y.Bytes()...)
+	keyType := "private"
+	cryptoKeyMeta, err := s.VaultConnector.Upload(privateKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+	}
+
+	keyMetas = append(keyMetas, cryptoKeyMeta)
+
+	// Upload Public Key
+	publicKeyBytes := append(publicKey.X.Bytes(), publicKey.Y.Bytes()...)
+	keyType = "public"
+	cryptoKeyMeta, err = s.VaultConnector.Upload(publicKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+	}
+
+	keyMetas = append(keyMetas, cryptoKeyMeta)
+	return keyMetas, nil
+}
+
+// Helper function for uploading RSA key pair (private and public)
+func (s *CryptoKeyUploadService) uploadRSAKey(userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+	var keyMetas []*keys.CryptoKeyMeta
+
+	rsa, err := cryptography.NewRSA(s.Logger)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	privateKey, publicKey, err := rsa.GenerateKeys(int(keySize))
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	// Upload Private Key
+	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	keyType := "private"
+	cryptoKeyMeta, err := s.VaultConnector.Upload(privateKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+	}
+
+	keyMetas = append(keyMetas, cryptoKeyMeta)
+
+	// Upload Public Key
+	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal public key: %v", err)
+	}
+	keyType = "public"
+	cryptoKeyMeta, err = s.VaultConnector.Upload(publicKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	if err := s.CryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+		return nil, fmt.Errorf("failed to create metadata for key of type %s: %w", cryptoKeyMeta.Type, err)
+	}
+
+	keyMetas = append(keyMetas, cryptoKeyMeta)
+	return keyMetas, nil
 }
 
 // CryptoKeyMetadataService manages cryptographic key metadata.
