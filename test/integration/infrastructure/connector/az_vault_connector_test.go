@@ -20,7 +20,7 @@ type AzureVaultConnectorTest struct {
 
 // NewAzureVaultConnectorTest initializes and returns a new AzureVaultConnectorTest
 func NewAzureVaultConnectorTest(t *testing.T, connectionString, containerName string) *AzureVaultConnectorTest {
-	// Create logger
+
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
 		LogType:  "console",
@@ -29,7 +29,6 @@ func NewAzureVaultConnectorTest(t *testing.T, connectionString, containerName st
 	logger, err := logger.GetLogger(loggerSettings)
 	require.NoError(t, err)
 
-	// Create connector
 	keyConnectorSettings := &settings.KeyConnectorSettings{
 		ConnectionString: connectionString,
 		ContainerName:    containerName,
@@ -53,7 +52,6 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	keyType := "private"
 	keySize := 2048
 
-	// Upload the file
 	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
@@ -62,7 +60,6 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	assert.Equal(t, userId, cryptoKeyMeta.UserID)
 	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
 
-	// Clean up
 	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
@@ -78,17 +75,14 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 	keyType := "private"
 	keySize := 2048
 
-	// Upload the file
 	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	// Download the file
 	downloadedData, err := helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	assert.Equal(t, testFileContent, downloadedData)
 
-	// Clean up
 	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
@@ -104,15 +98,12 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 	keyType := "private"
 	keySize := 2048
 
-	// Upload the file
 	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	// Delete the file
 	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
-	// Attempt to download the deleted file (should result in an error)
 	_, err = helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	assert.Error(t, err)
 }
