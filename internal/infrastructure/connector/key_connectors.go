@@ -8,7 +8,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
@@ -19,13 +18,9 @@ import (
 // The current implementation uses Azure Blob Storage, but this may be replaced
 // with Azure Key Vault, AWS KMS, or any other cloud-based key management system in the future.
 type VaultConnector interface {
-	// Upload uploads single file to Blob Storage and returns their metadata.
-	// In the future, this may be refactored to integrate with more advanced key storage systems like Key Vault.
-	Upload(filePath, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
-
-	// UploadBytes uploads bytes of a single file to Blob Storage
+	// Upload uploads bytes of a single file to Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	UploadBytes(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
+	Upload(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a key's content by its ID and name and returns the data as a byte slice.
 	Download(keyId, keyType string) ([]byte, error)
@@ -67,45 +62,9 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 	}, nil
 }
 
-// Upload uploads single file to Azure Blob Storage and returns their metadata.
-// In the future, this may be refactored to integrate with more advanced key storage systems like Azure Key Vault.
-func (vc *AzureVaultConnector) Upload(filePath, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open file '%s': %w", filePath, err)
-	}
-	defer file.Close()
-
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file '%s': %w", filePath, err)
-	}
-
-	keyId := uuid.New().String()
-
-	keyMeta := &keys.CryptoKeyMeta{
-		ID:              keyId,
-		Type:            keyType,
-		Algorithm:       keyAlgorihm,
-		DateTimeCreated: time.Now(),
-		UserID:          userId,
-	}
-
-	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
-
-	_, err = vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, buf.Bytes(), nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
-	}
-
-	vc.Logger.Info(fmt.Sprintf("uploaded blob %s", fullKeyName))
-	return keyMeta, nil
-}
-
-// UploadBytes uploads bytes of a single file to Blob Storage
+// Upload uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *AzureVaultConnector) UploadBytes(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
+func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
 	keyId := uuid.New().String()
 	fullKeyName := fmt.Sprintf("%s/%s", keyId, keyType)
 

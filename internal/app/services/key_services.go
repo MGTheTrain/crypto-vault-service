@@ -42,7 +42,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 		}
 
 		keyType := "symmetric"
-		cryptoKeyMeta, err := s.VaultConnector.UploadBytes(symmetricKeyBytes, userId, keyType, keyAlgorihm, keySize)
+		cryptoKeyMeta, err := s.VaultConnector.Upload(symmetricKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -79,7 +79,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 		privateKeyBytes = append(privateKeyBytes, privateKey.PublicKey.Y.Bytes()...)
 		keyType := "private"
 
-		cryptoKeyMeta, err := s.VaultConnector.UploadBytes(privateKeyBytes, userId, keyType, keyAlgorihm, keySize)
+		cryptoKeyMeta, err := s.VaultConnector.Upload(privateKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -94,7 +94,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 		publicKeyBytes := append(publicKey.X.Bytes(), publicKey.Y.Bytes()...)
 		keyType = "public"
 
-		cryptoKeyMeta, err = s.VaultConnector.UploadBytes(publicKeyBytes, userId, keyType, keyAlgorihm, keySize)
+		cryptoKeyMeta, err = s.VaultConnector.Upload(publicKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -118,7 +118,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 		privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 		keyType := "private"
 
-		cryptoKeyMeta, err := s.VaultConnector.UploadBytes(privateKeyBytes, userId, keyType, keyAlgorihm, keySize)
+		cryptoKeyMeta, err := s.VaultConnector.Upload(privateKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -137,7 +137,7 @@ func (s *CryptoKeyUploadService) Upload(userId, keyAlgorihm string, keySize uint
 			return nil, fmt.Errorf("failed to marshal public key: %v", err)
 		}
 
-		cryptoKeyMeta, err = s.VaultConnector.UploadBytes(publicKeyBytes, userId, keyType, keyAlgorihm, keySize)
+		cryptoKeyMeta, err = s.VaultConnector.Upload(publicKeyBytes, userId, keyType, keyAlgorihm, keySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
