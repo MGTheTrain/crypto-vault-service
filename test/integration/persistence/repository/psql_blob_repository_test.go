@@ -36,8 +36,10 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		CryptoKey:       cryptographicKey,
-		KeyID:           cryptographicKey.ID,
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
 	}
 
 	err := ctx.BlobRepo.Create(blob)
@@ -71,8 +73,10 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		CryptoKey:       cryptographicKey,
-		KeyID:           cryptographicKey.ID,
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
 	}
 	err := ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")

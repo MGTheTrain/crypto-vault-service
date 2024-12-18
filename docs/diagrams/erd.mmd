@@ -11,14 +11,13 @@ erDiagram
 
     BLOB_META {
         string id PK
-        string key_id FK
+        string encryption_key_id FK
+        string sign_key_id FK
         string user_id FK
         datetime date_time_created
         string name
         int size
         string type
-        string encryption_algorithm
-        string hash_algorithm
     }
 
     CRYPTO_KEY_META ||--o| BLOB_META : "associated with"

@@ -22,42 +22,42 @@ type BlobValidationTests struct {
 func NewBlobValidationTests() *BlobValidationTests {
 	// Create valid and invalid test data
 	validBlob := blobs.BlobMeta{
-		ID:                  uuid.New().String(),
-		DateTimeCreated:     time.Now(),
-		UserID:              uuid.New().String(),
-		Name:                "test_blobs.txt",
-		Size:                12345,
-		Type:                "text",
-		EncryptionAlgorithm: "AES",
-		HashAlgorithm:       "SHA256",
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		KeyID:               uuid.New().String(),
+		ID:              uuid.New().String(),
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
+		Name:            "test_blobs.txt",
+		Size:            12345,
+		Type:            "text",
+		EncryptionKey:   keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
+		EncryptionKeyID: uuid.New().String(),
+		SignKey:         keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
+		SignKeyID:       uuid.New().String(),
 	}
 
 	invalidBlob := blobs.BlobMeta{
-		ID:                  "", // Invalid empty ID
-		DateTimeCreated:     time.Now(),
-		UserID:              "invalid-uuid", // Invalid UserID
-		Name:                "test_blobs.txt",
-		Size:                -12345, // Invalid Size (negative)
-		Type:                "text",
-		EncryptionAlgorithm: "AES",
-		HashAlgorithm:       "SHA256",
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		KeyID:               uuid.New().String(),
+		ID:              "", // Invalid empty ID
+		DateTimeCreated: time.Now(),
+		UserID:          "invalid-uuid", // Invalid UserID
+		Name:            "test_blobs.txt",
+		Size:            -12345, // Invalid Size (negative)
+		Type:            "text",
+		EncryptionKey:   keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
+		EncryptionKeyID: uuid.New().String(),
+		SignKey:         keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
+		SignKeyID:       uuid.New().String(),
 	}
 
 	invalidBlob2 := blobs.BlobMeta{
-		ID:                  uuid.New().String(),
-		DateTimeCreated:     time.Now(),
-		UserID:              uuid.New().String(),
-		Name:                "", // Invalid empty Name
-		Size:                12345,
-		Type:                "text",
-		EncryptionAlgorithm: "AES",
-		HashAlgorithm:       "SHA256",
-		CryptoKey:           keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		KeyID:               uuid.New().String(),
+		ID:              uuid.New().String(),
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
+		Name:            "", // Invalid empty Name
+		Size:            12345,
+		Type:            "text",
+		EncryptionKey:   keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
+		EncryptionKeyID: uuid.New().String(),
+		SignKey:         keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
+		SignKeyID:       uuid.New().String(),
 	}
 
 	return &BlobValidationTests{
