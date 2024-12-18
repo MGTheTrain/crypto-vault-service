@@ -1,20 +1,9 @@
-package helpers
+package utils
 
 import (
 	"bytes"
-	"fmt"
 	"mime/multipart"
-	"os"
 )
-
-// Helper function to create test files
-func CreateTestFile(fileName string, content []byte) error {
-	err := os.WriteFile(fileName, content, 0644)
-	if err != nil {
-		return fmt.Errorf("failed to create test file: %w", err)
-	}
-	return nil
-}
 
 // Helper function to create multipart form
 func CreateForm(content []byte, fileName string) (*multipart.Form, error) {
