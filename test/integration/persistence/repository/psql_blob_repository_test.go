@@ -1,11 +1,9 @@
-// repository/blobrepository_test.go
 package repository
 
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/test/helpers"
-
 	"testing"
 	"time"
 
@@ -14,7 +12,6 @@ import (
 )
 
 func TestBlobPsqlRepository_Create(t *testing.T) {
-
 	ctx := helpers.SetupTestDB(t)
 	dbType := "postgres"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
@@ -53,10 +50,10 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_GetById(t *testing.T) {
-
 	ctx := helpers.SetupTestDB(t)
 	dbType := "postgres"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
+
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
 		KeyPairID:       uuid.New().String(),
@@ -84,4 +81,138 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 	assert.NoError(t, err, "GetById should not return an error")
 	assert.NotNil(t, fetchedBlob, "Fetched blob should not be nil")
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
+}
+
+func TestBlobPsqlRepository_List(t *testing.T) {
+	ctx := helpers.SetupTestDB(t)
+	dbType := "postgres"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
+
+	cryptographicKey := keys.CryptoKeyMeta{
+		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
+		Type:            "public",
+		Algorithm:       "EC",
+		KeySize:         256,
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
+	}
+
+	blob1 := &blobs.BlobMeta{
+		ID:              uuid.New().String(),
+		DateTimeCreated: time.Now(),
+		UserID:          cryptographicKey.UserID,
+		Name:            "blob-1",
+		Size:            1024,
+		Type:            "text",
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
+	}
+
+	blob2 := &blobs.BlobMeta{
+		ID:              uuid.New().String(),
+		DateTimeCreated: time.Now(),
+		UserID:          cryptographicKey.UserID,
+		Name:            "blob-2",
+		Size:            2048,
+		Type:            "image",
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
+	}
+
+	// Create blobs
+	err := ctx.BlobRepo.Create(blob1)
+	assert.NoError(t, err, "Create should not return an error")
+	err = ctx.BlobRepo.Create(blob2)
+	assert.NoError(t, err, "Create should not return an error")
+
+	// List blobs
+	query := &blobs.BlobMetaQuery{}
+	blobsList, err := ctx.BlobRepo.List(query)
+	assert.NoError(t, err, "List should not return an error")
+	assert.Len(t, blobsList, 2, "There should be two blobs in the list")
+}
+
+func TestBlobPsqlRepository_UpdateById(t *testing.T) {
+	ctx := helpers.SetupTestDB(t)
+	dbType := "postgres"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
+
+	cryptographicKey := keys.CryptoKeyMeta{
+		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
+		Type:            "public",
+		Algorithm:       "EC",
+		KeySize:         256,
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
+	}
+	blob := &blobs.BlobMeta{
+		ID:              uuid.New().String(),
+		DateTimeCreated: time.Now(),
+		UserID:          cryptographicKey.UserID,
+		Name:            "test-blob",
+		Size:            1024,
+		Type:            "text",
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
+	}
+	err := ctx.BlobRepo.Create(blob)
+	assert.NoError(t, err, "Create should not return an error")
+
+	// Update blob
+	blob.Name = "updated-blob"
+	err = ctx.BlobRepo.UpdateById(blob)
+	assert.NoError(t, err, "UpdateById should not return an error")
+
+	// Fetch updated blob
+	var updatedBlob blobs.BlobMeta
+	err = ctx.DB.First(&updatedBlob, "id = ?", blob.ID).Error
+	assert.NoError(t, err, "Failed to find updated blob")
+	assert.Equal(t, "updated-blob", updatedBlob.Name, "Name should be updated")
+}
+
+func TestBlobPsqlRepository_DeleteById(t *testing.T) {
+	ctx := helpers.SetupTestDB(t)
+	dbType := "postgres"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
+
+	cryptographicKey := keys.CryptoKeyMeta{
+		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
+		Type:            "public",
+		Algorithm:       "EC",
+		KeySize:         256,
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
+	}
+	blob := &blobs.BlobMeta{
+		ID:              uuid.New().String(),
+		DateTimeCreated: time.Now(),
+		UserID:          cryptographicKey.UserID,
+		Name:            "test-blob",
+		Size:            1024,
+		Type:            "text",
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
+	}
+	err := ctx.BlobRepo.Create(blob)
+	assert.NoError(t, err, "Create should not return an error")
+
+	// Delete blob
+	err = ctx.BlobRepo.DeleteById(blob.ID)
+	assert.NoError(t, err, "DeleteById should not return an error")
+
+	// Verify blob is deleted
+	var deletedBlob blobs.BlobMeta
+	err = ctx.DB.First(&deletedBlob, "id = ?", blob.ID).Error
+	assert.Error(t, err, "Blob should be deleted")
 }

@@ -3,7 +3,6 @@ package repository
 import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/test/helpers"
-
 	"testing"
 	"time"
 
@@ -12,9 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// TestCryptoKeySqliteRepository_Create tests the Create method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_Create(t *testing.T) {
-
 	ctx := helpers.SetupTestDB(t)
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
@@ -32,16 +29,14 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
-	var createdCryptKeyMeta keys.CryptoKeyMeta
-	err = ctx.DB.First(&createdCryptKeyMeta, "id = ?", cryptoKeyMeta.ID).Error
+	var createdCryptoKeyMeta keys.CryptoKeyMeta
+	err = ctx.DB.First(&createdCryptoKeyMeta, "id = ?", cryptoKeyMeta.ID).Error
 	assert.NoError(t, err, "Failed to find created cryptographic key")
-	assert.Equal(t, cryptoKeyMeta.ID, createdCryptKeyMeta.ID, "ID should match")
-	assert.Equal(t, cryptoKeyMeta.Type, createdCryptKeyMeta.Type, "Type should match")
+	assert.Equal(t, cryptoKeyMeta.ID, createdCryptoKeyMeta.ID, "ID should match")
+	assert.Equal(t, cryptoKeyMeta.Type, createdCryptoKeyMeta.Type, "Type should match")
 }
 
-// TestCryptoKeySqliteRepository_GetByID tests the GetByID method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
-
 	ctx := helpers.SetupTestDB(t)
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
@@ -65,9 +60,45 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 	assert.Equal(t, cryptoKeyMeta.ID, fetchedCryptoKeyMeta.ID, "ID should match")
 }
 
-// TestCryptoKeySqliteRepository_UpdateByID tests the UpdateByID method of GormCryptoKeyRepository
-func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
+func TestCryptoKeySqliteRepository_List(t *testing.T) {
+	ctx := helpers.SetupTestDB(t)
+	dbType := "sqlite"
+	defer helpers.TeardownTestDB(t, ctx, dbType)
 
+	cryptoKeyMeta1 := &keys.CryptoKeyMeta{
+		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
+		Type:            "private",
+		KeySize:         2048,
+		Algorithm:       "RSA",
+		DateTimeCreated: time.Now(),
+		UserID:          uuid.New().String(),
+	}
+
+	cryptoKeyMeta2 := &keys.CryptoKeyMeta{
+		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
+		Type:            "public",
+		KeySize:         521,
+		Algorithm:       "EC",
+		DateTimeCreated: time.Now(),
+		UserID:          cryptoKeyMeta1.UserID, // Same UserID for listing purpose
+	}
+
+	// Create crypto keys
+	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta1)
+	assert.NoError(t, err, "Create should not return an error")
+	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta2)
+	assert.NoError(t, err, "Create should not return an error")
+
+	// List crypto keys
+	query := &keys.CryptoKeyQuery{}
+	cryptoKeys, err := ctx.CryptoKeyRepo.List(query)
+	assert.NoError(t, err, "List should not return an error")
+	assert.Len(t, cryptoKeys, 2, "There should be two cryptographic keys in the list")
+}
+
+func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 	ctx := helpers.SetupTestDB(t)
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
@@ -85,19 +116,18 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
-	cryptoKeyMeta.Type = "public"
+	// Update the key's type
+	cryptoKeyMeta.Type = "private"
 	err = ctx.CryptoKeyRepo.UpdateByID(cryptoKeyMeta)
 	assert.NoError(t, err, "UpdateByID should not return an error")
 
 	var updatedCryptoKeyMeta keys.CryptoKeyMeta
 	err = ctx.DB.First(&updatedCryptoKeyMeta, "id = ?", cryptoKeyMeta.ID).Error
 	assert.NoError(t, err, "Failed to find updated cryptographic key")
-	assert.Equal(t, cryptoKeyMeta.Type, updatedCryptoKeyMeta.Type, "Type should be updated")
+	assert.Equal(t, "private", updatedCryptoKeyMeta.Type, "Type should be updated")
 }
 
-// TestCryptoKeySqliteRepository_DeleteByID tests the DeleteByID method of GormCryptoKeyRepository
 func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
-
 	ctx := helpers.SetupTestDB(t)
 	dbType := "sqlite"
 	defer helpers.TeardownTestDB(t, ctx, dbType)
