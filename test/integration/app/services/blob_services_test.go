@@ -6,9 +6,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/internal/infrastructure/utils"
 	"crypto_vault_service/test/helpers"
-	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -73,11 +71,8 @@ func TestBlobUploadService_Upload_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	// Call the helper function
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -99,11 +94,8 @@ func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	// Call the helper function
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -122,11 +114,8 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	// Call the helper function
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -196,11 +185,8 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	// Call the helper function
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -225,11 +211,8 @@ func TestBlobMetadataService_DeleteByID_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	// Call the helper function
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
