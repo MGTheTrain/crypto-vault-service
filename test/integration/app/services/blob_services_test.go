@@ -6,7 +6,9 @@ import (
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
+	"crypto_vault_service/internal/infrastructure/utils"
 	"crypto_vault_service/test/helpers"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -147,34 +149,35 @@ func TestBlobDownloadService_Download_Fail_InvalidDecryptionKey(t *testing.T) {
 	require.Nil(t, blobData)
 }
 
-// // Test case for successful listing of blob metadata
-// func TestBlobMetadataService_List_Success(t *testing.T) {
-// 	blobServices := NewBlobServicesTest(t)
-// 	defer helpers.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+// Test case for successful listing of blob metadata
+func TestBlobMetadataService_List_Success(t *testing.T) {
+	blobServices := NewBlobServicesTest(t)
+	defer helpers.TeardownTestDB(t, blobServices.DBContext, "sqlite")
 
-// 	testFileContent := []byte("This is test file content")
-// 	testFileName := "testfile.txt"
-// 	err := helpers.CreateTestFile(testFileName, testFileContent)
-// 	require.NoError(t, err)
-// 	defer os.Remove(testFileName)
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+	err := helpers.CreateTestFile(testFileName, testFileContent)
+	require.NoError(t, err)
+	defer os.Remove(testFileName)
 
-// 	form, err := utils.CreateForm(testFileContent, testFileName)
-// 	require.NoError(t, err)
+	form, err := utils.CreateForm(testFileContent, testFileName)
+	require.NoError(t, err)
 
-// 	userId := uuid.New().String()
-// 	// encryptionKeyId := uuid.New().String()
-// 	// signKeyId := uuid.New().String()
+	userId := uuid.New().String()
+	// encryptionKeyId := uuid.New().String()
+	// signKeyId := uuid.New().String()
 
-// 	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
-// 	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, nil, nil)
-// 	require.NoError(t, err)
-// 	require.NotNil(t, blobMetas)
+	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
+	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, nil, nil)
+	require.NoError(t, err)
+	require.NotNil(t, blobMetas)
 
-// 	blobMetas, err = blobServices.BlobMetadataService.List(nil)
-// 	require.NoError(t, err)
-// 	require.NotNil(t, blobMetas)
-// 	require.Greater(t, len(blobMetas), 0)
-// }
+	query := &blobs.BlobMetaQuery{}
+	blobMetas, err = blobServices.BlobMetadataService.List(query)
+	require.NoError(t, err)
+	require.NotNil(t, blobMetas)
+	require.Greater(t, len(blobMetas), 0)
+}
 
 // Test case for successful retrieval of blob metadata by ID
 func TestBlobMetadataService_GetByID_Success(t *testing.T) {

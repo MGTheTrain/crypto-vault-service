@@ -231,9 +231,10 @@ func NewBlobMetadataService(blobRepository repository.BlobRepository, blobConnec
 
 // List retrieves all blobs' metadata considering a query filter
 func (s *BlobMetadataService) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
-	var blobMetas []*blobs.BlobMeta
-
-	// TBD
+	blobMetas, err := s.BlobRepository.List(query)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
 
 	return blobMetas, nil
 }

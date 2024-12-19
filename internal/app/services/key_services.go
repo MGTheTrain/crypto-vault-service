@@ -201,10 +201,12 @@ func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, crypto
 
 // List retrieves all cryptographic key metadata based on a query.
 func (s *CryptoKeyMetadataService) List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
-	var keyMetas []*keys.CryptoKeyMeta
-	// TBD
+	crypoKeyMetas, err := s.CryptoKeyRepo.List(query)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
 
-	return keyMetas, nil
+	return crypoKeyMetas, nil
 }
 
 // GetByID retrieves the metadata of a cryptographic key by its ID.
