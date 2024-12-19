@@ -2,6 +2,8 @@ package services
 
 import (
 	"bytes"
+	crypto_ec "crypto/ecdsa"
+	"crypto/elliptic"
 	crypto_rsa "crypto/rsa"
 	"crypto/x509"
 	"crypto_vault_service/internal/domain/blobs"
@@ -13,6 +15,7 @@ import (
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
 	"io"
+	"math/big"
 	"mime/multipart"
 )
 
@@ -49,7 +52,7 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 		}
 
 		cryptoOperation := "encryption"
-		contents, fileNames, err := s.applyCryptographicOperation(form, cryptoKeyMeta.Algorithm, cryptoOperation, keyBytes)
+		contents, fileNames, err := s.applyCryptographicOperation(form, cryptoKeyMeta.Algorithm, cryptoOperation, keyBytes, cryptoKeyMeta.KeySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -68,7 +71,7 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 		}
 
 		cryptoOperation := "signing"
-		contents, fileNames, err := s.applyCryptographicOperation(form, cryptoKeyMeta.Algorithm, cryptoOperation, keyBytes)
+		contents, fileNames, err := s.applyCryptographicOperation(form, cryptoKeyMeta.Algorithm, cryptoOperation, keyBytes, cryptoKeyMeta.KeySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -131,7 +134,7 @@ func (s *BlobUploadService) getCryptoKeyAndData(cryptoKeyId string) ([]byte, *ke
 
 // applyCryptographicOperation performs cryptographic operations (encryption or signing)
 // on files within a multipart form using the specified algorithm and key.
-func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte) ([][]byte, []string, error) {
+func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte, keySize uint) ([][]byte, []string, error) {
 	var contents [][]byte
 	var fileNames []string
 
@@ -170,11 +173,11 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				return nil, nil, fmt.Errorf("%w", err)
 			}
 			if operation == "encryption" {
-				pubKeyInterface, err := x509.ParsePKIXPublicKey(keyBytes)
+				publicKeyInterface, err := x509.ParsePKIXPublicKey(keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing public key: %w", err)
 				}
-				publicKey, ok := pubKeyInterface.(*crypto_rsa.PublicKey)
+				publicKey, ok := publicKeyInterface.(*crypto_rsa.PublicKey)
 				if !ok {
 					return nil, nil, fmt.Errorf("public key is not of type RSA")
 				}
@@ -198,9 +201,34 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
-				privateKey, err := x509.ParseECPrivateKey(keyBytes)
-				if err != nil {
-					return nil, nil, fmt.Errorf("error parsing private key: %w", err)
+
+				privateKeyD := new(big.Int).SetBytes(keyBytes[:32])
+				pubKeyX := new(big.Int).SetBytes(keyBytes[32:64])
+				pubKeyY := new(big.Int).SetBytes(keyBytes[64:96])
+
+				var curve elliptic.Curve
+				switch keySize {
+				case 224:
+					curve = elliptic.P224()
+				case 256:
+					curve = elliptic.P256()
+				case 384:
+					curve = elliptic.P384()
+				case 521:
+					curve = elliptic.P521()
+				default:
+					return nil, nil, fmt.Errorf("key size %v not supported for EC", keySize)
+				}
+
+				publicKey := &crypto_ec.PublicKey{
+					Curve: curve,
+					X:     pubKeyX,
+					Y:     pubKeyY,
+				}
+
+				privateKey := &crypto_ec.PrivateKey{
+					D:         privateKeyD,
+					PublicKey: *publicKey,
 				}
 				processedBytes, err = ec.Sign(data, privateKey)
 				if err != nil {
