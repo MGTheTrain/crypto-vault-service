@@ -1,4 +1,3 @@
-// repository/blobrepository_test.go
 package repository
 
 import (
