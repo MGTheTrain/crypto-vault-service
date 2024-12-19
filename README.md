@@ -37,7 +37,7 @@ Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys a
 - [ ] **Secure file storage integration**: Provide mechanisms to securely store encrypted files in BLOB storages 
     - [ ] AWS S3
     - [x] Azure Blob Storage
-    - [ ] Google Cloud Storage.
+    - [ ] Google Cloud Storage
 
 ### Non-functional
 
