@@ -28,15 +28,18 @@ func (b *BlobMeta) Validate() error {
 
 	validate := validator.New()
 
-	validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation)
-	err := validate.Struct(b)
+	err := validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation)
+	if err != nil {
+		return fmt.Errorf("failed to register custom validator: %v", err)
+	}
+	err = validate.Struct(b)
 	if err != nil {
 
 		var validationErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
 			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
 		}
-		return fmt.Errorf("Validation failed: %v", validationErrors)
+		return fmt.Errorf("validation failed: %v", validationErrors)
 	}
 	return nil
 }

@@ -59,7 +59,7 @@ func (s *CryptoKeyUploadService) uploadAESKey(userId, keyPairId, keyAlgorithm st
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	keySizeInBytes := 16
+	var keySizeInBytes int
 	switch keySize {
 	case 128:
 		keySizeInBytes = 16
