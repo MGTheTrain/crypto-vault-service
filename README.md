@@ -22,7 +22,8 @@ Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys a
 
 ### Functional
 
-- [ ] **Provide RESTful API for cryptographic operations**: Expose endpoints for managing cryptographic material and securing data (files, metadata) at rest.
+- [ ] **Provide RESTful API**: Expose HTTP endpoints to manage cryptographic material and secure data (files, metadata) at rest.
+- [ ] **Provide gRPC API**: Expose gRPC endpoints to manage cryptographic material and secure data (files, metadata) at rest.
 - [x] **Asymmetric encryption and decryption**: Support RSA encryption algorithm for data protection.
 - [x] **Symmetric encryption**: Support for symmetric key encryption (e.g. AES) for data protection.
 - [x] **Signature creation and verification:** Support for hashing algorithms (e.g. SHA-256, SHA-512) to create digital signatures and the ability to verify these signatures using asymmetric keys (RSA, ECDSA).
