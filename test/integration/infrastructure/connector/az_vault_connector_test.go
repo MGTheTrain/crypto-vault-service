@@ -1,8 +1,6 @@
 package connector
 
 import (
-	"log"
-	"os"
 	"testing"
 	"time"
 
@@ -15,38 +13,46 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestUpload tests the Upload method of AzureVaultConnector
-func TestAzureVaultConnector_Upload(t *testing.T) {
+// AzureVaultConnectorTest encapsulates common logic for tests
+type AzureVaultConnectorTest struct {
+	Connector *connector.AzureVaultConnector
+}
+
+// NewAzureVaultConnectorTest initializes and returns a new AzureVaultConnectorTest
+func NewAzureVaultConnectorTest(t *testing.T, connectionString, containerName string) *AzureVaultConnectorTest {
+
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
 		LogType:  "console",
 		FilePath: "",
 	}
-
 	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
+	require.NoError(t, err)
 
 	keyConnectorSettings := &settings.KeyConnectorSettings{
-		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-		ContainerName:    "testblobs",
+		ConnectionString: connectionString,
+		ContainerName:    containerName,
 	}
 	abc, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
 	require.NoError(t, err)
 
-	testFilePath := "testfile.txt"
+	return &AzureVaultConnectorTest{
+		Connector: abc,
+	}
+}
+
+func TestAzureVaultConnector_Upload(t *testing.T) {
+	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
+
 	testFileContent := []byte("This is a test file content.")
 
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
-	require.NoError(t, err)
-
-	defer os.Remove(testFilePath)
-
 	userId := uuid.New().String()
+	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
-	cryptoKeyMeta, err := abc.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	keySize := 2048
+
+	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
@@ -54,90 +60,50 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	assert.Equal(t, userId, cryptoKeyMeta.UserID)
 	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
 
-	err = abc.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
-// TestDownload tests the Download method of AzureVaultConnector
 func TestAzureVaultConnector_Download(t *testing.T) {
-	loggerSettings := &settings.LoggerSettings{
-		LogLevel: "info",
-		LogType:  "console",
-		FilePath: "",
-	}
+	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
 
-	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
-
-	keyConnectorSettings := &settings.KeyConnectorSettings{
-		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-		ContainerName:    "testblobs",
-	}
-	abc, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
-	require.NoError(t, err)
-
-	testFilePath := "testfile.pem"
 	testFileContent := []byte("This is a test file content.")
 
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
-	require.NoError(t, err)
-
-	defer os.Remove(testFilePath)
-
 	userId := uuid.New().String()
+	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
-	cryptoKeyMeta, err := abc.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	keySize := 2048
+
+	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	downloadedData, err := abc.Download(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	downloadedData, err := helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	assert.Equal(t, testFileContent, downloadedData)
 
-	err = abc.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
-// TestDelete tests the Delete method of AzureVaultConnector
 func TestAzureVaultConnector_Delete(t *testing.T) {
-	loggerSettings := &settings.LoggerSettings{
-		LogLevel: "info",
-		LogType:  "console",
-		FilePath: "",
-	}
+	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
 
-	logger, err := logger.GetLogger(loggerSettings)
-	if err != nil {
-		log.Fatalf("Error creating logger: %v", err)
-	}
-
-	keyConnectorSettings := &settings.KeyConnectorSettings{
-		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-		ContainerName:    "testblobs",
-	}
-	abc, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
-	require.NoError(t, err)
-
-	testFilePath := "testfile.pem"
 	testFileContent := []byte("This is a test file content.")
 
-	err = os.WriteFile(testFilePath, testFileContent, 0644)
-	require.NoError(t, err)
-
-	defer os.Remove(testFilePath)
-
 	userId := uuid.New().String()
+	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
-	cryptoKeyMeta, err := abc.Upload(testFilePath, userId, keyType, keyAlgorithm)
+	keySize := 2048
+
+	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	err = abc.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
-	_, err = abc.Download(cryptoKeyMeta.ID, cryptoKeyMeta.Type)
+	_, err = helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	assert.Error(t, err)
 }

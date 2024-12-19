@@ -2,9 +2,9 @@ package keys
 
 // ICryptoKeyUploadService defines methods for uploading cryptographic keys.
 type ICryptoKeyUploadService interface {
-	// Upload uploads cryptographic keys from specified file paths.
+	// Upload uploads cryptographic keys
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(filePath, userId, keyType, keyAlgorihm string) (*CryptoKeyMeta, error)
+	Upload(userId, keyPairId, keyAlgorihm string, keySize uint) ([]*CryptoKeyMeta, error)
 }
 
 // ICryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
@@ -24,7 +24,7 @@ type ICryptoKeyMetadataService interface {
 
 // ICryptoKeyDownloadService defines methods for downloading cryptographic keys.
 type ICryptoKeyDownloadService interface {
-	// Download retrieves a cryptographic key by its ID and type.
+	// Download retrieves a cryptographic key by its ID
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	Download(keyID, keyType string) ([]byte, error)
+	Download(keyID string) ([]byte, error)
 }

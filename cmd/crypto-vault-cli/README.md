@@ -57,10 +57,10 @@ uuid=$(cat /proc/sys/kernel/random/uuid)
 # Generate ECC keys
 go run crypto_vault_cli.go generate-ecc-keys --key-size 256 --key-dir data/
 
-# Sign a file with a newly generated ECC key pair (internally generated)
+# Sign
 go run crypto_vault_cli.go sign-ecc --input-file data/input.txt  --output-file data/${uuid}-signature.bin --private-key <your generated private key>
 
-# Verify the signature using the generated public key
+# Verify
 go run crypto_vault_cli.go verify-ecc --input-file data/input.txt --signature-file data/${uuid}-signature.bin --public-key <your generated public key> 
 ```
 
@@ -78,7 +78,7 @@ go run crypto_vault_cli.go initialize-token --token-label my-token
 
 
 # Adding keys to tokens
-# Add an RSA or EC key pair (private and public key) to a PKCS#11 token
+# Add an RSA or EC key pair (consisting of private and public key) to a PKCS#11 token
 go run crypto_vault_cli.go add-key --token-label my-token --object-label my-rsa-key --key-type RSA --key-size 2048
 go run crypto_vault_cli.go add-key --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --key-size 256
 
@@ -86,7 +86,7 @@ go run crypto_vault_cli.go add-key --token-label my-token --object-label my-ecds
 go run crypto_vault_cli.go list-objects --token-label "my-token"
 
 # Deleting keys from tokens
-# Delete an object (e.g., RSA or EC key) from the PKCS#11 token
+# Delete an object (e.g. RSA or EC key) from the PKCS#11 token
 go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type pubkey
 go run crypto_vault_cli.go delete-object --token-label my-token --object-label my-rsa-key --object-type privkey
 

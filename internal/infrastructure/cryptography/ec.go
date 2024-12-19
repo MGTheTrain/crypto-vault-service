@@ -45,7 +45,7 @@ func (e *EC) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.Publi
 	}
 
 	publicKey := &privateKey.PublicKey
-	e.Logger.Info("Generated RSA key pairs")
+	e.Logger.Info("Generated EC key pairs")
 	return privateKey, publicKey, nil
 }
 

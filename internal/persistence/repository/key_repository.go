@@ -11,6 +11,7 @@ import (
 // CryptoKeyRepository defines the interface for CryptoKey-related operations
 type CryptoKeyRepository interface {
 	Create(key *keys.CryptoKeyMeta) error
+	List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error)
 	GetByID(keyId string) (*keys.CryptoKeyMeta, error)
 	UpdateByID(key *keys.CryptoKeyMeta) error
 	DeleteByID(keyId string) error
@@ -44,6 +45,53 @@ func (r *GormCryptoKeyRepository) Create(key *keys.CryptoKeyMeta) error {
 
 	r.Logger.Info(fmt.Sprintf("Created key metadata with id %s", key.ID))
 	return nil
+}
+
+func (r *GormCryptoKeyRepository) List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
+	// Validate the query parameters before using them
+	if err := query.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid query parameters: %w", err)
+	}
+
+	// Start building the query
+	var cryptoKeyMetas []*keys.CryptoKeyMeta
+	dbQuery := r.DB.Model(&keys.CryptoKeyMeta{})
+
+	// Apply filters based on the query
+	if query.Algorithm != "" {
+		dbQuery = dbQuery.Where("algorithm = ?", query.Algorithm)
+	}
+	if query.Type != "" {
+		dbQuery = dbQuery.Where("type = ?", query.Type)
+	}
+	if !query.DateTimeCreated.IsZero() {
+		dbQuery = dbQuery.Where("date_time_created >= ?", query.DateTimeCreated)
+	}
+
+	// Sorting
+	if query.SortBy != "" {
+		order := query.SortOrder // Default to ascending if not specified
+		if query.SortOrder == "" {
+			order = "asc"
+		}
+		dbQuery = dbQuery.Order(fmt.Sprintf("%s %s", query.SortBy, order))
+	}
+
+	// Pagination
+	if query.Limit > 0 {
+		dbQuery = dbQuery.Limit(query.Limit)
+	}
+	if query.Offset > 0 {
+		dbQuery = dbQuery.Offset(query.Offset)
+	}
+
+	// Execute the query
+	if err := dbQuery.Find(&cryptoKeyMetas).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch crypto key metadata: %w", err)
+	}
+
+	// Return the list of crypto key metadata
+	return cryptoKeyMetas, nil
 }
 
 // GetByID retrieves a CryptoKey by its ID from the database

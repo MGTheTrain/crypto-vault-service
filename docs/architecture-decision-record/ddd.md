@@ -31,11 +31,9 @@ Incorporating DDD as an architecture decision impacts the structure and developm
 │   └── persistence
 └── test
     ├── data
+    ├── smoke
     ├── integration
-    │   ├── domain
-    │       └── blob
-    │       └── key
-    │       └── permission
+    │   ├── app
     │   ├── infrastructure
     │   └── persistence
     └── unit

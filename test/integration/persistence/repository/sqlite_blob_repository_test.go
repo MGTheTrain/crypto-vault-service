@@ -1,4 +1,3 @@
-// repository/blobrepository_test.go
 package repository
 
 import (
@@ -21,8 +20,10 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
+		KeySize:         521,
 		DateTimeCreated: time.Now(),
 		UserID:          uuid.New().String(),
 	}
@@ -34,8 +35,10 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		CryptoKey:       cryptographicKey,
-		KeyID:           cryptographicKey.ID,
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
 	}
 
 	err := ctx.BlobRepo.Create(blob)
@@ -56,8 +59,10 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
+		KeyPairID:       uuid.New().String(),
 		Type:            "public",
 		Algorithm:       "EC",
+		KeySize:         256,
 		DateTimeCreated: time.Now(),
 		UserID:          uuid.New().String(),
 	}
@@ -69,8 +74,10 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 		Name:            "test-blob",
 		Size:            1024,
 		Type:            "text",
-		CryptoKey:       cryptographicKey,
-		KeyID:           cryptographicKey.ID,
+		EncryptionKey:   cryptographicKey,
+		EncryptionKeyID: cryptographicKey.ID,
+		SignKey:         cryptographicKey,
+		SignKeyID:       cryptographicKey.ID,
 	}
 
 	err := ctx.BlobRepo.Create(blob)
