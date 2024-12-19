@@ -72,8 +72,8 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	}
 }
 
-// Test case for successful blob upload with encryption and signing
-func TestBlobUploadService_Upload_With_Encryption_And_Signing_Success(t *testing.T) {
+// Test case for successful blob upload with RSA encryption and signing
+func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
 	defer helpers.TeardownTestDB(t, blobServices.DBContext, "sqlite")
 
@@ -95,6 +95,47 @@ func TestBlobUploadService_Upload_With_Encryption_And_Signing_Success(t *testing
 
 	signKeyId := cryptoKeyMetas[0].ID       // private key
 	encryptionKeyId := cryptoKeyMetas[1].ID // public key
+
+	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
+	require.NoError(t, err)
+	require.NotNil(t, blobMetas)
+	require.NotEmpty(t, blobMetas[0].ID)
+	require.Equal(t, userId, blobMetas[0].UserID)
+}
+
+// Test case for successful blob upload with AES encryption and ECDSA signing
+func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(t *testing.T) {
+	blobServices := NewBlobServicesTest(t)
+	defer helpers.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+
+	testFileContent := []byte("This is test file content")
+	testFileName := "testfile.txt"
+
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
+	require.NoError(t, err)
+
+	userId := uuid.New().String()
+
+	// generate signing private EC key
+	signKeyPairId := uuid.New().String()
+	signKeyAlgorithm := "EC"
+	signKeySize := 256
+
+	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, signKeyPairId, signKeyAlgorithm, uint(signKeySize))
+	require.NoError(t, err)
+	require.Equal(t, len(cryptoKeyMetas), 2)
+
+	// generate AES encryption key
+	encryptionKeyPairId := uuid.New().String()
+	encryptionKeyAlgorithm := "AES"
+	encryptionKeySize := 256
+
+	cryptoKeyMetas2, err := blobServices.CryptoKeyUploadService.Upload(userId, encryptionKeyPairId, encryptionKeyAlgorithm, uint(encryptionKeySize))
+	require.NoError(t, err)
+	require.Equal(t, len(cryptoKeyMetas2), 1)
+
+	signKeyId := cryptoKeyMetas[0].ID        // private key
+	encryptionKeyId := cryptoKeyMetas2[0].ID // symmetric key
 
 	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
 	require.NoError(t, err)
