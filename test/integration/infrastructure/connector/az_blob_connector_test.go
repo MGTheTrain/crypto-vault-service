@@ -51,7 +51,9 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 
 	userId := uuid.New().String()
 
-	blobs, err := abct.BlobConnector.Upload(form, userId)
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
+	blobs, err := abct.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 
 	require.Len(t, blobs, 1)
@@ -76,7 +78,9 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 
 	userId := uuid.New().String()
 
-	blobs, err := abct.BlobConnector.Upload(form, userId)
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
+	blobs, err := abct.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 
 	blob := blobs[0]
@@ -101,7 +105,9 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 
 	userId := uuid.New().String()
 
-	blobs, err := abct.BlobConnector.Upload(form, userId)
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
+	blobs, err := abct.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 
 	blob := blobs[0]

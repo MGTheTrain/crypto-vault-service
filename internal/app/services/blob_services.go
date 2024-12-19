@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	crypto_rsa "crypto/rsa"
 	"crypto/x509"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
@@ -10,7 +11,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"crypto_vault_service/internal/persistence/repository"
-	"encoding/pem"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -81,7 +81,7 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 
 	if signKeyId != nil || encryptionKeyId != nil {
 		//
-		blobMetas, err := s.BlobConnector.Upload(newForm, userId)
+		blobMetas, err := s.BlobConnector.Upload(newForm, userId, encryptionKeyId, signKeyId)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -96,7 +96,7 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 	}
 
 	//
-	blobMetas, err := s.BlobConnector.Upload(form, userId)
+	blobMetas, err := s.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -170,24 +170,20 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				return nil, nil, fmt.Errorf("%w", err)
 			}
 			if operation == "encryption" {
-				block, _ := pem.Decode(keyBytes)
-				if block == nil || block.Type != "RSA PUBLIC KEY" {
-					return nil, nil, fmt.Errorf("invalid public key PEM block")
-				}
-				publicKey, err := x509.ParsePKCS1PublicKey(block.Bytes)
+				pubKeyInterface, err := x509.ParsePKIXPublicKey(keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing public key: %w", err)
+				}
+				publicKey, ok := pubKeyInterface.(*crypto_rsa.PublicKey)
+				if !ok {
+					return nil, nil, fmt.Errorf("public key is not of type RSA")
 				}
 				processedBytes, err = rsa.Encrypt(data, publicKey)
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
 			} else if operation == "signing" {
-				block, _ := pem.Decode(keyBytes)
-				if block == nil || block.Type != "RSA PRIVATE KEY" {
-					return nil, nil, fmt.Errorf("invalid private key PEM block")
-				}
-				privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+				privateKey, err := x509.ParsePKCS1PrivateKey(keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing private key: %w", err)
 				}
@@ -202,11 +198,7 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
-				block, _ := pem.Decode(keyBytes)
-				if block == nil || block.Type != "EC PRIVATE KEY" {
-					return nil, nil, fmt.Errorf("invalid private key PEM block")
-				}
-				privateKey, err := x509.ParseECPrivateKey(block.Bytes)
+				privateKey, err := x509.ParseECPrivateKey(keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing private key: %w", err)
 				}
@@ -339,11 +331,7 @@ func (s *BlobDownloadService) Download(blobId string, decryptionKeyId *string) (
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
-			block, _ := pem.Decode(keyBytes)
-			if block == nil || block.Type != "RSA PRIVATE KEY" {
-				return nil, fmt.Errorf("invalid private key PEM block")
-			}
-			privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+			privateKey, err := x509.ParsePKCS1PrivateKey(keyBytes)
 			if err != nil {
 				return nil, fmt.Errorf("error parsing private key: %w", err)
 			}

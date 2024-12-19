@@ -20,7 +20,7 @@ import (
 type BlobConnector interface {
 	// UploadFromForm uploads files to a Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	Upload(form *multipart.Form, userId string) ([]*blobs.BlobMeta, error)
+	Upload(form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error)
 
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(blobId, blobName string) ([]byte, error)
@@ -62,7 +62,7 @@ func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logg
 
 // UploadFromForm uploads files to a Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string) ([]*blobs.BlobMeta, error) {
+func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 
 	fileHeaders := form.File["files"]
@@ -80,6 +80,14 @@ func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string) ([]*b
 			Type:            fileExt,
 			DateTimeCreated: time.Now(),
 			UserID:          userId,
+		}
+
+		if encryptionKeyId != nil {
+			blob.EncryptionKeyID = *encryptionKeyId
+		}
+
+		if signKeyId != nil {
+			blob.SignKeyID = *signKeyId
 		}
 
 		fullBlobName := fmt.Sprintf("%s/%s", blob.ID, blob.Name)
