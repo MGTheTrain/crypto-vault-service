@@ -54,14 +54,14 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 		return nil, fmt.Errorf("failed to generate AES key: %v", err)
 	}
 
-	a.Logger.Info("Generated AES key pairs")
+	a.Logger.Info("Generated AES key")
 	return key, nil
 }
 
 // Encrypt data using AES in CBC mode
 func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 	if key == nil {
-		return nil, fmt.Errorf("key key cannot be nil")
+		return nil, fmt.Errorf("key cannot be nil")
 	}
 
 	block, err := aes.NewCipher(key)
