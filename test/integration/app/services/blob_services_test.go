@@ -71,16 +71,15 @@ func TestBlobUploadService_Upload_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	// Call the helper function
+
 	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
-	// encryptionKeyId := uuid.New().String()
-	// signKeyId := uuid.New().String()
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
 
-	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
-	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, nil, nil)
+	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 	require.NotEmpty(t, blobMetas[0].ID)
@@ -94,7 +93,7 @@ func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	// Call the helper function
+
 	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
@@ -114,16 +113,15 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	// Call the helper function
+
 	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
-	// encryptionKeyId := uuid.New().String()
-	// signKeyId := uuid.New().String()
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
 
-	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
-	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, nil, nil)
+	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
@@ -185,16 +183,15 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	// Call the helper function
+
 	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
-	// encryptionKeyId := uuid.New().String()
-	// signKeyId := uuid.New().String()
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
 
-	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
-	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, nil, nil)
+	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
@@ -211,16 +208,15 @@ func TestBlobMetadataService_DeleteByID_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	// Call the helper function
+
 	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
-	// encryptionKeyId := uuid.New().String()
-	// signKeyId := uuid.New().String()
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
 
-	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
-	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, nil, nil)
+	blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
