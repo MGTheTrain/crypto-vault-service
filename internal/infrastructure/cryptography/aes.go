@@ -60,8 +60,8 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 
 // Encrypt data using AES in CBC mode
 func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
-	if key == nil {
-		return nil, fmt.Errorf("key cannot be nil")
+	if key == nil || data == nil {
+		return nil, fmt.Errorf("key and data cannot be nil")
 	}
 
 	block, err := aes.NewCipher(key)
@@ -86,8 +86,8 @@ func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 
 // Decrypt data using AES in CBC mode
 func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
-	if key == nil {
-		return nil, fmt.Errorf("key key cannot be nil")
+	if key == nil || ciphertext == nil {
+		return nil, fmt.Errorf("ciphertext and key cannot be nil")
 	}
 
 	block, err := aes.NewCipher(key)
