@@ -26,7 +26,8 @@ type IBlobMetadataService interface {
 
 // IBlobDownloadService defines methods for downloading blobs.
 type IBlobDownloadService interface {
-	// Download retrieves a blob by its ID and name.
-	// It returns the file data as a byte slice, and any error encountered during the download process.
-	Download(blobId string, decryptionKeyId, verificationKeyId *string) ([]byte, error)
+	// The download function retrieves a blob's content using its ID and also enables data decryption.
+	// NOTE: Signing should be performed locally by first downloading the associated key, followed by verification.
+	// Optionally, a verify endpoint will be available soon for optional use.
+	Download(blobId string, decryptionKeyId *string) ([]byte, error)
 }

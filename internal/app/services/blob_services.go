@@ -262,29 +262,89 @@ func (s *BlobMetadataService) DeleteByID(blobId string) error {
 type BlobDownloadService struct {
 	BlobConnector  connector.BlobConnector
 	BlobRepository repository.BlobRepository
+	VaultConnector connector.VaultConnector
+	CryptoKeyRepo  repository.CryptoKeyRepository
 	Logger         logger.Logger
 }
 
 // NewBlobDownloadService creates a new instance of BlobDownloadService
-func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, logger logger.Logger) *BlobDownloadService {
+func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) *BlobDownloadService {
 	return &BlobDownloadService{
 		BlobConnector:  blobConnector,
 		BlobRepository: blobRepository,
+		CryptoKeyRepo:  cryptoKeyRepo,
+		VaultConnector: vaultConnector,
 		Logger:         logger,
 	}
 }
 
-// Download retrieves a blob's content by its ID and name
-func (s *BlobDownloadService) Download(blobId string, decryptionKeyId, verificationKeyId *string) ([]byte, error) {
+// The download function retrieves a blob's content using its ID and also enables data decryption.
+// NOTE: Signing should be performed locally by first downloading the associated key, followed by verification.
+// Optionally, a verify endpoint will be available soon for optional use.
+func (s *BlobDownloadService) Download(blobId string, decryptionKeyId *string) ([]byte, error) {
+
 	blobMeta, err := s.BlobRepository.GetById(blobId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	blob, err := s.BlobConnector.Download(blobId, blobMeta.Name)
+	blobBytes, err := s.BlobConnector.Download(blobId, blobMeta.Name)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	return blob, nil
+	if decryptionKeyId != nil {
+		var processedBytes []byte
+		keyBytes, cryptoKeyMeta, err := s.getCryptoKeyAndData(*decryptionKeyId)
+		if err != nil {
+			return nil, fmt.Errorf("%w", err)
+		}
+
+		switch cryptoKeyMeta.Algorithm {
+		case "AES":
+			aes, err := cryptography.NewAES(s.Logger)
+			if err != nil {
+				return nil, fmt.Errorf("%w", err)
+			}
+			processedBytes, err = aes.Decrypt(blobBytes, keyBytes)
+			if err != nil {
+				return nil, fmt.Errorf("%w", err)
+			}
+		case "RSA":
+			rsa, err := cryptography.NewRSA(s.Logger)
+			if err != nil {
+				return nil, fmt.Errorf("%w", err)
+			}
+			privateKey, err := x509.ParsePKCS1PrivateKey(keyBytes)
+			if err != nil {
+				return nil, fmt.Errorf("error parsing public key: %w", err)
+			}
+			processedBytes, err = rsa.Decrypt(blobBytes, privateKey)
+			if err != nil {
+				return nil, fmt.Errorf("%w", err)
+			}
+		default:
+			return nil, fmt.Errorf("unsupported algorithm: %s", cryptoKeyMeta.Algorithm)
+		}
+		return processedBytes, nil
+	}
+	return blobBytes, nil
+}
+
+// getCryptoKeyAndData retrieves the encryption or signing key along with its metadata by ID.
+// It downloads the key from the vault and returns the key bytes and associated metadata.
+func (s *BlobDownloadService) getCryptoKeyAndData(cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
+	// Get meta info
+	cryptoKeyMeta, err := s.CryptoKeyRepo.GetByID(cryptoKeyId)
+	if err != nil {
+		return nil, nil, fmt.Errorf("%w", err)
+	}
+
+	// Download key
+	keyBytes, err := s.VaultConnector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+	if err != nil {
+		return nil, nil, fmt.Errorf("%w", err)
+	}
+
+	return keyBytes, cryptoKeyMeta, nil
 }
