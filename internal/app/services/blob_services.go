@@ -78,18 +78,28 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 		}
 	}
 
-	// Upload the new form
-	blobMetas, err := s.BlobConnector.Upload(newForm, userId)
+	if signKeyId != nil || encryptionKeyId != nil {
+		//
+		blobMetas, err := s.BlobConnector.Upload(newForm, userId)
+		if err != nil {
+			return nil, fmt.Errorf("%w", err)
+		}
+
+		for _, blobMeta := range blobMetas {
+			err := s.BlobRepository.Create(blobMeta)
+			if err != nil {
+				return nil, fmt.Errorf("%w", err)
+			}
+		}
+		return blobMetas, nil
+	}
+
+	//
+	blobMetas, err := s.BlobConnector.Upload(form, userId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	// Handle empty uploads
-	if len(blobMetas) == 0 {
-		return nil, fmt.Errorf("no blobs uploaded")
-	}
-
-	// Save blob meta data
 	for _, blobMeta := range blobMetas {
 		err := s.BlobRepository.Create(blobMeta)
 		if err != nil {
