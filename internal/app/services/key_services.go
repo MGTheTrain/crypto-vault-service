@@ -58,7 +58,20 @@ func (s *CryptoKeyUploadService) uploadAESKey(userId, keyPairId, keyAlgorithm st
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
-	symmetricKeyBytes, err := aes.GenerateKey(int(keySize))
+
+	keySizeInBytes := 16
+	switch keySize {
+	case 128:
+		keySizeInBytes = 16
+	case 192:
+		keySizeInBytes = 24
+	case 256:
+		keySizeInBytes = 32
+	default:
+		return nil, fmt.Errorf("key size %v not supported for AES", keySize)
+	}
+
+	symmetricKeyBytes, err := aes.GenerateKey(keySizeInBytes)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
