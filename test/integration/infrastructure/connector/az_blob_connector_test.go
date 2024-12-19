@@ -1,13 +1,11 @@
 package connector
 
 import (
-	"os"
 	"testing"
 
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/internal/infrastructure/utils"
 	"crypto_vault_service/test/helpers"
 
 	"github.com/google/uuid"
@@ -48,11 +46,7 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -77,11 +71,7 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.pem"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -106,11 +96,7 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.pem"
-	err := helpers.CreateTestFile(testFileName, testFileContent)
-	require.NoError(t, err)
-	defer os.Remove(testFileName)
-
-	form, err := utils.CreateForm(testFileContent, testFileName)
+	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
