@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CI workflows for quality checks**: Set up continuous integration workflows with GitHub Actions for automated linting, functional testing, building and pushing artifacts.
 - **PKCS#11 integration**: Enabled key management and cryptographic operations (such as RSA-PKCS encryption/decryption and RSA-PSS or ECDSA signing/verification) through PKCS#11 interfaces supporting both FIPS-compliant hardware and software environments.
 - **Logging**: Integrated console and file logging (e.g. using structured logging with `logrus`) 
-- **Manage cryptographic material**: Enable management of private/public key pairs and symmetric keys and implement key lifecycle management including key generation and key export
-- **Secure file storage integration**: Provide mechanisms to securely store encrypted files in Azure Blob Storage 
+- **Manage cryptographic material**: Enabled management of private/public key pairs and symmetric keys and implemented key lifecycle management including primarily key generation and key export
+- **Secure file storage integration**: Provided mechanisms to securely store encrypted files in Azure Blob Storage 
 
 ## [0.1.0] - TBD-TBD-TBD
 
