@@ -189,9 +189,8 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 	}
 
 	userId := uuid.New().String() // TBD: extract user id from JWT
-	keyPairId := uuid.New().String()
 
-	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(userId, keyPairId, requestDto.Algorithm, requestDto.KeySize)
+	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(userId, requestDto.Algorithm, requestDto.KeySize)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
 		errorResponseDto.Message = "Error uploading key"

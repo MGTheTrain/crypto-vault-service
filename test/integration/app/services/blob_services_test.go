@@ -85,11 +85,10 @@ func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *tes
 
 	userId := uuid.New().String()
 
-	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keySize := 2048
 
-	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, keyPairId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 
@@ -117,20 +116,18 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 	userId := uuid.New().String()
 
 	// generate signing private EC key
-	signKeyPairId := uuid.New().String()
 	signKeyAlgorithm := "EC"
 	signKeySize := 256
 
-	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, signKeyPairId, signKeyAlgorithm, uint(signKeySize))
+	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, signKeyAlgorithm, uint(signKeySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 
 	// generate AES encryption key
-	encryptionKeyPairId := uuid.New().String()
 	encryptionKeyAlgorithm := "AES"
 	encryptionKeySize := 256
 
-	cryptoKeyMetas2, err := blobServices.CryptoKeyUploadService.Upload(userId, encryptionKeyPairId, encryptionKeyAlgorithm, uint(encryptionKeySize))
+	cryptoKeyMetas2, err := blobServices.CryptoKeyUploadService.Upload(userId, encryptionKeyAlgorithm, uint(encryptionKeySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas2), 1)
 

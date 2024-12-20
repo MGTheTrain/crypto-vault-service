@@ -9,6 +9,8 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 type CryptoKeyUploadService struct {
@@ -28,9 +30,10 @@ func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKe
 
 // Upload uploads cryptographic keys
 // It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-func (s *CryptoKeyUploadService) Upload(userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+func (s *CryptoKeyUploadService) Upload(userId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
 	var cryptKeyMetas []*keys.CryptoKeyMeta
 
+	keyPairId := uuid.New().String()
 	var err error
 	switch keyAlgorithm {
 	case "AES":
