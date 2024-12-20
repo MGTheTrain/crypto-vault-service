@@ -136,6 +136,37 @@ func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 	c.JSON(http.StatusOK, blobMetadataResponse)
 }
 
+// DownloadById handles the GET request to download a blob by its ID
+func (handler *BlobHandler) DownloadById(c *gin.Context) {
+	blobId := c.Param("id")
+
+	var decryptionKeyId *string
+	if decryptionKeyQuery := c.Query("decryption_key_id"); len(decryptionKeyQuery) > 0 {
+		decryptionKeyId = &decryptionKeyQuery
+	}
+
+	bytes, err := handler.blobDownloadService.Download(blobId, decryptionKeyId)
+	if err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		c.JSON(http.StatusNotFound, errorResponseDto)
+		return
+	}
+
+	blobMeta, err := handler.blobMetadataService.GetByID(blobId)
+	if err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = fmt.Sprintf("Blob with id %s not found", blobId)
+		c.JSON(http.StatusNotFound, errorResponseDto)
+		return
+	}
+
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Writer.Header().Set("Content-Type", "application/octet-stream; charset=utf-8")
+	c.Writer.Header().Set("Content-Disposition", "attachment; filename="+blobMeta.Name)
+	c.Writer.Write(bytes)
+}
+
 // DeleteById handles the DELETE request to delete a blob by its ID
 func (handler *BlobHandler) DeleteById(c *gin.Context) {
 	blobId := c.Param("id")
@@ -215,31 +246,6 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 	c.JSON(http.StatusCreated, cryptoKeyMetadataResponses)
 }
 
-// GetMetadataById handles the GET request to retrieve metadata of a key by its ID
-func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
-	keyId := c.Param("id")
-
-	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(keyId)
-	if err != nil {
-		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("key with id %s not found", keyId)
-		c.JSON(http.StatusNotFound, errorResponseDto)
-		return
-	}
-
-	cryptoKeyMetadataResponse := CryptoKeyMetaResponseDto{
-		ID:              cryptoKeyMeta.ID,
-		KeyPairID:       cryptoKeyMeta.KeyPairID,
-		Algorithm:       cryptoKeyMeta.Algorithm,
-		KeySize:         cryptoKeyMeta.KeySize,
-		Type:            cryptoKeyMeta.Type,
-		DateTimeCreated: cryptoKeyMeta.DateTimeCreated,
-		UserID:          cryptoKeyMeta.UserID,
-	}
-
-	c.JSON(http.StatusOK, cryptoKeyMetadataResponse)
-}
-
 // ListMetadata handles the GET request to list cryptographic keys metadata
 func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 	var query *keys.CryptoKeyQuery = nil
@@ -267,6 +273,49 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, cryptoKeyMetadataResponses)
+}
+
+// GetMetadataById handles the GET request to retrieve metadata of a key by its ID
+func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
+	keyId := c.Param("id")
+
+	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(keyId)
+	if err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = fmt.Sprintf("key with id %s not found", keyId)
+		c.JSON(http.StatusNotFound, errorResponseDto)
+		return
+	}
+
+	cryptoKeyMetadataResponse := CryptoKeyMetaResponseDto{
+		ID:              cryptoKeyMeta.ID,
+		KeyPairID:       cryptoKeyMeta.KeyPairID,
+		Algorithm:       cryptoKeyMeta.Algorithm,
+		KeySize:         cryptoKeyMeta.KeySize,
+		Type:            cryptoKeyMeta.Type,
+		DateTimeCreated: cryptoKeyMeta.DateTimeCreated,
+		UserID:          cryptoKeyMeta.UserID,
+	}
+
+	c.JSON(http.StatusOK, cryptoKeyMetadataResponse)
+}
+
+// DownloadById handles the GET request to download a key by its ID
+func (handler *KeyHandler) DownloadById(c *gin.Context) {
+	keyId := c.Param("id")
+
+	bytes, err := handler.cryptoKeyDownloadService.Download(keyId)
+	if err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = fmt.Sprintf("key with id %s not found", keyId)
+		c.JSON(http.StatusNotFound, errorResponseDto)
+		return
+	}
+
+	c.Writer.WriteHeader(http.StatusOK)
+	c.Writer.Header().Set("Content-Type", "application/octet-stream; charset=utf-8")
+	c.Writer.Header().Set("Content-Disposition", "attachment; filename="+keyId)
+	c.Writer.Write(bytes)
 }
 
 // DeleteById handles the DELETE request to delete a key by its ID

@@ -21,6 +21,7 @@ func SetupRoutes(r *gin.Engine,
 	v1.POST("/blobs", blobHandler.Upload)
 	v1.GET("/blobs", blobHandler.ListMetadata)
 	v1.GET("/blobs/:id", blobHandler.GetMetadataById)
+	v1.GET("/blobs/:id/file", blobHandler.DownloadById)
 	v1.DELETE("/blobs/:id", blobHandler.DeleteById)
 
 	// Keys Routes
@@ -28,5 +29,6 @@ func SetupRoutes(r *gin.Engine,
 	v1.POST("/keys", keyHandler.UploadKeys)
 	v1.GET("/keys", keyHandler.ListMetadata)
 	v1.GET("/keys/:id", keyHandler.GetMetadataById)
+	v1.GET("/keys/:id/file", keyHandler.DownloadById)
 	v1.DELETE("/keys/:id", keyHandler.DeleteById)
 }
