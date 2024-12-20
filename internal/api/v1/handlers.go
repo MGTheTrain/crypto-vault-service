@@ -78,7 +78,7 @@ func (handler *BlobHandler) Upload(c *gin.Context) {
 	c.JSON(http.StatusCreated, blobMetadataResponses)
 }
 
-// ListMetadata handles the GET request to fetch metadata of blobs by query
+// ListMetadata handles the GET request to fetch metadata of blobs optionally considering query parameters
 func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 	var query *blobs.BlobMetaQuery = nil
 
@@ -190,7 +190,7 @@ type KeyHandler struct {
 	cryptoKeyMetadataService *services.CryptoKeyMetadataService
 }
 
-// NewKeyHandler creates a new KeyHandler with a registered custom validator
+// NewKeyHandler creates a new KeyHandler
 func NewKeyHandler(cryptoKeyUploadService *services.CryptoKeyUploadService, cryptoKeyDownloadService *services.CryptoKeyDownloadService, cryptoKeyMetadataService *services.CryptoKeyMetadataService) *KeyHandler {
 
 	return &KeyHandler{
@@ -246,7 +246,7 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 	c.JSON(http.StatusCreated, cryptoKeyMetadataResponses)
 }
 
-// ListMetadata handles the GET request to list cryptographic keys metadata
+// ListMetadata handles the GET request to list cryptographic keys metadata optionally considering query parameters
 func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 	var query *keys.CryptoKeyQuery = nil
 
