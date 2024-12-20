@@ -31,9 +31,9 @@ type BlobConnector interface {
 
 // AzureBlobConnector is a struct that holds the Azure Blob storage client and implements the BlobConnector interfaces.
 type AzureBlobConnector struct {
-	Client        *azblob.Client
+	client        *azblob.Client
 	containerName string
-	Logger        logger.Logger
+	logger        logger.Logger
 }
 
 // NewAzureBlobConnector creates a new AzureBlobConnector instance using a connection string.
@@ -54,9 +54,9 @@ func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logg
 	// }
 
 	return &AzureBlobConnector{
-		Client:        client,
+		client:        client,
 		containerName: settings.ContainerName,
-		Logger:        logger,
+		logger:        logger,
 	}, nil
 }
 
@@ -110,14 +110,14 @@ func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encry
 			return nil, err
 		}
 
-		_, err = abc.Client.UploadBuffer(context.Background(), abc.containerName, fullBlobName, buffer.Bytes(), nil)
+		_, err = abc.client.UploadBuffer(context.Background(), abc.containerName, fullBlobName, buffer.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
 			abc.rollbackUploadedBlobs(blobMeta)
 			return nil, err
 		}
 
-		abc.Logger.Info(fmt.Sprintf("Blob '%s' uploaded successfully", blob.Name))
+		abc.logger.Info(fmt.Sprintf("Blob '%s' uploaded successfully", blob.Name))
 
 		blobMeta = append(blobMeta, blob)
 	}
@@ -130,9 +130,9 @@ func (abc *AzureBlobConnector) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
 	for _, blob := range blobs {
 		err := abc.Delete(blob.ID, blob.Name)
 		if err != nil {
-			abc.Logger.Info(fmt.Sprintf("Failed to delete blob '%s' during rollback: %v", blob.Name, err))
+			abc.logger.Info(fmt.Sprintf("Failed to delete blob '%s' during rollback: %v", blob.Name, err))
 		} else {
-			abc.Logger.Info(fmt.Sprintf("Blob '%s' deleted during rollback", blob.Name))
+			abc.logger.Info(fmt.Sprintf("Blob '%s' deleted during rollback", blob.Name))
 		}
 	}
 }
@@ -143,7 +143,7 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error)
 
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
-	get, err := abc.Client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
+	get, err := abc.client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download blob '%s': %w", fullBlobName, err)
 	}
@@ -161,7 +161,7 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error)
 		return nil, fmt.Errorf("failed to close retryReader for blob '%s': %w", fullBlobName, err)
 	}
 
-	abc.Logger.Info(fmt.Sprintf("Blob '%s' downloaded successfully", fullBlobName))
+	abc.logger.Info(fmt.Sprintf("Blob '%s' downloaded successfully", fullBlobName))
 	return downloadedData.Bytes(), nil
 }
 
@@ -171,11 +171,11 @@ func (abc *AzureBlobConnector) Delete(blobId, blobName string) error {
 
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
-	_, err := abc.Client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)
+	_, err := abc.client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {
 		return fmt.Errorf("failed to delete blob in %s", fullBlobName)
 	}
 
-	abc.Logger.Info(fmt.Sprintf("Blob '%s' deleted successfully", fullBlobName))
+	abc.logger.Info(fmt.Sprintf("Blob '%s' deleted successfully", fullBlobName))
 	return nil
 }

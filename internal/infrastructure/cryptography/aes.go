@@ -18,13 +18,13 @@ type IAES interface {
 
 // AES struct that implements the IAES interface
 type AES struct {
-	Logger logger.Logger
+	logger logger.Logger
 }
 
 // NewAES creates and returns a new instance of AES
 func NewAES(logger logger.Logger) (*AES, error) {
 	return &AES{
-		Logger: logger,
+		logger: logger,
 	}, nil
 }
 
@@ -54,7 +54,7 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 		return nil, fmt.Errorf("failed to generate AES key: %v", err)
 	}
 
-	a.Logger.Info("Generated AES key")
+	a.logger.Info("Generated AES key")
 	return key, nil
 }
 
@@ -80,7 +80,7 @@ func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(ciphertext[aes.BlockSize:], data)
 
-	a.Logger.Info("AES encryption succeeded")
+	a.logger.Info("AES encryption succeeded")
 	return ciphertext, nil
 }
 
@@ -105,6 +105,6 @@ func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
 	mode := cipher.NewCBCDecrypter(block, iv)
 	mode.CryptBlocks(ciphertext, ciphertext)
 
-	a.Logger.Info("AES decryption succeeded")
+	a.logger.Info("AES decryption succeeded")
 	return pkcs7Unpad(ciphertext, aes.BlockSize)
 }

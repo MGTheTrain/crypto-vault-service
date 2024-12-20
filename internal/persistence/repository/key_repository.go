@@ -19,16 +19,16 @@ type CryptoKeyRepository interface {
 
 // GormCryptoKeyRepository is the implementation of the CryptoKeyRepository interface
 type GormCryptoKeyRepository struct {
-	DB     *gorm.DB
-	Logger logger.Logger
+	db     *gorm.DB
+	logger logger.Logger
 }
 
 // GormCryptoKeyRepository creates a new GormCryptoKeyRepository instance
 func NewGormCryptoKeyRepository(db *gorm.DB, logger logger.Logger) (*GormCryptoKeyRepository, error) {
 
 	return &GormCryptoKeyRepository{
-		DB:     db,
-		Logger: logger,
+		db:     db,
+		logger: logger,
 	}, nil
 }
 
@@ -39,11 +39,11 @@ func (r *GormCryptoKeyRepository) Create(key *keys.CryptoKeyMeta) error {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.DB.Create(&key).Error; err != nil {
+	if err := r.db.Create(&key).Error; err != nil {
 		return fmt.Errorf("failed to create cryptographic key: %w", err)
 	}
 
-	r.Logger.Info(fmt.Sprintf("Created key metadata with id %s", key.ID))
+	r.logger.Info(fmt.Sprintf("Created key metadata with id %s", key.ID))
 	return nil
 }
 
@@ -55,7 +55,7 @@ func (r *GormCryptoKeyRepository) List(query *keys.CryptoKeyQuery) ([]*keys.Cryp
 
 	// Start building the query
 	var cryptoKeyMetas []*keys.CryptoKeyMeta
-	dbQuery := r.DB.Model(&keys.CryptoKeyMeta{})
+	dbQuery := r.db.Model(&keys.CryptoKeyMeta{})
 
 	// Apply filters based on the query
 	if query.Algorithm != "" {
@@ -97,7 +97,7 @@ func (r *GormCryptoKeyRepository) List(query *keys.CryptoKeyQuery) ([]*keys.Cryp
 // GetByID retrieves a CryptoKey by its ID from the database
 func (r *GormCryptoKeyRepository) GetByID(keyId string) (*keys.CryptoKeyMeta, error) {
 	var key keys.CryptoKeyMeta
-	if err := r.DB.Where("id = ?", keyId).First(&key).Error; err != nil {
+	if err := r.db.Where("id = ?", keyId).First(&key).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("cryptographic key with ID %s not found", keyId)
 		}
@@ -113,19 +113,19 @@ func (r *GormCryptoKeyRepository) UpdateByID(key *keys.CryptoKeyMeta) error {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.DB.Save(&key).Error; err != nil {
+	if err := r.db.Save(&key).Error; err != nil {
 		return fmt.Errorf("failed to update cryptographic key: %w", err)
 	}
 
-	r.Logger.Info(fmt.Sprintf("Updated key metadata with id %s", key.ID))
+	r.logger.Info(fmt.Sprintf("Updated key metadata with id %s", key.ID))
 	return nil
 }
 
 // DeleteByID removes a CryptoKey from the database by its ID
 func (r *GormCryptoKeyRepository) DeleteByID(keyId string) error {
-	if err := r.DB.Where("id = ?", keyId).Delete(&keys.CryptoKeyMeta{}).Error; err != nil {
+	if err := r.db.Where("id = ?", keyId).Delete(&keys.CryptoKeyMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete cryptographic key: %w", err)
 	}
-	r.Logger.Info(fmt.Sprintf("Deleted key metadata with id %s", keyId))
+	r.logger.Info(fmt.Sprintf("Deleted key metadata with id %s", keyId))
 	return nil
 }
