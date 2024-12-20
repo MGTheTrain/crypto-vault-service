@@ -51,13 +51,13 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	vaultConnector, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
 	require.NoError(t, err, "Error creating vault connector")
 
-	blobUploadService := services.NewBlobUploadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
+	blobUploadService, err := services.NewBlobUploadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating BlobUploadService")
 
-	blobDownloadService := services.NewBlobDownloadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
+	blobDownloadService, err := services.NewBlobDownloadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating BlobDownloadService")
 
-	blobMetadataService := services.NewBlobMetadataService(ctx.BlobRepo, blobConnector, logger)
+	blobMetadataService, err := services.NewBlobMetadataService(ctx.BlobRepo, blobConnector, logger)
 	require.NoError(t, err, "Error creating BlobMetadataService")
 
 	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, ctx.CryptoKeyRepo, logger)

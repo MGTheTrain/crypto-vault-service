@@ -29,14 +29,14 @@ type BlobUploadService struct {
 }
 
 // NewBlobUploadService creates a new instance of BlobUploadService
-func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) *BlobUploadService {
+func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*BlobUploadService, error) {
 	return &BlobUploadService{
 		BlobConnector:  blobConnector,
 		BlobRepository: blobRepository,
 		CryptoKeyRepo:  cryptoKeyRepo,
 		VaultConnector: vaultConnector,
 		Logger:         logger,
-	}
+	}, nil
 }
 
 // Upload transfers blobs with the option to encrypt them using an encryption key or sign them with a signing key.
@@ -254,12 +254,12 @@ type BlobMetadataService struct {
 }
 
 // NewBlobMetadataService creates a new instance of BlobMetadataService
-func NewBlobMetadataService(blobRepository repository.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) *BlobMetadataService {
+func NewBlobMetadataService(blobRepository repository.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (*BlobMetadataService, error) {
 	return &BlobMetadataService{
 		BlobConnector:  blobConnector,
 		BlobRepository: blobRepository,
 		Logger:         logger,
-	}
+	}, nil
 }
 
 // List retrieves all blobs' metadata considering a query filter
@@ -312,14 +312,14 @@ type BlobDownloadService struct {
 }
 
 // NewBlobDownloadService creates a new instance of BlobDownloadService
-func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) *BlobDownloadService {
+func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*BlobDownloadService, error) {
 	return &BlobDownloadService{
 		BlobConnector:  blobConnector,
 		BlobRepository: blobRepository,
 		CryptoKeyRepo:  cryptoKeyRepo,
 		VaultConnector: vaultConnector,
 		Logger:         logger,
-	}
+	}, nil
 }
 
 // The download function retrieves a blob's content using its ID and also enables data decryption.
