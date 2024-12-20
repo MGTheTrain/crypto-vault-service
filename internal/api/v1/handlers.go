@@ -30,8 +30,8 @@ func NewBlobHandler(blobUploadService *services.BlobUploadService, blobDownloadS
 	}
 }
 
-// UploadBlob handles the POST request to upload a blob with optional encryption/signing
-func (handler *BlobHandler) UploadBlob(c *gin.Context) {
+// Upload handles the POST request to upload a blob with optional encryption/signing
+func (handler *BlobHandler) Upload(c *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId, signKeyId *string
 	userId := uuid.New().String() // TBD: extract user id from JWT
@@ -78,8 +78,8 @@ func (handler *BlobHandler) UploadBlob(c *gin.Context) {
 	c.JSON(http.StatusCreated, blobMetadataResponses)
 }
 
-// GetBlobsMetadata handles the GET request to fetch metadata of blobs by query
-func (handler *BlobHandler) GetBlobsMetadata(c *gin.Context) {
+// ListMetadata handles the GET request to fetch metadata of blobs by query
+func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 	var query *blobs.BlobMetaQuery = nil
 
 	// TBD: extract query parameters with Gin
@@ -110,8 +110,8 @@ func (handler *BlobHandler) GetBlobsMetadata(c *gin.Context) {
 	c.JSON(http.StatusOK, blobMetadataResponses)
 }
 
-// GetBlobMetadataById handles the GET request to fetch metadata of a blob by its ID
-func (handler *BlobHandler) GetBlobMetadataById(c *gin.Context) {
+// GetMetadataById handles the GET request to fetch metadata of a blob by its ID
+func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 	blobId := c.Param("id")
 
 	blobMeta, err := handler.blobMetadataService.GetByID(blobId)
@@ -136,8 +136,8 @@ func (handler *BlobHandler) GetBlobMetadataById(c *gin.Context) {
 	c.JSON(http.StatusOK, blobMetadataResponse)
 }
 
-// DeleteBlob handles the DELETE request to delete a blob by its ID
-func (handler *BlobHandler) DeleteBlobById(c *gin.Context) {
+// DeleteById handles the DELETE request to delete a blob by its ID
+func (handler *BlobHandler) DeleteById(c *gin.Context) {
 	blobId := c.Param("id")
 
 	if err := handler.blobMetadataService.DeleteByID(blobId); err != nil {
@@ -216,8 +216,8 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 	c.JSON(http.StatusCreated, cryptoKeyMetadataResponses)
 }
 
-// GetKeyMetadataById handles the GET request to retrieve metadata of a key by its ID
-func (handler *KeyHandler) GetKeyMetadataById(c *gin.Context) {
+// GetMetadataById handles the GET request to retrieve metadata of a key by its ID
+func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
 	keyId := c.Param("id")
 
 	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(keyId)
@@ -241,8 +241,8 @@ func (handler *KeyHandler) GetKeyMetadataById(c *gin.Context) {
 	c.JSON(http.StatusOK, cryptoKeyMetadataResponse)
 }
 
-// GetKeysMetadata handles the GET request to list cryptographic keys metadata
-func (handler *KeyHandler) GetKeysMetadata(c *gin.Context) {
+// ListMetadata handles the GET request to list cryptographic keys metadata
+func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 	var query *keys.CryptoKeyQuery = nil
 
 	cryptoKeyMetas, err := handler.cryptoKeyMetadataService.List(query)
@@ -270,8 +270,8 @@ func (handler *KeyHandler) GetKeysMetadata(c *gin.Context) {
 	c.JSON(http.StatusOK, cryptoKeyMetadataResponses)
 }
 
-// DeleteKeyById handles the DELETE request to delete a key by its ID
-func (handler *KeyHandler) DeleteKeyById(c *gin.Context) {
+// DeleteById handles the DELETE request to delete a key by its ID
+func (handler *KeyHandler) DeleteById(c *gin.Context) {
 	keyId := c.Param("id")
 
 	if err := handler.cryptoKeyMetadataService.DeleteByID(keyId); err != nil {

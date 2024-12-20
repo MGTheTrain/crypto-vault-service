@@ -18,15 +18,15 @@ func SetupRoutes(r *gin.Engine,
 
 	// Blobs Routes
 	blobHandler := NewBlobHandler(blobUploadService, blobDownloadService, blobMetadataService, cryptoKeyUploadService)
-	v1.POST("/blobs", blobHandler.UploadBlob)
-	v1.GET("/blobs", blobHandler.GetBlobsMetadata)
-	v1.GET("/blobs/:id", blobHandler.GetBlobMetadataById)
-	v1.DELETE("/blobs/:id", blobHandler.DeleteBlobById)
+	v1.POST("/blobs", blobHandler.Upload)
+	v1.GET("/blobs", blobHandler.ListMetadata)
+	v1.GET("/blobs/:id", blobHandler.GetMetadataById)
+	v1.DELETE("/blobs/:id", blobHandler.DeleteById)
 
 	// Keys Routes
 	keyHandler := NewKeyHandler(cryptoKeyUploadService, cryptoKeyDownloadService, cryptoKeyMetadataService)
 	v1.POST("/keys", keyHandler.UploadKeys)
-	v1.GET("/keys", keyHandler.GetKeysMetadata)
-	v1.GET("/keys/:id", keyHandler.GetKeyMetadataById)
-	v1.DELETE("/keys/:id", keyHandler.DeleteKeyById)
+	v1.GET("/keys", keyHandler.ListMetadata)
+	v1.GET("/keys/:id", keyHandler.GetMetadataById)
+	v1.DELETE("/keys/:id", keyHandler.DeleteById)
 }
