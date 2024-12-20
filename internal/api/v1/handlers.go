@@ -4,9 +4,11 @@ import (
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
+	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -80,9 +82,51 @@ func (handler *BlobHandler) Upload(c *gin.Context) {
 
 // ListMetadata handles the GET request to fetch metadata of blobs optionally considering query parameters
 func (handler *BlobHandler) ListMetadata(c *gin.Context) {
-	var query *blobs.BlobMetaQuery = nil
+	query := blobs.NewBlobMetaQuery()
 
-	// TBD: extract query parameters with Gin
+	if blobName := c.Query("name"); len(blobName) > 0 {
+		query.Name = blobName
+	}
+
+	if blobSize := c.Query("size"); len(blobSize) > 0 {
+		query.Size = utils.ConvertToInt64(blobSize)
+	}
+
+	if blobType := c.Query("type"); len(blobType) > 0 {
+		query.Type = blobType
+	}
+
+	if dateTimeCreated := c.Query("dateTimeCreated"); len(dateTimeCreated) > 0 {
+		parsedTime, err := time.Parse(time.RFC3339, dateTimeCreated)
+		if err == nil {
+			query.DateTimeCreated = parsedTime
+		} else {
+			// ignore parsing errors
+		}
+	}
+
+	if limit := c.Query("limit"); len(limit) > 0 {
+		query.Limit = utils.ConvertToInt(limit)
+	}
+
+	if offset := c.Query("offset"); len(offset) > 0 {
+		query.Offset = utils.ConvertToInt(offset)
+	}
+
+	if sortBy := c.Query("sortBy"); len(sortBy) > 0 {
+		query.SortBy = sortBy
+	}
+
+	if sortOrder := c.Query("sortOrder"); len(sortOrder) > 0 {
+		query.SortOrder = sortOrder
+	}
+
+	if err := query.Validate(); err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = "Validation failed"
+		c.JSON(400, errorResponseDto)
+		return
+	}
 
 	blobMetas, err := handler.blobMetadataService.List(query)
 	if err != nil {
@@ -248,7 +292,47 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 
 // ListMetadata handles the GET request to list cryptographic keys metadata optionally considering query parameters
 func (handler *KeyHandler) ListMetadata(c *gin.Context) {
-	var query *keys.CryptoKeyQuery = nil
+	query := keys.NewCryptoKeyQuery()
+
+	if keyAlgorithm := c.Query("algorithm"); len(keyAlgorithm) > 0 {
+		query.Algorithm = keyAlgorithm
+	}
+
+	if keyType := c.Query("type"); len(keyType) > 0 {
+		query.Type = keyType
+	}
+
+	if dateTimeCreated := c.Query("dateTimeCreated"); len(dateTimeCreated) > 0 {
+		parsedTime, err := time.Parse(time.RFC3339, dateTimeCreated)
+		if err == nil {
+			query.DateTimeCreated = parsedTime
+		} else {
+			// ignore parsing errors
+		}
+	}
+
+	if limit := c.Query("limit"); len(limit) > 0 {
+		query.Limit = utils.ConvertToInt(limit)
+	}
+
+	if offset := c.Query("offset"); len(offset) > 0 {
+		query.Offset = utils.ConvertToInt(offset)
+	}
+
+	if sortBy := c.Query("sortBy"); len(sortBy) > 0 {
+		query.SortBy = sortBy
+	}
+
+	if sortOrder := c.Query("sortOrder"); len(sortOrder) > 0 {
+		query.SortOrder = sortOrder
+	}
+
+	if err := query.Validate(); err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = "Validation failed"
+		c.JSON(400, errorResponseDto)
+		return
+	}
 
 	cryptoKeyMetas, err := handler.cryptoKeyMetadataService.List(query)
 	if err != nil {
