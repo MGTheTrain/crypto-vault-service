@@ -11,6 +11,7 @@ services:
     depends_on:
       - postgres
       - azure-blob-storage
+    restart: on-failure
     
   postgres: 
     image: postgres
