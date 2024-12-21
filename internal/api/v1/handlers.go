@@ -33,6 +33,17 @@ func NewBlobHandler(blobUploadService *services.BlobUploadService, blobDownloadS
 }
 
 // Upload handles the POST request to upload a blob with optional encryption/signing
+// @Summary Upload a blob with optional encryption and signing
+// @Description Upload a blob to the system with optional encryption and signing using the provided keys
+// @Tags Blob
+// @Accept multipart/form-data
+// @Produce json
+// @Param file formData file true "Blob File"
+// @Param encryption_key_id formData string false "Encryption Key ID"
+// @Param sign_key_id formData string false "Sign Key ID"
+// @Success 201 {array} BlobMetaResponseDto
+// @Failure 400 {object} ErrorResponseDto
+// @Router /blobs/upload [post]
 func (handler *BlobHandler) Upload(c *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId, signKeyId *string
@@ -81,6 +92,21 @@ func (handler *BlobHandler) Upload(c *gin.Context) {
 }
 
 // ListMetadata handles the GET request to fetch metadata of blobs optionally considering query parameters
+// @Summary List blob metadata based on query parameters
+// @Description Fetch a list of metadata for blobs based on query filters like name, size, type, and creation date.
+// @Tags Blob
+// @Accept json
+// @Produce json
+// @Param name query string false "Blob Name"
+// @Param size query int false "Blob Size"
+// @Param type query string false "Blob Type"
+// @Param dateTimeCreated query string false "Blob Creation Date (RFC3339)"
+// @Param limit query int false "Limit the number of results"
+// @Param offset query int false "Offset the results"
+// @Success 200 {array} BlobMetaResponseDto
+// @Failure 400 {object} ErrorResponseDto
+// @Failure 404 {object} ErrorResponseDto
+// @Router /blobs [get]
 func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 	query := blobs.NewBlobMetaQuery()
 
@@ -155,6 +181,15 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 }
 
 // GetMetadataById handles the GET request to fetch metadata of a blob by its ID
+// @Summary Retrieve metadata of a blob by its ID
+// @Description Fetch the metadata of a specific blob by its unique ID, including its name, size, type, encryption and signing key IDs, and creation date.
+// @Tags Blob
+// @Accept json
+// @Produce json
+// @Param id path string true "Blob ID"
+// @Success 200 {object} BlobMetaResponseDto
+// @Failure 404 {object} ErrorResponseDto
+// @Router /blobs/{id}/metadata [get]
 func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 	blobId := c.Param("id")
 
@@ -181,6 +216,16 @@ func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 }
 
 // DownloadById handles the GET request to download a blob by its ID
+// @Summary Download a blob by its ID
+// @Description Download the content of a specific blob by its ID, optionally decrypted with a provided decryption key ID.
+// @Tags Blob
+// @Accept json
+// @Produce octet-stream
+// @Param id path string true "Blob ID"
+// @Param decryption_key_id query string false "Decryption Key ID"
+// @Success 200 {file} file "Blob content"
+// @Failure 404 {object} ErrorResponseDto
+// @Router /blobs/{id}/download [get]
 func (handler *BlobHandler) DownloadById(c *gin.Context) {
 	blobId := c.Param("id")
 
@@ -212,6 +257,15 @@ func (handler *BlobHandler) DownloadById(c *gin.Context) {
 }
 
 // DeleteById handles the DELETE request to delete a blob by its ID
+// @Summary Delete a blob by its ID
+// @Description Delete a specific blob and its associated metadata by its ID.
+// @Tags Blob
+// @Accept json
+// @Produce json
+// @Param id path string true "Blob ID"
+// @Success 204 {object} InfoResponseDto
+// @Failure 404 {object} ErrorResponseDto
+// @Router /blobs/{id} [delete]
 func (handler *BlobHandler) DeleteById(c *gin.Context) {
 	blobId := c.Param("id")
 
@@ -244,7 +298,16 @@ func NewKeyHandler(cryptoKeyUploadService *services.CryptoKeyUploadService, cryp
 	}
 }
 
-// UploadKeys handles the POST request to internally generate cryptographic keys and upload those
+// UploadKeys handles the POST request to generate and upload cryptographic keys
+// @Summary Upload cryptographic keys and metadata
+// @Description Generate cryptographic keys based on provided parameters and upload them to the system.
+// @Tags Key
+// @Accept json
+// @Produce json
+// @Param requestBody body UploadKeyRequestDto true "Cryptographic Key Data"
+// @Success 201 {array} CryptoKeyMetaResponseDto
+// @Failure 400 {object} ErrorResponseDto
+// @Router /keys/upload [post]
 func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 
 	var requestDto UploadKeyRequestDto
@@ -290,7 +353,23 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 	c.JSON(http.StatusCreated, cryptoKeyMetadataResponses)
 }
 
-// ListMetadata handles the GET request to list cryptographic keys metadata optionally considering query parameters
+// ListMetadata handles the GET request to list cryptographic key metadata with optional query parameters
+// @Summary List cryptographic key metadata based on query parameters
+// @Description Fetch a list of cryptographic key metadata based on filters like algorithm, type, and creation date, with pagination and sorting options.
+// @Tags Key
+// @Accept json
+// @Produce json
+// @Param algorithm query string false "Cryptographic Algorithm"
+// @Param type query string false "Key Type"
+// @Param dateTimeCreated query string false "Key Creation Date (RFC3339)"
+// @Param limit query int false "Limit the number of results"
+// @Param offset query int false "Offset the results"
+// @Param sortBy query string false "Sort by a specific field"
+// @Param sortOrder query string false "Sort order (asc/desc)"
+// @Success 200 {array} CryptoKeyMetaResponseDto
+// @Failure 400 {object} ErrorResponseDto
+// @Failure 404 {object} ErrorResponseDto
+// @Router /keys [get]
 func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 	query := keys.NewCryptoKeyQuery()
 
@@ -360,6 +439,15 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 }
 
 // GetMetadataById handles the GET request to retrieve metadata of a key by its ID
+// @Summary Retrieve metadata of a key by its ID
+// @Description Fetch the metadata of a specific cryptographic key by its unique ID, including algorithm, key size, and creation date.
+// @Tags Key
+// @Accept json
+// @Produce json
+// @Param id path string true "Key ID"
+// @Success 200 {object} CryptoKeyMetaResponseDto
+// @Failure 404 {object} ErrorResponseDto
+// @Router /keys/{id}/metadata [get]
 func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
 	keyId := c.Param("id")
 
@@ -385,6 +473,15 @@ func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
 }
 
 // DownloadById handles the GET request to download a key by its ID
+// @Summary Download a cryptographic key by its ID
+// @Description Download the content of a specific cryptographic key by its ID.
+// @Tags Key
+// @Accept json
+// @Produce octet-stream
+// @Param id path string true "Key ID"
+// @Success 200 {file} file "Cryptographic key content"
+// @Failure 404 {object} ErrorResponseDto
+// @Router /keys/{id}/download [get]
 func (handler *KeyHandler) DownloadById(c *gin.Context) {
 	keyId := c.Param("id")
 
@@ -403,6 +500,15 @@ func (handler *KeyHandler) DownloadById(c *gin.Context) {
 }
 
 // DeleteById handles the DELETE request to delete a key by its ID
+// @Summary Delete a cryptographic key by its ID
+// @Description Delete a specific cryptographic key and its associated metadata by its ID.
+// @Tags Key
+// @Accept json
+// @Produce json
+// @Param id path string true "Key ID"
+// @Success 204 {object} InfoResponseDto
+// @Failure 404 {object} ErrorResponseDto
+// @Router /keys/{id} [delete]
 func (handler *KeyHandler) DeleteById(c *gin.Context) {
 	keyId := c.Param("id")
 

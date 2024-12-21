@@ -17,6 +17,38 @@ import (
 	"gorm.io/gorm"
 )
 
+// @title CryptoVault Service API
+// @version v1
+// @description Service capable of managing cryptographic keys and securing data at rest (metadata, BLOB)
+// @termsOfService TBD
+// @contact.name MGTheTrain
+// @contact.url TBD
+// @contact.email TBD
+// @license.name LGPL-2.1 license
+// @license.url https://github.com/MGTheTrain/crypto-vault-service/blob/main/LICENSE
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.basic BasicAuth
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @securitydefinitions.oauth2.application OAuth2Application
+// @tokenUrl https://example.com/oauth/token
+// @scope.write Grants write access
+// @scope.admin Grants read and write access to administrative information
+// @securitydefinitions.oauth2.implicit OAuth2Implicit
+// @authorizationUrl https://example.com/oauth/authorize
+// @scope.write Grants write access
+// @scope.admin Grants read and write access to administrative information
+// @securitydefinitions.oauth2.password OAuth2Password
+// @tokenUrl https://example.com/oauth/token
+// @scope.read Grants read access
+// @scope.write Grants write access
+// @scope.admin Grants read and write access to administrative information
+// @securitydefinitions.oauth2.accessCode OAuth2AccessCode
+// @tokenUrl https://example.com/oauth/token
+// @authorizationUrl https://example.com/oauth/authorize
+// @scope.admin Grants read and write access to administrative information
 func main() {
 	r := gin.Default()
 
