@@ -20,9 +20,9 @@ import (
 func main() {
 	r := gin.Default()
 
-	path := "../../configs/config.yml"
+	path := "../../configs/app.yaml"
 
-	config, err := settings.InitializeConfig(path)
+	config, err := settings.Initialize(path)
 	if err != nil {
 		fmt.Printf("failed to initialize config: %v", err)
 	}
