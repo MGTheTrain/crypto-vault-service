@@ -52,11 +52,25 @@ func main() {
 			log.Fatalf("Failed to get raw DB connection: %v", err)
 		}
 
-		_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", config.Database.Name))
-		if err != nil {
-			log.Fatalf("Failed to create database '%s': %v", config.Database.Name, err)
+		// Check if the database exists
+		var dbExists bool
+		query := fmt.Sprintf("SELECT 1 FROM pg_database WHERE datname='%s'", config.Database.Name)
+		err = sqlDB.QueryRow(query).Scan(&dbExists)
+
+		if err != nil && err.Error() != "sql: no rows in result set" {
+			log.Fatalf("Failed to check if database '%s' exists: %v", config.Database.Name, err)
 		}
-		fmt.Printf("Database '%s' created successfully.\n", config.Database.Name)
+
+		if !dbExists {
+			// If the database doesn't exist, create it
+			_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", config.Database.Name))
+			if err != nil {
+				log.Fatalf("Failed to create database '%s': %v", config.Database.Name, err)
+			}
+			fmt.Printf("Database '%s' created successfully.\n", config.Database.Name)
+		} else {
+			fmt.Printf("Database '%s' already exists. Skipping creation.\n", config.Database.Name)
+		}
 
 		dsn = fmt.Sprintf("user=postgres password=postgres host=localhost port=5432 dbname=%s sslmode=disable", config.Database.Name)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
