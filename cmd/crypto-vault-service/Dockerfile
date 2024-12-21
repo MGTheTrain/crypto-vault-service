@@ -3,7 +3,7 @@ FROM golang:1.21-alpine AS build
 
 WORKDIR /app
 
-RUN apk update && apk add --no-cache git
+RUN apk update
 COPY go.mod go.sum ./
 RUN go mod tidy
 COPY . .
@@ -16,8 +16,7 @@ WORKDIR /root/
 
 RUN apk update && apk add --no-cache libc6-compat
 COPY --from=build /app/crypto_vault_service .
-COPY ./configs ./configs
 
 EXPOSE 8080
 
-CMD ["./crypto_vault_service"]
+ENTRYPOINT ["./crypto_vault_service"]
