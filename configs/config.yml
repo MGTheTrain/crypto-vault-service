@@ -3,7 +3,7 @@ port: "8080"
 database:
   type: "postgres" 
   dsn: "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
-  name: "blobs"
+  name: "meta"
 
 blob_connector:
   cloud_provider: "azure"
@@ -13,7 +13,7 @@ blob_connector:
 key_connector:
   cloud_provider: "azure"
   connection_string: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
-  container_name: "blobs"
+  container_name: "keys"
 
 logger:
   log_level: "info"   # Possible values: info, debug, error, warning, critical
