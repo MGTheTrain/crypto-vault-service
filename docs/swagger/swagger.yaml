@@ -123,88 +123,6 @@ paths:
       summary: List blob metadata based on query parameters
       tags:
       - Blob
-  /blobs/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a specific blob and its associated metadata by its ID.
-      parameters:
-      - description: Blob ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            $ref: '#/definitions/v1.InfoResponseDto'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ErrorResponseDto'
-      summary: Delete a blob by its ID
-      tags:
-      - Blob
-  /blobs/{id}/download:
-    get:
-      consumes:
-      - application/json
-      description: Download the content of a specific blob by its ID, optionally decrypted
-        with a provided decryption key ID.
-      parameters:
-      - description: Blob ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Decryption Key ID
-        in: query
-        name: decryption_key_id
-        type: string
-      produces:
-      - application/octet-stream
-      responses:
-        "200":
-          description: Blob content
-          schema:
-            type: file
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ErrorResponseDto'
-      summary: Download a blob by its ID
-      tags:
-      - Blob
-  /blobs/{id}/metadata:
-    get:
-      consumes:
-      - application/json
-      description: Fetch the metadata of a specific blob by its unique ID, including
-        its name, size, type, encryption and signing key IDs, and creation date.
-      parameters:
-      - description: Blob ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.BlobMetaResponseDto'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ErrorResponseDto'
-      summary: Retrieve metadata of a blob by its ID
-      tags:
-      - Blob
-  /blobs/upload:
     post:
       consumes:
       - multipart/form-data
@@ -238,6 +156,86 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponseDto'
       summary: Upload a blob with optional encryption and signing
+      tags:
+      - Blob
+  /blobs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific blob and its associated metadata by its ID.
+      parameters:
+      - description: Blob ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/v1.InfoResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Delete a blob by its ID
+      tags:
+      - Blob
+    get:
+      consumes:
+      - application/json
+      description: Fetch the metadata of a specific blob by its unique ID, including
+        its name, size, type, encryption and signing key IDs, and creation date.
+      parameters:
+      - description: Blob ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.BlobMetaResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Retrieve metadata of a blob by its ID
+      tags:
+      - Blob
+  /blobs/{id}/file:
+    get:
+      consumes:
+      - application/json
+      description: Download the content of a specific blob by its ID, optionally decrypted
+        with a provided decryption key ID.
+      parameters:
+      - description: Blob ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Decryption Key ID
+        in: query
+        name: decryption_key_id
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Blob content
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Download a blob by its ID
       tags:
       - Blob
   /keys:
@@ -295,84 +293,6 @@ paths:
       summary: List cryptographic key metadata based on query parameters
       tags:
       - Key
-  /keys/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a specific cryptographic key and its associated metadata
-        by its ID.
-      parameters:
-      - description: Key ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            $ref: '#/definitions/v1.InfoResponseDto'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ErrorResponseDto'
-      summary: Delete a cryptographic key by its ID
-      tags:
-      - Key
-  /keys/{id}/download:
-    get:
-      consumes:
-      - application/json
-      description: Download the content of a specific cryptographic key by its ID.
-      parameters:
-      - description: Key ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      responses:
-        "200":
-          description: Cryptographic key content
-          schema:
-            type: file
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ErrorResponseDto'
-      summary: Download a cryptographic key by its ID
-      tags:
-      - Key
-  /keys/{id}/metadata:
-    get:
-      consumes:
-      - application/json
-      description: Fetch the metadata of a specific cryptographic key by its unique
-        ID, including algorithm, key size, and creation date.
-      parameters:
-      - description: Key ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/v1.CryptoKeyMetaResponseDto'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/v1.ErrorResponseDto'
-      summary: Retrieve metadata of a key by its ID
-      tags:
-      - Key
-  /keys/upload:
     post:
       consumes:
       - application/json
@@ -399,6 +319,82 @@ paths:
           schema:
             $ref: '#/definitions/v1.ErrorResponseDto'
       summary: Upload cryptographic keys and metadata
+      tags:
+      - Key
+  /keys/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific cryptographic key and its associated metadata
+        by its ID.
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/v1.InfoResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Delete a cryptographic key by its ID
+      tags:
+      - Key
+    get:
+      consumes:
+      - application/json
+      description: Fetch the metadata of a specific cryptographic key by its unique
+        ID, including algorithm, key size, and creation date.
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.CryptoKeyMetaResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Retrieve metadata of a key by its ID
+      tags:
+      - Key
+  /keys/{id}/file:
+    get:
+      consumes:
+      - application/json
+      description: Download the content of a specific cryptographic key by its ID.
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Cryptographic key content
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Download a cryptographic key by its ID
       tags:
       - Key
 securityDefinitions:

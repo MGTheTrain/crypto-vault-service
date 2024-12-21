@@ -43,7 +43,7 @@ func NewBlobHandler(blobUploadService *services.BlobUploadService, blobDownloadS
 // @Param sign_key_id formData string false "Sign Key ID"
 // @Success 201 {array} BlobMetaResponseDto
 // @Failure 400 {object} ErrorResponseDto
-// @Router /blobs/upload [post]
+// @Router /blobs [post]
 func (handler *BlobHandler) Upload(c *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId, signKeyId *string
@@ -189,7 +189,7 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 // @Param id path string true "Blob ID"
 // @Success 200 {object} BlobMetaResponseDto
 // @Failure 404 {object} ErrorResponseDto
-// @Router /blobs/{id}/metadata [get]
+// @Router /blobs/{id} [get]
 func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 	blobId := c.Param("id")
 
@@ -225,7 +225,7 @@ func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 // @Param decryption_key_id query string false "Decryption Key ID"
 // @Success 200 {file} file "Blob content"
 // @Failure 404 {object} ErrorResponseDto
-// @Router /blobs/{id}/download [get]
+// @Router /blobs/{id}/file [get]
 func (handler *BlobHandler) DownloadById(c *gin.Context) {
 	blobId := c.Param("id")
 
@@ -307,7 +307,7 @@ func NewKeyHandler(cryptoKeyUploadService *services.CryptoKeyUploadService, cryp
 // @Param requestBody body UploadKeyRequestDto true "Cryptographic Key Data"
 // @Success 201 {array} CryptoKeyMetaResponseDto
 // @Failure 400 {object} ErrorResponseDto
-// @Router /keys/upload [post]
+// @Router /keys [post]
 func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 
 	var requestDto UploadKeyRequestDto
@@ -447,7 +447,7 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 // @Param id path string true "Key ID"
 // @Success 200 {object} CryptoKeyMetaResponseDto
 // @Failure 404 {object} ErrorResponseDto
-// @Router /keys/{id}/metadata [get]
+// @Router /keys/{id} [get]
 func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
 	keyId := c.Param("id")
 
@@ -481,7 +481,7 @@ func (handler *KeyHandler) GetMetadataById(c *gin.Context) {
 // @Param id path string true "Key ID"
 // @Success 200 {file} file "Cryptographic key content"
 // @Failure 404 {object} ErrorResponseDto
-// @Router /keys/{id}/download [get]
+// @Router /keys/{id}/file [get]
 func (handler *KeyHandler) DownloadById(c *gin.Context) {
 	keyId := c.Param("id")
 

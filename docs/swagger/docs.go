@@ -98,9 +98,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/blobs/upload": {
+            },
             "post": {
                 "description": "Upload a blob to the system with optional encryption and signing using the provided keys",
                 "consumes": [
@@ -154,6 +152,42 @@ const docTemplate = `{
             }
         },
         "/blobs/{id}": {
+            "get": {
+                "description": "Fetch the metadata of a specific blob by its unique ID, including its name, size, type, encryption and signing key IDs, and creation date.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blob"
+                ],
+                "summary": "Retrieve metadata of a blob by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Blob ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.BlobMetaResponseDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponseDto"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete a specific blob and its associated metadata by its ID.",
                 "consumes": [
@@ -191,7 +225,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/blobs/{id}/download": {
+        "/blobs/{id}/file": {
             "get": {
                 "description": "Download the content of a specific blob by its ID, optionally decrypted with a provided decryption key ID.",
                 "consumes": [
@@ -224,44 +258,6 @@ const docTemplate = `{
                         "description": "Blob content",
                         "schema": {
                             "type": "file"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponseDto"
-                        }
-                    }
-                }
-            }
-        },
-        "/blobs/{id}/metadata": {
-            "get": {
-                "description": "Fetch the metadata of a specific blob by its unique ID, including its name, size, type, encryption and signing key IDs, and creation date.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Blob"
-                ],
-                "summary": "Retrieve metadata of a blob by its ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Blob ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/v1.BlobMetaResponseDto"
                         }
                     },
                     "404": {
@@ -353,9 +349,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/keys/upload": {
+            },
             "post": {
                 "description": "Generate cryptographic keys based on provided parameters and upload them to the system.",
                 "consumes": [
@@ -399,6 +393,42 @@ const docTemplate = `{
             }
         },
         "/keys/{id}": {
+            "get": {
+                "description": "Fetch the metadata of a specific cryptographic key by its unique ID, including algorithm, key size, and creation date.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Key"
+                ],
+                "summary": "Retrieve metadata of a key by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Key ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.CryptoKeyMetaResponseDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.ErrorResponseDto"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "Delete a specific cryptographic key and its associated metadata by its ID.",
                 "consumes": [
@@ -436,7 +466,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/keys/{id}/download": {
+        "/keys/{id}/file": {
             "get": {
                 "description": "Download the content of a specific cryptographic key by its ID.",
                 "consumes": [
@@ -463,44 +493,6 @@ const docTemplate = `{
                         "description": "Cryptographic key content",
                         "schema": {
                             "type": "file"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/v1.ErrorResponseDto"
-                        }
-                    }
-                }
-            }
-        },
-        "/keys/{id}/metadata": {
-            "get": {
-                "description": "Fetch the metadata of a specific cryptographic key by its unique ID, including algorithm, key size, and creation date.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Key"
-                ],
-                "summary": "Retrieve metadata of a key by its ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Key ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/v1.CryptoKeyMetaResponseDto"
                         }
                     },
                     "404": {
