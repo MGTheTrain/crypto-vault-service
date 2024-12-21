@@ -24,8 +24,7 @@ func main() {
 
 	config, err := settings.InitializeConfig(path)
 	if err != nil {
-		log.Fatalf("failed to initialize config: %v", err)
-		return
+		fmt.Printf("failed to initialize config: %v", err)
 	}
 
 	logger, err := logger.GetLogger(&config.Logger)
