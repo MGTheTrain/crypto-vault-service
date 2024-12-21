@@ -11,43 +11,32 @@ import (
 	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func main() {
 	r := gin.Default()
 
-	// TBD: consider env vars or load config yml file and
-	// utilize settings objects during costruction of other objects
-
-	loggerSettings := &settings.LoggerSettings{
-		LogLevel: "info",
-		LogType:  "console",
-		FilePath: "",
+	path := "../../configs/dev.yml"
+	config, err := settings.InitializeConfig(path)
+	if err != nil {
+		log.Fatalf("failed to initialize config: %v", err)
+		return
 	}
 
-	logger, err := logger.GetLogger(loggerSettings)
+	logger, err := logger.GetLogger(&config.Logger)
 	if err != nil {
 		log.Fatalf("%v", err)
 		return
 	}
 
 	var db *gorm.DB
-
-	dbType := os.Getenv("DB_TYPE")
-	if dbType == "" {
-		dbType = "sqlite"
-	}
-
-	switch dbType {
+	switch config.Database.Type {
 	case "postgres":
-		dsn := "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
+		dsn := config.Database.DSN
 		if dsn == "" {
 			log.Fatalf("POSTGRES_DSN environment variable is not set")
 		}
@@ -57,33 +46,24 @@ func main() {
 			log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}
 
-		uniqueDBName := "blobs_" + uuid.New().String()
-
 		sqlDB, err := db.DB()
 		if err != nil {
 			log.Fatalf("Failed to get raw DB connection: %v", err)
 		}
 
-		_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", uniqueDBName))
+		_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", config.Database.Name))
 		if err != nil {
-			log.Fatalf("Failed to create database '%s': %v", uniqueDBName, err)
+			log.Fatalf("Failed to create database '%s': %v", config.Database.Name, err)
 		}
-		fmt.Printf("Database '%s' created successfully.\n", uniqueDBName)
+		fmt.Printf("Database '%s' created successfully.\n", config.Database.Name)
 
-		dsn = fmt.Sprintf("user=postgres password=postgres host=localhost port=5432 dbname=%s sslmode=disable", uniqueDBName)
+		dsn = fmt.Sprintf("user=postgres password=postgres host=localhost port=5432 dbname=%s sslmode=disable", config.Database.Name)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
-			log.Fatalf("Failed to connect to PostgreSQL database '%s': %v", uniqueDBName, err)
+			log.Fatalf("Failed to connect to PostgreSQL database '%s': %v", config.Database.Name, err)
 		}
-
-	case "sqlite":
-		db, err = gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-		if err != nil {
-			log.Fatalf("Failed to connect to SQLite: %v", err)
-		}
-
 	default:
-		log.Fatalf("Unsupported DB_TYPE value: %s", dbType)
+		log.Fatalf("Unsupported database type: %s", config.Database.Type)
 	}
 
 	// Migrate the schema for Blob and CryptoKey
@@ -101,25 +81,22 @@ func main() {
 		log.Fatalf("Error creating crypto key repository instance: %v", err)
 	}
 
-	blobConnectorSettings := &settings.BlobConnectorSettings{
-		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-		ContainerName:    "testblobs",
+	var blobConnector connector.BlobConnector
+	if config.BlobConnector.CloudProvider == "azure" {
+		blobConnector, err = connector.NewAzureBlobConnector(&config.BlobConnector, logger)
+		if err != nil {
+			log.Fatalf("%v", err)
+			return
+		}
 	}
 
-	blobConnector, err := connector.NewAzureBlobConnector(blobConnectorSettings, logger)
-	if err != nil {
-		log.Fatalf("%v", err)
-		return
-	}
-
-	keyConnectorSettings := &settings.KeyConnectorSettings{
-		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
-		ContainerName:    "testblobs",
-	}
-	vaultConnector, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
-	if err != nil {
-		log.Fatalf("%v", err)
-		return
+	var vaultConnector connector.VaultConnector
+	if config.BlobConnector.CloudProvider == "azure" {
+		vaultConnector, err = connector.NewAzureVaultConnector(&config.KeyConnector, logger)
+		if err != nil {
+			log.Fatalf("%v", err)
+			return
+		}
 	}
 
 	blobUploadService, err := services.NewBlobUploadService(blobConnector, blobRepo, vaultConnector, cryptoKeyRepo, logger)

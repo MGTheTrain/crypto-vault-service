@@ -8,6 +8,7 @@ import (
 
 // Config struct holds the overall configuration with separate settings for Blob, Key, Logger, and PKCS#11
 type Config struct {
+	Database      DatabaseSettings      `mapstructure:"database"`
 	BlobConnector BlobConnectorSettings `mapstructure:"blob_connector"`
 	KeyConnector  KeyConnectorSettings  `mapstructure:"key_connector"`
 	Logger        LoggerSettings        `mapstructure:"logger"`

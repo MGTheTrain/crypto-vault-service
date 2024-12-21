@@ -7,6 +7,7 @@ import (
 )
 
 type BlobConnectorSettings struct {
+	CloudProvider    string `mapstructure:"cloudProvider" validate:"required"`
 	ConnectionString string `mapstructure:"connectionString" validate:"required"`
 	ContainerName    string `mapstructure:"containerName" validate:"required"`
 }
