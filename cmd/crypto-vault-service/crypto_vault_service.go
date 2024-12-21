@@ -15,6 +15,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title CryptoVault Service API
@@ -179,6 +182,9 @@ func main() {
 	v1.SetupRoutes(r, blobUploadService, blobDownloadService, blobMetadataService, cryptoKeyUploadService, cryptoKeyDownloadService, cryptoKeyMetadataService)
 
 	// r.Use(v1.AuthMiddleware())
+
+	swaggerRoute := fmt.Sprintf("/api/" + v1.Version + "/cvs/swagger/*any")
+	r.GET(swaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(":" + config.Port); err != nil {
 		log.Fatalf("Error starting server: %v", err)
