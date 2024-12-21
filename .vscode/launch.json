@@ -13,9 +13,9 @@
             "program": "${fileDirname}",
             "env": {
                 "PORT": "8080",
-                "DB_TYPE": "postgres",
-                "DB_DSN": "user=postgres password=postgres host=localhost port=5432 sslmode=disable",
-                "DB_NAME": "meta",
+                "DATABASE_TYPE": "postgres",
+                "DATABASE_DSN": "user=postgres password=postgres host=localhost port=5432 sslmode=disable",
+                "DATABASE_NAME": "meta",
                 "BLOB_CONNECTOR_CLOUD_PROVIDER": "azure",
                 "BLOB_CONNECTOR_CONNECTION_STRING": "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
                 "BLOB_CONNECTOR_CONTAINER_NAME": "blobs",
