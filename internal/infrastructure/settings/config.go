@@ -14,8 +14,15 @@ type Config struct {
 	PKCS11        PKCS11Settings        `mapstructure:"pkcs11"`
 }
 
-// InitializeConfig function to read the config YAML file and unmarshal it into the struct using Viper
+// InitializeConfig function to read the config, prioritize environment variables and fall back to config file
 func InitializeConfig(path string) (*Config, error) {
+	viper.AutomaticEnv()
+	// env vars example:
+	// export BLOB_CONNECTOR_CONNECTION_STRING="your_blob_connection_string"
+	// export BLOB_CONNECTOR_CONTAINER_NAME="your_blob_container_name"
+	// export LOGGER_LOG_LEVEL="info"
+	// export LOGGER_LOG_TYPE="console"
+
 	viper.SetConfigFile(path)
 
 	if err := viper.ReadInConfig(); err != nil {
