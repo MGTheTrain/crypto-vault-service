@@ -71,7 +71,7 @@ func main() {
 			fmt.Printf("Database '%s' already exists. Skipping creation.\n", config.Database.Name)
 		}
 
-		dsn = fmt.Sprintf("user=postgres password=postgres host=localhost port=5432 dbname=%s sslmode=disable", config.Database.Name)
+		dsn = fmt.Sprintf(config.Database.DSN+" dbname=%s", config.Database.Name)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			log.Fatalf("Failed to connect to PostgreSQL database '%s': %v", config.Database.Name, err)
