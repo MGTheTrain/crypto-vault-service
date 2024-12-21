@@ -16,6 +16,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	docs "docs"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -183,7 +185,9 @@ func main() {
 
 	// r.Use(v1.AuthMiddleware())
 
-	swaggerRoute := fmt.Sprintf("/api/" + v1.Version + "/cvs/swagger/*any")
+	apiVersion := v1.Version
+	docs.SwaggerInfo.Version = apiVersion
+	swaggerRoute := fmt.Sprintf("/api/" + apiVersion + "/cvs/swagger/*any")
 	r.GET(swaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(":" + config.Port); err != nil {
