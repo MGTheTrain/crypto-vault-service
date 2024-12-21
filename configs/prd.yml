@@ -1,3 +1,5 @@
+port: "8080"
+
 database:
   type: "postgres" 
   dsn: "user=postgres password=postgres host=localhost port=5432 sslmode=disable"

@@ -13,6 +13,7 @@ type Config struct {
 	KeyConnector  KeyConnectorSettings  `mapstructure:"key_connector"`
 	Logger        LoggerSettings        `mapstructure:"logger"`
 	PKCS11        PKCS11Settings        `mapstructure:"pkcs11"`
+	Port          string                `mapstructure:"port"`
 }
 
 // InitializeConfig function to read the config, prioritize environment variables and fall back to config file

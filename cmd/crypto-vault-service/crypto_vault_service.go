@@ -134,7 +134,7 @@ func main() {
 
 	// r.Use(v1.AuthMiddleware())
 
-	if err := r.Run(":8080"); err != nil {
+	if err := r.Run(":" + config.Port); err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}
 }
