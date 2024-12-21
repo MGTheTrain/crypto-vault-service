@@ -7,9 +7,9 @@ import (
 )
 
 type KeyConnectorSettings struct {
-	CloudProvider    string `mapstructure:"cloudProvider" validate:"required"`
-	ConnectionString string `mapstructure:"connectionString" validate:"required"`
-	ContainerName    string `mapstructure:"containerName" validate:"required"`
+	CloudProvider    string `mapstructure:"cloud_provider" validate:"required"`
+	ConnectionString string `mapstructure:"connection_string" validate:"required"`
+	ContainerName    string `mapstructure:"container_name" validate:"required"`
 }
 
 // Validate checks that all fields in KeyConnectorSettings are valid (non-empty in this case)
