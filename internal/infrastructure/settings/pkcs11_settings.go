@@ -8,10 +8,10 @@ import (
 
 // PKCS11Settings holds the configuration settings required to interact with a PKCS#11 module
 type PKCS11Settings struct {
-	ModulePath string `validate:"required"`
-	SOPin      string `validate:"required"`
-	UserPin    string `validate:"required"`
-	SlotId     string `validate:"required"`
+	ModulePath string `mapstructure:"modulePath" validate:"required"`
+	SOPin      string `mapstructure:"sOPin" validate:"required"`
+	UserPin    string `mapstructure:"userPin" validate:"required"`
+	SlotId     string `mapstructure:"slotId" validate:"required"`
 }
 
 // Validate checks that all fields in PKCS11Settings are valid (non-empty in this case)
