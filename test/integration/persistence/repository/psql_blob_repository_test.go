@@ -34,9 +34,9 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 
 	err := ctx.BlobRepo.Create(blob)
@@ -71,9 +71,9 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 	err := ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")
@@ -106,9 +106,9 @@ func TestBlobPsqlRepository_List(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 
 	blob2 := &blobs.BlobMeta{
@@ -119,9 +119,9 @@ func TestBlobPsqlRepository_List(t *testing.T) {
 		Size:            2048,
 		Type:            "image",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 
 	// Create blobs
@@ -159,9 +159,9 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 	err := ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")
@@ -200,9 +200,9 @@ func TestBlobPsqlRepository_DeleteById(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 	err := ctx.BlobRepo.Create(blob)
 	assert.NoError(t, err, "Create should not return an error")

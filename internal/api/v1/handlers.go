@@ -38,7 +38,7 @@ func NewBlobHandler(blobUploadService *services.BlobUploadService, blobDownloadS
 // @Tags Blob
 // @Accept multipart/form-data
 // @Produce json
-// @Param file formData file true "Blob File"
+// @Param files formData file true "Blob File"
 // @Param encryption_key_id formData string false "Encryption Key ID"
 // @Param sign_key_id formData string false "Sign Key ID"
 // @Success 201 {array} BlobMetaResponseDto
@@ -46,7 +46,8 @@ func NewBlobHandler(blobUploadService *services.BlobUploadService, blobDownloadS
 // @Router /blobs [post]
 func (handler *BlobHandler) Upload(c *gin.Context) {
 	var form *multipart.Form
-	var encryptionKeyId, signKeyId *string
+	var encryptionKeyId *string = nil
+	var signKeyId *string = nil
 	userId := uuid.New().String() // TBD: extract user id from JWT
 
 	form, err := c.MultipartForm()
@@ -82,8 +83,8 @@ func (handler *BlobHandler) Upload(c *gin.Context) {
 			Name:            blobMeta.Name,
 			Size:            blobMeta.Size,
 			Type:            blobMeta.Type,
-			EncryptionKeyID: blobMeta.EncryptionKeyID,
-			SignKeyID:       blobMeta.SignKeyID,
+			EncryptionKeyID: *blobMeta.EncryptionKeyID,
+			SignKeyID:       *blobMeta.SignKeyID,
 		}
 		blobMetadataResponses = append(blobMetadataResponses, blobMetadataResponse)
 	}
@@ -171,8 +172,8 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 			Name:            blobMeta.Name,
 			Size:            blobMeta.Size,
 			Type:            blobMeta.Type,
-			EncryptionKeyID: blobMeta.EncryptionKeyID,
-			SignKeyID:       blobMeta.SignKeyID,
+			EncryptionKeyID: *blobMeta.EncryptionKeyID,
+			SignKeyID:       *blobMeta.SignKeyID,
 		}
 		listResponse = append(listResponse, blobMetadataResponse)
 	}
@@ -208,8 +209,8 @@ func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 		Name:            blobMeta.Name,
 		Size:            blobMeta.Size,
 		Type:            blobMeta.Type,
-		EncryptionKeyID: blobMeta.EncryptionKeyID,
-		SignKeyID:       blobMeta.SignKeyID,
+		EncryptionKeyID: *blobMeta.EncryptionKeyID,
+		SignKeyID:       *blobMeta.SignKeyID,
 	}
 
 	c.JSON(http.StatusOK, blobMetadataResponse)

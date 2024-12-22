@@ -18,9 +18,9 @@ type BlobMeta struct {
 	Size            int64              `validate:"required,min=1"`                              // Size must be greater than 0
 	Type            string             `validate:"required,min=1,max=50"`                       // Type is required, and its length must be between 1 and 50 characters
 	EncryptionKey   keys.CryptoKeyMeta `gorm:"foreignKey:EncryptionKeyID" validate:"omitempty"` // EncryptionKey is optional
-	EncryptionKeyID string             `validate:"omitempty,uuid4"`                             // EncryptionKeyID is optional and if set must be a valid UUID
+	EncryptionKeyID *string            `validate:"omitempty,uuid4"`                             // EncryptionKeyID is optional and if set must be a valid UUID
 	SignKey         keys.CryptoKeyMeta `gorm:"foreignKey:SignKeyID" validate:"omitempty"`       // SignKey is optional
-	SignKeyID       string             `validate:"omitempty,uuid4"`                             // SignKeyID is optional and if set must be a valid UUID
+	SignKeyID       *string            `validate:"omitempty,uuid4"`                             // SignKeyID is optional and if set must be a valid UUID
 }
 
 // Validate for validating BlobMeta struct

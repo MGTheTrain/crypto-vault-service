@@ -80,14 +80,16 @@ func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encry
 			Type:            fileExt,
 			DateTimeCreated: time.Now(),
 			UserID:          userId,
+			EncryptionKeyID: nil,
+			SignKeyID:       nil,
 		}
 
 		if encryptionKeyId != nil {
-			blob.EncryptionKeyID = *encryptionKeyId
+			blob.EncryptionKeyID = encryptionKeyId
 		}
 
 		if signKeyId != nil {
-			blob.SignKeyID = *signKeyId
+			blob.SignKeyID = signKeyId
 		}
 
 		fullBlobName := fmt.Sprintf("%s/%s", blob.ID, blob.Name)

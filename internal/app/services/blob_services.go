@@ -83,7 +83,6 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 	}
 
 	if signKeyId != nil || encryptionKeyId != nil {
-		//
 		blobMetas, err := s.blobConnector.Upload(newForm, userId, encryptionKeyId, signKeyId)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
@@ -98,7 +97,6 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 		return blobMetas, nil
 	}
 
-	//
 	blobMetas, err := s.blobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
