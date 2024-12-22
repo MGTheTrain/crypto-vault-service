@@ -7,8 +7,9 @@ import (
 )
 
 type BlobConnectorSettings struct {
-	ConnectionString string `validate:"required"`
-	ContainerName    string `validate:"required"`
+	CloudProvider    string `mapstructure:"cloud_provider" validate:"required"`
+	ConnectionString string `mapstructure:"connection_string" validate:"required"`
+	ContainerName    string `mapstructure:"container_name" validate:"required"`
 }
 
 // Validate checks that all fields in BlobConnectorSettings are valid (non-empty in this case)

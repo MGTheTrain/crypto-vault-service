@@ -19,7 +19,7 @@ type AzureVaultConnectorTest struct {
 }
 
 // NewAzureVaultConnectorTest initializes and returns a new AzureVaultConnectorTest
-func NewAzureVaultConnectorTest(t *testing.T, connectionString, containerName string) *AzureVaultConnectorTest {
+func NewAzureVaultConnectorTest(t *testing.T, cloudProvider, connectionString, containerName string) *AzureVaultConnectorTest {
 
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -30,6 +30,7 @@ func NewAzureVaultConnectorTest(t *testing.T, connectionString, containerName st
 	require.NoError(t, err)
 
 	keyConnectorSettings := &settings.KeyConnectorSettings{
+		CloudProvider:    cloudProvider,
 		ConnectionString: connectionString,
 		ContainerName:    containerName,
 	}
@@ -42,7 +43,7 @@ func NewAzureVaultConnectorTest(t *testing.T, connectionString, containerName st
 }
 
 func TestAzureVaultConnector_Upload(t *testing.T) {
-	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
+	helper := NewAzureVaultConnectorTest(t, "azure", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
 
 	testFileContent := []byte("This is a test file content.")
 
@@ -65,7 +66,7 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 }
 
 func TestAzureVaultConnector_Download(t *testing.T) {
-	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
+	helper := NewAzureVaultConnectorTest(t, "azure", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
 
 	testFileContent := []byte("This is a test file content.")
 
@@ -88,7 +89,7 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 }
 
 func TestAzureVaultConnector_Delete(t *testing.T) {
-	helper := NewAzureVaultConnectorTest(t, "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
+	helper := NewAzureVaultConnectorTest(t, "azure", "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;", "testblobs")
 
 	testFileContent := []byte("This is a test file content.")
 

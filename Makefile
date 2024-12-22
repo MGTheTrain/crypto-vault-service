@@ -2,44 +2,37 @@ SCRIPT_DIR = "scripts"
 
 .PHONY: format-and-lint run-unit-tests run-integration-tests \
         spin-up-integration-test-docker-containers \
-        shut-down-integration-test-docker-containers \
-        spin-up-docker-containers shut-down-docker-containers help
+        spin-up-docker-containers shut-down-docker-containers \
+		generate-swagger-docs help
 
 # Help target to list all available targets
 help:
 	@echo "Available Makefile targets:"
-	@echo "  format-and-lint                     - Run the format and linting script"
-	@echo "  run-unit-tests                      - Run the unit tests"
-	@echo "  run-integration-tests               - Run the integration tests"
+	@echo "  format-and-lint                     		- Run the format and linting script"
+	@echo "  run-unit-tests                      		- Run the unit tests"
+	@echo "  run-integration-tests               		- Run the integration tests"
 	@echo "  spin-up-integration-test-docker-containers - Spin up Docker containers for integration tests (Postgres, Azure Blob Storage)"
-	@echo "  shut-down-integration-test-docker-containers - Shut down Docker containers for integration tests"
-	@echo "  spin-up-docker-containers           - Spin up Docker containers with internal containerized applications"
-	@echo "  shut-down-docker-containers         - Shut down the application Docker containers"
+	@echo "  spin-up-docker-containers           		- Spin up Docker containers with internal containerized applications"
+	@echo "  shut-down-docker-containers         		- Shut down the application Docker containers"
+	@echo "  generate-swagger-docs         				- Convert Go annotations to Swagger Documentation 2.0"
 
-# Run the format and lint script
 format-and-lint:
 	@cd $(SCRIPT_DIR) && ./format-and-lint.sh
 
-# Run unit tests
 run-unit-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -u
 
-# Run integration tests
 run-integration-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -i
 
-# Spin up Docker containers for integration tests
 spin-up-integration-test-docker-containers:
 	docker-compose up -d postgres azure-blob-storage
 
-# Shut down Docker containers for integration tests
-shut-down-integration-test-docker-containers:
-	docker-compose down postgres azure-blob-storage -v
-
-# Spin up Docker containers with internal containerized applications
 spin-up-docker-containers:
 	docker-compose up -d --build
 
-# Shut down Docker containers with internal containerized applications
 shut-down-docker-containers:
 	docker-compose down -v
+
+generate-swagger-docs:
+	@cd $(SCRIPT_DIR) && ./generate-docs.sh

@@ -1,24 +1,25 @@
 package v1
 
-import (
-	"net/http"
+// TBD
+// import (
+// 	"net/http"
 
-	"github.com/gin-gonic/gin"
-)
+// 	"github.com/gin-gonic/gin"
+// )
 
-// AuthMiddleware is a simple authentication middleware
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Example authentication logic
-		token := c.GetHeader("Authorization")
-		if token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
-			c.Abort()
-			return
-		}
+// // AuthMiddleware is a simple authentication middleware
+// func AuthMiddleware() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		// Example authentication logic
+// 		token := c.GetHeader("Authorization")
+// 		if token == "" {
+// 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
+// 			c.Abort()
+// 			return
+// 		}
 
-		// Optionally, validate the token here
+// 		// Optionally, validate the token here
 
-		c.Next()
-	}
-}
+// 		c.Next()
+// 	}
+// }

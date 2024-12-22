@@ -19,16 +19,16 @@ type BlobRepository interface {
 
 // GormBlobRepository is the implementation of the BlobRepository interface
 type GormBlobRepository struct {
-	DB     *gorm.DB
-	Logger logger.Logger
+	db     *gorm.DB
+	logger logger.Logger
 }
 
 // NewGormBlobRepository creates a new GormBlobRepository instance
 func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*GormBlobRepository, error) {
 
 	return &GormBlobRepository{
-		DB:     db,
-		Logger: logger,
+		db:     db,
+		logger: logger,
 	}, nil
 }
 
@@ -39,10 +39,10 @@ func (r *GormBlobRepository) Create(blob *blobs.BlobMeta) error {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.DB.Create(&blob).Error; err != nil {
+	if err := r.db.Create(&blob).Error; err != nil {
 		return fmt.Errorf("failed to create blob: %w", err)
 	}
-	r.Logger.Info(fmt.Sprintf("Created blob metadata with id %s", blob.ID))
+	r.logger.Info(fmt.Sprintf("Created blob metadata with id %s", blob.ID))
 	return nil
 }
 
@@ -54,7 +54,7 @@ func (r *GormBlobRepository) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta
 
 	// Start building the query
 	var blobMetas []*blobs.BlobMeta
-	dbQuery := r.DB.Model(&blobs.BlobMeta{})
+	dbQuery := r.db.Model(&blobs.BlobMeta{})
 
 	// Apply filters based on the query
 	if query.Name != "" {
@@ -99,7 +99,7 @@ func (r *GormBlobRepository) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta
 // GetById retrieves a Blob by its ID from the database
 func (r *GormBlobRepository) GetById(blobId string) (*blobs.BlobMeta, error) {
 	var blob blobs.BlobMeta
-	if err := r.DB.Where("id = ?", blobId).First(&blob).Error; err != nil {
+	if err := r.db.Where("id = ?", blobId).First(&blob).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("blob with ID %s not found", blobId)
 		}
@@ -115,18 +115,18 @@ func (r *GormBlobRepository) UpdateById(blob *blobs.BlobMeta) error {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.DB.Save(&blob).Error; err != nil {
+	if err := r.db.Save(&blob).Error; err != nil {
 		return fmt.Errorf("failed to update blob: %w", err)
 	}
-	r.Logger.Info(fmt.Sprintf("Updated blob metadata with id %s", blob.ID))
+	r.logger.Info(fmt.Sprintf("Updated blob metadata with id %s", blob.ID))
 	return nil
 }
 
 // DeleteById removes a Blob from the database by its ID
 func (r *GormBlobRepository) DeleteById(blobId string) error {
-	if err := r.DB.Where("id = ?", blobId).Delete(&blobs.BlobMeta{}).Error; err != nil {
+	if err := r.db.Where("id = ?", blobId).Delete(&blobs.BlobMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}
-	r.Logger.Info(fmt.Sprintf("Deleted blob metadata with id %s", blobId))
+	r.logger.Info(fmt.Sprintf("Deleted blob metadata with id %s", blobId))
 	return nil
 }

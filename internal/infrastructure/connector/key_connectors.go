@@ -32,9 +32,9 @@ type VaultConnector interface {
 // This is a temporary implementation and may later be replaced with more specialized external key management systems
 // like Azure Key Vault or AWS KMS.
 type AzureVaultConnector struct {
-	Client        *azblob.Client
+	client        *azblob.Client
 	containerName string
-	Logger        logger.Logger
+	logger        logger.Logger
 }
 
 // NewAzureVaultConnector creates a new instance of AzureVaultConnector, which connects to Azure Blob Storage.
@@ -55,9 +55,9 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 	// }
 
 	return &AzureVaultConnector{
-		Client:        client,
+		client:        client,
 		containerName: settings.ContainerName,
-		Logger:        logger,
+		logger:        logger,
 	}, nil
 }
 
@@ -77,13 +77,13 @@ func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyPairId, keyType, 
 		UserID:          userId,
 	}
 
-	_, err := vc.Client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, bytes, nil)
+	_, err := vc.client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, bytes, nil)
 	if err != nil {
 		vc.rollbackUploadedBlobs(cryptoKeyMeta)
 		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
 	}
 
-	vc.Logger.Info(fmt.Sprintf("uploaded blob %s", fullKeyName))
+	vc.logger.Info(fmt.Sprintf("uploaded blob %s", fullKeyName))
 	return cryptoKeyMeta, nil
 }
 
@@ -91,9 +91,9 @@ func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyPairId, keyType, 
 func (vc *AzureVaultConnector) rollbackUploadedBlobs(cryptoKeyMeta *keys.CryptoKeyMeta) {
 	err := vc.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	if err != nil {
-		vc.Logger.Info(fmt.Sprintf("Failed to delete key '%s' during rollback: %v", cryptoKeyMeta.ID, err))
+		vc.logger.Info(fmt.Sprintf("Failed to delete key '%s' during rollback: %v", cryptoKeyMeta.ID, err))
 	} else {
-		vc.Logger.Info(fmt.Sprintf("Key '%s' deleted during rollback", cryptoKeyMeta.ID))
+		vc.logger.Info(fmt.Sprintf("Key '%s' deleted during rollback", cryptoKeyMeta.ID))
 	}
 }
 
@@ -103,7 +103,7 @@ func (vc *AzureVaultConnector) Download(keyId, keyPairId, keyType string) ([]byt
 	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
 	ctx := context.Background()
-	get, err := vc.Client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
+	get, err := vc.client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download blob '%s': %w", fullKeyName, err)
 	}
@@ -114,7 +114,7 @@ func (vc *AzureVaultConnector) Download(keyId, keyPairId, keyType string) ([]byt
 		return nil, fmt.Errorf("failed to read data from blob '%s': %w", fullKeyName, err)
 	}
 
-	vc.Logger.Info(fmt.Sprintf("downloaded blob %s", fullKeyName))
+	vc.logger.Info(fmt.Sprintf("downloaded blob %s", fullKeyName))
 	return downloadedData.Bytes(), nil
 }
 
@@ -123,11 +123,11 @@ func (vc *AzureVaultConnector) Delete(keyId, keyPairId, keyType string) error {
 	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
 	ctx := context.Background()
-	_, err := vc.Client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)
+	_, err := vc.client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
 		return fmt.Errorf("failed to delete blob '%s': %w", fullKeyName, err)
 	}
 
-	vc.Logger.Info(fmt.Sprintf("deleted blob %s", fullKeyName))
+	vc.logger.Info(fmt.Sprintf("deleted blob %s", fullKeyName))
 	return nil
 }

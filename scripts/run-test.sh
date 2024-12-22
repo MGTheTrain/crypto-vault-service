@@ -33,7 +33,6 @@ while getopts "ui" opt; do
 done
 
 echo "#####################################################################################################"
-echo -e "$BLUE INFO: $NC About to run tests based on the flags"
 
 if [ "$RUN_UNIT_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running unit tests..."

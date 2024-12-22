@@ -11,24 +11,24 @@ import (
 type CryptoKeyQuery struct {
 	Algorithm       string    `validate:"omitempty,oneof=AES RSA EC"`               // Type is optional but if provided, must be one of the listed types (AES, RSA, EC)
 	Type            string    `validate:"omitempty,oneof=private public symmetric"` // Type is optional but if provided, must be one of the listed types (private-key, public-key, symmetric-key)
-	DateTimeCreated time.Time `validate:"omitempty,gtefield=DateTimeCreated"`       // DateTimeCreated is optional, but can be used for filtering
+	DateTimeCreated time.Time `validate:"omitempty,gtefield=date_time_created"`     // DateTimeCreated is optional, but can be used for filtering
 
 	// Pagination properties
 	Limit  int `validate:"omitempty,min=1"` // Limit is optional but if provided, should be at least 1
 	Offset int `validate:"omitempty,min=0"` // Offset is optional but should be 0 or greater for pagination
 
 	// Sorting properties
-	SortBy    string `validate:"omitempty,oneof=ID Type DateTimeCreated"` // SortBy is optional but can be one of the fields to sort by
-	SortOrder string `validate:"omitempty,oneof=asc desc"`                // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
+	SortBy    string `validate:"omitempty,oneof=ID type date_time_created"` // SortBy is optional but can be one of the fields to sort by
+	SortOrder string `validate:"omitempty,oneof=asc desc"`                  // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
 }
 
 // New function to create a CryptoKeyQuery with default values
 func NewCryptoKeyQuery() *CryptoKeyQuery {
 	return &CryptoKeyQuery{
-		Limit:     10,                // Default limit to 10 results per page
-		Offset:    0,                 // Default offset to 0 for pagination
-		SortBy:    "DateTimeCreated", // Default sort by DateTimeCreated
-		SortOrder: "asc",             // Default sort order ascending
+		Limit:     10,                  // Default limit to 10 results per page
+		Offset:    0,                   // Default offset to 0 for pagination
+		SortBy:    "date_time_created", // Default sort by DateTimeCreated
+		SortOrder: "asc",               // Default sort order ascending
 	}
 }
 

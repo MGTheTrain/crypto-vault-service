@@ -36,9 +36,9 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 
 	err := ctx.BlobRepo.Create(blob)
@@ -75,9 +75,9 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 		Size:            1024,
 		Type:            "text",
 		EncryptionKey:   cryptographicKey,
-		EncryptionKeyID: cryptographicKey.ID,
+		EncryptionKeyID: &cryptographicKey.ID,
 		SignKey:         cryptographicKey,
-		SignKeyID:       cryptographicKey.ID,
+		SignKeyID:       &cryptographicKey.ID,
 	}
 
 	err := ctx.BlobRepo.Create(blob)

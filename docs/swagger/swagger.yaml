@@ -1,0 +1,435 @@
+basePath: /api/v1/cvs
+definitions:
+  v1.BlobMetaResponseDto:
+    properties:
+      dateTimeCreated:
+        type: string
+      encryptionKeyID:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      signKeyID:
+        type: string
+      size:
+        type: integer
+      type:
+        type: string
+      userID:
+        type: string
+    type: object
+  v1.CryptoKeyMetaResponseDto:
+    properties:
+      algorithm:
+        type: string
+      dateTimeCreated:
+        type: string
+      id:
+        type: string
+      keyPairID:
+        type: string
+      keySize:
+        type: integer
+      type:
+        type: string
+      userID:
+        type: string
+    type: object
+  v1.ErrorResponseDto:
+    properties:
+      message:
+        type: string
+    type: object
+  v1.InfoResponseDto:
+    properties:
+      message:
+        type: string
+    type: object
+  v1.UploadKeyRequestDto:
+    properties:
+      algorithm:
+        enum:
+        - AES
+        - RSA
+        - EC
+        type: string
+      key_size:
+        type: integer
+    type: object
+info:
+  contact:
+    email: TBD
+    name: MGTheTrain
+    url: TBD
+  description: Service capable of managing cryptographic keys and securing data at
+    rest (metadata, BLOB)
+  license:
+    name: LGPL-2.1 license
+    url: https://github.com/MGTheTrain/crypto-vault-service/blob/main/LICENSE
+  termsOfService: TBD
+  title: CryptoVault Service API
+  version: v1
+paths:
+  /blobs:
+    get:
+      consumes:
+      - application/json
+      description: Fetch a list of metadata for blobs based on query filters like
+        name, size, type, and creation date.
+      parameters:
+      - description: Blob Name
+        in: query
+        name: name
+        type: string
+      - description: Blob Size
+        in: query
+        name: size
+        type: integer
+      - description: Blob Type
+        in: query
+        name: type
+        type: string
+      - description: Blob Creation Date (RFC3339)
+        in: query
+        name: dateTimeCreated
+        type: string
+      - description: Limit the number of results
+        in: query
+        name: limit
+        type: integer
+      - description: Offset the results
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/v1.BlobMetaResponseDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: List blob metadata based on query parameters
+      tags:
+      - Blob
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a blob to the system with optional encryption and signing
+        using the provided keys
+      parameters:
+      - description: Blob File
+        in: formData
+        name: files
+        required: true
+        type: file
+      - description: Encryption Key ID
+        in: formData
+        name: encryption_key_id
+        type: string
+      - description: Sign Key ID
+        in: formData
+        name: sign_key_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/v1.BlobMetaResponseDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Upload a blob with optional encryption and signing
+      tags:
+      - Blob
+  /blobs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific blob and its associated metadata by its ID.
+      parameters:
+      - description: Blob ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/v1.InfoResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Delete a blob by its ID
+      tags:
+      - Blob
+    get:
+      consumes:
+      - application/json
+      description: Fetch the metadata of a specific blob by its unique ID, including
+        its name, size, type, encryption and signing key IDs, and creation date.
+      parameters:
+      - description: Blob ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.BlobMetaResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Retrieve metadata of a blob by its ID
+      tags:
+      - Blob
+  /blobs/{id}/file:
+    get:
+      consumes:
+      - application/json
+      description: Download the content of a specific blob by its ID, optionally decrypted
+        with a provided decryption key ID.
+      parameters:
+      - description: Blob ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Decryption Key ID
+        in: query
+        name: decryption_key_id
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Blob content
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Download a blob by its ID
+      tags:
+      - Blob
+  /keys:
+    get:
+      consumes:
+      - application/json
+      description: Fetch a list of cryptographic key metadata based on filters like
+        algorithm, type, and creation date, with pagination and sorting options.
+      parameters:
+      - description: Cryptographic Algorithm
+        in: query
+        name: algorithm
+        type: string
+      - description: Key Type
+        in: query
+        name: type
+        type: string
+      - description: Key Creation Date (RFC3339)
+        in: query
+        name: dateTimeCreated
+        type: string
+      - description: Limit the number of results
+        in: query
+        name: limit
+        type: integer
+      - description: Offset the results
+        in: query
+        name: offset
+        type: integer
+      - description: Sort by a specific field
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/v1.CryptoKeyMetaResponseDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: List cryptographic key metadata based on query parameters
+      tags:
+      - Key
+    post:
+      consumes:
+      - application/json
+      description: Generate cryptographic keys based on provided parameters and upload
+        them to the system.
+      parameters:
+      - description: Cryptographic Key Data
+        in: body
+        name: requestBody
+        required: true
+        schema:
+          $ref: '#/definitions/v1.UploadKeyRequestDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/v1.CryptoKeyMetaResponseDto'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Upload cryptographic keys and metadata
+      tags:
+      - Key
+  /keys/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific cryptographic key and its associated metadata
+        by its ID.
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/v1.InfoResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Delete a cryptographic key by its ID
+      tags:
+      - Key
+    get:
+      consumes:
+      - application/json
+      description: Fetch the metadata of a specific cryptographic key by its unique
+        ID, including algorithm, key size, and creation date.
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.CryptoKeyMetaResponseDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Retrieve metadata of a key by its ID
+      tags:
+      - Key
+  /keys/{id}/file:
+    get:
+      consumes:
+      - application/json
+      description: Download the content of a specific cryptographic key by its ID.
+      parameters:
+      - description: Key ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: Cryptographic key content
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponseDto'
+      summary: Download a cryptographic key by its ID
+      tags:
+      - Key
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+  BasicAuth:
+    type: basic
+  OAuth2AccessCode:
+    authorizationUrl: https://example.com/oauth/authorize
+    flow: accessCode
+    scopes:
+      admin: Grants read and write access to administrative information
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
+  OAuth2Application:
+    flow: application
+    scopes:
+      admin: Grants read and write access to administrative information
+      write: Grants write access
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
+  OAuth2Implicit:
+    authorizationUrl: https://example.com/oauth/authorize
+    flow: implicit
+    scopes:
+      admin: Grants read and write access to administrative information
+      write: Grants write access
+    type: oauth2
+  OAuth2Password:
+    flow: password
+    scopes:
+      admin: Grants read and write access to administrative information
+      read: Grants read access
+      write: Grants write access
+    tokenUrl: https://example.com/oauth/token
+    type: oauth2
+swagger: "2.0"

@@ -38,6 +38,7 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	ctx := helpers.SetupTestDB(t)
 
 	blobConnectorSettings := &settings.BlobConnectorSettings{
+		CloudProvider:    "azure",
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
@@ -45,19 +46,20 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	require.NoError(t, err, "Error creating blob connector")
 
 	keyConnectorSettings := &settings.KeyConnectorSettings{
+		CloudProvider:    "azure",
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
 	vaultConnector, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
 	require.NoError(t, err, "Error creating vault connector")
 
-	blobUploadService := services.NewBlobUploadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
+	blobUploadService, err := services.NewBlobUploadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating BlobUploadService")
 
-	blobDownloadService := services.NewBlobDownloadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
+	blobDownloadService, err := services.NewBlobDownloadService(blobConnector, ctx.BlobRepo, vaultConnector, ctx.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating BlobDownloadService")
 
-	blobMetadataService := services.NewBlobMetadataService(ctx.BlobRepo, blobConnector, logger)
+	blobMetadataService, err := services.NewBlobMetadataService(ctx.BlobRepo, blobConnector, logger)
 	require.NoError(t, err, "Error creating BlobMetadataService")
 
 	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, ctx.CryptoKeyRepo, logger)
@@ -85,11 +87,10 @@ func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *tes
 
 	userId := uuid.New().String()
 
-	keyPairId := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keySize := 2048
 
-	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, keyPairId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 
@@ -117,20 +118,18 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 	userId := uuid.New().String()
 
 	// generate signing private EC key
-	signKeyPairId := uuid.New().String()
 	signKeyAlgorithm := "EC"
 	signKeySize := 256
 
-	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, signKeyPairId, signKeyAlgorithm, uint(signKeySize))
+	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(userId, signKeyAlgorithm, uint(signKeySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 
 	// generate AES encryption key
-	encryptionKeyPairId := uuid.New().String()
 	encryptionKeyAlgorithm := "AES"
 	encryptionKeySize := 256
 
-	cryptoKeyMetas2, err := blobServices.CryptoKeyUploadService.Upload(userId, encryptionKeyPairId, encryptionKeyAlgorithm, uint(encryptionKeySize))
+	cryptoKeyMetas2, err := blobServices.CryptoKeyUploadService.Upload(userId, encryptionKeyAlgorithm, uint(encryptionKeySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas2), 1)
 
