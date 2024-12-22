@@ -19,17 +19,17 @@ type BlobMetaQuery struct {
 	Offset int `validate:"omitempty,min=0"` // Offset is optional but should be 0 or greater for pagination
 
 	// Sorting properties
-	SortBy    string `validate:"omitempty,oneof=ID Type DateTimeCreated"` // SortBy is optional but can be one of the fields to sort by
-	SortOrder string `validate:"omitempty,oneof=asc desc"`                // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
+	SortBy    string `validate:"omitempty,oneof=ID type date_time_created"` // SortBy is optional but can be one of the fields to sort by
+	SortOrder string `validate:"omitempty,oneof=asc desc"`                  // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
 }
 
 // NewBlobMetaQuery creates a BlobMetaQuery with default values.
 func NewBlobMetaQuery() *BlobMetaQuery {
 	return &BlobMetaQuery{
-		Limit:     10,                // Default limit to 10 results per page
-		Offset:    0,                 // Default offset to 0 for pagination
-		SortBy:    "DateTimeCreated", // Default sort by DateTimeCreated
-		SortOrder: "asc",             // Default sort order ascending
+		Limit:     10,                  // Default limit to 10 results per page
+		Offset:    0,                   // Default offset to 0 for pagination
+		SortBy:    "date_time_created", // Default sort by DateTimeCreated
+		SortOrder: "asc",               // Default sort order ascending
 	}
 }
 
