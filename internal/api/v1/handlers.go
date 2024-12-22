@@ -83,8 +83,14 @@ func (handler *BlobHandler) Upload(c *gin.Context) {
 			Name:            blobMeta.Name,
 			Size:            blobMeta.Size,
 			Type:            blobMeta.Type,
-			EncryptionKeyID: *blobMeta.EncryptionKeyID,
-			SignKeyID:       *blobMeta.SignKeyID,
+			EncryptionKeyID: nil,
+			SignKeyID:       nil,
+		}
+		if blobMeta.EncryptionKeyID != nil {
+			blobMetadataResponse.EncryptionKeyID = blobMeta.EncryptionKeyID
+		}
+		if blobMeta.SignKeyID != nil {
+			blobMetadataResponse.SignKeyID = blobMeta.SignKeyID
 		}
 		blobMetadataResponses = append(blobMetadataResponses, blobMetadataResponse)
 	}
@@ -172,8 +178,14 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 			Name:            blobMeta.Name,
 			Size:            blobMeta.Size,
 			Type:            blobMeta.Type,
-			EncryptionKeyID: *blobMeta.EncryptionKeyID,
-			SignKeyID:       *blobMeta.SignKeyID,
+			EncryptionKeyID: nil,
+			SignKeyID:       nil,
+		}
+		if blobMeta.EncryptionKeyID != nil {
+			blobMetadataResponse.EncryptionKeyID = blobMeta.EncryptionKeyID
+		}
+		if blobMeta.SignKeyID != nil {
+			blobMetadataResponse.SignKeyID = blobMeta.SignKeyID
 		}
 		listResponse = append(listResponse, blobMetadataResponse)
 	}
@@ -209,8 +221,15 @@ func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 		Name:            blobMeta.Name,
 		Size:            blobMeta.Size,
 		Type:            blobMeta.Type,
-		EncryptionKeyID: *blobMeta.EncryptionKeyID,
-		SignKeyID:       *blobMeta.SignKeyID,
+		EncryptionKeyID: nil,
+		SignKeyID:       nil,
+	}
+
+	if blobMeta.EncryptionKeyID != nil {
+		blobMetadataResponse.EncryptionKeyID = blobMeta.EncryptionKeyID
+	}
+	if blobMeta.SignKeyID != nil {
+		blobMetadataResponse.SignKeyID = blobMeta.SignKeyID
 	}
 
 	c.JSON(http.StatusOK, blobMetadataResponse)

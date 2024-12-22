@@ -47,8 +47,8 @@ type BlobMetaResponseDto struct {
 	Name            string    `json:"name"`
 	Size            int64     `json:"size"`
 	Type            string    `json:"type"`
-	EncryptionKeyID string    `json:"encryptionKeyID"`
-	SignKeyID       string    `json:"signKeyID"`
+	EncryptionKeyID *string   `json:"encryptionKeyID"`
+	SignKeyID       *string   `json:"signKeyID"`
 }
 
 type CryptoKeyMetaResponseDto struct {
