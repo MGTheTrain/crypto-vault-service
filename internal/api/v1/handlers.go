@@ -69,7 +69,7 @@ func (handler *BlobHandler) Upload(c *gin.Context) {
 	blobMetas, err := handler.blobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "Error uploading blob"
+		errorResponseDto.Message = fmt.Sprintf("error uploading blob: %v", err.Error())
 		c.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
@@ -133,8 +133,6 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 		parsedTime, err := time.Parse(time.RFC3339, dateTimeCreated)
 		if err == nil {
 			query.DateTimeCreated = parsedTime
-		} else {
-			// ignore parsing errors
 		}
 	}
 
@@ -156,7 +154,7 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 
 	if err := query.Validate(); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "Validation failed"
+		errorResponseDto.Message = fmt.Sprintf("validation failed: %v", err.Error())
 		c.JSON(400, errorResponseDto)
 		return
 	}
@@ -164,7 +162,7 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 	blobMetas, err := handler.blobMetadataService.List(query)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "List query failed"
+		errorResponseDto.Message = fmt.Sprintf("list query failed: %v", err.Error())
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
@@ -209,7 +207,7 @@ func (handler *BlobHandler) GetMetadataById(c *gin.Context) {
 	blobMeta, err := handler.blobMetadataService.GetByID(blobId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("Blob with id %s not found", blobId)
+		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
@@ -257,15 +255,15 @@ func (handler *BlobHandler) DownloadById(c *gin.Context) {
 	bytes, err := handler.blobDownloadService.Download(blobId, decryptionKeyId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
-		c.JSON(http.StatusNotFound, errorResponseDto)
+		errorResponseDto.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err)
+		c.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
 
 	blobMeta, err := handler.blobMetadataService.GetByID(blobId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("Blob with id %s not found", blobId)
+		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
@@ -273,7 +271,14 @@ func (handler *BlobHandler) DownloadById(c *gin.Context) {
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Header().Set("Content-Type", "application/octet-stream; charset=utf-8")
 	c.Writer.Header().Set("Content-Disposition", "attachment; filename="+blobMeta.Name)
-	c.Writer.Write(bytes)
+	_, err = c.Writer.Write(bytes)
+
+	if err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err)
+		c.JSON(http.StatusBadRequest, errorResponseDto)
+		return
+	}
 }
 
 // DeleteById handles the DELETE request to delete a blob by its ID
@@ -291,13 +296,13 @@ func (handler *BlobHandler) DeleteById(c *gin.Context) {
 
 	if err := handler.blobMetadataService.DeleteByID(blobId); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("Blob with id %s not found", blobId)
+		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
 
 	var infoResponseDto InfoResponseDto
-	infoResponseDto.Message = fmt.Sprintf("Deleted blob with id %s", blobId)
+	infoResponseDto.Message = fmt.Sprintf("deleted blob with id %s", blobId)
 	c.JSON(http.StatusNoContent, infoResponseDto)
 }
 
@@ -334,14 +339,14 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&requestDto); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "Invalid key data"
+		errorResponseDto.Message = fmt.Sprintf("invalid key data: %v", err.Error())
 		c.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
 
 	if err := requestDto.Validate(); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "Validation failed"
+		errorResponseDto.Message = fmt.Sprintf("validation failed: %v", err.Error())
 		c.JSON(400, errorResponseDto)
 		return
 	}
@@ -351,7 +356,7 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(userId, requestDto.Algorithm, requestDto.KeySize)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "Error uploading key"
+		errorResponseDto.Message = fmt.Sprintf("error uploading key: %v", err.Error())
 		c.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
@@ -405,8 +410,6 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 		parsedTime, err := time.Parse(time.RFC3339, dateTimeCreated)
 		if err == nil {
 			query.DateTimeCreated = parsedTime
-		} else {
-			// ignore parsing errors
 		}
 	}
 
@@ -428,7 +431,7 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 
 	if err := query.Validate(); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "Validation failed"
+		errorResponseDto.Message = fmt.Sprintf("validation failed: %v", err.Error())
 		c.JSON(400, errorResponseDto)
 		return
 	}
@@ -436,7 +439,7 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 	cryptoKeyMetas, err := handler.cryptoKeyMetadataService.List(query)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = "List query failed"
+		errorResponseDto.Message = fmt.Sprintf("list query failed: %v", err.Error())
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
@@ -508,15 +511,22 @@ func (handler *KeyHandler) DownloadById(c *gin.Context) {
 	bytes, err := handler.cryptoKeyDownloadService.Download(keyId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("key with id %s not found", keyId)
-		c.JSON(http.StatusNotFound, errorResponseDto)
+		errorResponseDto.Message = fmt.Sprintf("could not download key with id %s: %v", keyId, err.Error())
+		c.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
 
 	c.Writer.WriteHeader(http.StatusOK)
 	c.Writer.Header().Set("Content-Type", "application/octet-stream; charset=utf-8")
 	c.Writer.Header().Set("Content-Disposition", "attachment; filename="+keyId)
-	c.Writer.Write(bytes)
+	_, err = c.Writer.Write(bytes)
+
+	if err != nil {
+		var errorResponseDto ErrorResponseDto
+		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err)
+		c.JSON(http.StatusBadRequest, errorResponseDto)
+		return
+	}
 }
 
 // DeleteById handles the DELETE request to delete a key by its ID
@@ -534,12 +544,12 @@ func (handler *KeyHandler) DeleteById(c *gin.Context) {
 
 	if err := handler.cryptoKeyMetadataService.DeleteByID(keyId); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("Error deleting key with id %s", keyId)
+		errorResponseDto.Message = fmt.Sprintf("error deleting key with id %s", keyId)
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
 
 	var infoResponseDto InfoResponseDto
-	infoResponseDto.Message = fmt.Sprintf("Deleted key with id %s", keyId)
+	infoResponseDto.Message = fmt.Sprintf("deleted key with id %s", keyId)
 	c.JSON(http.StatusNoContent, infoResponseDto)
 }
