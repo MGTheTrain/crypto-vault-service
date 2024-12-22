@@ -115,7 +115,7 @@ const docTemplate = `{
                     {
                         "type": "file",
                         "description": "Blob File",
-                        "name": "file",
+                        "name": "files",
                         "in": "formData",
                         "required": true
                     },

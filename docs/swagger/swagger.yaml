@@ -130,7 +130,7 @@ paths:
       parameters:
       - description: Blob File
         in: formData
-        name: file
+        name: files
         required: true
         type: file
       - description: Encryption Key ID
