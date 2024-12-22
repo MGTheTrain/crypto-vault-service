@@ -44,14 +44,14 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var newForm *multipart.Form
 
-	// Process encryptionKeyId if provided
-	if encryptionKeyId != nil {
-		keyBytes, cryptoKeyMeta, err := s.getCryptoKeyAndData(*encryptionKeyId)
+	// Process signKeyId if provided
+	if signKeyId != nil {
+		keyBytes, cryptoKeyMeta, err := s.getCryptoKeyAndData(*signKeyId)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
 
-		cryptoOperation := "encryption"
+		cryptoOperation := "signing"
 		contents, fileNames, err := s.applyCryptographicOperation(form, cryptoKeyMeta.Algorithm, cryptoOperation, keyBytes, cryptoKeyMeta.KeySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
@@ -63,14 +63,14 @@ func (s *BlobUploadService) Upload(form *multipart.Form, userId string, encrypti
 		}
 	}
 
-	// Process signKeyId if provided
-	if signKeyId != nil {
-		keyBytes, cryptoKeyMeta, err := s.getCryptoKeyAndData(*signKeyId)
+	// Process encryptionKeyId if provided
+	if encryptionKeyId != nil {
+		keyBytes, cryptoKeyMeta, err := s.getCryptoKeyAndData(*encryptionKeyId)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
 
-		cryptoOperation := "signing"
+		cryptoOperation := "encryption"
 		contents, fileNames, err := s.applyCryptographicOperation(form, cryptoKeyMeta.Algorithm, cryptoOperation, keyBytes, cryptoKeyMeta.KeySize)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
