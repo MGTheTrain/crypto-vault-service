@@ -15,8 +15,7 @@
         },
         "version": "v1"
     },
-    "host": "localhost:8080",
-    "basePath": "/",
+    "basePath": "/api/v1/cvs",
     "paths": {
         "/blobs": {
             "get": {

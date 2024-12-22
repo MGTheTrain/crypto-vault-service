@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api/v1/cvs
 definitions:
   v1.BlobMetaResponseDto:
     properties:
@@ -57,7 +57,6 @@ definitions:
       key_size:
         type: integer
     type: object
-host: localhost:8080
 info:
   contact:
     email: TBD
