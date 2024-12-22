@@ -291,7 +291,7 @@ func (handler *BlobHandler) DeleteById(c *gin.Context) {
 
 	if err := handler.blobMetadataService.DeleteByID(blobId); err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("Error deleting blob with id %s", blobId)
+		errorResponseDto.Message = fmt.Sprintf("Blob with id %s not found", blobId)
 		c.JSON(http.StatusNotFound, errorResponseDto)
 		return
 	}
