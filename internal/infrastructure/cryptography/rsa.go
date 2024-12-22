@@ -87,16 +87,36 @@ func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error
 	return encryptedData, nil
 }
 
-// Decrypt data using RSA private key
+// Decrypt data using RSA private key. It handles multiple chunks of encrypted data.
 func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
 		return nil, fmt.Errorf("private key cannot be nil")
 	}
 
-	decryptedData, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt data: %v", err)
+	// Maximum size for the decrypted data, which is the RSA key size
+	maxSize := privateKey.Size()
+
+	var decryptedData []byte
+	for len(ciphertext) > 0 {
+		// Determine the chunk size
+		chunkSize := maxSize
+		if len(ciphertext) < chunkSize {
+			chunkSize = len(ciphertext)
+		}
+
+		// Decrypt the current chunk
+		decryptedChunk, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext[:chunkSize])
+		if err != nil {
+			return nil, fmt.Errorf("failed to decrypt data: %v", err)
+		}
+
+		// Append the decrypted chunk to the result
+		decryptedData = append(decryptedData, decryptedChunk...)
+
+		// Move to the next chunk
+		ciphertext = ciphertext[chunkSize:]
 	}
+
 	r.logger.Info("RSA decryption succeeded")
 	return decryptedData, nil
 }
