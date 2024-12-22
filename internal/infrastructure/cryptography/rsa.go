@@ -50,15 +50,39 @@ func (r *RSA) GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error)
 }
 
 // Encrypt data using RSA public key
+// Encrypt encrypts the given plaintext using RSA encryption.
+// If the plaintext is too large, it will split it into smaller chunks and encrypt each one separately.
 func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error) {
 	if publicKey == nil {
 		return nil, errors.New("public key cannot be nil")
 	}
 
-	encryptedData, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encrypt data: %v", err)
+	// Maximum size for the plaintext that can be encrypted with the RSA key
+	// For a 2048-bit RSA key, it's approximately 245 bytes after accounting for padding
+	maxSize := publicKey.Size() - 11 // PKCS#1 v1.5 padding size
+
+	// If the plaintext is too large, split it into smaller chunks
+	var encryptedData []byte
+	for len(plainText) > 0 {
+		// Determine the chunk size
+		chunkSize := maxSize
+		if len(plainText) < chunkSize {
+			chunkSize = len(plainText)
+		}
+
+		// Encrypt the current chunk
+		encryptedChunk, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText[:chunkSize])
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt data: %v", err)
+		}
+
+		// Append the encrypted chunk to the result
+		encryptedData = append(encryptedData, encryptedChunk...)
+
+		// Move to the next chunk
+		plainText = plainText[chunkSize:]
 	}
+
 	r.logger.Info("RSA encryption succeeded")
 	return encryptedData, nil
 }
