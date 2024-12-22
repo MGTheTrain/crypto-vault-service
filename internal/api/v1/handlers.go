@@ -162,7 +162,7 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 		return
 	}
 
-	var blobMetadataResponses []BlobMetaResponseDto
+	var listResponse = []BlobMetaResponseDto{}
 	for _, blobMeta := range blobMetas {
 		blobMetadataResponse := BlobMetaResponseDto{
 			ID:              blobMeta.ID,
@@ -174,10 +174,10 @@ func (handler *BlobHandler) ListMetadata(c *gin.Context) {
 			EncryptionKeyID: blobMeta.EncryptionKeyID,
 			SignKeyID:       blobMeta.SignKeyID,
 		}
-		blobMetadataResponses = append(blobMetadataResponses, blobMetadataResponse)
+		listResponse = append(listResponse, blobMetadataResponse)
 	}
 
-	c.JSON(http.StatusOK, blobMetadataResponses)
+	c.JSON(http.StatusOK, listResponse)
 }
 
 // GetMetadataById handles the GET request to fetch metadata of a blob by its ID
@@ -336,7 +336,7 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 		return
 	}
 
-	var cryptoKeyMetadataResponses []CryptoKeyMetaResponseDto
+	var listResponse = []CryptoKeyMetaResponseDto{}
 	for _, cryptoKeyMeta := range cryptoKeyMetas {
 		cryptoKeyMetadataResponse := CryptoKeyMetaResponseDto{
 			ID:              cryptoKeyMeta.ID,
@@ -347,10 +347,10 @@ func (handler *KeyHandler) UploadKeys(c *gin.Context) {
 			DateTimeCreated: cryptoKeyMeta.DateTimeCreated,
 			UserID:          cryptoKeyMeta.UserID,
 		}
-		cryptoKeyMetadataResponses = append(cryptoKeyMetadataResponses, cryptoKeyMetadataResponse)
+		listResponse = append(listResponse, cryptoKeyMetadataResponse)
 	}
 
-	c.JSON(http.StatusCreated, cryptoKeyMetadataResponses)
+	c.JSON(http.StatusCreated, listResponse)
 }
 
 // ListMetadata handles the GET request to list cryptographic key metadata with optional query parameters
@@ -421,7 +421,7 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 		return
 	}
 
-	var cryptoKeyMetadataResponses []CryptoKeyMetaResponseDto
+	var listResponse = []CryptoKeyMetaResponseDto{}
 	for _, cryptoKeyMeta := range cryptoKeyMetas {
 		cryptoKeyMetadataResponse := CryptoKeyMetaResponseDto{
 			ID:              cryptoKeyMeta.ID,
@@ -432,10 +432,10 @@ func (handler *KeyHandler) ListMetadata(c *gin.Context) {
 			DateTimeCreated: cryptoKeyMeta.DateTimeCreated,
 			UserID:          cryptoKeyMeta.UserID,
 		}
-		cryptoKeyMetadataResponses = append(cryptoKeyMetadataResponses, cryptoKeyMetadataResponse)
+		listResponse = append(listResponse, cryptoKeyMetadataResponse)
 	}
 
-	c.JSON(http.StatusOK, cryptoKeyMetadataResponses)
+	c.JSON(http.StatusOK, listResponse)
 }
 
 // GetMetadataById handles the GET request to retrieve metadata of a key by its ID
