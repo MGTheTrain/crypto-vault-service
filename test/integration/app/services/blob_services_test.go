@@ -38,6 +38,7 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	ctx := helpers.SetupTestDB(t)
 
 	blobConnectorSettings := &settings.BlobConnectorSettings{
+		CloudProvider:    "azure",
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
@@ -45,6 +46,7 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	require.NoError(t, err, "Error creating blob connector")
 
 	keyConnectorSettings := &settings.KeyConnectorSettings{
+		CloudProvider:    "azure",
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
