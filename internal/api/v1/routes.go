@@ -14,7 +14,8 @@ func SetupRoutes(r *gin.Engine,
 	cryptoKeyUploadService *services.CryptoKeyUploadService,
 	cryptoKeyDownloadService *services.CryptoKeyDownloadService,
 	cryptoKeyMetadataService *services.CryptoKeyMetadataService) {
-	v1 := r.Group("/api/v1")
+
+	v1 := r.Group(BasePath) // lookup in version file
 
 	// Blobs Routes
 	blobHandler := NewBlobHandler(blobUploadService, blobDownloadService, blobMetadataService, cryptoKeyUploadService)
