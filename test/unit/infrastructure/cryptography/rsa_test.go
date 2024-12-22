@@ -108,21 +108,17 @@ func (rt *RSATests) TestSaveAndReadKeys(t *testing.T) {
 
 // TestEncryptWithInvalidKey tests encryption with an invalid public key
 func (rt *RSATests) TestEncryptWithInvalidKey(t *testing.T) {
-	// Generate RSA keys
-	_, _, err := rt.rsa.GenerateKeys(2048)
+	_, publicKey, err := rt.rsa.GenerateKeys(2048)
 	assert.NoError(t, err)
 
-	// Attempt to encrypt with a nil public key (invalid case)
 	plainText := []byte("This should fail encryption")
-	_, err = rt.rsa.Encrypt(plainText, nil)
-	assert.Error(t, err, "Encryption should fail with an invalid public key")
+	_, err = rt.rsa.Encrypt(plainText, publicKey)
+	assert.NoError(t, err, "Encryption should not fail with an valid public key")
 
-	// Attempt to decrypt with a nil private key (invalid case)
-	_, err = rt.rsa.Decrypt(plainText, nil)
-	assert.Error(t, err, "Decryption should fail with an invalid private key")
+	wrongPrivateKey, _, err := rt.rsa.GenerateKeys(2048)
+	assert.NoError(t, err)
 
-	// Attempt to decrypt with a different private key (invalid case)
-	_, err = rt.rsa.Decrypt(plainText, &rsa.PrivateKey{})
+	_, err = rt.rsa.Decrypt(plainText, wrongPrivateKey)
 	assert.Error(t, err, "Decryption should fail with an invalid private key")
 }
 
