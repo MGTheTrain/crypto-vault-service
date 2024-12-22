@@ -31,8 +31,7 @@ import (
 // @contact.email TBD
 // @license.name LGPL-2.1 license
 // @license.url https://github.com/MGTheTrain/crypto-vault-service/blob/main/LICENSE
-// @host localhost:8080
-// @BasePath /
+// @BasePath /api/v1/cvs
 // @securityDefinitions.basic BasicAuth
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -185,9 +184,9 @@ func main() {
 
 	// r.Use(v1.AuthMiddleware())
 
-	apiVersion := v1.Version
-	docs.SwaggerInfo.Version = apiVersion
-	swaggerRoute := fmt.Sprintf("/api/" + apiVersion + "/cvs/swagger/*any")
+	docs.SwaggerInfo.Version = v1.Version
+	docs.SwaggerInfo.BasePath = v1.BasePath // lookup in version.go file
+	swaggerRoute := fmt.Sprintf("/api/" + v1.Version + "/cvs/swagger/*any")
 	r.GET(swaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	if err := r.Run(":" + config.Port); err != nil {
