@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+option go_package = ".";
+
+import "google/protobuf/timestamp.proto";
+
+message UploadKeyRequest {
+  string algorithm = 1;  
+  uint32 key_size = 2;   
+}
+
+message ErrorResponse {
+  string message = 1;  
+}
+
+message InfoResponse {
+  string message = 1;  
+}
+
+message BlobMetaResponse {
+  string id = 1;                      
+  google.protobuf.Timestamp date_time_created = 2; 
+  string user_id = 3;                  
+  string name = 4;                     
+  int64 size = 5;                      
+  string type = 6;                     
+  string encryption_key_id = 7;        
+  string sign_key_id = 8;              
+}
+
+message CryptoKeyMetaResponse {
+  string id = 1;                        
+  string key_pair_id = 2;               
+  string algorithm = 3;                 
+  uint32 key_size = 4;                  
+  string type = 5;                      
+  google.protobuf.Timestamp date_time_created = 6; 
+  string user_id = 7;                   
+}
+
+message BlobMetaQuery {
+  string name = 1;           
+  int64 size = 2;            
+  string type = 3;           
+  google.protobuf.Timestamp date_time_created = 4; 
+  int32 limit = 5;           
+  int32 offset = 6;          
+  string sort_by = 7;        
+  string sort_order = 8;     
+}
+
+message BlobDownloadRequest {
+  string id = 1;                
+  string decryption_key_id = 2;  
+}
+
+message BlobContent {
+  bytes content = 1; 
+}
+
+message KeyMetadataQuery {
+  string algorithm = 1;   
+  string type = 2;        
+  google.protobuf.Timestamp date_time_created = 3; 
+  int32 limit = 4;        
+  int32 offset = 5;       
+  string sort_by = 6;     
+  string sort_order = 7;  
+}
+
+message KeyDownloadRequest {
+  string id = 1;                
+}
+
+message KeyContent {
+  bytes content = 1;  
+}
+
+service BlobUploadService {
+    rpc UploadBlob (UploadKeyRequest) returns (BlobMetaResponse);  
+}
+
+service BlobDownloadService {
+    rpc DownloadBlobById (BlobDownloadRequest) returns (stream BlobContent);  
+}
+
+service BlobMetadataService {
+    rpc ListBlobMetadata (BlobMetaQuery) returns (stream BlobMetaResponse);  
+    rpc GetBlobMetadataById (BlobMetaQuery) returns (BlobMetaResponse);  
+    rpc DeleteBlobById (BlobMetaQuery) returns (InfoResponse);  
+}
+
+service CryptoKeyUploadService {
+    rpc UploadKey (UploadKeyRequest) returns (CryptoKeyMetaResponse);  
+}
+
+service CryptoKeyDownloadService {
+    rpc DownloadKeyById (KeyDownloadRequest) returns (stream KeyContent);  
+}
+
+service CryptoKeyMetadataService {
+    rpc ListKeyMetadata (KeyMetadataQuery) returns (stream CryptoKeyMetaResponse);  
+    rpc GetKeyMetadataById (KeyMetadataQuery) returns (CryptoKeyMetaResponse);  
+    rpc DeleteKeyById (KeyMetadataQuery) returns (InfoResponse);  
+}
