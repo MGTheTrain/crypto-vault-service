@@ -1,9 +1,9 @@
 services:
-  crypto-vault-service:
-    image: crypto-vault-service:0.1.0
+  crypto-vault-rest-service:
+    image: crypto-vault-rest-service:0.1.0
     build:
       context: .
-      dockerfile: cmd/crypto-vault-service/Dockerfile
+      dockerfile: cmd/crypto-vault-rest-service/Dockerfile
     env_file:
       - ./crypto-vault-service.env
     ports:

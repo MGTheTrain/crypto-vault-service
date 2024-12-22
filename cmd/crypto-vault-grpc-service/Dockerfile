@@ -7,7 +7,7 @@ RUN apk update
 COPY go.mod go.sum ./
 RUN go mod tidy
 COPY . .
-RUN go build -o crypto_vault_service ./cmd/crypto-vault-service/crypto_vault_service.go
+RUN go build -o crypto_vault_service ./cmd/crypto-vault-grpc-service/crypto_vault_service.go
 
 # Serve stage
 FROM alpine:latest

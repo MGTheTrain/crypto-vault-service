@@ -1,4 +1,4 @@
-# crypto-vault-service
+# crypto-vault-rest-service
 
 ## Table of Contents
 
