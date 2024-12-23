@@ -11,6 +11,7 @@ import (
 
 	pb "proto"
 
+	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -69,8 +70,10 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 		signKeyId = &req.SignKeyId
 	}
 
+	userId := uuid.New().String()
 	form, err := utils.CreateMultipleFilesForm(fileContent, fileNames)
-	blobMetas, err := s.blobUploadService.Upload(form, req.GetUserId(), encryptionKeyId, signKeyId)
+
+	blobMetas, err := s.blobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
 		return fmt.Errorf("failed to upload blob: %v", err)
 	}
@@ -254,7 +257,8 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadSe
 
 // UploadKeys generates and uploads cryptographic keys
 func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
-	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(req.GetUserId(), req.GetAlgorithm(), uint(req.GetKeySize()))
+	userId := uuid.New().String()
+	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(userId, req.Algorithm, uint(req.KeySize))
 	if err != nil {
 		return fmt.Errorf("failed to generate and upload crypto keys: %v", err)
 	}
@@ -287,7 +291,7 @@ func NewCryptoKeyDownloadServer(cryptoKeyDownloadService *services.CryptoKeyDown
 
 // DownloadById downloads a key by its ID
 func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIdServer) error {
-	bytes, err := s.cryptoKeyDownloadService.Download(req.GetId())
+	bytes, err := s.cryptoKeyDownloadService.Download(req.Id)
 	if err != nil {
 		return fmt.Errorf("failed to download crypto key: %v", err)
 	}
@@ -333,11 +337,11 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 	if req.DateTimeCreated != nil {
 		query.DateTimeCreated = req.DateTimeCreated.AsTime()
 	}
-	if req.GetLimit() > 0 {
-		query.Limit = int(req.GetLimit())
+	if req.Limit > 0 {
+		query.Limit = int(req.Limit)
 	}
-	if req.GetOffset() > -1 {
-		query.Offset = int(req.GetOffset())
+	if req.Offset > -1 {
+		query.Offset = int(req.Offset)
 	}
 
 	cryptoKeyMetas, err := s.cryptoKeyMetadataService.List(query)

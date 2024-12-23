@@ -7,17 +7,15 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto"; 
 
 message BlobUploadRequest {
-  string user_id = 1;
-  string file_name = 2;
-  bytes file_content = 3;
-  string encryption_key_id = 4;
-  string sign_key_id = 5;
+  string file_name = 1;
+  bytes file_content = 2;
+  string encryption_key_id = 3;
+  string sign_key_id = 4;
 }
 
 message UploadKeyRequest {
-  string user_id = 1;
-  string algorithm = 2;  
-  uint32 key_size = 3;   
+  string algorithm = 1;  
+  uint32 key_size = 2;   
 }
 
 message IdRequest {
