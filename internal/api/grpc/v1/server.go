@@ -423,15 +423,17 @@ func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServe
 
 // Register the gRPC-Gateway handlers for each service
 
-func RegisterBlobUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	// Register the handler from the endpoint (this works with gRPC-Gateway)
-	err := pb.RegisterBlobUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
-	if err != nil {
-		log.Fatalf("Failed to register blob upload gateway: %v", err)
-		return err
-	}
-	return nil
-}
+// Multipart file uploads are not supported with grpc-gateway. For more details,
+// see: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, subsequent code can be commented.
+// func RegisterBlobUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
+// 	// Register the handler from the endpoint (this works with gRPC-Gateway)
+// 	err := pb.RegisterBlobUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+// 	if err != nil {
+// 		log.Fatalf("Failed to register blob upload gateway: %v", err)
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
 	err := pb.RegisterBlobDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
