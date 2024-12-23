@@ -201,36 +201,37 @@ func main() {
 
 	gatewayTarget := "0.0.0.0:" + config.Port
 	// Create a client connection to the gRPC server
-	conn, err := grpc.Dial(gatewayTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(gatewayTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to dial server: %v", err)
 	}
 
 	// Register all services for the gRPC-Gateway mux
 
+	creds := insecure.NewCredentials()
 	// Multipart file uploads are not supported with grpc-gateway. For more details
 	// checkout: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, subsequent code can be commented.
-	// err = v1.RegisterBlobUploadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	// err = v1.RegisterBlobUploadGateway(context.Background(), gatewayTarget, gwmux, conn, creds)
 	// if err != nil {
 	// 	log.Fatalf("Failed to register blob upload gateway: %v", err)
 	// }
-	err = v1.RegisterBlobDownloadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	err = v1.RegisterBlobDownloadGateway(context.Background(), gatewayTarget, gwmux, conn, creds)
 	if err != nil {
 		log.Fatalf("Failed to register blob download gateway: %v", err)
 	}
-	err = v1.RegisterBlobMetadataGateway(context.Background(), gatewayTarget, gwmux, conn)
+	err = v1.RegisterBlobMetadataGateway(context.Background(), gatewayTarget, gwmux, conn, creds)
 	if err != nil {
 		log.Fatalf("Failed to register blob metadata gateway: %v", err)
 	}
-	err = v1.RegisterCryptoKeyUploadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	err = v1.RegisterCryptoKeyUploadGateway(context.Background(), gatewayTarget, gwmux, conn, creds)
 	if err != nil {
 		log.Fatalf("Failed to register crypto key upload gateway: %v", err)
 	}
-	err = v1.RegisterCryptoKeyDownloadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	err = v1.RegisterCryptoKeyDownloadGateway(context.Background(), gatewayTarget, gwmux, conn, creds)
 	if err != nil {
 		log.Fatalf("Failed to register crypto key download gateway: %v", err)
 	}
-	err = v1.RegisterCryptoKeyMetadataGateway(context.Background(), gatewayTarget, gwmux, conn)
+	err = v1.RegisterCryptoKeyMetadataGateway(context.Background(), gatewayTarget, gwmux, conn, creds)
 	if err != nil {
 		log.Fatalf("Failed to register crypto key metadata gateway: %v", err)
 	}

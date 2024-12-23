@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -432,9 +433,9 @@ func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServe
 
 // Multipart file uploads are not supported with grpc-gateway. For more details,
 // see: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, subsequent code can be commented.
-// func RegisterBlobUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
+// func RegisterBlobUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
 // 	// Register the handler from the endpoint (this works with gRPC-Gateway)
-// 	err := pb.RegisterBlobUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+// 	err := pb.RegisterBlobUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 // 	if err != nil {
 // 		log.Fatalf("Failed to register blob upload gateway: %v", err)
 // 		return err
@@ -442,8 +443,8 @@ func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServe
 // 	return nil
 // }
 
-func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := pb.RegisterBlobDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
+	err := pb.RegisterBlobDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
 		log.Fatalf("Failed to register blob download gateway: %v", err)
 		return err
@@ -451,8 +452,8 @@ func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmu
 	return nil
 }
 
-func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := pb.RegisterBlobMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
+	err := pb.RegisterBlobMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
 		log.Fatalf("Failed to register blob metadata gateway: %v", err)
 		return err
@@ -460,8 +461,8 @@ func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmu
 	return nil
 }
 
-func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := pb.RegisterCryptoKeyUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
+	err := pb.RegisterCryptoKeyUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
 		log.Fatalf("Failed to register crypto key upload gateway: %v", err)
 		return err
@@ -469,8 +470,8 @@ func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, g
 	return nil
 }
 
-func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := pb.RegisterCryptoKeyDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
+	err := pb.RegisterCryptoKeyDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
 		log.Fatalf("Failed to register crypto key download gateway: %v", err)
 		return err
@@ -478,8 +479,8 @@ func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string,
 	return nil
 }
 
-func RegisterCryptoKeyMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	err := pb.RegisterCryptoKeyMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithInsecure()})
+func RegisterCryptoKeyMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
+	err := pb.RegisterCryptoKeyMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
 		log.Fatalf("Failed to register crypto key metadata gateway: %v", err)
 		return err
