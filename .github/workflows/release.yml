@@ -8,6 +8,7 @@ on:
 jobs:
   release-package-ci:
     runs-on: ubuntu-latest
+    environment: prd
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -47,4 +48,33 @@ jobs:
 
       # Run static code analysis on source code
       # Run vulnerability scanner and generate SBOMs on third part dependencies
-      # Create build artifacts, e.g. Build docker image with release tag for applications, scan docker image and push to container registry
+   
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Read version from file
+        id: get_version
+        run: |
+          # Check if the version file exists and read its content
+          if [ -f version ]; then
+            version=$(cat version)
+            echo "VERSION=$version" >> $GITHUB_ENV
+          else
+            echo "Version file not found!"
+            exit 1
+          fi
+
+      - name: Build and push Docker image for REST backend
+        run: |
+          BACKEND_TAG="${{ secrets.DOCKER_REPOSITORY }}/crypto-vault-rest-service:${{ env.VERSION }}-${{ github.run_number }}"  
+          docker build -t $BACKEND_TAG -f cmd/crypto-vault-rest-service/Dockerfile .
+          docker push $BACKEND_TAG
+
+      - name: Build and push Docker image for gRPC backend
+        run: |
+          BACKEND_TAG="${{ secrets.DOCKER_REPOSITORY }}/crypto-vault-grpc-service:${{ env.VERSION }}-${{ github.run_number }}"  
+          docker build -t $BACKEND_TAG -f cmd/crypto-vault-grpc-service/Dockerfile .
+          docker push $BACKEND_TAG
