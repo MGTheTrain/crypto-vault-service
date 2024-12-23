@@ -68,12 +68,12 @@ jobs:
 
       - name: Build and push Docker image for REST backend
         run: |
-          BACKEND_TAG="${{ secrets.DOCKER_REPOSITORY }}/crypto-vault-rest-service:${{ env.VERSION }}-alpha${{ github.run_number }}"  
+          BACKEND_TAG="${{ secrets.DOCKER_USERNAME }}/crypto-vault-rest-service:${{ env.VERSION }}-alpha${{ github.run_number }}"  
           docker build -t $BACKEND_TAG -f cmd/crypto-vault-rest-service/Dockerfile .
           docker push $BACKEND_TAG
 
       - name: Build and push Docker image for gRPC backend
         run: |
-          BACKEND_TAG="${{ secrets.DOCKER_REPOSITORY }}/crypto-vault-grpc-service:${{ env.VERSION }}-alpha${{ github.run_number }}"  
+          BACKEND_TAG="${{ secrets.DOCKER_USERNAME }}/crypto-vault-grpc-service:${{ env.VERSION }}-alpha${{ github.run_number }}"  
           docker build -t $BACKEND_TAG -f cmd/crypto-vault-grpc-service/Dockerfile .
           docker push $BACKEND_TAG
