@@ -235,6 +235,6 @@ func main() {
 		Handler: gwmux,
 	}
 
-	log.Println(fmt.Sprintf("serving gRPC-Gateway on http://0.0.0.0:%v", gatewayPort))
+	log.Println(fmt.Sprintf("gRPC-Gateway server started at http://0.0.0.0:%v", gatewayPort))
 	log.Fatalln(gwServer.ListenAndServe())
 }
