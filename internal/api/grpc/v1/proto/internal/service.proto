@@ -97,7 +97,7 @@ service BlobUpload {
     // Upload a blob
     rpc Upload (BlobUploadRequest) returns (stream BlobMetaResponse) {
         option (google.api.http) = {
-            post: "/api/v1/cvs/upload"
+            post: "/api/v1/cvs/blobs"
             body: "*"
         };
     }  
@@ -107,7 +107,7 @@ service BlobDownload {
     // Download a blob by ID
     rpc DownloadById (BlobDownloadRequest) returns (stream BlobContent) {
         option (google.api.http) = {
-            get: "/api/v1/cvs/download/{id}"
+            get: "/api/v1/cvs/blobs/{id}/file"
         };
     }  
 }
@@ -139,7 +139,7 @@ service CryptoKeyUpload {
     // Upload a crypto key
     rpc Upload (UploadKeyRequest) returns (stream CryptoKeyMetaResponse) {
         option (google.api.http) = {
-            post: "/api/v1/cvs/crypto/keys"
+            post: "/api/v1/cvs/keys"
             body: "*"
         };
     }  
@@ -149,7 +149,7 @@ service CryptoKeyDownload {
     // Download crypto key by ID
     rpc DownloadById (KeyDownloadRequest) returns (stream KeyContent) {
         option (google.api.http) = {
-            get: "/api/v1/cvs/crypto/keys/{id}"
+            get: "/api/v1/cvs/keys/{id}/file"
         };
     }  
 }
@@ -158,21 +158,21 @@ service CryptoKeyMetadata {
     // List metadata of crypto keys
     rpc ListMetadata (KeyMetadataQuery) returns (stream CryptoKeyMetaResponse) {
         option (google.api.http) = {
-            get: "/api/v1/cvs/crypto/keys"
+            get: "/api/v1/cvs/keys"
         };
     }  
 
     // Get metadata by ID
     rpc GetMetadataById (IdRequest) returns (CryptoKeyMetaResponse) {
         option (google.api.http) = {
-            get: "/api/v1/cvs/crypto/keys/{id}"
+            get: "/api/v1/cvs/keys/{id}"
         };
     }  
 
     // Delete crypto key by ID
     rpc DeleteById (IdRequest) returns (InfoResponse) {
         option (google.api.http) = {
-            delete: "/api/v1/cvs/crypto/keys/{id}"
+            delete: "/api/v1/cvs/keys/{id}"
         };
     }  
 }
