@@ -379,7 +379,7 @@ func RegisterBlobMetadataHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/v1/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -399,7 +399,7 @@ func RegisterBlobMetadataHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/DeleteById", runtime.WithHTTPPathPattern("/v1/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -467,7 +467,7 @@ func RegisterCryptoKeyMetadataHandlerServer(ctx context.Context, mux *runtime.Se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/v1/crypto/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -487,7 +487,7 @@ func RegisterCryptoKeyMetadataHandlerServer(ctx context.Context, mux *runtime.Se
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteById", runtime.WithHTTPPathPattern("/v1/crypto/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -545,7 +545,7 @@ func RegisterBlobUploadHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobUpload/Upload", runtime.WithHTTPPathPattern("/v1/upload"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobUpload/Upload", runtime.WithHTTPPathPattern("/api/v1/cvs/upload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -562,7 +562,7 @@ func RegisterBlobUploadHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_BlobUpload_Upload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "upload"}, ""))
+	pattern_BlobUpload_Upload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "cvs", "upload"}, ""))
 )
 
 var (
@@ -609,7 +609,7 @@ func RegisterBlobDownloadHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobDownload/DownloadById", runtime.WithHTTPPathPattern("/v1/download/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobDownload/DownloadById", runtime.WithHTTPPathPattern("/api/v1/cvs/download/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -626,7 +626,7 @@ func RegisterBlobDownloadHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_BlobDownload_DownloadById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "download", "id"}, ""))
+	pattern_BlobDownload_DownloadById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "download", "id"}, ""))
 )
 
 var (
@@ -673,7 +673,7 @@ func RegisterBlobMetadataHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/ListMetadata", runtime.WithHTTPPathPattern("/v1/blobs"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/ListMetadata", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -690,7 +690,7 @@ func RegisterBlobMetadataHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/v1/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -707,7 +707,7 @@ func RegisterBlobMetadataHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/DeleteById", runtime.WithHTTPPathPattern("/v1/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -724,9 +724,9 @@ func RegisterBlobMetadataHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_BlobMetadata_ListMetadata_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "blobs"}, ""))
-	pattern_BlobMetadata_GetMetadataById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "blobs", "id"}, ""))
-	pattern_BlobMetadata_DeleteById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "blobs", "id"}, ""))
+	pattern_BlobMetadata_ListMetadata_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "cvs", "blobs"}, ""))
+	pattern_BlobMetadata_GetMetadataById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "blobs", "id"}, ""))
+	pattern_BlobMetadata_DeleteById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "blobs", "id"}, ""))
 )
 
 var (
@@ -775,7 +775,7 @@ func RegisterCryptoKeyUploadHandlerClient(ctx context.Context, mux *runtime.Serv
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyUpload/Upload", runtime.WithHTTPPathPattern("/v1/crypto/keys"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyUpload/Upload", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -792,7 +792,7 @@ func RegisterCryptoKeyUploadHandlerClient(ctx context.Context, mux *runtime.Serv
 }
 
 var (
-	pattern_CryptoKeyUpload_Upload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "crypto", "keys"}, ""))
+	pattern_CryptoKeyUpload_Upload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "v1", "cvs", "crypto", "keys"}, ""))
 )
 
 var (
@@ -839,7 +839,7 @@ func RegisterCryptoKeyDownloadHandlerClient(ctx context.Context, mux *runtime.Se
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyDownload/DownloadById", runtime.WithHTTPPathPattern("/v1/crypto/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyDownload/DownloadById", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -856,7 +856,7 @@ func RegisterCryptoKeyDownloadHandlerClient(ctx context.Context, mux *runtime.Se
 }
 
 var (
-	pattern_CryptoKeyDownload_DownloadById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "crypto", "keys", "id"}, ""))
+	pattern_CryptoKeyDownload_DownloadById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "cvs", "crypto", "keys", "id"}, ""))
 )
 
 var (
@@ -903,7 +903,7 @@ func RegisterCryptoKeyMetadataHandlerClient(ctx context.Context, mux *runtime.Se
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/ListMetadata", runtime.WithHTTPPathPattern("/v1/crypto/keys"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/ListMetadata", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -920,7 +920,7 @@ func RegisterCryptoKeyMetadataHandlerClient(ctx context.Context, mux *runtime.Se
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/v1/crypto/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -937,7 +937,7 @@ func RegisterCryptoKeyMetadataHandlerClient(ctx context.Context, mux *runtime.Se
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteById", runtime.WithHTTPPathPattern("/v1/crypto/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/crypto/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -954,9 +954,9 @@ func RegisterCryptoKeyMetadataHandlerClient(ctx context.Context, mux *runtime.Se
 }
 
 var (
-	pattern_CryptoKeyMetadata_ListMetadata_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "crypto", "keys"}, ""))
-	pattern_CryptoKeyMetadata_GetMetadataById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "crypto", "keys", "id"}, ""))
-	pattern_CryptoKeyMetadata_DeleteById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "crypto", "keys", "id"}, ""))
+	pattern_CryptoKeyMetadata_ListMetadata_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "v1", "cvs", "crypto", "keys"}, ""))
+	pattern_CryptoKeyMetadata_GetMetadataById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "cvs", "crypto", "keys", "id"}, ""))
+	pattern_CryptoKeyMetadata_DeleteById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "cvs", "crypto", "keys", "id"}, ""))
 )
 
 var (
