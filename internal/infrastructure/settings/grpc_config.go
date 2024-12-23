@@ -7,27 +7,32 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config struct holds the overall configuration with separate settings for Blob, Key, Logger, and PKCS#11
-type Config struct {
+// GrpcAppConfig struct holds the overall configuration with separate settings for Blob, Key, Logger, and PKCS#11
+type GrpcAppConfig struct {
 	Database      DatabaseSettings      `mapstructure:"database"`
 	BlobConnector BlobConnectorSettings `mapstructure:"blob_connector"`
 	KeyConnector  KeyConnectorSettings  `mapstructure:"key_connector"`
 	Logger        LoggerSettings        `mapstructure:"logger"`
 	PKCS11        PKCS11Settings        `mapstructure:"pkcs11"`
 	Port          string                `mapstructure:"port"`
+	GatewayPort   string                `mapstructure:"gateway_port"`
 }
 
-// Initialize function to read the config, prioritize environment variables and fall back to config file
-func Initialize(path string) (*Config, error) {
+// InitializeGrpcConfig function to read the config, prioritize environment variables and fall back to config file
+func InitializeGrpcConfig(path string) (*GrpcAppConfig, error) {
 	viper.SetConfigFile(path)
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	config := Config{}
+	config := GrpcAppConfig{}
 
 	if port := viper.GetString("PORT"); port != "" {
 		// Prioritize environment variables. viper.Unmarshal(...) does not work with environment variables set manually; therefore, this workaround is applied.
 		config.Port = port
+
+		if gatewayPort := viper.GetString("GATEWAY_PORT"); gatewayPort != "" {
+			config.GatewayPort = gatewayPort
+		}
 
 		if dbType := viper.GetString("DATABASE_TYPE"); dbType != "" {
 			config.Database.Type = dbType
