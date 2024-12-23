@@ -8,7 +8,7 @@ import (
 )
 
 // Config struct holds the overall configuration with separate settings for Blob, Key, Logger, and PKCS#11
-type RestAppConfig struct {
+type RestConfig struct {
 	Database      DatabaseSettings      `mapstructure:"database"`
 	BlobConnector BlobConnectorSettings `mapstructure:"blob_connector"`
 	KeyConnector  KeyConnectorSettings  `mapstructure:"key_connector"`
@@ -18,12 +18,12 @@ type RestAppConfig struct {
 }
 
 // Initialize function to read the config, prioritize environment variables and fall back to config file
-func InitializeRestConfig(path string) (*RestAppConfig, error) {
+func InitializeRestConfig(path string) (*RestConfig, error) {
 	viper.SetConfigFile(path)
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	config := RestAppConfig{}
+	config := RestConfig{}
 
 	if port := viper.GetString("PORT"); port != "" {
 		// Prioritize environment variables. viper.Unmarshal(...) does not work with environment variables set manually; therefore, this workaround is applied.
