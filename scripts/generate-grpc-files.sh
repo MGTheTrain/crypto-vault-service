@@ -18,7 +18,6 @@ protoc -I ./ \
   --go_out=../generated \
   --go-grpc_out=../generated \
   --grpc-gateway_out=../generated \
-  --grpc-gateway_opt=logtostderr=true \
   ./internal/service.proto
 
 find . -type f -name '*.go' -exec sed -i 's/^package __/package generated/' {} \;
