@@ -2,7 +2,7 @@
 
 ![Status: On Halt](https://img.shields.io/badge/status-On%20Halt-red)
 
-This project is currently on halt and won't be actively maintained for some time. Please check back later.
+This project is currently on halt and won't be actively maintained for some time
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ This project is currently on halt and won't be actively maintained for some time
 
 ## Summary
 
-Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys and securing data at rest (metadata, BLOB)
+Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys and securing data at rest
 
 ## References
 
