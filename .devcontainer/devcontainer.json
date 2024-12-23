@@ -7,6 +7,6 @@
     "features": {
         "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     },
-    "postCreateCommand": "apt-get update && apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl protobuf-compiler",
+    "postCreateCommand": "./install.sh",
     "remoteUser": "root"
 }
