@@ -13,45 +13,45 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type BlobUploadServiceServer struct {
-	pb.UnimplementedBlobUploadServiceServer
+type BlobUploadServer struct {
+	pb.UnimplementedBlobUploadServer
 	blobUploadService *services.BlobUploadService
 }
 
-type BlobDownloadServiceServer struct {
-	pb.UnimplementedBlobDownloadServiceServer
+type BlobDownloadServer struct {
+	pb.UnimplementedBlobDownloadServer
 	blobDownloadService *services.BlobDownloadService
 }
 
-type BlobMetadataServiceServer struct {
-	pb.UnimplementedBlobMetadataServiceServer
+type BlobMetadataServer struct {
+	pb.UnimplementedBlobMetadataServer
 	blobMetadataService *services.BlobMetadataService
 }
 
-type CryptoKeyUploadServiceServer struct {
-	pb.UnimplementedCryptoKeyUploadServiceServer
+type CryptoKeyUploadServer struct {
+	pb.UnimplementedCryptoKeyUploadServer
 	cryptoKeyUploadService *services.CryptoKeyUploadService
 }
 
-type CryptoKeyDownloadServiceServer struct {
-	pb.UnimplementedCryptoKeyDownloadServiceServer
+type CryptoKeyDownloadServer struct {
+	pb.UnimplementedCryptoKeyDownloadServer
 	cryptoKeyDownloadService *services.CryptoKeyDownloadService
 }
 
-type CryptoKeyMetadataServiceServer struct {
-	pb.UnimplementedCryptoKeyMetadataServiceServer
+type CryptoKeyMetadataServer struct {
+	pb.UnimplementedCryptoKeyMetadataServer
 	cryptoKeyMetadataService *services.CryptoKeyMetadataService
 }
 
-// NewBlobUploadServiceServer creates a new instance of BlobUploadServiceServer.
-func NewBlobUploadServiceServer(blobUploadService *services.BlobUploadService) (*BlobUploadServiceServer, error) {
-	return &BlobUploadServiceServer{
+// NewBlobUploadServer creates a new instance of BlobUploadServer.
+func NewBlobUploadServer(blobUploadService *services.BlobUploadService) (*BlobUploadServer, error) {
+	return &BlobUploadServer{
 		blobUploadService: blobUploadService,
 	}, nil
 }
 
 // Upload uploads a blob with optional encryption/signing
-func (s BlobUploadServiceServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUploadService_UploadServer) error {
+func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUploadService_UploadServer) error {
 	fileContent := [][]byte{req.GetFileContent()}
 	fileNames := []string{req.GetFileName()}
 
@@ -100,15 +100,15 @@ func (s BlobUploadServiceServer) Upload(req *pb.BlobUploadRequest, stream pb.Blo
 	return nil
 }
 
-// NewBlobDownloadServiceServer creates a new instance of BlobDownloadServiceServer.
-func NewBlobDownloadServiceServer(blobDownloadService *services.BlobDownloadService) (*BlobDownloadServiceServer, error) {
-	return &BlobDownloadServiceServer{
+// NewBlobDownloadServer creates a new instance of BlobDownloadServer.
+func NewBlobDownloadServer(blobDownloadService *services.BlobDownloadService) (*BlobDownloadServer, error) {
+	return &BlobDownloadServer{
 		blobDownloadService: blobDownloadService,
 	}, nil
 }
 
 // DownloadById downloads a blob by its ID
-func (s *BlobDownloadServiceServer) DownloadById(req *pb.BlobDownloadRequest, stream pb.BlobDownloadService_DownloadByIdServer) error {
+func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb.BlobDownloadService_DownloadByIdServer) error {
 	id := req.GetId()
 	var decryptionKeyId *string = nil
 	if len(req.GetDecryptionKeyId()) > 0 {
@@ -141,15 +141,15 @@ func (s *BlobDownloadServiceServer) DownloadById(req *pb.BlobDownloadRequest, st
 	return nil
 }
 
-// NewBlobMetadataServiceServer creates a new instance of BlobMetadataServiceServer.
-func NewBlobMetadataServiceServer(blobMetadataService *services.BlobMetadataService) (*BlobMetadataServiceServer, error) {
-	return &BlobMetadataServiceServer{
+// NewBlobMetadataServer creates a new instance of BlobMetadataServer.
+func NewBlobMetadataServer(blobMetadataService *services.BlobMetadataService) (*BlobMetadataServer, error) {
+	return &BlobMetadataServer{
 		blobMetadataService: blobMetadataService,
 	}, nil
 }
 
 // ListMetadata fetches metadata of blobs optionally considering query parameters
-func (s *BlobMetadataServiceServer) ListMetadata(ctx context.Context, req *pb.BlobMetaQuery, stream pb.BlobMetadataService_ListMetadataServer) error {
+func (s *BlobMetadataServer) ListMetadata(ctx context.Context, req *pb.BlobMetaQuery, stream pb.BlobMetadataService_ListMetadataServer) error {
 	query := blobs.NewBlobMetaQuery()
 	if len(req.GetName()) > 0 {
 		query.Name = req.Name
@@ -204,7 +204,7 @@ func (s *BlobMetadataServiceServer) ListMetadata(ctx context.Context, req *pb.Bl
 }
 
 // GetMetadataById handles the GET request to fetch metadata of a blob by its ID
-func (s *BlobMetadataServiceServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
+func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
 	blobMeta, err := s.blobMetadataService.GetByID(req.GetId())
 	if err != nil {
 		return nil, fmt.Errorf("failed to get metadata by ID: %v", err)
@@ -231,7 +231,7 @@ func (s *BlobMetadataServiceServer) GetMetadataById(ctx context.Context, req *pb
 }
 
 // DeleteById handles the DELETE request to delete a blob by its ID
-func (s *BlobMetadataServiceServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
+func (s *BlobMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.blobMetadataService.DeleteByID(req.GetId())
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete blob: %v", err)
@@ -242,15 +242,15 @@ func (s *BlobMetadataServiceServer) DeleteById(ctx context.Context, req *pb.IdRe
 	}, nil
 }
 
-// NewCryptoKeyUploadServiceServer creates a new instance of CryptoKeyUploadServiceServer.
-func NewCryptoKeyUploadServiceServer(cryptoKeyUploadService *services.CryptoKeyUploadService) (*CryptoKeyUploadServiceServer, error) {
-	return &CryptoKeyUploadServiceServer{
+// NewCryptoKeyUploadServer creates a new instance of CryptoKeyUploadServer.
+func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadService) (*CryptoKeyUploadServer, error) {
+	return &CryptoKeyUploadServer{
 		cryptoKeyUploadService: cryptoKeyUploadService,
 	}, nil
 }
 
 // UploadKeys generates and uploads cryptographic keys
-func (s *CryptoKeyUploadServiceServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUploadService_UploadServer) error {
+func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUploadService_UploadServer) error {
 	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(req.GetUserId(), req.GetAlgorithm(), uint(req.GetKeySize()))
 	if err != nil {
 		return fmt.Errorf("failed to generate and upload crypto keys: %v", err)
@@ -275,15 +275,15 @@ func (s *CryptoKeyUploadServiceServer) Upload(req *pb.UploadKeyRequest, stream p
 	return nil
 }
 
-// NewCryptoKeyDownloadServiceServer creates a new instance of CryptoKeyDownloadServiceServer.
-func NewCryptoKeyDownloadServiceServer(cryptoKeyDownloadService *services.CryptoKeyDownloadService) (*CryptoKeyDownloadServiceServer, error) {
-	return &CryptoKeyDownloadServiceServer{
+// NewCryptoKeyDownloadServer creates a new instance of CryptoKeyDownloadServer.
+func NewCryptoKeyDownloadServer(cryptoKeyDownloadService *services.CryptoKeyDownloadService) (*CryptoKeyDownloadServer, error) {
+	return &CryptoKeyDownloadServer{
 		cryptoKeyDownloadService: cryptoKeyDownloadService,
 	}, nil
 }
 
 // DownloadById downloads a key by its ID
-func (s *CryptoKeyDownloadServiceServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownloadService_DownloadByIdServer) error {
+func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownloadService_DownloadByIdServer) error {
 	bytes, err := s.cryptoKeyDownloadService.Download(req.GetId())
 	if err != nil {
 		return fmt.Errorf("failed to download crypto key: %v", err)
@@ -311,15 +311,15 @@ func (s *CryptoKeyDownloadServiceServer) DownloadById(req *pb.KeyDownloadRequest
 	return nil
 }
 
-// NewCryptoKeyMetadataServiceServer creates a new instance of CryptoKeyMetadataServiceServer.
-func NewCryptoKeyMetadataServiceServer(cryptoKeyMetadataService *services.CryptoKeyMetadataService) (*CryptoKeyMetadataServiceServer, error) {
-	return &CryptoKeyMetadataServiceServer{
+// NewCryptoKeyMetadataServer creates a new instance of CryptoKeyMetadataServer.
+func NewCryptoKeyMetadataServer(cryptoKeyMetadataService *services.CryptoKeyMetadataService) (*CryptoKeyMetadataServer, error) {
+	return &CryptoKeyMetadataServer{
 		cryptoKeyMetadataService: cryptoKeyMetadataService,
 	}, nil
 }
 
 // ListMetadata lists cryptographic key metadata with optional query parameters
-func (s *CryptoKeyMetadataServiceServer) ListMetadata(req *pb.KeyMetadataQuery, stream pb.CryptoKeyMetadataService_ListMetadataServer) error {
+func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream pb.CryptoKeyMetadataService_ListMetadataServer) error {
 	query := keys.NewCryptoKeyQuery()
 	if req.Algorithm != "" {
 		query.Algorithm = req.Algorithm
@@ -359,7 +359,7 @@ func (s *CryptoKeyMetadataServiceServer) ListMetadata(req *pb.KeyMetadataQuery, 
 }
 
 // GetMetadataById handles the GET request to retrieve metadata of a key by its ID
-func (s *CryptoKeyMetadataServiceServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.CryptoKeyMetaResponse, error) {
+func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.CryptoKeyMetaResponse, error) {
 	cryptoKeyMeta, err := s.cryptoKeyMetadataService.GetByID(req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get crypto key metadata by ID: %v", err)
@@ -377,7 +377,7 @@ func (s *CryptoKeyMetadataServiceServer) GetMetadataById(ctx context.Context, re
 }
 
 // DeleteById deletes a key by its ID
-func (s *CryptoKeyMetadataServiceServer) DeleteCryptoKeyById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
+func (s *CryptoKeyMetadataServer) DeleteCryptoKeyById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.cryptoKeyMetadataService.DeleteByID(req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete crypto key: %v", err)

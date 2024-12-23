@@ -89,29 +89,29 @@ message KeyContent {
   bytes content = 1;  
 }
 
-service BlobUploadService {
+service BlobUpload {
     rpc Upload (BlobUploadRequest) returns (stream BlobMetaResponse);  
 }
 
-service BlobDownloadService {
+service BlobDownload {
     rpc DownloadById (BlobDownloadRequest) returns (stream BlobContent);  
 }
 
-service BlobMetadataService {
+service BlobMetadata {
     rpc ListMetadata (BlobMetaQuery) returns (stream BlobMetaResponse);  
     rpc GetMetadataById (IdRequest) returns (BlobMetaResponse);  
     rpc DeleteById (IdRequest) returns (InfoResponse);  
 }
 
-service CryptoKeyUploadService {
+service CryptoKeyUpload {
     rpc Upload (UploadKeyRequest) returns (stream CryptoKeyMetaResponse);  
 }
 
-service CryptoKeyDownloadService {
+service CryptoKeyDownload {
     rpc DownloadById (KeyDownloadRequest) returns (stream KeyContent);  
 }
 
-service CryptoKeyMetadataService {
+service CryptoKeyMetadata {
     rpc ListMetadata (KeyMetadataQuery) returns (stream CryptoKeyMetaResponse);  
     rpc GetMetadataById (IdRequest) returns (CryptoKeyMetaResponse);  
     rpc DeleteById (IdRequest) returns (InfoResponse);  
