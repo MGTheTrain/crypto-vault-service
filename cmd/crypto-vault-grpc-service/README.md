@@ -64,38 +64,38 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 
 #### Get blob metadata
 
-Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs/<id>' -H 'accept: application/json'`
+Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs/<blob_id>' -H 'accept: application/json'`
 
 Optionally:
 
 ```sh
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
-    "id": "<id>"
+    "id": "<blob_id>"
 }' -plaintext localhost:50051 internal.BlobMetadata/GetMetadataById
 ```
 
 ### Download blob
 
-Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs/<id>/file' -H 'accept: application/json'`
+Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs/<blob_id>/file' -H 'accept: application/json'`
 
 Optionally:
 
 ```sh
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
-    "id": "<id>",
+    "id": "<blob_id>",
     "decryption_key_id": ""
 }' -plaintext localhost:50051 internal.BlobDownload/DownloadById
 ```
 
 ### Delete blob
 
-Run `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/blobs/<id>' -H 'accept: application/json'`
+Run `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/blobs/<blob_id>' -H 'accept: application/json'`
 
 Optionally:
 
 ```sh
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
-    "id": "<id>"
+    "id": "<blob_id>"
 }' -plaintext localhost:50051 internal.BlobMetadata/DeleteById
 ```
 
@@ -132,7 +132,7 @@ Run:
 
 ```sh
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
-    "id": "<id>"
+    "id": "<key_id>"
 }' -plaintext localhost:50051 internal.CryptoKeyMetadata/GetMetadataById
 ```
 
@@ -142,10 +142,10 @@ Run:
 
 ```sh
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
-    "id": "<id>"
+    "id": "<key_id>"
 }' -plaintext localhost:50051 internal.CryptoKeyDownload/DownloadById
 ```
 
 ### Delete key
 
-Run `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/keys/0beb7c00-4499-4f04-95e5-e751dcc7d9eb' -H 'accept: application/json'`
+Run `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/keys/<key_id>' -H 'accept: application/json'`
