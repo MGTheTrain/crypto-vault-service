@@ -32,7 +32,7 @@ internal.CryptoKeyUpload
 
 ### Upload blob
 
-**NOTE:** Multipart file uploads are not supported with grpc-gateway and `curl`. For more details, see: `https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/`. 
+**NOTE:** Multipart file uploads are not supported with grpc-gateway and `curl`. For more details checkout: `https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/`. 
 
 Run:
 

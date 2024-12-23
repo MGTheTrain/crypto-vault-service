@@ -208,8 +208,8 @@ func main() {
 
 	// Register all services for the gRPC-Gateway mux
 
-	// Multipart file uploads are not supported with grpc-gateway. For more details,
-	// see: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, subsequent code can be commented.
+	// Multipart file uploads are not supported with grpc-gateway. For more details
+	// checkout: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, subsequent code can be commented.
 	// err = v1.RegisterBlobUploadGateway(context.Background(), gatewayTarget, gwmux, conn)
 	// if err != nil {
 	// 	log.Fatalf("Failed to register blob upload gateway: %v", err)
