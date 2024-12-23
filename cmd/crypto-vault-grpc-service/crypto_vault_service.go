@@ -20,6 +20,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -177,6 +178,9 @@ func main() {
 	v1.RegisterCryptoKeyUploadServer(grpcServer, cryptoKeyUploadServer)
 	v1.RegisterCryptoKeyDownloadServer(grpcServer, cryptoKeyDownloadServer)
 	v1.RegisterCryptoKeyMetadataServer(grpcServer, cryptoKeyMetadataServer)
+
+	// Enable reflection in order to list services via `grpcurl -plaintext localhost:50051 list`
+	reflection.Register(grpcServer)
 
 	// Set up listener for gRPC server
 	lis, err := net.Listen("tcp", ":"+config.Port)
