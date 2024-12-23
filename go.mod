@@ -1,6 +1,8 @@
 module crypto_vault_service
 
-go 1.21.6
+go 1.23
+
+replace proto => ./internal/api/grpc/v1/proto
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.5.0
@@ -15,11 +17,12 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.4
-	google.golang.org/grpc v1.62.1
-	google.golang.org/protobuf v1.35.1
+	google.golang.org/grpc v1.69.2
+	google.golang.org/protobuf v1.36.1
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/driver/sqlite v1.5.6
 	gorm.io/gorm v1.25.12
+	proto v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -44,7 +47,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
