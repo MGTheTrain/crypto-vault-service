@@ -56,17 +56,17 @@ func NewBlobUploadServer(blobUploadService *services.BlobUploadService) (*BlobUp
 
 // Upload uploads blobs with optional encryption/signing
 func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload_UploadServer) error {
-	fileContent := [][]byte{req.GetFileContent()}
-	fileNames := []string{req.GetFileName()}
+	fileContent := [][]byte{req.FileContent}
+	fileNames := []string{req.FileName}
 
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
 
-	if len(req.GetEncryptionKeyId()) > 0 {
+	if len(req.EncryptionKeyId) > 0 {
 		encryptionKeyId = &req.EncryptionKeyId
 	}
 
-	if len(req.GetSignKeyId()) > 0 {
+	if len(req.SignKeyId) > 0 {
 		signKeyId = &req.SignKeyId
 	}
 
@@ -118,9 +118,9 @@ func NewBlobDownloadServer(blobDownloadService *services.BlobDownloadService) (*
 
 // DownloadById downloads a blob by its ID
 func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb.BlobDownload_DownloadByIdServer) error {
-	id := req.GetId()
+	id := req.Id
 	var decryptionKeyId *string = nil
-	if len(req.GetDecryptionKeyId()) > 0 {
+	if len(req.DecryptionKeyId) > 0 {
 		decryptionKeyId = &req.DecryptionKeyId
 	}
 
@@ -160,23 +160,23 @@ func NewBlobMetadataServer(blobMetadataService *services.BlobMetadataService) (*
 // ListMetadata fetches metadata of blobs optionally considering query parameters
 func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobMetadata_ListMetadataServer) error {
 	query := blobs.NewBlobMetaQuery()
-	if len(req.GetName()) > 0 {
+	if len(req.Name) > 0 {
 		query.Name = req.Name
 	}
-	if req.GetSize() > 0 {
+	if req.Size > 0 {
 		query.Size = req.Size
 	}
-	if len(req.GetType()) > 0 {
+	if len(req.Type) > 0 {
 		query.Type = req.Type
 	}
-	if req.GetDateTimeCreated() != nil {
+	if req.DateTimeCreated != nil {
 		query.DateTimeCreated = req.DateTimeCreated.AsTime()
 	}
-	if req.GetLimit() > 0 {
-		query.Limit = int(req.GetLimit())
+	if req.Limit > 0 {
+		query.Limit = int(req.Limit)
 	}
-	if req.GetOffset() > -1 {
-		query.Offset = int(req.GetOffset())
+	if req.Offset > -1 {
+		query.Offset = int(req.Offset)
 	}
 
 	blobMetas, err := s.blobMetadataService.List(query)
@@ -214,7 +214,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 
 // GetMetadataById handles the GET request to fetch metadata of a blob by its ID
 func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
-	blobMeta, err := s.blobMetadataService.GetByID(req.GetId())
+	blobMeta, err := s.blobMetadataService.GetByID(req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get metadata by ID: %v", err)
 	}
@@ -241,7 +241,7 @@ func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequ
 
 // DeleteById handles the DELETE request to delete a blob by its ID
 func (s *BlobMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
-	err := s.blobMetadataService.DeleteByID(req.GetId())
+	err := s.blobMetadataService.DeleteByID(req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete blob: %v", err)
 	}
