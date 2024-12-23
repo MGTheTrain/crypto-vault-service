@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: service.proto
+// source: internal/service.proto
 
-package proto
+package __
 
 import (
 	context "context"
@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BlobUpload_Upload_FullMethodName = "/BlobUpload/Upload"
+	BlobUpload_Upload_FullMethodName = "/internal.BlobUpload/Upload"
 )
 
 // BlobUploadClient is the client API for BlobUpload service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlobUploadClient interface {
+	// Upload a blob
 	Upload(ctx context.Context, in *BlobUploadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobMetaResponse], error)
 }
 
@@ -60,6 +61,7 @@ type BlobUpload_UploadClient = grpc.ServerStreamingClient[BlobMetaResponse]
 // All implementations must embed UnimplementedBlobUploadServer
 // for forward compatibility.
 type BlobUploadServer interface {
+	// Upload a blob
 	Upload(*BlobUploadRequest, grpc.ServerStreamingServer[BlobMetaResponse]) error
 	mustEmbedUnimplementedBlobUploadServer()
 }
@@ -110,7 +112,7 @@ type BlobUpload_UploadServer = grpc.ServerStreamingServer[BlobMetaResponse]
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BlobUpload_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "BlobUpload",
+	ServiceName: "internal.BlobUpload",
 	HandlerType: (*BlobUploadServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -120,17 +122,18 @@ var BlobUpload_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "service.proto",
+	Metadata: "internal/service.proto",
 }
 
 const (
-	BlobDownload_DownloadById_FullMethodName = "/BlobDownload/DownloadById"
+	BlobDownload_DownloadById_FullMethodName = "/internal.BlobDownload/DownloadById"
 )
 
 // BlobDownloadClient is the client API for BlobDownload service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlobDownloadClient interface {
+	// Download a blob by ID
 	DownloadById(ctx context.Context, in *BlobDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobContent], error)
 }
 
@@ -165,6 +168,7 @@ type BlobDownload_DownloadByIdClient = grpc.ServerStreamingClient[BlobContent]
 // All implementations must embed UnimplementedBlobDownloadServer
 // for forward compatibility.
 type BlobDownloadServer interface {
+	// Download a blob by ID
 	DownloadById(*BlobDownloadRequest, grpc.ServerStreamingServer[BlobContent]) error
 	mustEmbedUnimplementedBlobDownloadServer()
 }
@@ -215,7 +219,7 @@ type BlobDownload_DownloadByIdServer = grpc.ServerStreamingServer[BlobContent]
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BlobDownload_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "BlobDownload",
+	ServiceName: "internal.BlobDownload",
 	HandlerType: (*BlobDownloadServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -225,21 +229,24 @@ var BlobDownload_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "service.proto",
+	Metadata: "internal/service.proto",
 }
 
 const (
-	BlobMetadata_ListMetadata_FullMethodName    = "/BlobMetadata/ListMetadata"
-	BlobMetadata_GetMetadataById_FullMethodName = "/BlobMetadata/GetMetadataById"
-	BlobMetadata_DeleteById_FullMethodName      = "/BlobMetadata/DeleteById"
+	BlobMetadata_ListMetadata_FullMethodName    = "/internal.BlobMetadata/ListMetadata"
+	BlobMetadata_GetMetadataById_FullMethodName = "/internal.BlobMetadata/GetMetadataById"
+	BlobMetadata_DeleteById_FullMethodName      = "/internal.BlobMetadata/DeleteById"
 )
 
 // BlobMetadataClient is the client API for BlobMetadata service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlobMetadataClient interface {
+	// List metadata of blobs
 	ListMetadata(ctx context.Context, in *BlobMetaQuery, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobMetaResponse], error)
+	// Get metadata by ID
 	GetMetadataById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*BlobMetaResponse, error)
+	// Delete blob by ID
 	DeleteById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error)
 }
 
@@ -294,8 +301,11 @@ func (c *blobMetadataClient) DeleteById(ctx context.Context, in *IdRequest, opts
 // All implementations must embed UnimplementedBlobMetadataServer
 // for forward compatibility.
 type BlobMetadataServer interface {
+	// List metadata of blobs
 	ListMetadata(*BlobMetaQuery, grpc.ServerStreamingServer[BlobMetaResponse]) error
+	// Get metadata by ID
 	GetMetadataById(context.Context, *IdRequest) (*BlobMetaResponse, error)
+	// Delete blob by ID
 	DeleteById(context.Context, *IdRequest) (*InfoResponse, error)
 	mustEmbedUnimplementedBlobMetadataServer()
 }
@@ -388,7 +398,7 @@ func _BlobMetadata_DeleteById_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BlobMetadata_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "BlobMetadata",
+	ServiceName: "internal.BlobMetadata",
 	HandlerType: (*BlobMetadataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -407,17 +417,18 @@ var BlobMetadata_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "service.proto",
+	Metadata: "internal/service.proto",
 }
 
 const (
-	CryptoKeyUpload_Upload_FullMethodName = "/CryptoKeyUpload/Upload"
+	CryptoKeyUpload_Upload_FullMethodName = "/internal.CryptoKeyUpload/Upload"
 )
 
 // CryptoKeyUploadClient is the client API for CryptoKeyUpload service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CryptoKeyUploadClient interface {
+	// Upload a crypto key
 	Upload(ctx context.Context, in *UploadKeyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[CryptoKeyMetaResponse], error)
 }
 
@@ -452,6 +463,7 @@ type CryptoKeyUpload_UploadClient = grpc.ServerStreamingClient[CryptoKeyMetaResp
 // All implementations must embed UnimplementedCryptoKeyUploadServer
 // for forward compatibility.
 type CryptoKeyUploadServer interface {
+	// Upload a crypto key
 	Upload(*UploadKeyRequest, grpc.ServerStreamingServer[CryptoKeyMetaResponse]) error
 	mustEmbedUnimplementedCryptoKeyUploadServer()
 }
@@ -502,7 +514,7 @@ type CryptoKeyUpload_UploadServer = grpc.ServerStreamingServer[CryptoKeyMetaResp
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CryptoKeyUpload_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "CryptoKeyUpload",
+	ServiceName: "internal.CryptoKeyUpload",
 	HandlerType: (*CryptoKeyUploadServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -512,17 +524,18 @@ var CryptoKeyUpload_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "service.proto",
+	Metadata: "internal/service.proto",
 }
 
 const (
-	CryptoKeyDownload_DownloadById_FullMethodName = "/CryptoKeyDownload/DownloadById"
+	CryptoKeyDownload_DownloadById_FullMethodName = "/internal.CryptoKeyDownload/DownloadById"
 )
 
 // CryptoKeyDownloadClient is the client API for CryptoKeyDownload service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CryptoKeyDownloadClient interface {
+	// Download crypto key by ID
 	DownloadById(ctx context.Context, in *KeyDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[KeyContent], error)
 }
 
@@ -557,6 +570,7 @@ type CryptoKeyDownload_DownloadByIdClient = grpc.ServerStreamingClient[KeyConten
 // All implementations must embed UnimplementedCryptoKeyDownloadServer
 // for forward compatibility.
 type CryptoKeyDownloadServer interface {
+	// Download crypto key by ID
 	DownloadById(*KeyDownloadRequest, grpc.ServerStreamingServer[KeyContent]) error
 	mustEmbedUnimplementedCryptoKeyDownloadServer()
 }
@@ -607,7 +621,7 @@ type CryptoKeyDownload_DownloadByIdServer = grpc.ServerStreamingServer[KeyConten
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CryptoKeyDownload_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "CryptoKeyDownload",
+	ServiceName: "internal.CryptoKeyDownload",
 	HandlerType: (*CryptoKeyDownloadServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -617,21 +631,24 @@ var CryptoKeyDownload_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "service.proto",
+	Metadata: "internal/service.proto",
 }
 
 const (
-	CryptoKeyMetadata_ListMetadata_FullMethodName    = "/CryptoKeyMetadata/ListMetadata"
-	CryptoKeyMetadata_GetMetadataById_FullMethodName = "/CryptoKeyMetadata/GetMetadataById"
-	CryptoKeyMetadata_DeleteById_FullMethodName      = "/CryptoKeyMetadata/DeleteById"
+	CryptoKeyMetadata_ListMetadata_FullMethodName    = "/internal.CryptoKeyMetadata/ListMetadata"
+	CryptoKeyMetadata_GetMetadataById_FullMethodName = "/internal.CryptoKeyMetadata/GetMetadataById"
+	CryptoKeyMetadata_DeleteById_FullMethodName      = "/internal.CryptoKeyMetadata/DeleteById"
 )
 
 // CryptoKeyMetadataClient is the client API for CryptoKeyMetadata service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CryptoKeyMetadataClient interface {
+	// List metadata of crypto keys
 	ListMetadata(ctx context.Context, in *KeyMetadataQuery, opts ...grpc.CallOption) (grpc.ServerStreamingClient[CryptoKeyMetaResponse], error)
+	// Get metadata by ID
 	GetMetadataById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CryptoKeyMetaResponse, error)
+	// Delete crypto key by ID
 	DeleteById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error)
 }
 
@@ -686,8 +703,11 @@ func (c *cryptoKeyMetadataClient) DeleteById(ctx context.Context, in *IdRequest,
 // All implementations must embed UnimplementedCryptoKeyMetadataServer
 // for forward compatibility.
 type CryptoKeyMetadataServer interface {
+	// List metadata of crypto keys
 	ListMetadata(*KeyMetadataQuery, grpc.ServerStreamingServer[CryptoKeyMetaResponse]) error
+	// Get metadata by ID
 	GetMetadataById(context.Context, *IdRequest) (*CryptoKeyMetaResponse, error)
+	// Delete crypto key by ID
 	DeleteById(context.Context, *IdRequest) (*InfoResponse, error)
 	mustEmbedUnimplementedCryptoKeyMetadataServer()
 }
@@ -780,7 +800,7 @@ func _CryptoKeyMetadata_DeleteById_Handler(srv interface{}, ctx context.Context,
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CryptoKeyMetadata_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "CryptoKeyMetadata",
+	ServiceName: "internal.CryptoKeyMetadata",
 	HandlerType: (*CryptoKeyMetadataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -799,5 +819,5 @@ var CryptoKeyMetadata_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "service.proto",
+	Metadata: "internal/service.proto",
 }
