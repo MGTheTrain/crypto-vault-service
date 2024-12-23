@@ -16,6 +16,7 @@ WORKDIR /root/
 RUN apk update && apk add --no-cache libc6-compat
 COPY --from=build /app/crypto_vault_service .
 
-EXPOSE 8080
+EXPOSE 8090
+EXPOSE 50051
 
 ENTRYPOINT ["./crypto_vault_service"]
