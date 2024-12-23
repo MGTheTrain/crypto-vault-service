@@ -391,7 +391,7 @@ func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.I
 }
 
 // DeleteById deletes a key by its ID
-func (s *CryptoKeyMetadataServer) DeleteCryptoKeyById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
+func (s *CryptoKeyMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.cryptoKeyMetadataService.DeleteByID(req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete crypto key: %v", err)
