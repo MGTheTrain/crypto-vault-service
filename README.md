@@ -18,6 +18,7 @@ Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys a
 - [pkcs11-tool usage](https://docs.nitrokey.com/nethsm/pkcs11-tool#id1)
 - [OpenFGA online editor](https://play.fga.dev/sandbox/?store=github)
 - [Adding gRPC-Gateway annotations to an existing proto file](https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/adding_annotations/)
+- [grpc-gateway Github repository](https://github.com/grpc-ecosystem/grpc-gateway)
 
 ## Features
 
