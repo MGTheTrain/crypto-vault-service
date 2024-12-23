@@ -70,8 +70,11 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 		signKeyId = &req.SignKeyId
 	}
 
-	userId := uuid.New().String()
+	userId := uuid.New().String() // TBD: extract user id from JWT
 	form, err := utils.CreateMultipleFilesForm(fileContent, fileNames)
+	if err != nil {
+		return fmt.Errorf("%v", err)
+	}
 
 	blobMetas, err := s.blobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
@@ -257,7 +260,7 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadSe
 
 // UploadKeys generates and uploads cryptographic keys
 func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
-	userId := uuid.New().String()
+	userId := uuid.New().String() // TBD: extract user id from JWT
 	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(userId, req.Algorithm, uint(req.KeySize))
 	if err != nil {
 		return fmt.Errorf("failed to generate and upload crypto keys: %v", err)
