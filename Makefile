@@ -36,3 +36,6 @@ shut-down-docker-containers:
 
 generate-swagger-docs:
 	@cd $(SCRIPT_DIR) && ./generate-docs.sh
+
+generate-grpc-files:
+	@cd $(SCRIPT_DIR) && ./generate-grpc-files.sh
