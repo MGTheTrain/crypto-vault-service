@@ -17,6 +17,7 @@ Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys a
 - [OpenSSL with libp11 for Signing, Verifying and Encrypting, Decrypting](https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs)
 - [pkcs11-tool usage](https://docs.nitrokey.com/nethsm/pkcs11-tool#id1)
 - [OpenFGA online editor](https://play.fga.dev/sandbox/?store=github)
+- [Adding gRPC-Gateway annotations to an existing proto file](https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/adding_annotations/)
 
 ## Features
 
