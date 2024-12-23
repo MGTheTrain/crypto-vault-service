@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 
 	v1 "crypto_vault_service/internal/api/grpc/v1"
 	"crypto_vault_service/internal/app/services"
@@ -14,7 +16,10 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/persistence/repository"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,7 +28,7 @@ func main() {
 
 	path := "../../configs/grpc-app.yaml"
 
-	config, err := settings.Initialize(path)
+	config, err := settings.InitializeGrpcConfig(path)
 	if err != nil {
 		fmt.Printf("failed to initialize config: %v", err)
 	}
@@ -34,6 +39,7 @@ func main() {
 		return
 	}
 
+	// Database connection and migrations
 	var db *gorm.DB
 	switch config.Database.Type {
 	case "postgres":
@@ -47,13 +53,12 @@ func main() {
 			log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}
 
+		// Check if database exists
+		var dbExists bool
 		sqlDB, err := db.DB()
 		if err != nil {
 			log.Fatalf("Failed to get raw DB connection: %v", err)
 		}
-
-		// Check if the database exists
-		var dbExists bool
 		query := fmt.Sprintf("SELECT 1 FROM pg_database WHERE datname='%s'", config.Database.Name)
 		err = sqlDB.QueryRow(query).Scan(&dbExists)
 
@@ -62,7 +67,6 @@ func main() {
 		}
 
 		if !dbExists {
-			// If the database doesn't exist, create it
 			_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", config.Database.Name))
 			if err != nil {
 				log.Fatalf("Failed to create database '%s': %v", config.Database.Name, err)
@@ -72,6 +76,7 @@ func main() {
 			fmt.Printf("Database '%s' already exists. Skipping creation.\n", config.Database.Name)
 		}
 
+		// Reconnect to the newly created database
 		dsn = fmt.Sprintf(config.Database.DSN+" dbname=%s", config.Database.Name)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
@@ -87,6 +92,7 @@ func main() {
 		log.Fatalf("Failed to migrate schema: %v", err)
 	}
 
+	// setup infrastructure instances
 	blobRepo, err := repository.NewGormBlobRepository(db, logger)
 	if err != nil {
 		log.Fatalf("Error creating blob repository instance: %v", err)
@@ -96,55 +102,43 @@ func main() {
 		log.Fatalf("Error creating crypto key repository instance: %v", err)
 	}
 
-	var blobConnector connector.BlobConnector
-	if config.BlobConnector.CloudProvider == "azure" {
-		blobConnector, err = connector.NewAzureBlobConnector(&config.BlobConnector, logger)
-		if err != nil {
-			log.Fatalf("%v", err)
-			return
-		}
+	blobConnector, err := connector.NewAzureBlobConnector(&config.BlobConnector, logger)
+	if err != nil {
+		log.Fatalf("%v", err)
 	}
 
-	var vaultConnector connector.VaultConnector
-	if config.BlobConnector.CloudProvider == "azure" {
-		vaultConnector, err = connector.NewAzureVaultConnector(&config.KeyConnector, logger)
-		if err != nil {
-			log.Fatalf("%v", err)
-			return
-		}
+	vaultConnector, err := connector.NewAzureVaultConnector(&config.KeyConnector, logger)
+	if err != nil {
+		log.Fatalf("%v", err)
 	}
 
+	// Initialize services
 	blobUploadService, err := services.NewBlobUploadService(blobConnector, blobRepo, vaultConnector, cryptoKeyRepo, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
-		return
 	}
 	blobDownloadService, err := services.NewBlobDownloadService(blobConnector, blobRepo, vaultConnector, cryptoKeyRepo, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
-		return
 	}
 	blobMetadataService, err := services.NewBlobMetadataService(blobRepo, blobConnector, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
-		return
 	}
 	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, cryptoKeyRepo, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
-		return
 	}
 	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector, cryptoKeyRepo, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
-		return
 	}
 	cryptoKeyMetadataService, err := services.NewCryptoKeyMetadataService(vaultConnector, cryptoKeyRepo, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
-		return
 	}
 
+	// Create gRPC server and register the gRPC services
 	blobUploadServer, err := v1.NewBlobUploadServer(blobUploadService)
 	if err != nil {
 		log.Fatalf("failed to create blob upload server: %v", err)
@@ -175,23 +169,72 @@ func main() {
 		log.Fatalf("failed to create crypto key metadata server: %v", err)
 	}
 
-	server := grpc.NewServer()
+	grpcServer := grpc.NewServer()
 
-	v1.RegisterBlobUploadServer(server, blobUploadServer)
-	v1.RegisterBlobDownloadServer(server, blobDownloadServer)
-	v1.RegisterBlobMetadataServer(server, blobMetadataServer)
-	v1.RegisterCryptoKeyUploadServer(server, cryptoKeyUploadServer)
-	v1.RegisterCryptoKeyDownloadServer(server, cryptoKeyDownloadServer)
-	v1.RegisterCryptoKeyMetadataServer(server, cryptoKeyMetadataServer)
+	v1.RegisterBlobUploadServer(grpcServer, blobUploadServer)
+	v1.RegisterBlobDownloadServer(grpcServer, blobDownloadServer)
+	v1.RegisterBlobMetadataServer(grpcServer, blobMetadataServer)
+	v1.RegisterCryptoKeyUploadServer(grpcServer, cryptoKeyUploadServer)
+	v1.RegisterCryptoKeyDownloadServer(grpcServer, cryptoKeyDownloadServer)
+	v1.RegisterCryptoKeyMetadataServer(grpcServer, cryptoKeyMetadataServer)
 
+	// Set up listener for gRPC server
 	lis, err := net.Listen("tcp", ":"+config.Port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	log.Printf("Server started at %v", lis.Addr())
+	// Start gRPC server in a goroutine
+	go func() {
+		log.Printf("gRPC server started at %v", lis.Addr())
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve gRPC: %v", err)
+		}
+	}()
 
-	if err := server.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+	// Set up gRPC-Gateway mux
+	gwmux := runtime.NewServeMux()
+
+	gatewayTarget := "0.0.0.0:" + config.Port
+	// Create a client connection to the gRPC server
+	conn, err := grpc.Dial(gatewayTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("Failed to dial server: %v", err)
 	}
+
+	// Register all services for the gRPC-Gateway mux
+	err = v1.RegisterBlobUploadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	if err != nil {
+		log.Fatalf("Failed to register blob upload gateway: %v", err)
+	}
+	err = v1.RegisterBlobDownloadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	if err != nil {
+		log.Fatalf("Failed to register blob download gateway: %v", err)
+	}
+	err = v1.RegisterBlobMetadataGateway(context.Background(), gatewayTarget, gwmux, conn)
+	if err != nil {
+		log.Fatalf("Failed to register blob metadata gateway: %v", err)
+	}
+	err = v1.RegisterCryptoKeyUploadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	if err != nil {
+		log.Fatalf("Failed to register crypto key upload gateway: %v", err)
+	}
+	err = v1.RegisterCryptoKeyDownloadGateway(context.Background(), gatewayTarget, gwmux, conn)
+	if err != nil {
+		log.Fatalf("Failed to register crypto key download gateway: %v", err)
+	}
+	err = v1.RegisterCryptoKeyMetadataGateway(context.Background(), gatewayTarget, gwmux, conn)
+	if err != nil {
+		log.Fatalf("Failed to register crypto key metadata gateway: %v", err)
+	}
+
+	gatewayPort := config.GatewayPort
+	// Set up the HTTP server to serve the Gateway
+	gwServer := &http.Server{
+		Addr:    ":" + gatewayPort,
+		Handler: gwmux,
+	}
+
+	log.Println(fmt.Sprintf("serving gRPC-Gateway on http://0.0.0.0:%v", gatewayPort))
+	log.Fatalln(gwServer.ListenAndServe())
 }

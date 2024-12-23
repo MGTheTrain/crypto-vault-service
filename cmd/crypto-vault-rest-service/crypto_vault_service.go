@@ -58,7 +58,7 @@ func main() {
 
 	path := "../../configs/rest-app.yaml"
 
-	config, err := settings.Initialize(path)
+	config, err := settings.InitializeRestConfig(path)
 	if err != nil {
 		fmt.Printf("failed to initialize config: %v", err)
 	}
