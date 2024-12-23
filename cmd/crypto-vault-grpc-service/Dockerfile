@@ -1,12 +1,11 @@
 # Build stage
-FROM golang:1.21-alpine AS build
+FROM golang:1.23-alpine AS build
 
 WORKDIR /app
 
 RUN apk update
-COPY go.mod go.sum ./
-RUN go mod tidy
 COPY . .
+RUN go mod tidy
 RUN go build -o crypto_vault_service ./cmd/crypto-vault-grpc-service/crypto_vault_service.go
 
 # Serve stage
