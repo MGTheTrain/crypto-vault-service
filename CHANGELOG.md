@@ -15,9 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Logging**: Integrated console and file logging (e.g. using structured logging with `logrus`) 
 - **Manage cryptographic material**: Enabled management of private/public key pairs and symmetric keys and implemented key lifecycle management including primarily key generation and key export
 - **Secure file storage integration**: Provided mechanisms to securely store encrypted files in Azure Blob Storage 
-- **RESTful API**: Provided HTTP endpoints to manage cryptographic material and secure data (files, metadata) at rest.
+- **RESTful API**: Provided HTTP endpoints to manage cryptographic material and secure data at rest.
 - **Documentation**: Provided clear API documentation (e.g. Swagger/OpenAPI) for ease of integration by other developers.
 - **Versioning**: Implemented proper API versioning to maintain backward compatibility as the API evolves.
+- **gRPC API**: Provided gRPC endpoints to manage cryptographic material and secure data at rest
 
 ## [0.1.0] - TBD-TBD-TBD
 

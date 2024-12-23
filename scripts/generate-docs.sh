@@ -13,6 +13,6 @@ NC='\033[0m'
 echo "#####################################################################################################"
 echo -e "$BLUE INFO: $NC About to convert Go annotations to Swagger Documentation 2.0"
 
-swag init -g cmd/crypto-vault-service/crypto_vault_service.go -o docs/swagger
+swag init -g cmd/crypto-vault-rest-service/crypto_vault_service.go -o cmd/crypto-vault-rest-service/docs
 
 cd $SCRIPT_DIR

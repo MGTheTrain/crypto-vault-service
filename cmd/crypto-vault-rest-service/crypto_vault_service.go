@@ -1,7 +1,7 @@
 package main
 
 import (
-	v1 "crypto_vault_service/internal/api/v1"
+	v1 "crypto_vault_service/internal/api/rest/v1"
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
@@ -16,7 +16,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	docs "docs"
+	"crypto_vault_service/cmd/crypto-vault-rest-service/docs"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -56,9 +56,9 @@ import (
 func main() {
 	r := gin.Default()
 
-	path := "../../configs/app.yaml"
+	path := "../../configs/rest-app.yaml"
 
-	config, err := settings.Initialize(path)
+	config, err := settings.InitializeRestConfig(path)
 	if err != nil {
 		fmt.Printf("failed to initialize config: %v", err)
 	}

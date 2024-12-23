@@ -1,13 +1,28 @@
 services:
-  crypto-vault-service:
-    image: crypto-vault-service:0.1.0
+  crypto-vault-rest-service:
+    image: crypto-vault-rest-service:0.1.0
     build:
       context: .
-      dockerfile: cmd/crypto-vault-service/Dockerfile
+      dockerfile: cmd/crypto-vault-rest-service/Dockerfile
     env_file:
-      - ./crypto-vault-service.env
+      - ./crypto-vault-rest-service.env
     ports:
       - "5000:8080/tcp"
+    depends_on:
+      - postgres
+      - azure-blob-storage
+    restart: on-failure
+  
+  crypto-vault-grpc-service:
+    image: crypto-vault-grpc-service:0.1.0
+    build:
+      context: .
+      dockerfile: cmd/crypto-vault-grpc-service/Dockerfile
+    env_file:
+      - ./crypto-vault-grpc-service.env
+    ports:
+      - "8090:8090/tcp"
+      - "50051:50051/tcp"
     depends_on:
       - postgres
       - azure-blob-storage

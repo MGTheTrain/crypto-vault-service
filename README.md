@@ -17,13 +17,16 @@ Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys a
 - [OpenSSL with libp11 for Signing, Verifying and Encrypting, Decrypting](https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs)
 - [pkcs11-tool usage](https://docs.nitrokey.com/nethsm/pkcs11-tool#id1)
 - [OpenFGA online editor](https://play.fga.dev/sandbox/?store=github)
+- [Adding gRPC-Gateway annotations to an existing proto file](https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/adding_annotations/)
+- [grpc-gateway Github repository](https://github.com/grpc-ecosystem/grpc-gateway)
+- [grpcurl Github repository](https://github.com/fullstorydev/grpcurl)
 
 ## Features
 
 ### Functional
 
-- [x] **RESTful API**: Provide HTTP endpoints to manage cryptographic material and secure data (files, metadata) at rest.
-- [ ] **gRPC API**: Provide gRPC endpoints to manage cryptographic material and secure data (files, metadata) at rest.
+- [x] **RESTful API**: Provide HTTP endpoints to manage cryptographic material and secure data at rest.
+- [x] **gRPC API**: Provide gRPC endpoints to manage cryptographic material and secure data at rest.
 - [x] **Asymmetric encryption and decryption**: Support RSA encryption algorithm for data protection.
 - [x] **Symmetric encryption**: Support for symmetric key encryption (e.g. AES) for data protection.
 - [x] **Signature creation and verification:** Support for hashing algorithms (e.g. SHA-256, SHA-512) to create digital signatures and the ability to verify these signatures using asymmetric keys (RSA, ECDSA).
