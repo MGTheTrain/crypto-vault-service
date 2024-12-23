@@ -8,8 +8,9 @@ import (
 	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 
-	pb "crypto_vault_service/internal/api/grpc/v1/proto"
+	pb "proto"
 
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -51,7 +52,7 @@ func NewBlobUploadServer(blobUploadService *services.BlobUploadService) (*BlobUp
 }
 
 // Upload uploads blobs with optional encryption/signing
-func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUploadService_UploadServer) error {
+func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload_UploadServer) error {
 	fileContent := [][]byte{req.GetFileContent()}
 	fileNames := []string{req.GetFileName()}
 
@@ -108,7 +109,7 @@ func NewBlobDownloadServer(blobDownloadService *services.BlobDownloadService) (*
 }
 
 // DownloadById downloads a blob by its ID
-func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb.BlobDownloadService_DownloadByIdServer) error {
+func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb.BlobDownload_DownloadByIdServer) error {
 	id := req.GetId()
 	var decryptionKeyId *string = nil
 	if len(req.GetDecryptionKeyId()) > 0 {
@@ -149,7 +150,7 @@ func NewBlobMetadataServer(blobMetadataService *services.BlobMetadataService) (*
 }
 
 // ListMetadata fetches metadata of blobs optionally considering query parameters
-func (s *BlobMetadataServer) ListMetadata(ctx context.Context, req *pb.BlobMetaQuery, stream pb.BlobMetadataService_ListMetadataServer) error {
+func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobMetadata_ListMetadataServer) error {
 	query := blobs.NewBlobMetaQuery()
 	if len(req.GetName()) > 0 {
 		query.Name = req.Name
@@ -250,7 +251,7 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadSe
 }
 
 // UploadKeys generates and uploads cryptographic keys
-func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUploadService_UploadServer) error {
+func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
 	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(req.GetUserId(), req.GetAlgorithm(), uint(req.GetKeySize()))
 	if err != nil {
 		return fmt.Errorf("failed to generate and upload crypto keys: %v", err)
@@ -283,7 +284,7 @@ func NewCryptoKeyDownloadServer(cryptoKeyDownloadService *services.CryptoKeyDown
 }
 
 // DownloadById downloads a key by its ID
-func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownloadService_DownloadByIdServer) error {
+func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIdServer) error {
 	bytes, err := s.cryptoKeyDownloadService.Download(req.GetId())
 	if err != nil {
 		return fmt.Errorf("failed to download crypto key: %v", err)
@@ -298,7 +299,7 @@ func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, strea
 		}
 
 		// Create the chunk of data to send
-		chunk := &pb.BlobContent{
+		chunk := &pb.KeyContent{
 			Content: bytes[i:end],
 		}
 
@@ -319,7 +320,7 @@ func NewCryptoKeyMetadataServer(cryptoKeyMetadataService *services.CryptoKeyMeta
 }
 
 // ListMetadata lists cryptographic key metadata with optional query parameters
-func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream pb.CryptoKeyMetadataService_ListMetadataServer) error {
+func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream pb.CryptoKeyMetadata_ListMetadataServer) error {
 	query := keys.NewCryptoKeyQuery()
 	if req.Algorithm != "" {
 		query.Algorithm = req.Algorithm
@@ -386,4 +387,28 @@ func (s *CryptoKeyMetadataServer) DeleteCryptoKeyById(ctx context.Context, req *
 	return &pb.InfoResponse{
 		Message: fmt.Sprintf("crypto key with id %s deleted successfully", req.Id),
 	}, nil
+}
+
+func RegisterBlobUploadServer(server *grpc.Server, blobUploadServer *BlobUploadServer) {
+	pb.RegisterBlobUploadServer(server, blobUploadServer)
+}
+
+func RegisterBlobDownloadServer(server *grpc.Server, blobDownloadServer *BlobDownloadServer) {
+	pb.RegisterBlobDownloadServer(server, blobDownloadServer)
+}
+
+func RegisterBlobMetadataServer(server *grpc.Server, blobMetadataServer *BlobMetadataServer) {
+	pb.RegisterBlobMetadataServer(server, blobMetadataServer)
+}
+
+func RegisterCryptoKeyUploadServer(server *grpc.Server, cryptoKeyUploadServer *CryptoKeyUploadServer) {
+	pb.RegisterCryptoKeyUploadServer(server, cryptoKeyUploadServer)
+}
+
+func RegisterCryptoKeyDownloadServer(server *grpc.Server, cryptoKeyDownloadServer *CryptoKeyDownloadServer) {
+	pb.RegisterCryptoKeyDownloadServer(server, cryptoKeyDownloadServer)
+}
+
+func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServer *CryptoKeyMetadataServer) {
+	pb.RegisterCryptoKeyMetadataServer(server, cryptoKeyMetadataServer)
 }
