@@ -184,7 +184,7 @@ func main() {
 	v1.RegisterCryptoKeyDownloadServer(server, cryptoKeyDownloadServer)
 	v1.RegisterCryptoKeyMetadataServer(server, cryptoKeyMetadataServer)
 
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", ":"+config.Port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
