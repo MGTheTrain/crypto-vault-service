@@ -166,7 +166,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 	if req.GetDateTimeCreated() != nil {
 		query.DateTimeCreated = req.DateTimeCreated.AsTime()
 	}
-	if req.GetLimit() > -1 {
+	if req.GetLimit() > 0 {
 		query.Limit = int(req.GetLimit())
 	}
 	if req.GetOffset() > -1 {
@@ -333,8 +333,12 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 	if req.DateTimeCreated != nil {
 		query.DateTimeCreated = req.DateTimeCreated.AsTime()
 	}
-	query.Limit = int(req.Limit)
-	query.Offset = int(req.Offset)
+	if req.GetLimit() > 0 {
+		query.Limit = int(req.GetLimit())
+	}
+	if req.GetOffset() > -1 {
+		query.Offset = int(req.GetOffset())
+	}
 
 	cryptoKeyMetas, err := s.cryptoKeyMetadataService.List(query)
 	if err != nil {
