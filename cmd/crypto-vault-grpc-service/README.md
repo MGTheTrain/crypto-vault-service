@@ -32,6 +32,8 @@ internal.CryptoKeyUpload
 
 ### Upload blob
 
+**NOTE:** Multipart file uploads are not supported with grpc-gateway and `curl`. For more details, see: `https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/`. 
+
 Run:
 
 ```sh
@@ -40,8 +42,6 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
   "file_content": "'$(base64 -w 0 task.tmp)'"
 }' -plaintext localhost:50051 internal.BlobUpload/Upload
 ```
-
-**NOTE:** Multipart file uploads are not supported with grpc-gateway. For more details, see: `https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/`. As a result, subsequent code can be commented.
 
 ### List blob metadata
 
