@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.1.0] - 23-12-2024
+
+### Added
+
 - **Asymmetric encryption and decryption**: Supported RSA encryption algorithm for data protection.
 - **Symmetric encryption**: Supported symmetric key encryption (e.g. AES) for data protection.
 **Signature creation and verification:** Support for hashing algorithms (e.g. SHA-256, SHA-512) to create digital signatures, and the ability to verify these signatures using asymmetric keys (RSA, ECDSA).
@@ -19,9 +24,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation**: Provided clear API documentation (e.g. Swagger/OpenAPI) for ease of integration by other developers.
 - **Versioning**: Implemented proper API versioning to maintain backward compatibility as the API evolves.
 - **gRPC API**: Provided gRPC endpoints to manage cryptographic material and secure data at rest
-
-## [0.1.0] - TBD-TBD-TBD
-
-### Added
-
-TBD
