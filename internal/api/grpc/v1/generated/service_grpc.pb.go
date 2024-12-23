@@ -27,6 +27,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlobUploadClient interface {
 	// Upload a blob
+	// Multipart file uploads are not supported with grpc-gateway. For more details,
+	// see: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, no annotations are provided.
 	Upload(ctx context.Context, in *BlobUploadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobMetaResponse], error)
 }
 
@@ -62,6 +64,8 @@ type BlobUpload_UploadClient = grpc.ServerStreamingClient[BlobMetaResponse]
 // for forward compatibility.
 type BlobUploadServer interface {
 	// Upload a blob
+	// Multipart file uploads are not supported with grpc-gateway. For more details,
+	// see: https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/. As a result, no annotations are provided.
 	Upload(*BlobUploadRequest, grpc.ServerStreamingServer[BlobMetaResponse]) error
 	mustEmbedUnimplementedBlobUploadServer()
 }

@@ -35,26 +35,6 @@ var (
 	_ = metadata.Join
 )
 
-func request_BlobUpload_Upload_0(ctx context.Context, marshaler runtime.Marshaler, client BlobUploadClient, req *http.Request, pathParams map[string]string) (BlobUpload_UploadClient, runtime.ServerMetadata, error) {
-	var (
-		protoReq BlobUploadRequest
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	stream, err := client.Upload(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
-}
-
 var filter_BlobDownload_DownloadById_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
 func request_BlobDownload_DownloadById_0(ctx context.Context, marshaler runtime.Marshaler, client BlobDownloadClient, req *http.Request, pathParams map[string]string) (BlobDownload_DownloadByIdClient, runtime.ServerMetadata, error) {
@@ -329,22 +309,6 @@ func local_request_CryptoKeyMetadata_DeleteById_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-// RegisterBlobUploadHandlerServer registers the http handlers for service BlobUpload to "mux".
-// UnaryRPC     :call BlobUploadServer directly.
-// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBlobUploadHandlerFromEndpoint instead.
-// GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
-func RegisterBlobUploadHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BlobUploadServer) error {
-	mux.Handle(http.MethodPost, pattern_BlobUpload_Upload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
-		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-		return
-	})
-
-	return nil
-}
-
 // RegisterBlobDownloadHandlerServer registers the http handlers for service BlobDownload to "mux".
 // UnaryRPC     :call BlobDownloadServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -504,70 +468,6 @@ func RegisterCryptoKeyMetadataHandlerServer(ctx context.Context, mux *runtime.Se
 
 	return nil
 }
-
-// RegisterBlobUploadHandlerFromEndpoint is same as RegisterBlobUploadHandler but
-// automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterBlobUploadHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.NewClient(endpoint, opts...)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err != nil {
-			if cerr := conn.Close(); cerr != nil {
-				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
-			}
-			return
-		}
-		go func() {
-			<-ctx.Done()
-			if cerr := conn.Close(); cerr != nil {
-				grpclog.Errorf("Failed to close conn to %s: %v", endpoint, cerr)
-			}
-		}()
-	}()
-	return RegisterBlobUploadHandler(ctx, mux, conn)
-}
-
-// RegisterBlobUploadHandler registers the http handlers for service BlobUpload to "mux".
-// The handlers forward requests to the grpc endpoint over "conn".
-func RegisterBlobUploadHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterBlobUploadHandlerClient(ctx, mux, NewBlobUploadClient(conn))
-}
-
-// RegisterBlobUploadHandlerClient registers the http handlers for service BlobUpload
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "BlobUploadClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "BlobUploadClient"
-// doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "BlobUploadClient" to call the correct interceptors. This client ignores the HTTP middlewares.
-func RegisterBlobUploadHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BlobUploadClient) error {
-	mux.Handle(http.MethodPost, pattern_BlobUpload_Upload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobUpload/Upload", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_BlobUpload_Upload_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_BlobUpload_Upload_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-	})
-	return nil
-}
-
-var (
-	pattern_BlobUpload_Upload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "cvs", "blobs"}, ""))
-)
-
-var (
-	forward_BlobUpload_Upload_0 = runtime.ForwardResponseStream
-)
 
 // RegisterBlobDownloadHandlerFromEndpoint is same as RegisterBlobDownloadHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
