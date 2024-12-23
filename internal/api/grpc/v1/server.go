@@ -50,7 +50,7 @@ func NewBlobUploadServer(blobUploadService *services.BlobUploadService) (*BlobUp
 	}, nil
 }
 
-// Upload uploads a blob with optional encryption/signing
+// Upload uploads blobs with optional encryption/signing
 func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUploadService_UploadServer) error {
 	fileContent := [][]byte{req.GetFileContent()}
 	fileNames := []string{req.GetFileName()}
