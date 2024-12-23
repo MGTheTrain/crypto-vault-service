@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: cmd/crypto-vault-rest-service/Dockerfile
     env_file:
-      - ./crypto-vault-service.env
+      - ./crypto-vault-rest-service.env
     ports:
       - "5000:8080/tcp"
     depends_on:

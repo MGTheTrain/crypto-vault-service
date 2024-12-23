@@ -56,7 +56,7 @@ import (
 func main() {
 	r := gin.Default()
 
-	path := "../../configs/app.yaml"
+	path := "../../configs/rest-app.yaml"
 
 	config, err := settings.Initialize(path)
 	if err != nil {
