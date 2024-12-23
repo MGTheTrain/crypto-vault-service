@@ -4,7 +4,7 @@
 // - protoc             v4.25.0--rc2
 // source: service.proto
 
-package __
+package protobuf
 
 import (
 	context "context"
