@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Relocated repository interfaces to the domain layer adhering to domain-driven design concepts
 - Utilized `ubuntu-22.04` tag for runners 
+- Eliminated the outdated GitHub run number suffix for release Docker images in the release CI pipeline
 
 ### Fixed
 
