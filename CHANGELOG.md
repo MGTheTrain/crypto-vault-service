@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Updated
 
 - Relocated repository interfaces to the domain layer adhering to domain-driven design concepts
+- Utilized `ubuntu-22.04` tag for runners 
 
 ### Fixed
 
