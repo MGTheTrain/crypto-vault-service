@@ -1,7 +1,5 @@
 # crypto-vault-service
 
-![Status: On Halt](https://img.shields.io/badge/status-On%20Halt-red)
-
 This project is currently on halt and won't be actively maintained for some time
 
 ## Table of Contents
