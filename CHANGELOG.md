@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Updated
 
-- Moved repository interfaces in the domain layer as required by domain driven design
+- Relocated repository interfaces to the domain layer adhering to domain-driven design concepts
 
 ### Fixed
 
