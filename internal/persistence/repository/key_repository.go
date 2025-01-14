@@ -8,15 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// CryptoKeyRepository defines the interface for CryptoKey-related operations
-type CryptoKeyRepository interface {
-	Create(key *keys.CryptoKeyMeta) error
-	List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error)
-	GetByID(keyId string) (*keys.CryptoKeyMeta, error)
-	UpdateByID(key *keys.CryptoKeyMeta) error
-	DeleteByID(keyId string) error
-}
-
 // GormCryptoKeyRepository is the implementation of the CryptoKeyRepository interface
 type GormCryptoKeyRepository struct {
 	db     *gorm.DB

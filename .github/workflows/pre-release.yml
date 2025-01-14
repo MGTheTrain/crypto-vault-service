@@ -6,7 +6,7 @@ on:
 
 jobs:
   pre-release-package-ci:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: qas
     steps:
       - name: Checkout repository

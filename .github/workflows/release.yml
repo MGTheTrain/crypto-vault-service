@@ -7,7 +7,7 @@ on:
 
 jobs:
   release-package-ci:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment: prd
     steps:
       - name: Checkout repository

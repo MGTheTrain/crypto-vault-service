@@ -28,3 +28,12 @@ type ICryptoKeyDownloadService interface {
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
 	Download(keyID string) ([]byte, error)
 }
+
+// CryptoKeyRepository defines the interface for CryptoKey-related operations
+type CryptoKeyRepository interface {
+	Create(key *CryptoKeyMeta) error
+	List(query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
+	GetByID(keyId string) (*CryptoKeyMeta, error)
+	UpdateByID(key *CryptoKeyMeta) error
+	DeleteByID(keyId string) error
+}
