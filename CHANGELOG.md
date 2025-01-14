@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Updated
+
+- Moved repository interfaces in the domain layer as required by domain driven design
+
+### Fixed
+
+- Fixed `postCreateCommand` in [devcontainer.json file](./.devcontainer/devcontainer.json)
+
 ## [0.1.0] - 23-12-2024
 
 ### Added
