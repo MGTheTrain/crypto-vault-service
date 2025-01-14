@@ -31,3 +31,12 @@ type IBlobDownloadService interface {
 	// Optionally, a verify endpoint will be available soon for optional use.
 	Download(blobId string, decryptionKeyId *string) ([]byte, error)
 }
+
+// BlobRepository defines the interface for Blob-related operations
+type BlobRepository interface {
+	Create(blob *BlobMeta) error
+	List(query *BlobMetaQuery) ([]*BlobMeta, error)
+	GetById(blobId string) (*BlobMeta, error)
+	UpdateById(blob *BlobMeta) error
+	DeleteById(blobId string) error
+}

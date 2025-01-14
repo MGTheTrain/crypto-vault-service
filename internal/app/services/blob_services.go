@@ -12,7 +12,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/utils"
-	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
 	"io"
 	"math/big"
@@ -22,14 +21,14 @@ import (
 // BlobUploadService implements the BlobUploadService interface for handling blob uploads
 type BlobUploadService struct {
 	blobConnector  connector.BlobConnector
-	blobRepository repository.BlobRepository
+	blobRepository blobs.BlobRepository
 	vaultConnector connector.VaultConnector
-	cryptoKeyRepo  repository.CryptoKeyRepository
+	cryptoKeyRepo  keys.CryptoKeyRepository
 	logger         logger.Logger
 }
 
 // NewBlobUploadService creates a new instance of BlobUploadService
-func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*BlobUploadService, error) {
+func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*BlobUploadService, error) {
 	return &BlobUploadService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
@@ -247,12 +246,12 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 // BlobMetadataService implements the BlobMetadataService interface for retrieving and deleting blob metadata
 type BlobMetadataService struct {
 	blobConnector  connector.BlobConnector
-	blobRepository repository.BlobRepository
+	blobRepository blobs.BlobRepository
 	logger         logger.Logger
 }
 
 // NewBlobMetadataService creates a new instance of BlobMetadataService
-func NewBlobMetadataService(blobRepository repository.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (*BlobMetadataService, error) {
+func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (*BlobMetadataService, error) {
 	return &BlobMetadataService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
@@ -303,14 +302,14 @@ func (s *BlobMetadataService) DeleteByID(blobId string) error {
 // BlobDownloadService implements the BlobDownloadService interface for downloading blobs
 type BlobDownloadService struct {
 	blobConnector  connector.BlobConnector
-	blobRepository repository.BlobRepository
+	blobRepository blobs.BlobRepository
 	vaultConnector connector.VaultConnector
-	cryptoKeyRepo  repository.CryptoKeyRepository
+	cryptoKeyRepo  keys.CryptoKeyRepository
 	logger         logger.Logger
 }
 
 // NewBlobDownloadService creates a new instance of BlobDownloadService
-func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository repository.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*BlobDownloadService, error) {
+func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*BlobDownloadService, error) {
 	return &BlobDownloadService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,

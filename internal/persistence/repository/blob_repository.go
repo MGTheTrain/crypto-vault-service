@@ -8,15 +8,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// BlobRepository defines the interface for Blob-related operations
-type BlobRepository interface {
-	Create(blob *blobs.BlobMeta) error
-	List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error)
-	GetById(blobId string) (*blobs.BlobMeta, error)
-	UpdateById(blob *blobs.BlobMeta) error
-	DeleteById(blobId string) error
-}
-
 // GormBlobRepository is the implementation of the BlobRepository interface
 type GormBlobRepository struct {
 	db     *gorm.DB

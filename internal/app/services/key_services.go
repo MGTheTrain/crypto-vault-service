@@ -7,7 +7,6 @@ import (
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
-	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -15,12 +14,12 @@ import (
 
 type CryptoKeyUploadService struct {
 	vaultConnector connector.VaultConnector
-	cryptoKeyRepo  repository.CryptoKeyRepository
+	cryptoKeyRepo  keys.CryptoKeyRepository
 	logger         logger.Logger
 }
 
 // NewCryptoKeyUploadService creates a new CryptoKeyUploadService instance
-func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyUploadService, error) {
+func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyUploadService, error) {
 	return &CryptoKeyUploadService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -202,12 +201,12 @@ func (s *CryptoKeyUploadService) uploadRSAKey(userId, keyPairId, keyAlgorithm st
 // CryptoKeyMetadataService manages cryptographic key metadata.
 type CryptoKeyMetadataService struct {
 	vaultConnector connector.VaultConnector
-	cryptoKeyRepo  repository.CryptoKeyRepository
+	cryptoKeyRepo  keys.CryptoKeyRepository
 	logger         logger.Logger
 }
 
 // NewCryptoKeyMetadataService creates a new CryptoKeyMetadataService instance
-func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyMetadataService, error) {
+func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyMetadataService, error) {
 	return &CryptoKeyMetadataService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -257,12 +256,12 @@ func (s *CryptoKeyMetadataService) DeleteByID(keyId string) error {
 // CryptoKeyDownloadService handles the download of cryptographic keys.
 type CryptoKeyDownloadService struct {
 	vaultConnector connector.VaultConnector
-	cryptoKeyRepo  repository.CryptoKeyRepository
+	cryptoKeyRepo  keys.CryptoKeyRepository
 	logger         logger.Logger
 }
 
 // NewCryptoKeyDownloadService creates a new CryptoKeyDownloadService instance
-func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo repository.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyDownloadService, error) {
+func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*CryptoKeyDownloadService, error) {
 	return &CryptoKeyDownloadService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
