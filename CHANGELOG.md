@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 14-01-2025
+
 ### Updated
 
 - Relocated repository interfaces to the domain layer adhering to domain-driven design concepts
