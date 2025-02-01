@@ -1,6 +1,7 @@
 package connector
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -34,7 +35,10 @@ func NewAzureVaultConnectorTest(t *testing.T, cloudProvider, connectionString, c
 		ConnectionString: connectionString,
 		ContainerName:    containerName,
 	}
-	abc, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
+
+	ctx := context.Background()
+
+	abc, err := connector.NewAzureVaultConnector(ctx, keyConnectorSettings, logger)
 	require.NoError(t, err)
 
 	return &AzureVaultConnectorTest{
@@ -52,8 +56,9 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
+	ctx := context.Background()
 
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
@@ -61,7 +66,7 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	assert.Equal(t, userId, cryptoKeyMeta.UserID)
 	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
 
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
@@ -75,16 +80,17 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
+	ctx := context.Background()
 
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	downloadedData, err := helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+	downloadedData, err := helper.Connector.Download(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
 	assert.Equal(t, testFileContent, downloadedData)
 
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 }
 
@@ -98,13 +104,14 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
+	ctx := context.Background()
 
-	cryptoKeyMeta, err := helper.Connector.Upload(testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := helper.Connector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	err = helper.Connector.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+	err = helper.Connector.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	require.NoError(t, err)
 
-	_, err = helper.Connector.Download(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+	_, err = helper.Connector.Download(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	assert.Error(t, err)
 }

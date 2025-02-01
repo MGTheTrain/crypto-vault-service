@@ -103,12 +103,13 @@ func main() {
 		log.Fatalf("Error creating crypto key repository instance: %v", err)
 	}
 
-	blobConnector, err := connector.NewAzureBlobConnector(&config.BlobConnector, logger)
+	ctx := context.Background()
+	blobConnector, err := connector.NewAzureBlobConnector(ctx, &config.BlobConnector, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	vaultConnector, err := connector.NewAzureVaultConnector(&config.KeyConnector, logger)
+	vaultConnector, err := connector.NewAzureVaultConnector(ctx, &config.KeyConnector, logger)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

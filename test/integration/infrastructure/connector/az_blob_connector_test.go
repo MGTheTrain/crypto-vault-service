@@ -1,6 +1,7 @@
 package connector
 
 import (
+	"context"
 	"testing"
 
 	"crypto_vault_service/internal/infrastructure/connector"
@@ -33,7 +34,8 @@ func NewAzureBlobConnectorTest(t *testing.T, cloudProvider, connectionString str
 		ContainerName:    containerName,
 	}
 
-	blobConnector, err := connector.NewAzureBlobConnector(blobConnectorSettings, logger)
+	ctx := context.Background()
+	blobConnector, err := connector.NewAzureBlobConnector(ctx, blobConnectorSettings, logger)
 	require.NoError(t, err)
 
 	return &AzureBlobConnectorTest{
@@ -54,7 +56,9 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
-	blobs, err := abct.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
+	ctx := context.Background()
+
+	blobs, err := abct.BlobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 
 	require.Len(t, blobs, 1)
@@ -64,7 +68,7 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 	assert.Equal(t, int64(len(testFileContent)), blob.Size)
 	assert.Equal(t, ".txt", blob.Type)
 
-	err = abct.BlobConnector.Delete(blob.ID, blob.Name)
+	err = abct.BlobConnector.Delete(ctx, blob.ID, blob.Name)
 	require.NoError(t, err)
 }
 
@@ -81,17 +85,18 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
-	blobs, err := abct.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
+	ctx := context.Background()
+	blobs, err := abct.BlobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 
 	blob := blobs[0]
 
-	downloadedData, err := abct.BlobConnector.Download(blob.ID, blob.Name)
+	downloadedData, err := abct.BlobConnector.Download(ctx, blob.ID, blob.Name)
 	require.NoError(t, err)
 
 	assert.Equal(t, testFileContent, downloadedData)
 
-	err = abct.BlobConnector.Delete(blob.ID, blob.Name)
+	err = abct.BlobConnector.Delete(ctx, blob.ID, blob.Name)
 	require.NoError(t, err)
 }
 
@@ -108,14 +113,16 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
-	blobs, err := abct.BlobConnector.Upload(form, userId, encryptionKeyId, signKeyId)
+	ctx := context.Background()
+
+	blobs, err := abct.BlobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 
 	blob := blobs[0]
 
-	err = abct.BlobConnector.Delete(blob.ID, blob.Name)
+	err = abct.BlobConnector.Delete(ctx, blob.ID, blob.Name)
 	require.NoError(t, err)
 
-	_, err = abct.BlobConnector.Download(blob.ID, blob.Name)
+	_, err = abct.BlobConnector.Download(ctx, blob.ID, blob.Name)
 	assert.Error(t, err)
 }

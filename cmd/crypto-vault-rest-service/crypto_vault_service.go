@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	v1 "crypto_vault_service/internal/api/rest/v1"
 	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
@@ -131,9 +132,10 @@ func main() {
 		log.Fatalf("Error creating crypto key repository instance: %v", err)
 	}
 
+	ctx := context.Background()
 	var blobConnector connector.BlobConnector
 	if config.BlobConnector.CloudProvider == "azure" {
-		blobConnector, err = connector.NewAzureBlobConnector(&config.BlobConnector, logger)
+		blobConnector, err = connector.NewAzureBlobConnector(ctx, &config.BlobConnector, logger)
 		if err != nil {
 			log.Fatalf("%v", err)
 			return
@@ -142,7 +144,7 @@ func main() {
 
 	var vaultConnector connector.VaultConnector
 	if config.BlobConnector.CloudProvider == "azure" {
-		vaultConnector, err = connector.NewAzureVaultConnector(&config.KeyConnector, logger)
+		vaultConnector, err = connector.NewAzureVaultConnector(ctx, &config.KeyConnector, logger)
 		if err != nil {
 			log.Fatalf("%v", err)
 			return

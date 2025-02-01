@@ -19,16 +19,15 @@ import (
 type VaultConnector interface {
 	// Upload uploads bytes of a single file to Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	Upload(bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
+	Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a key's content by its IDs and type and returns the data as a byte slice.
-	Download(keyId, keyPairId, keyType string) ([]byte, error)
+	Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error)
 
 	// Delete deletes a key from Vault Storage by its IDs and type and returns any error encountered.
-	Delete(keyId, keyPairId, keyType string) error
+	Delete(ctx context.Context, keyId, keyPairId, keyType string) error
 }
 
-// AzureVaultConnector is a struct that implements the VaultConnector interface using Azure Blob Storage.
 // This is a temporary implementation and may later be replaced with more specialized external key management systems
 // like Azure Key Vault or AWS KMS.
 type AzureVaultConnector struct {
@@ -39,7 +38,7 @@ type AzureVaultConnector struct {
 
 // NewAzureVaultConnector creates a new instance of AzureVaultConnector, which connects to Azure Blob Storage.
 // This method can be updated in the future to support a more sophisticated key management system like Azure Key Vault.
-func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logger.Logger) (*AzureVaultConnector, error) {
+func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnectorSettings, logger logger.Logger) (*AzureVaultConnector, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	_, _ = client.CreateContainer(context.Background(), settings.ContainerName, nil)
+	_, _ = client.CreateContainer(ctx, settings.ContainerName, nil)
 	// if err != nil {
 	// 	log.Printf("Failed to create Azure container: %v\n", err)
 	// }
@@ -63,7 +62,7 @@ func NewAzureVaultConnector(settings *settings.KeyConnectorSettings, logger logg
 
 // Upload uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
+func (vc *AzureVaultConnector) Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
 	keyId := uuid.New().String()
 	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
@@ -77,9 +76,9 @@ func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyPairId, keyType, 
 		UserID:          userId,
 	}
 
-	_, err := vc.client.UploadBuffer(context.Background(), vc.containerName, fullKeyName, bytes, nil)
+	_, err := vc.client.UploadBuffer(ctx, vc.containerName, fullKeyName, bytes, nil)
 	if err != nil {
-		vc.rollbackUploadedBlobs(cryptoKeyMeta)
+		vc.rollbackUploadedBlobs(ctx, cryptoKeyMeta)
 		return nil, fmt.Errorf("failed to upload blob '%s' to storage: %w", fullKeyName, err)
 	}
 
@@ -88,8 +87,8 @@ func (vc *AzureVaultConnector) Upload(bytes []byte, userId, keyPairId, keyType, 
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
-func (vc *AzureVaultConnector) rollbackUploadedBlobs(cryptoKeyMeta *keys.CryptoKeyMeta) {
-	err := vc.Delete(cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
+func (vc *AzureVaultConnector) rollbackUploadedBlobs(ctx context.Context, cryptoKeyMeta *keys.CryptoKeyMeta) {
+	err := vc.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
 	if err != nil {
 		vc.logger.Info(fmt.Sprintf("Failed to delete key '%s' during rollback: %v", cryptoKeyMeta.ID, err))
 	} else {
@@ -98,11 +97,10 @@ func (vc *AzureVaultConnector) rollbackUploadedBlobs(cryptoKeyMeta *keys.CryptoK
 }
 
 // Download retrieves a key's content by its IDs and Type and returns the data as a byte slice.
-func (vc *AzureVaultConnector) Download(keyId, keyPairId, keyType string) ([]byte, error) {
+func (vc *AzureVaultConnector) Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error) {
 
 	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
-	ctx := context.Background()
 	get, err := vc.client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download blob '%s': %w", fullKeyName, err)
@@ -119,10 +117,9 @@ func (vc *AzureVaultConnector) Download(keyId, keyPairId, keyType string) ([]byt
 }
 
 // Delete deletes a key from Azure Blob Storage by its IDs and Type.
-func (vc *AzureVaultConnector) Delete(keyId, keyPairId, keyType string) error {
+func (vc *AzureVaultConnector) Delete(ctx context.Context, keyId, keyPairId, keyType string) error {
 	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 
-	ctx := context.Background()
 	_, err := vc.client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
 		return fmt.Errorf("failed to delete blob '%s': %w", fullKeyName, err)
