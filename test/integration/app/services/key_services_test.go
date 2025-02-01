@@ -1,6 +1,7 @@
 package services_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/google/uuid"
@@ -23,6 +24,7 @@ type KeyServicesTest struct {
 }
 
 func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
+	ctx := context.Background()
 	// Set up logger
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -34,7 +36,7 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 	require.NoError(t, err, "Error creating logger")
 
 	// Set up DB context (sqlite)
-	ctx := helpers.SetupTestDB(t)
+	dbContext := helpers.SetupTestDB(t)
 
 	// Set up connector
 	keyConnectorSettings := &settings.KeyConnectorSettings{
@@ -42,17 +44,17 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 		ConnectionString: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;",
 		ContainerName:    "testblobs",
 	}
-	vaultConnector, err := connector.NewAzureVaultConnector(keyConnectorSettings, logger)
+	vaultConnector, err := connector.NewAzureVaultConnector(ctx, keyConnectorSettings, logger)
 	require.NoError(t, err, "Error creating vault connector")
 
 	// Initialize services
-	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, ctx.CryptoKeyRepo, logger)
+	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, dbContext.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyUploadService")
 
-	cryptoKeyMetadataService, err := services.NewCryptoKeyMetadataService(vaultConnector, ctx.CryptoKeyRepo, logger)
+	cryptoKeyMetadataService, err := services.NewCryptoKeyMetadataService(vaultConnector, dbContext.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyMetadataService")
 
-	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector, ctx.CryptoKeyRepo, logger)
+	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector, dbContext.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyDownloadService")
 
 	// Return struct with services and context
@@ -60,7 +62,7 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 		CryptoKeyUploadService:   cryptoKeyUploadService,
 		CryptoKeyMetadataService: cryptoKeyMetadataService,
 		CryptoKeyDownloadService: cryptoKeyDownloadService,
-		DBContext:                ctx,
+		DBContext:                dbContext,
 	}
 }
 
@@ -73,8 +75,9 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 256
+	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 	require.NotNil(t, cryptoKeyMetas)
@@ -94,8 +97,9 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 256
+	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
 	fetchedCryptoKeyMeta, err := keyServices.CryptoKeyMetadataService.GetByID(cryptoKeyMetas[0].ID)
@@ -113,11 +117,12 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 521
+	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	err = keyServices.CryptoKeyMetadataService.DeleteByID(cryptoKeyMetas[0].ID)
+	err = keyServices.CryptoKeyMetadataService.DeleteByID(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 
 	var deletedCryptoKeyMeta keys.CryptoKeyMeta
@@ -135,11 +140,12 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 256
+	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	blobData, err := keyServices.CryptoKeyDownloadService.Download(cryptoKeyMetas[0].ID)
+	blobData, err := keyServices.CryptoKeyDownloadService.Download(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, blobData)
 	require.NotEmpty(t, blobData)

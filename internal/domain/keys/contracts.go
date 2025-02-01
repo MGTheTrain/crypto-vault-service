@@ -1,10 +1,12 @@
 package keys
 
+import "context"
+
 // ICryptoKeyUploadService defines methods for uploading cryptographic keys.
 type ICryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(userId, keyPairId, keyAlgorihm string, keySize uint) ([]*CryptoKeyMeta, error)
+	Upload(ctx context.Context, userId, keyPairId, keyAlgorihm string, keySize uint) ([]*CryptoKeyMeta, error)
 }
 
 // ICryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
@@ -19,14 +21,14 @@ type ICryptoKeyMetadataService interface {
 
 	// DeleteByID deletes a cryptographic key and its associated metadata by ID.
 	// It returns any error encountered during the deletion process.
-	DeleteByID(keyID string) error
+	DeleteByID(ctx context.Context, keyID string) error
 }
 
 // ICryptoKeyDownloadService defines methods for downloading cryptographic keys.
 type ICryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	Download(keyID string) ([]byte, error)
+	Download(ctx context.Context, keyID string) ([]byte, error)
 }
 
 // CryptoKeyRepository defines the interface for CryptoKey-related operations

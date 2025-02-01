@@ -77,7 +77,7 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 		return fmt.Errorf("%v", err)
 	}
 
-	blobMetas, err := s.blobUploadService.Upload(form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := s.blobUploadService.Upload(stream.Context(), form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
 		return fmt.Errorf("failed to upload blob: %v", err)
 	}
@@ -125,7 +125,7 @@ func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb
 		decryptionKeyId = &req.DecryptionKeyId
 	}
 
-	bytes, err := s.blobDownloadService.Download(id, decryptionKeyId)
+	bytes, err := s.blobDownloadService.Download(stream.Context(), id, decryptionKeyId)
 	if err != nil {
 		return fmt.Errorf("could not download blob with id %s: %v", id, err)
 	}
@@ -242,7 +242,7 @@ func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequ
 
 // DeleteById handles the DELETE request to delete a blob by its ID
 func (s *BlobMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
-	err := s.blobMetadataService.DeleteByID(req.Id)
+	err := s.blobMetadataService.DeleteByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete blob: %v", err)
 	}
@@ -262,7 +262,8 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadSe
 // UploadKeys generates and uploads cryptographic keys
 func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
 	userId := uuid.New().String() // TBD: extract user id from JWT
-	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(userId, req.Algorithm, uint(req.KeySize))
+
+	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(stream.Context(), userId, req.Algorithm, uint(req.KeySize))
 	if err != nil {
 		return fmt.Errorf("failed to generate and upload crypto keys: %v", err)
 	}
@@ -295,7 +296,7 @@ func NewCryptoKeyDownloadServer(cryptoKeyDownloadService *services.CryptoKeyDown
 
 // DownloadById downloads a key by its ID
 func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIdServer) error {
-	bytes, err := s.cryptoKeyDownloadService.Download(req.Id)
+	bytes, err := s.cryptoKeyDownloadService.Download(stream.Context(), req.Id)
 	if err != nil {
 		return fmt.Errorf("failed to download crypto key: %v", err)
 	}
@@ -393,7 +394,7 @@ func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.I
 
 // DeleteById deletes a key by its ID
 func (s *CryptoKeyMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
-	err := s.cryptoKeyMetadataService.DeleteByID(req.Id)
+	err := s.cryptoKeyMetadataService.DeleteByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete crypto key: %v", err)
 	}

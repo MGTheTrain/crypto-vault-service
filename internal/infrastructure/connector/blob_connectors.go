@@ -20,13 +20,13 @@ import (
 type BlobConnector interface {
 	// UploadFromForm uploads files to a Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	Upload(form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error)
+	Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error)
 
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-	Download(blobId, blobName string) ([]byte, error)
+	Download(ctx context.Context, blobId, blobName string) ([]byte, error)
 
 	// Delete deletes a blob from Blob Storage by its ID and Name, and returns any error encountered.
-	Delete(blobId, blobName string) error
+	Delete(ctx context.Context, blobId, blobName string) error
 }
 
 // AzureBlobConnector is a struct that holds the Azure Blob storage client and implements the BlobConnector interfaces.
@@ -38,7 +38,7 @@ type AzureBlobConnector struct {
 
 // NewAzureBlobConnector creates a new AzureBlobConnector instance using a connection string.
 // It returns the connector and any error encountered during the initialization.
-func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logger.Logger) (*AzureBlobConnector, error) {
+func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (*AzureBlobConnector, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logg
 		return nil, fmt.Errorf("failed to create Azure Blob client: %w", err)
 	}
 
-	_, _ = client.CreateContainer(context.Background(), settings.ContainerName, nil)
+	_, _ = client.CreateContainer(ctx, settings.ContainerName, nil)
 	// if err != nil {
 	// 	fmt.Printf("Failed to create Azure container: %v\n", err)
 	// }
@@ -62,7 +62,7 @@ func NewAzureBlobConnector(settings *settings.BlobConnectorSettings, logger logg
 
 // UploadFromForm uploads files to a Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
+func (abc *AzureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 
 	fileHeaders := form.File["files"]
@@ -98,7 +98,7 @@ func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encry
 		file, err := fileHeader.Open()
 		if err != nil {
 			err = fmt.Errorf("failed to open file '%s': %w", fullBlobName, err)
-			abc.rollbackUploadedBlobs(blobMeta)
+			abc.rollbackUploadedBlobs(ctx, blobMeta)
 			return nil, err
 		}
 		defer file.Close()
@@ -108,14 +108,14 @@ func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encry
 
 		if err != nil {
 			err = fmt.Errorf("failed create new buffer for '%s': %w", fullBlobName, err)
-			abc.rollbackUploadedBlobs(blobMeta)
+			abc.rollbackUploadedBlobs(ctx, blobMeta)
 			return nil, err
 		}
 
-		_, err = abc.client.UploadBuffer(context.Background(), abc.containerName, fullBlobName, buffer.Bytes(), nil)
+		_, err = abc.client.UploadBuffer(ctx, abc.containerName, fullBlobName, buffer.Bytes(), nil)
 		if err != nil {
 			err = fmt.Errorf("failed to upload blob '%s': %w", fullBlobName, err)
-			abc.rollbackUploadedBlobs(blobMeta)
+			abc.rollbackUploadedBlobs(ctx, blobMeta)
 			return nil, err
 		}
 
@@ -128,9 +128,9 @@ func (abc *AzureBlobConnector) Upload(form *multipart.Form, userId string, encry
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
-func (abc *AzureBlobConnector) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
+func (abc *AzureBlobConnector) rollbackUploadedBlobs(ctx context.Context, blobs []*blobs.BlobMeta) {
 	for _, blob := range blobs {
-		err := abc.Delete(blob.ID, blob.Name)
+		err := abc.Delete(ctx, blob.ID, blob.Name)
 		if err != nil {
 			abc.logger.Info(fmt.Sprintf("Failed to delete blob '%s' during rollback: %v", blob.Name, err))
 		} else {
@@ -140,9 +140,7 @@ func (abc *AzureBlobConnector) rollbackUploadedBlobs(blobs []*blobs.BlobMeta) {
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error) {
-	ctx := context.Background()
-
+func (abc *AzureBlobConnector) Download(ctx context.Context, blobId, blobName string) ([]byte, error) {
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
 	get, err := abc.client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
@@ -168,9 +166,7 @@ func (abc *AzureBlobConnector) Download(blobId, blobName string) ([]byte, error)
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
-func (abc *AzureBlobConnector) Delete(blobId, blobName string) error {
-	ctx := context.Background()
-
+func (abc *AzureBlobConnector) Delete(ctx context.Context, blobId, blobName string) error {
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
 	_, err := abc.client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)
