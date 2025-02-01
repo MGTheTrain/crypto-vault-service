@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Updated
 
 - Considered passing context as an input argument to manage concurrent operations (control cancellation, set timeouts/deadlines, propagate values).
+- Logged code coverage when running unit or integration tests
 
 ## [0.2.0] - 14-01-2025
 
