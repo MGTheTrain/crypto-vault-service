@@ -11,7 +11,7 @@ gRPC service capable of managing cryptographic keys and securing data at rest (m
 
 ## Getting Started
 
-Set up your IDE with the necessary Go tooling (such as the `delve` debugger or `grpcurl`) or use the provided [devcontainer.json file](../../.devcontainer/devcontainer.json). You can start the service by either running `go run crypto_vault_service.go` from this directory or by using the `spin-up-docker-containers Make target` from the [Makefile](../../Makefile). 
+Set up your IDE with the necessary Go tooling (such as the `delve` debugger or `grpcurl`) or use the provided [devcontainer.json file](../../.devcontainer/devcontainer.json). You can start the service by either running `go run main.go` from this directory or by using the `spin-up-docker-containers Make target` from the [Makefile](../../Makefile). 
 
 ### List available services
 

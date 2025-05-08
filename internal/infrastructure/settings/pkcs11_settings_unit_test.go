@@ -1,7 +1,9 @@
+//go:build unit
+// +build unit
+
 package settings
 
 import (
-	"crypto_vault_service/internal/infrastructure/settings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,12 +12,12 @@ import (
 func TestPKCS11SettingsValidation(t *testing.T) {
 	tests := []struct {
 		name          string
-		settings      *settings.PKCS11Settings
+		settings      *PKCS11Settings
 		expectedError bool
 	}{
 		{
 			name: "Valid Settings",
-			settings: &settings.PKCS11Settings{
+			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				SOPin:      "1234",
 				UserPin:    "5678",
@@ -25,7 +27,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing ModulePath",
-			settings: &settings.PKCS11Settings{
+			settings: &PKCS11Settings{
 				SOPin:   "1234",
 				UserPin: "5678",
 				SlotId:  "1",
@@ -34,7 +36,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing SOPin",
-			settings: &settings.PKCS11Settings{
+			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				UserPin:    "5678",
 				SlotId:     "1",
@@ -43,7 +45,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing UserPin",
-			settings: &settings.PKCS11Settings{
+			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				SOPin:      "1234",
 				SlotId:     "1",
@@ -52,7 +54,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing SlotId",
-			settings: &settings.PKCS11Settings{
+			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				SOPin:      "1234",
 				UserPin:    "5678",
@@ -61,7 +63,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 		},
 		{
 			name:          "All Fields Missing",
-			settings:      &settings.PKCS11Settings{},
+			settings:      &PKCS11Settings{},
 			expectedError: true,
 		},
 	}

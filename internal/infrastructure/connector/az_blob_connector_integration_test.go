@@ -1,13 +1,15 @@
+//go:build integration
+// +build integration
+
 package connector
 
 import (
 	"context"
 	"testing"
 
-	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/test/helpers"
+	"crypto_vault_service/internal/infrastructure/utils"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +18,7 @@ import (
 
 // AzureBlobConnectorTest encapsulates common logic for tests
 type AzureBlobConnectorTest struct {
-	BlobConnector *connector.AzureBlobConnector
+	BlobConnector *AzureBlobConnector
 }
 
 func NewAzureBlobConnectorTest(t *testing.T, cloudProvider, connectionString string, containerName string) *AzureBlobConnectorTest {
@@ -35,7 +37,7 @@ func NewAzureBlobConnectorTest(t *testing.T, cloudProvider, connectionString str
 	}
 
 	ctx := context.Background()
-	blobConnector, err := connector.NewAzureBlobConnector(ctx, blobConnectorSettings, logger)
+	blobConnector, err := NewAzureBlobConnector(ctx, blobConnectorSettings, logger)
 	require.NoError(t, err)
 
 	return &AzureBlobConnectorTest{
@@ -49,7 +51,7 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -78,7 +80,7 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.pem"
-	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -106,7 +108,7 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.pem"
-	form, err := helpers.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()

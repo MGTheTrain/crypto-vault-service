@@ -1,7 +1,6 @@
-package helpers
+package utils
 
 import (
-	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"mime/multipart"
 	"os"
@@ -28,7 +27,7 @@ func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*
 		os.Remove(fileName)
 	})
 
-	form, err := utils.CreateForm(fileContent, fileName)
+	form, err := CreateForm(fileContent, fileName)
 	require.NoError(t, err)
 
 	return form, nil

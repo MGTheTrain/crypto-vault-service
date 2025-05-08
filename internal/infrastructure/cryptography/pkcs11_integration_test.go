@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package cryptography
 
 import (
@@ -5,7 +8,6 @@ import (
 	"os"
 	"testing"
 
-	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 
@@ -18,7 +20,7 @@ type PKCS11Test struct {
 	ObjectLabel  string
 	KeyType      string
 	KeySize      uint
-	TokenHandler *cryptography.PKCS11Handler
+	TokenHandler *PKCS11Handler
 }
 
 // NewPKCS11Test sets up the test environment for PKCS#11 integration tests
@@ -41,7 +43,7 @@ func NewPKCS11Test(t *testing.T, slotId, modulePath, label, soPin, userPin, obje
 		log.Fatalf("Error creating logger: %v", err)
 	}
 
-	tokenHandler, err := cryptography.NewPKCS11Handler(pkcs11Settings, logger)
+	tokenHandler, err := NewPKCS11Handler(pkcs11Settings, logger)
 	if err != nil {
 		t.Logf("%v\n", err)
 	}

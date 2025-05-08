@@ -1,9 +1,12 @@
+//go:build integration
+// +build integration
+
 package repository
 
 import (
+	"context"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
-	"crypto_vault_service/test/helpers"
 
 	"testing"
 	"time"
@@ -14,9 +17,9 @@ import (
 
 func TestBlobSqliteRepository_Create(t *testing.T) {
 
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -41,7 +44,7 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 		SignKeyID:       &cryptographicKey.ID,
 	}
 
-	err := ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	var createdBlob blobs.BlobMeta
@@ -53,9 +56,9 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 
 func TestBlobSqliteRepository_GetById(t *testing.T) {
 
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -80,10 +83,10 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 		SignKeyID:       &cryptographicKey.ID,
 	}
 
-	err := ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
 
-	fetchedBlob, err := ctx.BlobRepo.GetById(blob.ID)
+	fetchedBlob, err := ctx.BlobRepo.GetById(context.Background(), blob.ID)
 	assert.NoError(t, err, "GetById should not return an error")
 	assert.NotNil(t, fetchedBlob, "Fetched blob should not be nil")
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")

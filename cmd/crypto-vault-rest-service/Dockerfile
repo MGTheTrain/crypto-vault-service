@@ -6,7 +6,7 @@ WORKDIR /app
 RUN apk update
 COPY . .
 RUN go mod tidy
-RUN go build -o crypto_vault_service ./cmd/crypto-vault-rest-service/crypto_vault_service.go
+RUN go build -o crypto-vault-service ./cmd/crypto-vault-rest-service/main.go
 
 # Serve stage
 FROM alpine:latest
@@ -14,8 +14,8 @@ FROM alpine:latest
 WORKDIR /root/
 
 RUN apk update && apk add --no-cache libc6-compat
-COPY --from=build /app/crypto_vault_service .
+COPY --from=build /app/crypto-vault-service .
 
 EXPOSE 8080
 
-ENTRYPOINT ["./crypto_vault_service"]
+ENTRYPOINT ["./crypto-vault-service"]

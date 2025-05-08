@@ -1,11 +1,10 @@
-package helpers
+package repository
 
 import (
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/internal/persistence/repository"
 	"fmt"
 	"log"
 	"os"
@@ -19,8 +18,8 @@ import (
 
 type TestDBContext struct {
 	DB            *gorm.DB
-	BlobRepo      *repository.GormBlobRepository
-	CryptoKeyRepo *repository.GormCryptoKeyRepository
+	BlobRepo      *GormBlobRepository
+	CryptoKeyRepo *GormCryptoKeyRepository
 }
 
 // SetupTestDB initializes the test database and repositories based on the DB_TYPE environment variable
@@ -98,11 +97,11 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 		log.Fatalf("Error creating logger: %v", err)
 	}
 
-	blobRepo, err := repository.NewGormBlobRepository(db, logger)
+	blobRepo, err := NewGormBlobRepository(db, logger)
 	if err != nil {
 		log.Fatalf("Error creating blob repository instance: %v", err)
 	}
-	cryptoKeyRepo, err := repository.NewGormCryptoKeyRepository(db, logger)
+	cryptoKeyRepo, err := NewGormCryptoKeyRepository(db, logger)
 	if err != nil {
 		log.Fatalf("Error creating crypto key repository instance: %v", err)
 	}

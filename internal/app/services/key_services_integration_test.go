@@ -1,4 +1,7 @@
-package services_test
+//go:build integration
+// +build integration
+
+package services
 
 import (
 	"context"
@@ -8,19 +11,18 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 
-	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/test/helpers"
+	"crypto_vault_service/internal/persistence/repository"
 )
 
 type KeyServicesTest struct {
-	CryptoKeyUploadService   *services.CryptoKeyUploadService
-	CryptoKeyMetadataService *services.CryptoKeyMetadataService
-	CryptoKeyDownloadService *services.CryptoKeyDownloadService
-	DBContext                *helpers.TestDBContext
+	CryptoKeyUploadService   *CryptoKeyUploadService
+	CryptoKeyMetadataService *CryptoKeyMetadataService
+	CryptoKeyDownloadService *CryptoKeyDownloadService
+	DBContext                *repository.TestDBContext
 }
 
 func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
@@ -36,7 +38,7 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 	require.NoError(t, err, "Error creating logger")
 
 	// Set up DB context (sqlite)
-	dbContext := helpers.SetupTestDB(t)
+	dbContext := repository.SetupTestDB(t)
 
 	// Set up connector
 	keyConnectorSettings := &settings.KeyConnectorSettings{
@@ -48,13 +50,13 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 	require.NoError(t, err, "Error creating vault connector")
 
 	// Initialize services
-	cryptoKeyUploadService, err := services.NewCryptoKeyUploadService(vaultConnector, dbContext.CryptoKeyRepo, logger)
+	cryptoKeyUploadService, err := NewCryptoKeyUploadService(vaultConnector, dbContext.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyUploadService")
 
-	cryptoKeyMetadataService, err := services.NewCryptoKeyMetadataService(vaultConnector, dbContext.CryptoKeyRepo, logger)
+	cryptoKeyMetadataService, err := NewCryptoKeyMetadataService(vaultConnector, dbContext.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyMetadataService")
 
-	cryptoKeyDownloadService, err := services.NewCryptoKeyDownloadService(vaultConnector, dbContext.CryptoKeyRepo, logger)
+	cryptoKeyDownloadService, err := NewCryptoKeyDownloadService(vaultConnector, dbContext.CryptoKeyRepo, logger)
 	require.NoError(t, err, "Error creating CryptoKeyDownloadService")
 
 	// Return struct with services and context
@@ -70,7 +72,7 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
@@ -92,7 +94,7 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
@@ -112,7 +114,7 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
@@ -135,7 +137,7 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"

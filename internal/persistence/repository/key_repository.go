@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"fmt"
@@ -24,13 +25,13 @@ func NewGormCryptoKeyRepository(db *gorm.DB, logger logger.Logger) (*GormCryptoK
 }
 
 // Create adds a new CryptoKey to the database
-func (r *GormCryptoKeyRepository) Create(key *keys.CryptoKeyMeta) error {
+func (r *GormCryptoKeyRepository) Create(ctx context.Context, key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before saving
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.db.Create(&key).Error; err != nil {
+	if err := r.db.WithContext(ctx).Create(&key).Error; err != nil {
 		return fmt.Errorf("failed to create cryptographic key: %w", err)
 	}
 
@@ -38,7 +39,7 @@ func (r *GormCryptoKeyRepository) Create(key *keys.CryptoKeyMeta) error {
 	return nil
 }
 
-func (r *GormCryptoKeyRepository) List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
+func (r *GormCryptoKeyRepository) List(ctx context.Context, query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
 	// Validate the query parameters before using them
 	if err := query.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid query parameters: %w", err)
@@ -46,7 +47,7 @@ func (r *GormCryptoKeyRepository) List(query *keys.CryptoKeyQuery) ([]*keys.Cryp
 
 	// Start building the query
 	var cryptoKeyMetas []*keys.CryptoKeyMeta
-	dbQuery := r.db.Model(&keys.CryptoKeyMeta{})
+	dbQuery := r.db.WithContext(ctx).Model(&keys.CryptoKeyMeta{})
 
 	// Apply filters based on the query
 	if query.Algorithm != "" {
@@ -86,9 +87,9 @@ func (r *GormCryptoKeyRepository) List(query *keys.CryptoKeyQuery) ([]*keys.Cryp
 }
 
 // GetByID retrieves a CryptoKey by its ID from the database
-func (r *GormCryptoKeyRepository) GetByID(keyId string) (*keys.CryptoKeyMeta, error) {
+func (r *GormCryptoKeyRepository) GetByID(ctx context.Context, keyId string) (*keys.CryptoKeyMeta, error) {
 	var key keys.CryptoKeyMeta
-	if err := r.db.Where("id = ?", keyId).First(&key).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", keyId).First(&key).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("cryptographic key with ID %s not found", keyId)
 		}
@@ -98,13 +99,13 @@ func (r *GormCryptoKeyRepository) GetByID(keyId string) (*keys.CryptoKeyMeta, er
 }
 
 // UpdateByID updates an existing CryptoKey in the database
-func (r *GormCryptoKeyRepository) UpdateByID(key *keys.CryptoKeyMeta) error {
+func (r *GormCryptoKeyRepository) UpdateByID(ctx context.Context, key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before updating
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.db.Save(&key).Error; err != nil {
+	if err := r.db.WithContext(ctx).Save(&key).Error; err != nil {
 		return fmt.Errorf("failed to update cryptographic key: %w", err)
 	}
 
@@ -113,8 +114,8 @@ func (r *GormCryptoKeyRepository) UpdateByID(key *keys.CryptoKeyMeta) error {
 }
 
 // DeleteByID removes a CryptoKey from the database by its ID
-func (r *GormCryptoKeyRepository) DeleteByID(keyId string) error {
-	if err := r.db.Where("id = ?", keyId).Delete(&keys.CryptoKeyMeta{}).Error; err != nil {
+func (r *GormCryptoKeyRepository) DeleteByID(ctx context.Context, keyId string) error {
+	if err := r.db.WithContext(ctx).Where("id = ?", keyId).Delete(&keys.CryptoKeyMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete cryptographic key: %w", err)
 	}
 	r.logger.Info(fmt.Sprintf("Deleted key metadata with id %s", keyId))

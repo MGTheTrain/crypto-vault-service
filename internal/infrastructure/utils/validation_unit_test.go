@@ -1,7 +1,9 @@
+//go:build unit
+// +build unit
+
 package utils
 
 import (
-	"crypto_vault_service/internal/infrastructure/utils"
 	"os"
 	"testing"
 
@@ -11,16 +13,16 @@ import (
 // TestCheckNonEmptyStrings tests the CheckNonEmptyStrings function
 func TestCheckNonEmptyStrings(t *testing.T) {
 	// Test with all non-empty strings
-	err := utils.CheckNonEmptyStrings("test", "hello", "world")
+	err := CheckNonEmptyStrings("test", "hello", "world")
 	assert.NoError(t, err, "Expected no error for non-empty strings")
 
 	// Test with one empty string
-	err = utils.CheckNonEmptyStrings("test", "", "world")
+	err = CheckNonEmptyStrings("test", "", "world")
 	assert.Error(t, err, "Expected error for empty string")
 	assert.Equal(t, err.Error(), "one of the input strings is empty", "Error message should match")
 
 	// Test with all empty strings
-	err = utils.CheckNonEmptyStrings("", "", "")
+	err = CheckNonEmptyStrings("", "", "")
 	assert.Error(t, err, "Expected error for all empty strings")
 	assert.Equal(t, err.Error(), "one of the input strings is empty", "Error message should match")
 }
@@ -36,11 +38,11 @@ func TestCheckFilesExist(t *testing.T) {
 	assert.NoError(t, err, "Expected no error when creating test file")
 
 	// Test with existing file
-	err = utils.CheckFilesExist(existingFilePath)
+	err = CheckFilesExist(existingFilePath)
 	assert.NoError(t, err, "Expected no error for existing file")
 
 	// Test with non-existent file
-	err = utils.CheckFilesExist(nonExistentFilePath)
+	err = CheckFilesExist(nonExistentFilePath)
 	assert.Error(t, err, "Expected error for non-existent file")
 	assert.Equal(t, err.Error(), "file does not exist: non_existent_file.txt", "Error message should match")
 

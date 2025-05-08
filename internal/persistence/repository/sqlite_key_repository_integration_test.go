@@ -1,8 +1,11 @@
+//go:build integration
+// +build integration
+
 package repository
 
 import (
+	"context"
 	"crypto_vault_service/internal/domain/keys"
-	"crypto_vault_service/test/helpers"
 	"testing"
 	"time"
 
@@ -12,9 +15,9 @@ import (
 )
 
 func TestCryptoKeySqliteRepository_Create(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -26,7 +29,7 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 		UserID:          uuid.New().String(),
 	}
 
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(context.Background(), cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
 	var createdCryptoKeyMeta keys.CryptoKeyMeta
@@ -37,9 +40,9 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -51,19 +54,19 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 		UserID:          uuid.New().String(),
 	}
 
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(context.Background(), cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
-	fetchedCryptoKeyMeta, err := ctx.CryptoKeyRepo.GetByID(cryptoKeyMeta.ID)
+	fetchedCryptoKeyMeta, err := ctx.CryptoKeyRepo.GetByID(context.Background(), cryptoKeyMeta.ID)
 	assert.NoError(t, err, "GetByID should not return an error")
 	assert.NotNil(t, fetchedCryptoKeyMeta, "Fetched cryptographic key should not be nil")
 	assert.Equal(t, cryptoKeyMeta.ID, fetchedCryptoKeyMeta.ID, "ID should match")
 }
 
 func TestCryptoKeySqliteRepository_List(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta1 := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -86,22 +89,22 @@ func TestCryptoKeySqliteRepository_List(t *testing.T) {
 	}
 
 	// Create crypto keys
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta1)
+	err := ctx.CryptoKeyRepo.Create(context.Background(), cryptoKeyMeta1)
 	assert.NoError(t, err, "Create should not return an error")
-	err = ctx.CryptoKeyRepo.Create(cryptoKeyMeta2)
+	err = ctx.CryptoKeyRepo.Create(context.Background(), cryptoKeyMeta2)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// List crypto keys
 	query := &keys.CryptoKeyQuery{}
-	cryptoKeys, err := ctx.CryptoKeyRepo.List(query)
+	cryptoKeys, err := ctx.CryptoKeyRepo.List(context.Background(), query)
 	assert.NoError(t, err, "List should not return an error")
 	assert.Len(t, cryptoKeys, 2, "There should be two cryptographic keys in the list")
 }
 
 func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -113,12 +116,12 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 		UserID:          uuid.New().String(),
 	}
 
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(context.Background(), cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Update the key's type
 	cryptoKeyMeta.Type = "private"
-	err = ctx.CryptoKeyRepo.UpdateByID(cryptoKeyMeta)
+	err = ctx.CryptoKeyRepo.UpdateByID(context.Background(), cryptoKeyMeta)
 	assert.NoError(t, err, "UpdateByID should not return an error")
 
 	var updatedCryptoKeyMeta keys.CryptoKeyMeta
@@ -128,9 +131,9 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "sqlite"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -142,10 +145,10 @@ func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 		UserID:          uuid.New().String(),
 	}
 
-	err := ctx.CryptoKeyRepo.Create(cryptoKeyMeta)
+	err := ctx.CryptoKeyRepo.Create(context.Background(), cryptoKeyMeta)
 	assert.NoError(t, err, "Create should not return an error")
 
-	err = ctx.CryptoKeyRepo.DeleteByID(cryptoKeyMeta.ID)
+	err = ctx.CryptoKeyRepo.DeleteByID(context.Background(), cryptoKeyMeta.ID)
 	assert.NoError(t, err, "DeleteByID should not return an error")
 
 	var deletedCryptoKeyMeta keys.CryptoKeyMeta

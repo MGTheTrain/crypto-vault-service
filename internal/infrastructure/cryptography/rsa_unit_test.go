@@ -1,8 +1,10 @@
+//go:build unit
+// +build unit
+
 package cryptography
 
 import (
 	"crypto/rsa"
-	"crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"log"
@@ -14,7 +16,7 @@ import (
 
 // RSATests struct to encapsulate RSA-related test cases
 type RSATests struct {
-	rsa *cryptography.RSA
+	rsa *RSA
 }
 
 // NewRSATests is a constructor that creates a new instance of RSATests
@@ -30,7 +32,7 @@ func NewRSATests(t *testing.T) *RSATests {
 		log.Fatalf("Error creating logger: %v", err)
 	}
 
-	rsa, err := cryptography.NewRSA(logger)
+	rsa, err := NewRSA(logger)
 	if err != nil {
 		t.Logf("%v\n", err)
 	}

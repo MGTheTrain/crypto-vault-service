@@ -1,7 +1,9 @@
+//go:build unit
+// +build unit
+
 package settings
 
 import (
-	"crypto_vault_service/internal/infrastructure/settings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,12 +12,12 @@ import (
 func TestLoggerSettingsValidation(t *testing.T) {
 	tests := []struct {
 		name          string
-		settings      *settings.LoggerSettings
+		settings      *LoggerSettings
 		expectedError bool
 	}{
 		{
 			name: "Valid Settings",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogLevel: "info",
 				LogType:  "console",
 				FilePath: "",
@@ -24,7 +26,7 @@ func TestLoggerSettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Valid Settings with File",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogLevel: "info",
 				LogType:  "file",
 				FilePath: "/path/to/log/file",
@@ -33,7 +35,7 @@ func TestLoggerSettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing LogLevel",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogType:  "console",
 				FilePath: "",
 			},
@@ -41,7 +43,7 @@ func TestLoggerSettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing LogType",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogLevel: "info",
 				FilePath: "",
 			},
@@ -49,7 +51,7 @@ func TestLoggerSettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Invalid LogType",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogLevel: "info",
 				LogType:  "invalid", // Invalid log type
 				FilePath: "",
@@ -58,7 +60,7 @@ func TestLoggerSettingsValidation(t *testing.T) {
 		},
 		{
 			name: "Missing FilePath when LogType is file",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogLevel: "info",
 				LogType:  "file",
 				FilePath: "", // Missing file path when LogType is "file"
@@ -67,7 +69,7 @@ func TestLoggerSettingsValidation(t *testing.T) {
 		},
 		{
 			name: "FilePath provided when LogType is console",
-			settings: &settings.LoggerSettings{
+			settings: &LoggerSettings{
 				LogLevel: "info",
 				LogType:  "console",
 				FilePath: "/path/to/log/file", // FilePath should not be used for console log type

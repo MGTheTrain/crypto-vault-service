@@ -1,9 +1,11 @@
+//go:build unit
+// +build unit
+
 package cryptography
 
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"log"
@@ -17,7 +19,7 @@ import (
 )
 
 type ECTests struct {
-	ec *cryptography.EC
+	ec *EC
 }
 
 // NewECTests is a constructor that creates a new instance of ECTests
@@ -33,7 +35,7 @@ func NewECTests(t *testing.T) *ECTests {
 		log.Fatalf("Error creating logger: %v", err)
 	}
 
-	ec, err := cryptography.NewEC(logger)
+	ec, err := NewEC(logger)
 	if err != nil {
 		t.Logf("%v\n", err)
 	}

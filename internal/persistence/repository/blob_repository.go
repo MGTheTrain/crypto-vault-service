@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"fmt"
@@ -24,20 +25,20 @@ func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*GormBlobReposito
 }
 
 // Create adds a new Blob to the database
-func (r *GormBlobRepository) Create(blob *blobs.BlobMeta) error {
+func (r *GormBlobRepository) Create(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before saving
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.db.Create(&blob).Error; err != nil {
+	if err := r.db.WithContext(ctx).Create(&blob).Error; err != nil {
 		return fmt.Errorf("failed to create blob: %w", err)
 	}
 	r.logger.Info(fmt.Sprintf("Created blob metadata with id %s", blob.ID))
 	return nil
 }
 
-func (r *GormBlobRepository) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
+func (r *GormBlobRepository) List(ctx context.Context, query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
 	// Validate the query parameters before using them
 	if err := query.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid query parameters: %w", err)
@@ -45,7 +46,7 @@ func (r *GormBlobRepository) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta
 
 	// Start building the query
 	var blobMetas []*blobs.BlobMeta
-	dbQuery := r.db.Model(&blobs.BlobMeta{})
+	dbQuery := r.db.WithContext(ctx).Model(&blobs.BlobMeta{})
 
 	// Apply filters based on the query
 	if query.Name != "" {
@@ -88,9 +89,9 @@ func (r *GormBlobRepository) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta
 }
 
 // GetById retrieves a Blob by its ID from the database
-func (r *GormBlobRepository) GetById(blobId string) (*blobs.BlobMeta, error) {
+func (r *GormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
 	var blob blobs.BlobMeta
-	if err := r.db.Where("id = ?", blobId).First(&blob).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", blobId).First(&blob).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, fmt.Errorf("blob with ID %s not found", blobId)
 		}
@@ -100,13 +101,13 @@ func (r *GormBlobRepository) GetById(blobId string) (*blobs.BlobMeta, error) {
 }
 
 // UpdateById updates an existing Blob in the database
-func (r *GormBlobRepository) UpdateById(blob *blobs.BlobMeta) error {
+func (r *GormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %v", err)
 	}
 
-	if err := r.db.Save(&blob).Error; err != nil {
+	if err := r.db.WithContext(ctx).Save(&blob).Error; err != nil {
 		return fmt.Errorf("failed to update blob: %w", err)
 	}
 	r.logger.Info(fmt.Sprintf("Updated blob metadata with id %s", blob.ID))
@@ -114,8 +115,8 @@ func (r *GormBlobRepository) UpdateById(blob *blobs.BlobMeta) error {
 }
 
 // DeleteById removes a Blob from the database by its ID
-func (r *GormBlobRepository) DeleteById(blobId string) error {
-	if err := r.db.Where("id = ?", blobId).Delete(&blobs.BlobMeta{}).Error; err != nil {
+func (r *GormBlobRepository) DeleteById(ctx context.Context, blobId string) error {
+	if err := r.db.WithContext(ctx).Where("id = ?", blobId).Delete(&blobs.BlobMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}
 	r.logger.Info(fmt.Sprintf("Deleted blob metadata with id %s", blobId))

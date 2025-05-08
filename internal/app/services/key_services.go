@@ -85,7 +85,7 @@ func (s *CryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPa
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := s.cryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+	if err := s.cryptoKeyRepo.Create(context.Background(), cryptoKeyMeta); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -130,7 +130,7 @@ func (s *CryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := s.cryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+	if err := s.cryptoKeyRepo.Create(context.Background(), cryptoKeyMeta); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -144,7 +144,7 @@ func (s *CryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := s.cryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+	if err := s.cryptoKeyRepo.Create(context.Background(), cryptoKeyMeta); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -174,7 +174,7 @@ func (s *CryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPa
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := s.cryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+	if err := s.cryptoKeyRepo.Create(context.Background(), cryptoKeyMeta); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -191,7 +191,7 @@ func (s *CryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPa
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	if err := s.cryptoKeyRepo.Create(cryptoKeyMeta); err != nil {
+	if err := s.cryptoKeyRepo.Create(context.Background(), cryptoKeyMeta); err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
@@ -217,7 +217,7 @@ func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, crypto
 
 // List retrieves all cryptographic key metadata based on a query.
 func (s *CryptoKeyMetadataService) List(query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
-	crypoKeyMetas, err := s.cryptoKeyRepo.List(query)
+	crypoKeyMetas, err := s.cryptoKeyRepo.List(context.Background(), query)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -227,7 +227,7 @@ func (s *CryptoKeyMetadataService) List(query *keys.CryptoKeyQuery) ([]*keys.Cry
 
 // GetByID retrieves the metadata of a cryptographic key by its ID.
 func (s *CryptoKeyMetadataService) GetByID(keyId string) (*keys.CryptoKeyMeta, error) {
-	keyMeta, err := s.cryptoKeyRepo.GetByID(keyId)
+	keyMeta, err := s.cryptoKeyRepo.GetByID(context.Background(), keyId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -247,7 +247,7 @@ func (s *CryptoKeyMetadataService) DeleteByID(ctx context.Context, keyId string)
 		return fmt.Errorf("failed to%w", err)
 	}
 
-	err = s.cryptoKeyRepo.DeleteByID(keyId)
+	err = s.cryptoKeyRepo.DeleteByID(context.Background(), keyId)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
@@ -272,7 +272,7 @@ func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, crypto
 
 // Download retrieves a cryptographic key by its ID.
 func (s *CryptoKeyDownloadService) Download(ctx context.Context, keyId string) ([]byte, error) {
-	keyMeta, err := s.cryptoKeyRepo.GetByID(keyId)
+	keyMeta, err := s.cryptoKeyRepo.GetByID(context.Background(), keyId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

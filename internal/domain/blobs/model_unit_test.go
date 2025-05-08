@@ -1,7 +1,9 @@
+//go:build unit
+// +build unit
+
 package blobs
 
 import (
-	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
 	"testing"
 	"time"
@@ -13,16 +15,16 @@ import (
 // BlobValidationTests struct encapsulates the test data and methods for blob validation
 type BlobValidationTests struct {
 	// TestData can be used for holding the Blob and CryptoKey data
-	validBlob    blobs.BlobMeta
-	invalidBlob  blobs.BlobMeta
-	invalidBlob2 blobs.BlobMeta
+	validBlob    BlobMeta
+	invalidBlob  BlobMeta
+	invalidBlob2 BlobMeta
 }
 
 // NewBlobValidationTests is a constructor to create a new instance of BlobValidationTests
 func NewBlobValidationTests() *BlobValidationTests {
 	keyId := uuid.New().String()
 	// Create valid and invalid test data
-	validBlob := blobs.BlobMeta{
+	validBlob := BlobMeta{
 		ID:              uuid.New().String(),
 		DateTimeCreated: time.Now(),
 		UserID:          uuid.New().String(),
@@ -35,7 +37,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		SignKeyID:       &keyId,
 	}
 
-	invalidBlob := blobs.BlobMeta{
+	invalidBlob := BlobMeta{
 		ID:              "", // Invalid empty ID
 		DateTimeCreated: time.Now(),
 		UserID:          "invalid-uuid", // Invalid UserID
@@ -48,7 +50,7 @@ func NewBlobValidationTests() *BlobValidationTests {
 		SignKeyID:       &keyId,
 	}
 
-	invalidBlob2 := blobs.BlobMeta{
+	invalidBlob2 := BlobMeta{
 		ID:              uuid.New().String(),
 		DateTimeCreated: time.Now(),
 		UserID:          uuid.New().String(),

@@ -1,9 +1,12 @@
+//go:build integration
+// +build integration
+
 package repository
 
 import (
+	"context"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
-	"crypto_vault_service/test/helpers"
 	"testing"
 	"time"
 
@@ -12,9 +15,9 @@ import (
 )
 
 func TestBlobPsqlRepository_Create(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "postgres"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -39,7 +42,7 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 		SignKeyID:       &cryptographicKey.ID,
 	}
 
-	err := ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	var createdBlob blobs.BlobMeta
@@ -50,9 +53,9 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_GetById(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "postgres"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -75,18 +78,18 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 		SignKey:         cryptographicKey,
 		SignKeyID:       &cryptographicKey.ID,
 	}
-	err := ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
-	fetchedBlob, err := ctx.BlobRepo.GetById(blob.ID)
+	fetchedBlob, err := ctx.BlobRepo.GetById(context.Background(), blob.ID)
 	assert.NoError(t, err, "GetById should not return an error")
 	assert.NotNil(t, fetchedBlob, "Fetched blob should not be nil")
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
 }
 
 func TestBlobPsqlRepository_List(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "postgres"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -125,22 +128,22 @@ func TestBlobPsqlRepository_List(t *testing.T) {
 	}
 
 	// Create blobs
-	err := ctx.BlobRepo.Create(blob1)
+	err := ctx.BlobRepo.Create(context.Background(), blob1)
 	assert.NoError(t, err, "Create should not return an error")
-	err = ctx.BlobRepo.Create(blob2)
+	err = ctx.BlobRepo.Create(context.Background(), blob2)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// List blobs
 	query := &blobs.BlobMetaQuery{}
-	blobsList, err := ctx.BlobRepo.List(query)
+	blobsList, err := ctx.BlobRepo.List(context.Background(), query)
 	assert.NoError(t, err, "List should not return an error")
 	assert.Len(t, blobsList, 2, "There should be two blobs in the list")
 }
 
 func TestBlobPsqlRepository_UpdateById(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "postgres"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -163,12 +166,12 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 		SignKey:         cryptographicKey,
 		SignKeyID:       &cryptographicKey.ID,
 	}
-	err := ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Update blob
 	blob.Name = "updated-blob"
-	err = ctx.BlobRepo.UpdateById(blob)
+	err = ctx.BlobRepo.UpdateById(context.Background(), blob)
 	assert.NoError(t, err, "UpdateById should not return an error")
 
 	// Fetch updated blob
@@ -179,9 +182,9 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_DeleteById(t *testing.T) {
-	ctx := helpers.SetupTestDB(t)
+	ctx := SetupTestDB(t)
 	dbType := "postgres"
-	defer helpers.TeardownTestDB(t, ctx, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
 		ID:              uuid.New().String(),
@@ -204,11 +207,11 @@ func TestBlobPsqlRepository_DeleteById(t *testing.T) {
 		SignKey:         cryptographicKey,
 		SignKeyID:       &cryptographicKey.ID,
 	}
-	err := ctx.BlobRepo.Create(blob)
+	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Delete blob
-	err = ctx.BlobRepo.DeleteById(blob.ID)
+	err = ctx.BlobRepo.DeleteById(context.Background(), blob.ID)
 	assert.NoError(t, err, "DeleteById should not return an error")
 
 	// Verify blob is deleted

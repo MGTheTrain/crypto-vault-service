@@ -1,10 +1,12 @@
+//go:build unit
+// +build unit
+
 package cryptography
 
 import (
 	"log"
 	"testing"
 
-	cryptography "crypto_vault_service/internal/infrastructure/cryptography"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 
@@ -13,7 +15,7 @@ import (
 
 // AES struct to encapsulate AES-related test cases
 type AESTests struct {
-	aes *cryptography.AES
+	aes *AES
 }
 
 // NewAESTests is a constructor that creates a new instance of AESTests
@@ -29,7 +31,7 @@ func NewAESTests(t *testing.T) *AESTests {
 		log.Fatalf("Error creating logger: %v", err)
 	}
 
-	aes, err := cryptography.NewAES(logger)
+	aes, err := NewAES(logger)
 	if err != nil {
 		t.Logf("%v\n", err)
 	}

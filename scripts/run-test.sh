@@ -36,12 +36,12 @@ echo "##########################################################################
 
 if [ "$RUN_UNIT_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running unit tests..."
-  go test ./test/unit/... -cover -coverpkg=./...
+  go test ./internal/... --tags=unit -cover
 fi
 
 if [ "$RUN_INTEGRATION_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running integration tests..."
-  go test ./test/integration/... -cover -coverpkg=./...
+  go test ./internal/... --tags=integration -cover
 fi
 
 cd $SCRIPT_DIR

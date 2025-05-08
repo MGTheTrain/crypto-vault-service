@@ -1,7 +1,9 @@
+//go:build unit
+// +build unit
+
 package keys
 
 import (
-	"crypto_vault_service/internal/domain/keys"
 	"testing"
 	"time"
 
@@ -12,7 +14,7 @@ import (
 // TestCryptoKeyValidation tests the Validator method for CryptoKey
 func TestCryptoKeyValidation(t *testing.T) {
 	// Valid CryptoKey
-	validKey := keys.CryptoKeyMeta{
+	validKey := CryptoKeyMeta{
 		ID:              uuid.New().String(),
 		KeyPairID:       uuid.New().String(),
 		Type:            "symmetric",
@@ -27,7 +29,7 @@ func TestCryptoKeyValidation(t *testing.T) {
 	assert.Nil(t, err, "Expected no validation errors for valid CryptoKey")
 
 	// Invalid CryptoKey (empty ID, invalid Type, expired)
-	invalidKey := keys.CryptoKeyMeta{
+	invalidKey := CryptoKeyMeta{
 		ID:              "",            // Invalid empty ID
 		Type:            "InvalidType", // Invalid Type
 		DateTimeCreated: time.Now(),
@@ -44,7 +46,7 @@ func TestCryptoKeyValidation(t *testing.T) {
 // TestCryptoKeyValidations tests the validation edge cases for CryptoKey
 func TestCryptoKeyValidations(t *testing.T) {
 	// Test missing UserID (should fail)
-	invalidKey := keys.CryptoKeyMeta{
+	invalidKey := CryptoKeyMeta{
 		ID:              uuid.New().String(),
 		KeyPairID:       uuid.New().String(), // Valid UUID
 		Type:            "symmetric",         // Valid Type

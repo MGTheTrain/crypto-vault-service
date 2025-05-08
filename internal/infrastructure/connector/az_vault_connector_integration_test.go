@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package connector
 
 import (
@@ -5,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 
@@ -16,7 +18,7 @@ import (
 
 // AzureVaultConnectorTest encapsulates common logic for tests
 type AzureVaultConnectorTest struct {
-	Connector *connector.AzureVaultConnector
+	Connector *AzureVaultConnector
 }
 
 // NewAzureVaultConnectorTest initializes and returns a new AzureVaultConnectorTest
@@ -38,7 +40,7 @@ func NewAzureVaultConnectorTest(t *testing.T, cloudProvider, connectionString, c
 
 	ctx := context.Background()
 
-	abc, err := connector.NewAzureVaultConnector(ctx, keyConnectorSettings, logger)
+	abc, err := NewAzureVaultConnector(ctx, keyConnectorSettings, logger)
 	require.NoError(t, err)
 
 	return &AzureVaultConnectorTest{
