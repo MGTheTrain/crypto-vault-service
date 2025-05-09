@@ -1,10 +1,5 @@
 SCRIPT_DIR = "scripts"
 
-.PHONY: format-and-lint run-unit-tests run-integration-tests \
-        spin-up-integration-test-docker-containers \
-        spin-up-docker-containers shut-down-docker-containers \
-		generate-swagger-docs help
-
 # Help target to list all available targets
 help:
 	@echo "Available Makefile targets:"
