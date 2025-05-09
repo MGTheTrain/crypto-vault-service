@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Updated
 
 - Followed Go idioms by relocating unit and integration tests alongside their corresponding implementations
-- Invoked `go fmt ./...` before `golangci-lint run` in [format-and-lint.sh script](./scripts/format-and-lint.sh)
+- Ran `go fmt ./...` prior to `golangci-lint run` in the [format-and-lint.sh script](./scripts/format-and-lint.sh), and incorporated `shfmt` for shell script formatting and `prettier` for markdown formatting
 - Renamed entrypoint files in cmd folder to `main.go`
 
 ### Fixed
