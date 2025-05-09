@@ -14,7 +14,7 @@ FROM alpine:latest
 WORKDIR /root/
 
 RUN apk update && apk add --no-cache libc6-compat
-COPY --from=build /app/main .
+COPY --from=build /app/crypto-vault-grpc-service .
 
 EXPOSE 8090
 EXPOSE 50051
