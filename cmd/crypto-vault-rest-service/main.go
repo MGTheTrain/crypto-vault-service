@@ -10,6 +10,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/persistence/repository"
+	"flag"
 	"fmt"
 	"log"
 
@@ -22,6 +23,17 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// parseArgs parses the --config flag and returns its value.
+func parseArgs() (string, error) {
+	configPath := flag.String("config", "../../configs/rest-app.yaml", "Path to the config YAML file")
+	flag.Parse()
+
+	if *configPath == "" {
+		return "", fmt.Errorf("missing required --config argument")
+	}
+	return *configPath, nil
+}
 
 // @title CryptoVault Service API
 // @version v1
@@ -57,17 +69,19 @@ import (
 func main() {
 	r := gin.Default()
 
-	path := "../../configs/rest-app.yaml"
+	path, err := parseArgs()
+	if err != nil {
+		fmt.Printf("Warning: Could not parse arguments: %v", err)
+	}
 
 	config, err := settings.InitializeRestConfig(path)
 	if err != nil {
-		fmt.Printf("failed to initialize config: %v", err)
+		log.Fatalf("failed to initialize config: %v", err)
 	}
 
 	logger, err := logger.GetLogger(&config.Logger)
 	if err != nil {
-		log.Fatalf("%v", err)
-		return
+		log.Fatalf("failed to initialize logger: %v", err)
 	}
 
 	var db *gorm.DB
@@ -187,7 +201,7 @@ func main() {
 	// r.Use(v1.AuthMiddleware())
 
 	docs.SwaggerInfo.Version = v1.Version
-	docs.SwaggerInfo.BasePath = v1.BasePath // lookup in version.go file
+	docs.SwaggerInfo.BasePath = v1.BasePath
 	swaggerRoute := fmt.Sprintf("/api/" + v1.Version + "/cvs/swagger/*any")
 	r.GET(swaggerRoute, ginSwagger.WrapHandler(swaggerFiles.Handler))
 
