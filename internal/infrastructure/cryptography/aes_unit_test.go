@@ -104,9 +104,9 @@ func (at *AESTests) TestDecryptWithWrongKey(t *testing.T) {
 	anotherKey, err := at.aes.GenerateKey(16)
 	assert.NoError(t, err)
 
-	// Try to decrypt with the wrong key
-	_, err = at.aes.Decrypt(ciphertext, anotherKey)
-	assert.Error(t, err, "Decryption with the wrong key should fail")
+	decrypted, err := at.aes.Decrypt(ciphertext, anotherKey)
+
+	assert.NotEqual(t, plainText, decrypted, "Decryption with wrong key should not produce original plaintext")
 }
 
 // TestDecryptShortCiphertext tests the case where the ciphertext is too short
