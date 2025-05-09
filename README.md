@@ -1,7 +1,5 @@
 # crypto-vault-service
 
-This project is currently on halt and won't be actively maintained for some time
-
 ## Summary
 
 Interfaces (CLIs, gRPC APIs, RESTful Web APIs) for managing cryptographic keys and securing data at rest
