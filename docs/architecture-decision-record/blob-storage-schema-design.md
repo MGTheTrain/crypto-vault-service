@@ -4,6 +4,7 @@
 
 1. **For general blobs:**  
    Blobs will be stored in Blob Storage using the schema `/ID/Name`, where:
+
    - **ID:** A unique identifier for the entity (e.g. user ID, product ID).
    - **Name:** The name of the specific file (e.g. profile_picture.png, invoice.pdf).
 

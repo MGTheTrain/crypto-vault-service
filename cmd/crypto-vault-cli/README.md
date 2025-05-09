@@ -1,15 +1,5 @@
 # crypto-vault-cli
 
-## Table of Contents
-
-- [Summary](#summary)
-- [Getting Started](#getting-started)
-  - [AES Example](#aes-example)
-  - [RSA Example](#rsa-example)
-  - [PKCS#11 Example](#pkcs11-example)
-- [Running the e2e-test](#running-the-e2e-test)
-
-
 ## Summary
 
 `crypto-vault-cli` is a command-line tool for file encryption and decryption using AES, RSA and EC algorithms. It provides an easy interface to securely encrypt and decrypt files using symmetric (AES) and asymmetric (RSA, EC) cryptography.
@@ -61,7 +51,7 @@ go run main.go generate-ecc-keys --key-size 256 --key-dir data/
 go run main.go sign-ecc --input-file data/input.txt  --output-file data/${uuid}-signature.bin --private-key <your generated private key>
 
 # Verify
-go run main.go verify-ecc --input-file data/input.txt --signature-file data/${uuid}-signature.bin --public-key <your generated public key> 
+go run main.go verify-ecc --input-file data/input.txt --signature-file data/${uuid}-signature.bin --public-key <your generated public key>
 ```
 
 ### PKCS#11 example

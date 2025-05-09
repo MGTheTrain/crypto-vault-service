@@ -1,17 +1,12 @@
 # crypto-vault-grpc-service
 
-## Table of Contents
-
-+ [Summary](#summary)
-+ [Getting started](#getting-started)
-
 ## Summary
 
 gRPC service capable of managing cryptographic keys and securing data at rest (metadata, BLOB)
 
 ## Getting Started
 
-Set up your IDE with the necessary Go tooling (such as the `delve` debugger or `grpcurl`) or use the provided [devcontainer.json file](../../.devcontainer/devcontainer.json). You can start the service by either running `go run main.go --config ../../configs/grpc-app.yaml` from this directory or by using the `spin-up-docker-containers Make target` from the [Makefile](../../Makefile). 
+Set up your IDE with the necessary Go tooling (such as the `delve` debugger or `grpcurl`) or use the provided [devcontainer.json file](../../.devcontainer/devcontainer.json). You can start the service by either running `go run main.go --config ../../configs/grpc-app.yaml` from this directory or by using the `spin-up-docker-containers Make target` from the [Makefile](../../Makefile).
 
 ### List available services
 
@@ -32,7 +27,7 @@ internal.CryptoKeyUpload
 
 ### Upload blob
 
-**NOTE:** Multipart file uploads are not supported with grpc-gateway and `curl`. For more details checkout: `https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/`. 
+**NOTE:** Multipart file uploads are not supported with grpc-gateway and `curl`. For more details checkout: `https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/binary_file_uploads/`.
 
 Run:
 
@@ -137,7 +132,7 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 
 ### Get key metadata
 
-Run: 
+Run:
 
 ```sh
 cd ../../ # Navigate to project root

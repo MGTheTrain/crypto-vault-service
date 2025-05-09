@@ -13,42 +13,52 @@ In cryptographic systems, **master keys** (also called **Key Encryption Keys (KE
 ## Step-by-Step Process
 
 ### 1. **Generate a Master Key**
+
 The **master key** is typically stored in a secure Key Management Service (KMS) like **AWS KMS**, **Azure Key Vault**, or **Google Cloud KMS**.
 
 - **Key Type**: The master key can be **symmetric** (e.g., AES-256) or **asymmetric** (e.g., RSA, ECC).
 
 ### 2. **Generate Data Encryption Keys (DEKs)**
+
 A **data encryption key** (DEK) is generated for each encryption operation. These DEKs are used to encrypt specific data, such as metadata or BLOBs.
 
 - **Key Type**: DEKs are usually **symmetric** keys, commonly **AES** keys (e.g., AES-256).
 
 ### 3. **Wrap (Encrypt) the DEK with the Master Key**
-The **master key** is used to **wrap** or **encrypt** the data encryption key (DEK). 
+
+The **master key** is used to **wrap** or **encrypt** the data encryption key (DEK).
 
 - **Symmetric Key Wrapping**: The DEK is encrypted using the master key (AES).
 - **Asymmetric Key Wrapping**: The DEK is encrypted using the master key's **private key** (RSA, ECC).
 
 ### 4. **Store the Encrypted Data and Wrapped DEK**
+
 - **Encrypted Data**: The data (e.g., BLOBs or metadata) is encrypted using the DEK.
 - **Wrapped DEK**: The DEK is stored in its encrypted (wrapped) form, never in plaintext, alongside or separately from the encrypted data.
 
 ### 5. **Decrypting the Data**
+
 When you need to access the encrypted data, follow these steps:
+
 1. **Retrieve the wrapped DEK** from storage.
 2. **Unwrap** the DEK using the **master key**.
 3. Use the DEK to decrypt the encrypted data (BLOBs or metadata).
 
 ### 6. **Key Rotation and Expiration**
+
 To ensure long-term security, periodically rotate both the master key and the data encryption keys:
+
 - **Master Key Rotation**: Replace the old master key with a new one. Rewrap the DEKs with the new master key.
 - **DEK Rotation**: Generate new DEKs, encrypt new data with them, and wrap them with the master key.
 
 ## Example Use Case
 
 ### Master Key and DEK Management
+
 1. **Master Key (KEK)**: AES-256 key stored in AWS KMS or Azure Key Vault.
 2. **Data Encryption Key (DEK)**: AES-256 key generated to encrypt a specific BLOB.
 3. **Process**:
+
    - **Wrap DEK**: Use the master key (AES-256) to encrypt the DEK.
    - **Encrypt Data**: Use the DEK to encrypt the data (BLOB or metadata).
    - **Store Data**: Store the encrypted data and the wrapped DEK in your storage system.
@@ -68,14 +78,17 @@ To ensure long-term security, periodically rotate both the master key and the da
 ## Cloud Provider Support for Key Wrapping
 
 ### AWS Key Management Service (KMS)
+
 - Supports **symmetric (AES)** and **asymmetric (RSA, ECC)** key wrapping.
 - The `Encrypt` and `Decrypt` API calls are used to wrap and unwrap DEKs.
 
 ### Azure Key Vault
+
 - Supports **symmetric (AES)** and **asymmetric (RSA, ECC)** key wrapping.
 - The `wrapKey` and `unwrapKey` API calls are used for key wrapping.
 
 ### Google Cloud Key Management Service (KMS)
+
 - Supports **symmetric (AES)** and **asymmetric (RSA)** key wrapping.
 - The `Encrypt` and `Decrypt` API calls are used for key wrapping and unwrapping.
 

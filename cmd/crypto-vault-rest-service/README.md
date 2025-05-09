@@ -1,10 +1,5 @@
 # crypto-vault-rest-service
 
-## Table of Contents
-
-+ [Summary](#summary)
-+ [Getting started](#getting-started)
-
 ## Summary
 
 REST service capable of managing cryptographic keys and securing data at rest (metadata, BLOB)
