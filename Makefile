@@ -7,6 +7,7 @@ help:
 	@echo "  run-unit-tests                      		- Run the unit tests"
 	@echo "  run-integration-tests               		- Run the integration tests"
 	@echo "  run-unit-and-integration-tests             - Run the unit and integration tests"
+	@echo "  run-api-tests             					- Run the api tests"
 	@echo "  spin-up-integration-test-docker-containers - Spin up Docker containers for integration tests (Postgres, Azure Blob Storage)"
 	@echo "  spin-up-docker-containers           		- Spin up Docker containers with internal containerized applications"
 	@echo "  shut-down-docker-containers         		- Shut down the application Docker containers"
@@ -23,6 +24,9 @@ run-integration-tests:
 
 run-unit-and-integration-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -a
+
+run-api-tests:
+	@cd $(SCRIPT_DIR) && echo "TODO(MGTheTrain): Invoke API tests"
 
 spin-up-integration-test-docker-containers:
 	docker compose up -d postgres azure-blob-storage
