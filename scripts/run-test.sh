@@ -13,6 +13,8 @@ NC='\033[0m'
 # Default flag values
 RUN_UNIT_TESTS=true
 RUN_INTEGRATION_TESTS=true
+COVERAGE_OUT_FILE=coverage.out
+COVERAGE_HTML_FILE=coverage.html
 
 # Parse arguments
 while getopts "uia" opt; do
@@ -40,7 +42,8 @@ echo "##########################################################################
 
 if [ "$RUN_UNIT_TESTS" = true ] && [ "$RUN_INTEGRATION_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running unit and integration tests..."
-  go test ./internal/... --tags="unit integration" -cover
+  go test ./internal/... --tags="unit integration" -cover -coverprofile="$COVERAGE_OUT_FILE"
+  go tool cover -html=coverage.out -o $COVERAGE_HTML_FILE
   exit $?
 fi
 
