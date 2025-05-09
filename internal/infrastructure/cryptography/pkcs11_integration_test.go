@@ -15,6 +15,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	SlotId     = "0x0"
+	ModulePath = "/usr/lib/softhsm/libsofthsm2.so"
+	Label      = "MyToken"
+	SOPin      = "123456"
+	UserPin    = "234567"
+)
+
 type PKCS11Test struct {
 	Label        string
 	ObjectLabel  string
@@ -85,22 +93,17 @@ func (p *PKCS11Test) DeleteKeyFromToken(t *testing.T) {
 
 // AddKeyToToken is a helper function to add a key to a token
 func (p *PKCS11Test) AddKeyToToken(t *testing.T, label, objectLabel, keyType string, keySize uint) {
-	err := p.TokenHandler.AddKey(label, objectLabel, keyType, keySize)
+	err := p.TokenHandler.AddKey(Label, objectLabel, keyType, keySize)
 	assert.NoError(t, err, "Failed to add key to the token")
 }
 
 // TestListTokens tests listing available tokens using PKCS#11
 func TestListTokens(t *testing.T) {
-	slotId := "0x0"
-	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
-	label := "MyToken"
-	soPin := "123456"
-	userPin := "234567"
 	objectLabel := "TestRSAKey"
 	keyType := "RSA"
 	keySize := 2048
 
-	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test := NewPKCS11Test(t, SlotId, ModulePath, Label, SOPin, UserPin, objectLabel, keyType, uint(keySize))
 	test.InitializeToken(t) // creates a token slot
 
 	tokens, err := test.TokenHandler.ListTokenSlots()
@@ -118,61 +121,46 @@ func TestListTokens(t *testing.T) {
 
 // TestAddRSAKey tests adding an RSA key to a PKCS#11 token
 func TestAddRSAKey(t *testing.T) {
-	slotId := "0x0"
-	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
-	label := "MyToken"
-	soPin := "123456"
-	userPin := "234567"
 	objectLabel := "TestRSAKey"
 	keyType := "RSA"
 	keySize := 2048
 
-	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test := NewPKCS11Test(t, SlotId, ModulePath, Label, SOPin, UserPin, objectLabel, keyType, uint(keySize))
 
 	test.InitializeToken(t)
 
-	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+	test.AddKeyToToken(t, Label, objectLabel, keyType, uint(keySize))
 
 	test.DeleteKeyFromToken(t)
 }
 
 // TestAddECDSAKey tests adding an ECDSA key to a PKCS#11 token
 func TestAddECDSAKey(t *testing.T) {
-	slotId := "0x0"
-	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
-	label := "MyToken"
-	soPin := "123456"
-	userPin := "234567"
 	objectLabel := "TestECDSAKey"
 	keyType := "ECDSA"
 	keySize := 256
 
-	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test := NewPKCS11Test(t, SlotId, ModulePath, Label, SOPin, UserPin, objectLabel, keyType, uint(keySize))
 
 	test.InitializeToken(t)
 
-	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+	test.AddKeyToToken(t, Label, objectLabel, keyType, uint(keySize))
 
 	test.DeleteKeyFromToken(t)
 }
 
 // TestListObjects tests listing available objects in a specific PKCS#11 token
 func TestListObjects(t *testing.T) {
-	slotId := "0x0"
-	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
-	label := "MyToken"
-	soPin := "123456"
-	userPin := "234567"
 	objectLabel := "TestRSAKey2"
 	keyType := "RSA"
 	keySize := 2048
 
-	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test := NewPKCS11Test(t, SlotId, ModulePath, Label, SOPin, UserPin, objectLabel, keyType, uint(keySize))
 	test.InitializeToken(t)
 
-	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+	test.AddKeyToToken(t, Label, objectLabel, keyType, uint(keySize))
 
-	objects, err := test.TokenHandler.ListObjects(label)
+	objects, err := test.TokenHandler.ListObjects(Label)
 	require.NoError(t, err, "Failed to list objects")
 
 	require.NotEmpty(t, objects, "Object list should not be empty")
@@ -187,19 +175,14 @@ func TestListObjects(t *testing.T) {
 
 // TestEncryptDecrypt tests the encryption ad decryption functionality of the PKCS#11 token
 func TestEncryptDecrypt(t *testing.T) {
-	slotId := "0x0"
-	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
-	label := "MyToken"
-	soPin := "123456"
-	userPin := "234567"
 	objectLabel := "TestRSAKey"
 	keyType := "RSA"
 	keySize := 2048
 
-	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test := NewPKCS11Test(t, SlotId, ModulePath, Label, SOPin, UserPin, objectLabel, keyType, uint(keySize))
 	test.InitializeToken(t)
 
-	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+	test.AddKeyToToken(t, Label, objectLabel, keyType, uint(keySize))
 
 	inputFilePath := "plain-text.txt"
 	err := os.WriteFile(inputFilePath, []byte("This is some data to encrypt."), 0644)
@@ -207,7 +190,7 @@ func TestEncryptDecrypt(t *testing.T) {
 
 	outputFilePath := "encrypted.bin"
 
-	err = test.TokenHandler.Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType)
+	err = test.TokenHandler.Encrypt(Label, objectLabel, inputFilePath, outputFilePath, keyType)
 	assert.NoError(t, err, "Failed to encrypt data using the PKCS#11 token")
 
 	encryptedData, err := os.ReadFile(outputFilePath)
@@ -218,7 +201,7 @@ func TestEncryptDecrypt(t *testing.T) {
 	assert.NotEmpty(t, encryptedData, "Encrypted data should not be empty")
 
 	decryptedFilePath := "decrypted.txt"
-	err = test.TokenHandler.Decrypt(label, objectLabel, outputFilePath, decryptedFilePath, keyType)
+	err = test.TokenHandler.Decrypt(Label, objectLabel, outputFilePath, decryptedFilePath, keyType)
 	assert.NoError(t, err, "Failed to decrypt data using the PKCS#11 token")
 
 	decryptedData, err := os.ReadFile(decryptedFilePath)
@@ -243,19 +226,14 @@ func TestEncryptDecrypt(t *testing.T) {
 
 // TestSignAndVerify tests the signing and verification functionality of the PKCS#11 token
 func TestSignAndVerify(t *testing.T) {
-	slotId := "0x0"
-	modulePath := "/usr/lib/softhsm/libsofthsm2.so"
-	label := "MyToken"
-	soPin := "123456"
-	userPin := "234567"
 	objectLabel := "TestRSAKey"
 	keyType := "RSA"
 	keySize := 2048
 
-	test := NewPKCS11Test(t, slotId, modulePath, label, soPin, userPin, objectLabel, keyType, uint(keySize))
+	test := NewPKCS11Test(t, SlotId, ModulePath, Label, SOPin, UserPin, objectLabel, keyType, uint(keySize))
 	test.InitializeToken(t)
 
-	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+	test.AddKeyToToken(t, Label, objectLabel, keyType, uint(keySize))
 
 	dataFilePath := "data-to-sign.txt"
 	err := os.WriteFile(dataFilePath, []byte("This is some data to sign."), 0644)
@@ -263,7 +241,7 @@ func TestSignAndVerify(t *testing.T) {
 
 	signatureFilePath := "data.sig"
 
-	err = test.TokenHandler.Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType)
+	err = test.TokenHandler.Sign(Label, objectLabel, dataFilePath, signatureFilePath, keyType)
 	assert.NoError(t, err, "Failed to sign data using the PKCS#11 token")
 
 	signatureData, err := os.ReadFile(signatureFilePath)
@@ -273,7 +251,7 @@ func TestSignAndVerify(t *testing.T) {
 
 	assert.NotEmpty(t, signatureData, "Signature data should not be empty")
 
-	valid, err := test.TokenHandler.Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType)
+	valid, err := test.TokenHandler.Verify(Label, objectLabel, dataFilePath, signatureFilePath, keyType)
 	assert.NoError(t, err, "Failed to verify the signature using the PKCS#11 token")
 
 	assert.True(t, valid, "The signature should be valid")
@@ -296,7 +274,7 @@ func TestSignAndVerify(t *testing.T) {
 // 	test.InitializeToken(t)
 
 // 	// Add an ECDSA key to the token
-// 	test.AddKeyToToken(t, label, objectLabel, keyType, uint(keySize))
+// 	test.AddKeyToToken(t, Label, objectLabel, keyType, uint(keySize))
 
 // 	// Sample input file with data to sign (for testing purposes)
 // 	inputFilePath := "data-to-sign.txt"
