@@ -25,13 +25,13 @@ run-unit-and-integration-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -a
 
 spin-up-integration-test-docker-containers:
-	docker-compose up -d postgres azure-blob-storage
+	docker compose up -d postgres azure-blob-storage
 
 spin-up-docker-containers:
-	docker-compose up -d --build
+	docker compose up -d --build
 
 shut-down-docker-containers:
-	docker-compose down -v
+	docker compose down -v
 
 generate-swagger-docs:
 	@cd $(SCRIPT_DIR) && ./generate-docs.sh
