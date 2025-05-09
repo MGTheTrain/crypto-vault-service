@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	commands "crypto_vault_service/cmd/crypto-vault-cli/internal/commands"
 
@@ -13,15 +12,17 @@ func main() {
 	var rootCmd = &cobra.Command{Use: "crypto-vault-cli"}
 
 	commands.InitAESCommands(rootCmd)
-
 	commands.InitRSACommands(rootCmd)
-
 	commands.InitECDSACommands(rootCmd)
 
-	commands.InitPKCS11Commands(rootCmd)
+	_, err := commands.ReadPkcs11SettingsFromEnv()
+	if err == nil {
+		commands.InitPKCS11Commands(rootCmd)
+	} else {
+		log.Println("Skipping PKCS#11 command registration: ", err.Error())
+	}
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatalf("Command execution failed: %v", err)
 	}
 }

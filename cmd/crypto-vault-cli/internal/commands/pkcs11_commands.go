@@ -31,7 +31,7 @@ func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
 		return nil
 	}
 
-	pkcs11Settings, err := readPkcs11ConfigFile()
+	pkcs11Settings, err := ReadPkcs11SettingsFromEnv()
 
 	if err != nil {
 		logger.Error(fmt.Sprintf("%v", err))
@@ -50,67 +50,36 @@ func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
 	}
 }
 
-// readPkcs11ConfigFile reads the pkcs11-settings.json file and create the settings object
-func readPkcs11ConfigFile() (*settings.PKCS11Settings, error) {
-	plainText, err := os.ReadFile("pkcs11-settings.json")
-	if err != nil {
-		return nil, fmt.Errorf("error reading JSON file: %w", err)
+func ReadPkcs11SettingsFromEnv() (*settings.PKCS11Settings, error) {
+	modulePath := os.Getenv("PKCS11_MODULE_PATH")
+	if modulePath == "" {
+		return nil, fmt.Errorf("environment variable PKCS11_MODULE_PATH is not set")
 	}
 
-	var settings settings.PKCS11Settings
-	err = json.Unmarshal(plainText, &settings)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON into struct: %w", err)
+	soPin := os.Getenv("PKCS11_SO_PIN")
+	if soPin == "" {
+		return nil, fmt.Errorf("environment variable PKCS11_SO_PIN is not set")
 	}
 
-	return &settings, nil
-}
-
-// writePkcs11ConfigFile writes the pkcs11-settings.json config file
-func writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
-	settings := map[string]string{
-		"modulePath": modulePath,
-		"soPin":      soPin,
-		"userPin":    userPin,
-		"slotId":     slotId,
+	userPin := os.Getenv("PKCS11_USER_PIN")
+	if userPin == "" {
+		return nil, fmt.Errorf("environment variable PKCS11_USER_PIN is not set")
 	}
 
-	settingsJSON, err := json.MarshalIndent(settings, "", "  ")
-	if err != nil {
-		return fmt.Errorf("error marshalling settings to JSON: %w", err)
+	slotId := os.Getenv("PKCS11_SLOT_ID")
+	if slotId == "" {
+		return nil, fmt.Errorf("environment variable PKCS11_SLOT_ID is not set")
 	}
 
-	file, err := os.Create("pkcs11-settings.json")
-	if err != nil {
-		return fmt.Errorf("error creating JSON file: %w", err)
-	}
-	defer func() {
-		if err := file.Close(); err != nil {
-			log.Printf("warning: failed to close file: %v\n", err)
-		}
-	}()
-
-	_, err = file.Write(settingsJSON)
-	if err != nil {
-		return fmt.Errorf("error writing to JSON file: %w", err)
-	}
-	return nil
-}
-
-// StorePKCS11SettingsCmd command saves the PKCS#11 settings to a JSON configuration file
-func (commandHandler *PKCS11CommandsHandler) StorePKCS11SettingsCmd(cmd *cobra.Command, args []string) {
-	modulePath, _ := cmd.Flags().GetString("module")
-	soPin, _ := cmd.Flags().GetString("so-pin")
-	userPin, _ := cmd.Flags().GetString("user-pin")
-	slotId, _ := cmd.Flags().GetString("slot-id")
-
-	err := writePkcs11ConfigFile(modulePath, soPin, userPin, slotId)
-	if err != nil {
-		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
-		return
+	// Construct and return the settings struct
+	settings := &settings.PKCS11Settings{
+		ModulePath: modulePath,
+		SOPin:      soPin,
+		UserPin:    userPin,
+		SlotId:     slotId,
 	}
 
-	commandHandler.Logger.Info("created pkcs11-settings.json")
+	return settings, nil
 }
 
 // ListTokenSlotsCmd lists PKCS#11 tokens
@@ -244,17 +213,6 @@ func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args 
 // InitPKCS11Commands initializes all the PKCS#11 commands
 func InitPKCS11Commands(rootCmd *cobra.Command) {
 	handler := NewPKCS11CommandsHandler()
-
-	var storePKCS11SettingsCmd = &cobra.Command{
-		Use:   "store-pkcs11-settings",
-		Short: "Stores PKCS#11 settings locally in the pkcs11-settings.json file",
-		Run:   handler.StorePKCS11SettingsCmd,
-	}
-	storePKCS11SettingsCmd.Flags().String("slot-id", "", "The token slot id")
-	storePKCS11SettingsCmd.Flags().String("module", "", "Path to the PKCS#11 module")
-	storePKCS11SettingsCmd.Flags().String("so-pin", "", "Security Officer PIN")
-	storePKCS11SettingsCmd.Flags().String("user-pin", "", "User PIN")
-	rootCmd.AddCommand(storePKCS11SettingsCmd)
 
 	var pkcs11InitializeTokenCmd = &cobra.Command{
 		Use:   "initialize-token",

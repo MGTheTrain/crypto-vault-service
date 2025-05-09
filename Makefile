@@ -28,6 +28,9 @@ run-unit-and-integration-tests:
 run-api-tests:
 	@cd $(SCRIPT_DIR) && echo "TODO(MGTheTrain): Invoke API tests"
 
+run-e2e-tests:
+	@cd $(SCRIPT_DIR) && ./run-e2e-test.sh
+
 spin-up-integration-test-docker-containers:
 	docker compose up -d postgres azure-blob-storage
 

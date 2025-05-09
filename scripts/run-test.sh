@@ -30,7 +30,7 @@ while getopts "uia" opt; do
       RUN_INTEGRATION_TESTS=true
       ;;
     *)
-      echo "Usage: $0 [-u] (for unit tests) [-i] (for integration tests) [-a] (running all tests)"
+      echo "Usage: $0 [-u] (for unit tests) [-i] (for integration tests) [-a] (running unit and integration tests)"
       exit 1
       ;;
   esac

@@ -56,16 +56,23 @@ go run main.go verify-ecc --input-file data/input.txt --signature-file data/${uu
 
 ### PKCS#11 example
 
-```sh
-# Configure settings
-go run main.go store-pkcs11-settings --module /usr/lib/softhsm/libsofthsm2.so --so-pin 1234 --user-pin 5678 --slot-id "0x0"
+Make sure the following environment variables are exported as a prerequisite:
 
+```sh
+export PKCS11_MODULE_PATH="/usr/lib/softhsm/libsofthsm2.so"
+export PKCS11_SO_PIN="1234"
+export PKCS11_USER_PIN="5678"
+export PKCS11_SLOT_ID="0x0"
+```
+
+Next, execute:
+
+```sh
 # List token slots
 go run main.go list-slots
 
 # Initialize a PKCS#11 token
 go run main.go initialize-token --token-label my-token
-
 
 # Adding keys to tokens
 # Add an RSA or EC key pair (consisting of private and public key) to a PKCS#11 token
@@ -102,6 +109,6 @@ go run main.go sign --token-label my-token --object-label my-ecdsa-key --key-typ
 go run main.go verify --token-label my-token --object-label my-ecdsa-key --key-type ECDSA --data-file data/input.txt --signature-file data/signature.sig
 ```
 
-## Running the e2e-test
+## e2e-test
 
-In order to e2e-test the entire flow from encryption to decryption, key management, signing, and verifying signatures as outlined in previous [Getting Started](#getting-started) sections run `go test ./main_test.go`.
+An [e2e testing](../../test/e2e/e2e_test.go) the entire flow from encryption to decryption, key management, signing and verifying signatures exists.
