@@ -1,0 +1,40 @@
+name: Test workflow
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Go 1.23.x 🐹
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.x'
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Grant execute permissions
+        run: chmod +x *
+        working-directory: ./scripts
+
+      - name: Spin up external storage services
+        run: |
+          docker compose up -d postgres azure-blob-storage
+
+      - name: Install apt dependencies for integration test
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
+
+      - name: Run Unit and Integration tests
+        run: sudo ./run-test.sh -a
+        working-directory: ./scripts
+
+      - name: Shut down external storage services
+        run: |
+          docker compose down -v

@@ -8,6 +8,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"path/filepath"
 	"time"
@@ -40,7 +41,7 @@ type AzureBlobConnector struct {
 // It returns the connector and any error encountered during the initialization.
 func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (*AzureBlobConnector, error) {
 	if err := settings.Validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
 
 	client, err := azblob.NewClientFromConnectionString(settings.ConnectionString, nil)
@@ -101,7 +102,11 @@ func (abc *AzureBlobConnector) Upload(ctx context.Context, form *multipart.Form,
 			abc.rollbackUploadedBlobs(ctx, blobMeta)
 			return nil, err
 		}
-		defer file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				log.Printf("warning: failed to close file: %v\n", err)
+			}
+		}()
 
 		buffer := bytes.NewBuffer(make([]byte, 0))
 		_, err = io.Copy(buffer, file)

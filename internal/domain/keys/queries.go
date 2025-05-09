@@ -1,6 +1,7 @@
 package keys
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -32,20 +33,19 @@ func NewCryptoKeyQuery() *CryptoKeyQuery {
 	}
 }
 
-// Validate for validating CryptoKeyQuery struct
 func (k *CryptoKeyQuery) Validate() error {
-	// Initialize the validator
 	validate := validator.New()
-
-	// Validate the struct
 	err := validate.Struct(k)
 	if err != nil {
-		// If validation fails, return a formatted error
-		var validationErrors []string
-		for _, err := range err.(validator.ValidationErrors) {
-			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			var messages []string
+			for _, fieldErr := range validationErrors {
+				messages = append(messages, fmt.Sprintf("Field: %s, Tag: %s", fieldErr.Field(), fieldErr.Tag()))
+			}
+			return fmt.Errorf("validation failed: %v", messages)
 		}
-		return fmt.Errorf("Validation failed: %v", validationErrors)
+		return fmt.Errorf("validation error: %w", err)
 	}
 	return nil
 }

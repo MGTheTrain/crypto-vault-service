@@ -52,18 +52,20 @@ func (commandHandler *ECCommandHandler) GenerateECKeysCmd(cmd *cobra.Command, ar
 	uniqueID := uuid.New()
 
 	var curve elliptic.Curve
-	if keySize == 224 {
+	switch keySize {
+	case 224:
 		curve = elliptic.P224()
-	} else if keySize == 256 {
+	case 256:
 		curve = elliptic.P256()
-	} else if keySize == 384 {
+	case 384:
 		curve = elliptic.P384()
-	} else if keySize == 521 {
+	case 521:
 		curve = elliptic.P521()
-	} else {
-		commandHandler.Logger.Error(fmt.Sprintf("key size %v not supported", keySize))
+	default:
+		commandHandler.Logger.Error("key size %v not supported", keySize)
 		return
 	}
+
 	privateKey, publicKey, err := commandHandler.ec.GenerateKeys(curve)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))

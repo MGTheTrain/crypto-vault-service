@@ -1,6 +1,7 @@
 package blobs
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -35,18 +36,19 @@ func NewBlobMetaQuery() *BlobMetaQuery {
 
 // Validate validates the BlobMetaQuery struct based on the defined rules.
 func (b *BlobMetaQuery) Validate() error {
-	// Initialize the validator
 	validate := validator.New()
 
-	// Validate the struct fields
 	err := validate.Struct(b)
 	if err != nil {
-		// Collect all validation errors
-		var validationErrors []string
-		for _, err := range err.(validator.ValidationErrors) {
-			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			var messages []string
+			for _, fieldErr := range validationErrors {
+				messages = append(messages, fmt.Sprintf("Field: %s, Tag: %s", fieldErr.Field(), fieldErr.Tag()))
+			}
+			return fmt.Errorf("validation failed: %v", messages)
 		}
-		return fmt.Errorf("Validation failed: %v", validationErrors)
+		return fmt.Errorf("validation error: %w", err)
 	}
 
 	return nil

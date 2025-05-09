@@ -18,8 +18,19 @@ jobs:
       with:
         go-version: '1.23.x'
 
-    - name: Install golangci-lint package 📦
-      run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    - name: Install packages for with tools for auto-formatting and linting  📦
+      run: |
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+        go install golang.org/x/tools/cmd/goimports@latest
+
+    - name: Install APT packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shfmt
+    
+    - name: Install Prettier globally
+      run: |
+        sudo npm install -g prettier
       
     - name: Grant execute permissions
       run: chmod +x *
@@ -28,10 +39,6 @@ jobs:
     - name: Auto-format and lint Go
       run: |
         ./format-and-lint.sh
-      working-directory: ./scripts
-
-    - name: Remove execute permissions
-      run: chmod -x *
       working-directory: ./scripts
 
     - name: Check diffs

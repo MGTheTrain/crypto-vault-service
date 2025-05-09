@@ -48,7 +48,7 @@ func (handler *BlobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
-	userId := uuid.New().String() // TBD: extract user id from JWT
+	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -255,7 +255,7 @@ func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
 	bytes, err := handler.blobDownloadService.Download(ctx, blobId, decryptionKeyId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err)
+		errorResponseDto.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
@@ -275,7 +275,7 @@ func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
 
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err)
+		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
@@ -351,7 +351,7 @@ func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
 		return
 	}
 
-	userId := uuid.New().String() // TBD: extract user id from JWT
+	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(ctx, userId, requestDto.Algorithm, requestDto.KeySize)
 	if err != nil {
@@ -523,7 +523,7 @@ func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
 
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err)
+		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}

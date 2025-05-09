@@ -18,48 +18,48 @@ type Logger interface {
 	Panic(args ...interface{})
 }
 
-// ConsoleLogger is an implementation of Logger that logs to the console.
-type ConsoleLogger struct {
+// consoleLogger is an implementation of Logger that logs to the console.
+type consoleLogger struct {
 	logger *logrus.Logger
 }
 
 // NewConsoleLogger creates a new console logger with the specified log level.
-func NewConsoleLogger(level logrus.Level) *ConsoleLogger {
+func NewConsoleLogger(level logrus.Level) *consoleLogger {
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
 	})
 	logger.SetLevel(level)
-	return &ConsoleLogger{logger: logger}
+	return &consoleLogger{logger: logger}
 }
 
-func (l *ConsoleLogger) Info(args ...interface{}) {
+func (l *consoleLogger) Info(args ...interface{}) {
 	l.logger.Info(args...)
 }
 
-func (l *ConsoleLogger) Warn(args ...interface{}) {
+func (l *consoleLogger) Warn(args ...interface{}) {
 	l.logger.Warn(args...)
 }
 
-func (l *ConsoleLogger) Error(args ...interface{}) {
+func (l *consoleLogger) Error(args ...interface{}) {
 	l.logger.Error(args...)
 }
 
-func (l *ConsoleLogger) Fatal(args ...interface{}) {
+func (l *consoleLogger) Fatal(args ...interface{}) {
 	l.logger.Fatal(args...)
 }
 
-func (l *ConsoleLogger) Panic(args ...interface{}) {
+func (l *consoleLogger) Panic(args ...interface{}) {
 	l.logger.Panic(args...)
 }
 
-// FileLogger is an implementation of Logger that logs to a file.
-type FileLogger struct {
+// fileLogger is an implementation of Logger that logs to a file.
+type fileLogger struct {
 	logger *logrus.Logger
 }
 
 // NewFileLogger creates a new file logger with the specified log level and file path.
-func NewFileLogger(level logrus.Level, filePath string) *FileLogger {
+func NewFileLogger(level logrus.Level, filePath string) *fileLogger {
 	logger := logrus.New()
 
 	logger.SetOutput(&lumberjack.Logger{
@@ -73,26 +73,26 @@ func NewFileLogger(level logrus.Level, filePath string) *FileLogger {
 		FullTimestamp: true,
 	})
 	logger.SetLevel(level)
-	return &FileLogger{logger: logger}
+	return &fileLogger{logger: logger}
 }
 
-func (l *FileLogger) Info(args ...interface{}) {
+func (l *fileLogger) Info(args ...interface{}) {
 	l.logger.Info(args...)
 }
 
-func (l *FileLogger) Warn(args ...interface{}) {
+func (l *fileLogger) Warn(args ...interface{}) {
 	l.logger.Warn(args...)
 }
 
-func (l *FileLogger) Error(args ...interface{}) {
+func (l *fileLogger) Error(args ...interface{}) {
 	l.logger.Error(args...)
 }
 
-func (l *FileLogger) Fatal(args ...interface{}) {
+func (l *fileLogger) Fatal(args ...interface{}) {
 	l.logger.Fatal(args...)
 }
 
-func (l *FileLogger) Panic(args ...interface{}) {
+func (l *fileLogger) Panic(args ...interface{}) {
 	l.logger.Panic(args...)
 }
 
@@ -129,19 +129,20 @@ func GetLogger(settings *settings.LoggerSettings) (Logger, error) {
 func newLogger(config *settings.LoggerSettings) (Logger, error) {
 	err := config.Validate()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to validate config: %w", err)
 	}
 
 	level, err := logrus.ParseLevel(config.LogLevel)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse log level '%s': %w", config.LogLevel, err)
 	}
 
-	if config.LogType == "console" {
+	switch config.LogType {
+	case "console":
 		return NewConsoleLogger(level), nil
-	} else if config.LogType == "file" {
+	case "file":
 		return NewFileLogger(level, config.FilePath), nil
+	default:
+		return nil, fmt.Errorf("unsupported log type: %s", config.LogType)
 	}
-
-	return nil, fmt.Errorf("unsupported log type: %s", config.LogType)
 }

@@ -30,16 +30,14 @@ type IBlobMetadataService interface {
 // IBlobDownloadService defines methods for downloading blobs.
 type IBlobDownloadService interface {
 	// The download function retrieves a blob's content using its ID and also enables data decryption.
-	// NOTE: Signing should be performed locally by first downloading the associated key, followed by verification.
-	// Optionally, a verify endpoint will be available soon for optional use.
 	Download(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error)
 }
 
 // BlobRepository defines the interface for Blob-related operations
 type BlobRepository interface {
-	Create(blob *BlobMeta) error
-	List(query *BlobMetaQuery) ([]*BlobMeta, error)
-	GetById(blobId string) (*BlobMeta, error)
-	UpdateById(blob *BlobMeta) error
-	DeleteById(blobId string) error
+	Create(ctx context.Context, blob *BlobMeta) error
+	List(ctx context.Context, query *BlobMetaQuery) ([]*BlobMeta, error)
+	GetById(ctx context.Context, blobId string) (*BlobMeta, error)
+	UpdateById(ctx context.Context, blob *BlobMeta) error
+	DeleteById(ctx context.Context, blobId string) error
 }

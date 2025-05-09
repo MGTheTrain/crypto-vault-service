@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -42,7 +43,7 @@ func NewRSA(logger logger.Logger) (*RSA, error) {
 func (r *RSA) GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, keySize)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to generate RSA keys: %v", err)
+		return nil, nil, fmt.Errorf("failed to generate RSA keys: %w", err)
 	}
 	publicKey := &privateKey.PublicKey
 	r.logger.Info("Generated RSA key pairs")
@@ -73,7 +74,7 @@ func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error
 		// Encrypt the current chunk
 		encryptedChunk, err := rsa.EncryptPKCS1v15(rand.Reader, publicKey, plainText[:chunkSize])
 		if err != nil {
-			return nil, fmt.Errorf("failed to encrypt data: %v", err)
+			return nil, fmt.Errorf("failed to encrypt data: %w", err)
 		}
 
 		// Append the encrypted chunk to the result
@@ -107,7 +108,7 @@ func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, er
 		// Decrypt the current chunk
 		decryptedChunk, err := rsa.DecryptPKCS1v15(rand.Reader, privateKey, ciphertext[:chunkSize])
 		if err != nil {
-			return nil, fmt.Errorf("failed to decrypt data: %v", err)
+			return nil, fmt.Errorf("failed to decrypt data: %w", err)
 		}
 
 		// Append the decrypted chunk to the result
@@ -133,7 +134,7 @@ func (r *RSA) Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 	// Sign the hashed data with the private key
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign data: %v", err)
+		return nil, fmt.Errorf("failed to sign data: %w", err)
 	}
 
 	r.logger.Info("RSA signing succeeded")
@@ -152,7 +153,7 @@ func (r *RSA) Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (b
 	// Verify the signature using the public key
 	err := rsa.VerifyPKCS1v15(publicKey, crypto.SHA256, hashed[:], signature)
 	if err != nil {
-		return false, fmt.Errorf("failed to verify signature: %v", err)
+		return false, fmt.Errorf("failed to verify signature: %w", err)
 	}
 
 	r.logger.Info("RSA signature verified successfully")
@@ -169,13 +170,17 @@ func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) 
 
 	file, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("failed to create private key file: %v", err)
+		return fmt.Errorf("failed to create private key file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	err = pem.Encode(file, privKeyPem)
 	if err != nil {
-		return fmt.Errorf("failed to encode private key: %v", err)
+		return fmt.Errorf("failed to encode private key: %w", err)
 	}
 
 	r.logger.Info(fmt.Sprintf("Saved RSA private key %s", filename))
@@ -186,7 +191,7 @@ func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) 
 func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
 	pubKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
-		return fmt.Errorf("failed to marshal public key: %v", err)
+		return fmt.Errorf("failed to marshal public key: %w", err)
 	}
 
 	pubKeyPem := &pem.Block{
@@ -196,13 +201,17 @@ func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) err
 
 	file, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("failed to create public key file: %v", err)
+		return fmt.Errorf("failed to create public key file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	err = pem.Encode(file, pubKeyPem)
 	if err != nil {
-		return fmt.Errorf("failed to encode public key: %v", err)
+		return fmt.Errorf("failed to encode public key: %w", err)
 	}
 
 	r.logger.Info(fmt.Sprintf("Saved RSA public key %s", filename))
@@ -214,7 +223,7 @@ func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) err
 func (r *RSA) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read private key file: %v", err)
+		return nil, fmt.Errorf("unable to read private key file: %w", err)
 	}
 
 	block, _ := pem.Decode(privKeyPEM)
@@ -231,7 +240,7 @@ func (r *RSA) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 	// If PKCS#1 parsing fails, try parsing as PKCS#8 format
 	privateKeyInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse private key in either PKCS#1 or PKCS#8 format: %v", err)
+		return nil, fmt.Errorf("unable to parse private key in either PKCS#1 or PKCS#8 format: %w", err)
 	}
 
 	// Type assertion to *rsa.PrivateKey if it is indeed an RSA key
@@ -247,7 +256,7 @@ func (r *RSA) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 func (r *RSA) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
 	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read public key file: %v", err)
+		return nil, fmt.Errorf("unable to read public key file: %w", err)
 	}
 
 	block, _ := pem.Decode(pubKeyPEM)
@@ -264,7 +273,7 @@ func (r *RSA) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
 	// If PKCS#1 parsing fails, try parsing as PKCS#8 format
 	pubKeyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse public key in either PKCS#1 or PKCS#8 format: %v", err)
+		return nil, fmt.Errorf("unable to parse public key in either PKCS#1 or PKCS#8 format: %w", err)
 	}
 
 	// Type assertion to *rsa.PublicKey if it is indeed an RSA key

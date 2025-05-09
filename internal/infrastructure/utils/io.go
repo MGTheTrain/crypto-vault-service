@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"mime/multipart"
 )
 
@@ -13,20 +14,23 @@ func CreateForm(content []byte, fileName string) (*multipart.Form, error) {
 
 	fileWriter, err := writer.CreateFormFile("files", fileName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create form file for '%s': %w", fileName, err)
 	}
 
 	_, err = fileWriter.Write(content)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to write content to form file '%s': %w", fileName, err)
 	}
 
-	writer.Close()
+	err = writer.Close()
+	if err != nil {
+		log.Printf("Error closing writer: %v", err)
+	}
 
 	mr := multipart.NewReader(&buf, writer.Boundary())
 	form, err := mr.ReadForm(10 << 20)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read form with max size %d: %w", 10<<20, err)
 	}
 
 	return form, nil
@@ -46,23 +50,25 @@ func CreateMultipleFilesForm(contents [][]byte, fileNames []string) (*multipart.
 	for i, content := range contents {
 		fileWriter, err := writer.CreateFormFile("files", fileNames[i])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to create form file for '%s': %w", fileNames[i], err)
 		}
 
 		_, err = fileWriter.Write(content)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to write content to file: %w", err)
 		}
 	}
 
-	// Close the writer
-	writer.Close()
+	err := writer.Close()
+	if err != nil {
+		log.Printf("Error closing writer: %v", err)
+	}
 
 	// Read the form from the buffer
 	mr := multipart.NewReader(&buf, writer.Boundary())
 	form, err := mr.ReadForm(10 << 20)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read form data: %w", err)
 	}
 
 	return form, nil

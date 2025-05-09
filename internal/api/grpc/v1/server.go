@@ -7,7 +7,6 @@ import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
-	"log"
 
 	pb "proto"
 
@@ -71,15 +70,15 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 		signKeyId = &req.SignKeyId
 	}
 
-	userId := uuid.New().String() // TBD: extract user id from JWT
+	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 	form, err := utils.CreateMultipleFilesForm(fileContent, fileNames)
 	if err != nil {
-		return fmt.Errorf("%v", err)
+		return fmt.Errorf("failed to create multiple files form for files %v: %w", fileNames, err)
 	}
 
 	blobMetas, err := s.blobUploadService.Upload(stream.Context(), form, userId, encryptionKeyId, signKeyId)
 	if err != nil {
-		return fmt.Errorf("failed to upload blob: %v", err)
+		return fmt.Errorf("failed to upload blob: %w", err)
 	}
 
 	for _, blobMeta := range blobMetas {
@@ -103,7 +102,7 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 
 		// Send the metadata response to the client
 		if err := stream.Send(blobMetaResponse); err != nil {
-			return fmt.Errorf("failed to send metadata response: %v", err)
+			return fmt.Errorf("failed to send metadata response: %w", err)
 		}
 	}
 
@@ -127,7 +126,7 @@ func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb
 
 	bytes, err := s.blobDownloadService.Download(stream.Context(), id, decryptionKeyId)
 	if err != nil {
-		return fmt.Errorf("could not download blob with id %s: %v", id, err)
+		return fmt.Errorf("could not download blob with id %s: %w", id, err)
 	}
 
 	// If no error, stream the blob content back in chunks
@@ -145,7 +144,7 @@ func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb
 
 		// Send the chunk
 		if err := stream.Send(chunk); err != nil {
-			return fmt.Errorf("failed to send chunk: %v", err)
+			return fmt.Errorf("failed to send chunk: %w", err)
 		}
 	}
 	return nil
@@ -182,7 +181,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 
 	blobMetas, err := s.blobMetadataService.List(query)
 	if err != nil {
-		return fmt.Errorf("failed to list metadata: %v", err)
+		return fmt.Errorf("failed to list metadata: %w", err)
 	}
 
 	for _, blobMeta := range blobMetas {
@@ -206,7 +205,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 
 		// Send the metadata response to the client
 		if err := stream.Send(blobMetaResponse); err != nil {
-			return fmt.Errorf("failed to send metadata response: %v", err)
+			return fmt.Errorf("failed to send metadata response: %w", err)
 		}
 	}
 
@@ -217,7 +216,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
 	blobMeta, err := s.blobMetadataService.GetByID(req.Id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get metadata by ID: %v", err)
+		return nil, fmt.Errorf("failed to get metadata by ID: %w", err)
 	}
 
 	blobMetaResponse := &pb.BlobMetaResponse{
@@ -244,7 +243,7 @@ func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequ
 func (s *BlobMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.blobMetadataService.DeleteByID(ctx, req.Id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete blob: %v", err)
+		return nil, fmt.Errorf("failed to delete blob: %w", err)
 	}
 
 	return &pb.InfoResponse{
@@ -261,11 +260,11 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadSe
 
 // UploadKeys generates and uploads cryptographic keys
 func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
-	userId := uuid.New().String() // TBD: extract user id from JWT
+	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(stream.Context(), userId, req.Algorithm, uint(req.KeySize))
 	if err != nil {
-		return fmt.Errorf("failed to generate and upload crypto keys: %v", err)
+		return fmt.Errorf("failed to generate and upload crypto keys: %w", err)
 	}
 
 	for _, cryptoKeyMeta := range cryptoKeyMetas {
@@ -280,7 +279,7 @@ func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.Crypt
 
 		// Send the metadata response to the client
 		if err := stream.Send(cryptoKeyMetaResponse); err != nil {
-			return fmt.Errorf("failed to send metadata response: %v", err)
+			return fmt.Errorf("failed to send metadata response: %w", err)
 		}
 	}
 
@@ -298,7 +297,7 @@ func NewCryptoKeyDownloadServer(cryptoKeyDownloadService *services.CryptoKeyDown
 func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIdServer) error {
 	bytes, err := s.cryptoKeyDownloadService.Download(stream.Context(), req.Id)
 	if err != nil {
-		return fmt.Errorf("failed to download crypto key: %v", err)
+		return fmt.Errorf("failed to download crypto key: %w", err)
 	}
 
 	// If no error, stream the blob content back in chunks
@@ -316,7 +315,7 @@ func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, strea
 
 		// Send the chunk
 		if err := stream.Send(chunk); err != nil {
-			return fmt.Errorf("failed to send chunk: %v", err)
+			return fmt.Errorf("failed to send chunk: %w", err)
 		}
 	}
 
@@ -351,7 +350,7 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 
 	cryptoKeyMetas, err := s.cryptoKeyMetadataService.List(query)
 	if err != nil {
-		return fmt.Errorf("failed to list crypto key metadata: %v", err)
+		return fmt.Errorf("failed to list crypto key metadata: %w", err)
 	}
 
 	for _, cryptoKeyMeta := range cryptoKeyMetas {
@@ -367,7 +366,7 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 
 		// Send the metadata response to the client
 		if err := stream.Send(cryptoKeyMetaResponse); err != nil {
-			return fmt.Errorf("failed to send metadata response: %v", err)
+			return fmt.Errorf("failed to send metadata response: %w", err)
 		}
 	}
 
@@ -378,7 +377,7 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.CryptoKeyMetaResponse, error) {
 	cryptoKeyMeta, err := s.cryptoKeyMetadataService.GetByID(req.Id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get crypto key metadata by ID: %v", err)
+		return nil, fmt.Errorf("failed to get crypto key metadata by ID: %w", err)
 	}
 
 	return &pb.CryptoKeyMetaResponse{
@@ -396,7 +395,7 @@ func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.I
 func (s *CryptoKeyMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.cryptoKeyMetadataService.DeleteByID(ctx, req.Id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete crypto key: %v", err)
+		return nil, fmt.Errorf("failed to delete crypto key: %w", err)
 	}
 
 	return &pb.InfoResponse{
@@ -438,17 +437,14 @@ func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServe
 // 	// Register the handler from the endpoint (this works with gRPC-Gateway)
 // 	err := pb.RegisterBlobUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 // 	if err != nil {
-// 		log.Fatalf("Failed to register blob upload gateway: %v", err)
-// 		return err
-// 	}
+// 		return fmt.Errorf("failed to register blob upload gateway: %w", err)// 	}
 // 	return nil
 // }
 
 func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterBlobDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
-		log.Fatalf("Failed to register blob download gateway: %v", err)
-		return err
+		return fmt.Errorf("failed to register blob download gateway: %w", err)
 	}
 	return nil
 }
@@ -456,8 +452,7 @@ func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmu
 func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterBlobMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
-		log.Fatalf("Failed to register blob metadata gateway: %v", err)
-		return err
+		return fmt.Errorf("failed to register blob metadata gateway: %w", err)
 	}
 	return nil
 }
@@ -465,8 +460,7 @@ func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmu
 func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterCryptoKeyUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
-		log.Fatalf("Failed to register crypto key upload gateway: %v", err)
-		return err
+		return fmt.Errorf("failed to register crypto key upload gateway: %w", err)
 	}
 	return nil
 }
@@ -474,8 +468,7 @@ func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, g
 func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterCryptoKeyDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
-		log.Fatalf("Failed to register crypto key download gateway: %v", err)
-		return err
+		return fmt.Errorf("failed to register crypto key download gateway: %w", err)
 	}
 	return nil
 }
@@ -483,8 +476,7 @@ func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string,
 func RegisterCryptoKeyMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, conn *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterCryptoKeyMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
-		log.Fatalf("Failed to register crypto key metadata gateway: %v", err)
-		return err
+		return fmt.Errorf("failed to register crypto key metadata gateway: %w", err)
 	}
 	return nil
 }

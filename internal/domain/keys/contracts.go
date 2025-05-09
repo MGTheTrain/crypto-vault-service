@@ -33,9 +33,9 @@ type ICryptoKeyDownloadService interface {
 
 // CryptoKeyRepository defines the interface for CryptoKey-related operations
 type CryptoKeyRepository interface {
-	Create(key *CryptoKeyMeta) error
-	List(query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
-	GetByID(keyId string) (*CryptoKeyMeta, error)
-	UpdateByID(key *CryptoKeyMeta) error
-	DeleteByID(keyId string) error
+	Create(ctx context.Context, key *CryptoKeyMeta) error
+	List(ctx context.Context, query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
+	GetByID(ctx context.Context, keyId string) (*CryptoKeyMeta, error)
+	UpdateByID(ctx context.Context, key *CryptoKeyMeta) error
+	DeleteByID(ctx context.Context, keyId string) error
 }

@@ -51,7 +51,7 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 	key := make([]byte, keySize)
 	_, err := rand.Read(key)
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate AES key: %v", err)
+		return nil, fmt.Errorf("failed to generate AES key: %w", err)
 	}
 
 	a.logger.Info("Generated AES key")
@@ -66,7 +66,7 @@ func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create new AES cipher with the provided key of length %d: %w", len(key), err)
 	}
 
 	data = pkcs7Pad(data, aes.BlockSize)
@@ -74,7 +74,7 @@ func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 	ciphertext := make([]byte, aes.BlockSize+len(data))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := rand.Read(iv); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read random bytes for IV: %w", err)
 	}
 
 	mode := cipher.NewCBCEncrypter(block, iv)
@@ -92,7 +92,7 @@ func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create new AES cipher with the provided key: %w", err)
 	}
 
 	if len(ciphertext) < aes.BlockSize {
