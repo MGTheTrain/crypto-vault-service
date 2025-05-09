@@ -90,7 +90,7 @@ func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 		}
 
 		for _, blobMeta := range blobMetas {
-			err := s.blobRepository.Create(context.Background(), blobMeta)
+			err := s.blobRepository.Create(ctx, blobMeta)
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
@@ -104,7 +104,7 @@ func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 	}
 
 	for _, blobMeta := range blobMetas {
-		err := s.blobRepository.Create(context.Background(), blobMeta)
+		err := s.blobRepository.Create(ctx, blobMeta)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -117,7 +117,7 @@ func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 // It downloads the key from the vault and returns the key bytes and associated metadata.
 func (s *BlobUploadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
 	// Get meta info
-	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(context.Background(), cryptoKeyId)
+	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(ctx, cryptoKeyId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%w", err)
 	}
@@ -272,8 +272,8 @@ func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector c
 }
 
 // List retrieves all blobs' metadata considering a query filter
-func (s *BlobMetadataService) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
-	blobMetas, err := s.blobRepository.List(context.Background(), query)
+func (s *BlobMetadataService) List(ctx context.Context, query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
+	blobMetas, err := s.blobRepository.List(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -282,8 +282,8 @@ func (s *BlobMetadataService) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMet
 }
 
 // GetByID retrieves a blob's metadata by its unique ID
-func (s *BlobMetadataService) GetByID(blobId string) (*blobs.BlobMeta, error) {
-	blobMeta, err := s.blobRepository.GetById(context.Background(), blobId)
+func (s *BlobMetadataService) GetByID(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
+	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -293,12 +293,12 @@ func (s *BlobMetadataService) GetByID(blobId string) (*blobs.BlobMeta, error) {
 // DeleteByID deletes a blob and its associated metadata by ID
 func (s *BlobMetadataService) DeleteByID(ctx context.Context, blobId string) error {
 
-	blobMeta, err := s.blobRepository.GetById(context.Background(), blobId)
+	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	err = s.blobRepository.DeleteById(context.Background(), blobId)
+	err = s.blobRepository.DeleteById(ctx, blobId)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -336,7 +336,7 @@ func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepositor
 // Optionally, a verify endpoint will be available soon for optional use.
 func (s *BlobDownloadService) Download(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
 
-	blobMeta, err := s.blobRepository.GetById(context.Background(), blobId)
+	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -388,7 +388,7 @@ func (s *BlobDownloadService) Download(ctx context.Context, blobId string, decry
 // It downloads the key from the vault and returns the key bytes and associated metadata.
 func (s *BlobDownloadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
 	// Get meta info
-	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(context.Background(), cryptoKeyId)
+	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(ctx, cryptoKeyId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%w", err)
 	}

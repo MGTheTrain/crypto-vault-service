@@ -159,7 +159,7 @@ func (handler *BlobHandler) ListMetadata(ctx *gin.Context) {
 		return
 	}
 
-	blobMetas, err := handler.blobMetadataService.List(query)
+	blobMetas, err := handler.blobMetadataService.List(ctx, query)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
 		errorResponseDto.Message = fmt.Sprintf("list query failed: %v", err.Error())
@@ -204,7 +204,7 @@ func (handler *BlobHandler) ListMetadata(ctx *gin.Context) {
 func (handler *BlobHandler) GetMetadataById(ctx *gin.Context) {
 	blobId := ctx.Param("id")
 
-	blobMeta, err := handler.blobMetadataService.GetByID(blobId)
+	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
 		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
@@ -260,7 +260,7 @@ func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
 		return
 	}
 
-	blobMeta, err := handler.blobMetadataService.GetByID(blobId)
+	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
 		errorResponseDto.Message = fmt.Sprintf("blob with id %s not found", blobId)
@@ -436,7 +436,7 @@ func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
 		return
 	}
 
-	cryptoKeyMetas, err := handler.cryptoKeyMetadataService.List(query)
+	cryptoKeyMetas, err := handler.cryptoKeyMetadataService.List(ctx, query)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
 		errorResponseDto.Message = fmt.Sprintf("list query failed: %v", err.Error())
@@ -474,7 +474,7 @@ func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
 func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
 	keyId := ctx.Param("id")
 
-	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(keyId)
+	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(ctx, keyId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
 		errorResponseDto.Message = fmt.Sprintf("key with id %s not found", keyId)

@@ -261,7 +261,7 @@ func TestBlobMetadataService_List_Success(t *testing.T) {
 	require.NotNil(t, blobMetas)
 
 	query := &blobs.BlobMetaQuery{}
-	blobMetas, err = blobServices.BlobMetadataService.List(query)
+	blobMetas, err = blobServices.BlobMetadataService.List(ctx, query)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 	require.Greater(t, len(blobMetas), 0)
@@ -287,7 +287,7 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
-	blobMeta, err := blobServices.BlobMetadataService.GetByID(blobMetas[0].ID)
+	blobMeta, err := blobServices.BlobMetadataService.GetByID(ctx, blobMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, blobMeta)
 	require.Equal(t, blobMetas[0].ID, blobMeta.ID)

@@ -179,7 +179,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 		query.Offset = int(req.Offset)
 	}
 
-	blobMetas, err := s.blobMetadataService.List(query)
+	blobMetas, err := s.blobMetadataService.List(stream.Context(), query)
 	if err != nil {
 		return fmt.Errorf("failed to list metadata: %w", err)
 	}
@@ -214,7 +214,7 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 
 // GetMetadataById handles the GET request to fetch metadata of a blob by its ID
 func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
-	blobMeta, err := s.blobMetadataService.GetByID(req.Id)
+	blobMeta, err := s.blobMetadataService.GetByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get metadata by ID: %w", err)
 	}
@@ -348,7 +348,7 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 		query.Offset = int(req.Offset)
 	}
 
-	cryptoKeyMetas, err := s.cryptoKeyMetadataService.List(query)
+	cryptoKeyMetas, err := s.cryptoKeyMetadataService.List(stream.Context(), query)
 	if err != nil {
 		return fmt.Errorf("failed to list crypto key metadata: %w", err)
 	}
@@ -375,7 +375,7 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 
 // GetMetadataById handles the GET request to retrieve metadata of a key by its ID
 func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.CryptoKeyMetaResponse, error) {
-	cryptoKeyMeta, err := s.cryptoKeyMetadataService.GetByID(req.Id)
+	cryptoKeyMeta, err := s.cryptoKeyMetadataService.GetByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get crypto key metadata by ID: %w", err)
 	}

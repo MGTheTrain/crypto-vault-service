@@ -13,11 +13,11 @@ type ICryptoKeyUploadService interface {
 type ICryptoKeyMetadataService interface {
 	// List retrieves all cryptographic keys metadata considering a query filter when set.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the retrieval process.
-	List(query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
+	List(ctx context.Context, query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
 
 	// GetByID retrieves the metadata of a cryptographic key by its unique ID.
 	// It returns the CryptoKeyMeta and any error encountered during the retrieval process.
-	GetByID(keyID string) (*CryptoKeyMeta, error)
+	GetByID(ctx context.Context, keyID string) (*CryptoKeyMeta, error)
 
 	// DeleteByID deletes a cryptographic key and its associated metadata by ID.
 	// It returns any error encountered during the deletion process.

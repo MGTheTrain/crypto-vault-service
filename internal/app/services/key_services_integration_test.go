@@ -104,7 +104,7 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	fetchedCryptoKeyMeta, err := keyServices.CryptoKeyMetadataService.GetByID(cryptoKeyMetas[0].ID)
+	fetchedCryptoKeyMeta, err := keyServices.CryptoKeyMetadataService.GetByID(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedCryptoKeyMeta)
 	require.Equal(t, cryptoKeyMetas[0].ID, fetchedCryptoKeyMeta.ID)

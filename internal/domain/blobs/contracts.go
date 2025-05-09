@@ -16,11 +16,11 @@ type IBlobUploadService interface {
 type IBlobMetadataService interface {
 	// List retrieves all blobs' metadata considering a query filter when set.
 	// It returns a slice of Blob and any error encountered during the retrieval.
-	List(query *BlobMetaQuery) ([]*BlobMeta, error)
+	List(ctx context.Context, query *BlobMetaQuery) ([]*BlobMeta, error)
 
 	// GetByID retrieves the metadata of a blob by its unique ID.
 	// It returns the Blob and any error encountered during the retrieval process.
-	GetByID(blobId string) (*BlobMeta, error)
+	GetByID(ctx context.Context, blobId string) (*BlobMeta, error)
 
 	// DeleteByID deletes a blob and its associated metadata by ID.
 	// It returns any error encountered during the deletion process.
