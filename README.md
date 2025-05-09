@@ -72,16 +72,20 @@ apt-get update
 apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
 ```
 
-### Formatting and linting
-
-For formatting and linting run either on Unix systems
+### Make targets
 
 ```sh
-cd scripts
-./format-and-lint.sh
+Available Makefile targets:
+  format-and-lint                               - Run the format and linting script
+  run-unit-tests                                - Run the unit tests
+  run-integration-tests                         - Run the integration tests
+  spin-up-integration-test-docker-containers    - Spin up Docker containers for integration tests (Postgres, Azure Blob Storage)
+  spin-up-docker-containers                     - Spin up Docker containers with internal containerized applications
+  shut-down-docker-containers                   - Shut down the application Docker containers
+  generate-swagger-docs                         - Convert Go annotations to Swagger Documentation 2.0
 ```
 
-or
+### Formatting and linting
 
 ```sh
 make format-and-lint
