@@ -7,7 +7,7 @@ services:
     env_file:
       - ./crypto-vault-rest-service.env
     ports:
-      - "5000:8080/tcp"
+      - "8080:8080/tcp"
     depends_on:
       - postgres
       - azure-blob-storage
