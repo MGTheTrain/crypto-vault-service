@@ -75,6 +75,7 @@ Available Makefile targets:
   spin-up-docker-containers                     - Spin up Docker containers with internal containerized applications
   shut-down-docker-containers                   - Shut down the application Docker containers
   generate-swagger-docs                         - Convert Go annotations to Swagger Documentation 2.0
+  remove-artifacts                              - Remove artifacts
 ```
 
 ### Formatting and linting
@@ -96,6 +97,14 @@ To run `integration tests` on Unix systems execute
 ```sh
 make spin-up-integration-test-docker-containers
 make run-integration-tests
+make shut-down-docker-containers
+```
+
+To run both `unit and integration tests` including a `coverage report in HTML format` on Unix systems execute
+
+```sh
+make spin-up-integration-test-docker-containers
+make run-unit-and-integration-tests
 make shut-down-docker-containers
 ```
 

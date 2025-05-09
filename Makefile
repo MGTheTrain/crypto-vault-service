@@ -12,6 +12,7 @@ help:
 	@echo "  spin-up-docker-containers           		- Spin up Docker containers with internal containerized applications"
 	@echo "  shut-down-docker-containers         		- Shut down the application Docker containers"
 	@echo "  generate-swagger-docs         				- Convert Go annotations to Swagger Documentation 2.0"
+	@echo "  remove-artifacts         			 	    - Remove artifacts"
 
 format-and-lint:
 	@cd $(SCRIPT_DIR) && ./format-and-lint.sh
@@ -45,3 +46,6 @@ generate-swagger-docs:
 
 generate-grpc-files:
 	@cd $(SCRIPT_DIR) && ./generate-grpc-files.sh
+
+remove-artifacts:
+	rm coverage.*
