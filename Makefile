@@ -25,6 +25,9 @@ run-unit-tests:
 run-integration-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -i
 
+run-unit-and-integration-tests:
+	@cd $(SCRIPT_DIR) && ./run-test.sh -a
+
 spin-up-integration-test-docker-containers:
 	docker-compose up -d postgres azure-blob-storage
 

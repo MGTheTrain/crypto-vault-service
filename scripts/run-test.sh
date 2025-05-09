@@ -15,7 +15,7 @@ RUN_UNIT_TESTS=true
 RUN_INTEGRATION_TESTS=true
 
 # Parse arguments
-while getopts "ui" opt; do
+while getopts "uia" opt; do
   case ${opt} in
     u)
       RUN_UNIT_TESTS=true
@@ -25,8 +25,12 @@ while getopts "ui" opt; do
       RUN_UNIT_TESTS=false
       RUN_INTEGRATION_TESTS=true
       ;;
+    a)
+      RUN_UNIT_TESTS=true
+      RUN_INTEGRATION_TESTS=true
+      ;;
     *)
-      echo "Usage: $0 [-u] (for unit tests) [-i] (for integration tests)"
+      echo "Usage: $0 [-u] (for unit tests) [-i] (for integration tests) [-a] (running all tests)"
       exit 1
       ;;
   esac
@@ -34,14 +38,22 @@ done
 
 echo "#####################################################################################################"
 
+if [ "$RUN_UNIT_TESTS" = true ] && [ "$RUN_INTEGRATION_TESTS" = true ]; then
+  echo -e "$BLUE INFO: $NC Running unit and integration tests..."
+  go test ./internal/... --tags="unit integration" -cover
+  exit $?
+fi
+
 if [ "$RUN_UNIT_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running unit tests..."
   go test ./internal/... --tags=unit -cover
+  exit $?
 fi
 
 if [ "$RUN_INTEGRATION_TESTS" = true ]; then
   echo -e "$BLUE INFO: $NC Running integration tests..."
   go test ./internal/... --tags=integration -cover
+  exit $?
 fi
 
 cd $SCRIPT_DIR
