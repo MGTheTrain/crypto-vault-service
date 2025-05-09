@@ -11,7 +11,7 @@ gRPC service capable of managing cryptographic keys and securing data at rest (m
 
 ## Getting Started
 
-Set up your IDE with the necessary Go tooling (such as the `delve` debugger or `grpcurl`) or use the provided [devcontainer.json file](../../.devcontainer/devcontainer.json). You can start the service by either running `go run main.go` from this directory or by using the `spin-up-docker-containers Make target` from the [Makefile](../../Makefile). 
+Set up your IDE with the necessary Go tooling (such as the `delve` debugger or `grpcurl`) or use the provided [devcontainer.json file](../../.devcontainer/devcontainer.json). You can start the service by either running `go run main.go --config ../../configs/grpc-app.yaml` from this directory or by using the `spin-up-docker-containers Make target` from the [Makefile](../../Makefile). 
 
 ### List available services
 
@@ -37,10 +37,13 @@ internal.CryptoKeyUpload
 Run:
 
 ```sh
+cd ../../ # Navigate to project root
+echo "This is some test content" > task.tmp
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
   "file_name": "task.tmp",
   "file_content": "'$(base64 -w 0 task.tmp)'"
 }' -plaintext localhost:50051 internal.BlobUpload/Upload
+rm task.tmp
 ```
 
 ### List blob metadata
@@ -50,6 +53,7 @@ Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs' -H 'accept: applicat
 Optionally:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
      "name": null,
      "size": null,
@@ -69,6 +73,7 @@ Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs/<blob_id>' -H 'accept
 Optionally:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<blob_id>"
 }' -plaintext localhost:50051 internal.BlobMetadata/GetMetadataById
@@ -81,6 +86,7 @@ Run `curl -X 'GET' 'http://localhost:8090/api/v1/cvs/blobs/<blob_id>/file' -H 'a
 Optionally:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<blob_id>",
     "decryption_key_id": ""
@@ -94,6 +100,7 @@ Run `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/blobs/<blob_id>' -H 'acc
 Optionally:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<blob_id>"
 }' -plaintext localhost:50051 internal.BlobMetadata/DeleteById
@@ -104,6 +111,7 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 Run:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
   "algorithm": "RSA",
   "key_size": "2048"
@@ -115,6 +123,7 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 Run:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "algorithm": null,
     "type": null,
@@ -131,6 +140,7 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 Run: 
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<key_id>"
 }' -plaintext localhost:50051 internal.CryptoKeyMetadata/GetMetadataById
@@ -141,6 +151,7 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 Run:
 
 ```sh
+cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<key_id>"
 }' -plaintext localhost:50051 internal.CryptoKeyDownload/DownloadById
@@ -148,4 +159,9 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 
 ### Delete key
 
-Run `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/keys/<key_id>' -H 'accept: application/json'`
+Run:
+
+```sh
+cd ../../ # Navigate to project root
+curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/keys/<key_id>' -H 'accept: application/json'
+```

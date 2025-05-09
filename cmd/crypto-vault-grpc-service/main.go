@@ -18,6 +18,8 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
+	"flag"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -25,19 +27,31 @@ import (
 	"gorm.io/gorm"
 )
 
-func main() {
+// parseArgs parses the --config flag and returns its value.
+func parseArgs() (string, error) {
+	configPath := flag.String("config", "../../configs/grpc-app.yaml", "Path to the config YAML file")
+	flag.Parse()
 
-	path := "../../configs/grpc-app.yaml"
+	if *configPath == "" {
+		return "", fmt.Errorf("missing required --config argument")
+	}
+	return *configPath, nil
+}
+
+func main() {
+	path, err := parseArgs()
+	if err != nil {
+		fmt.Printf("Warning: Could not parse arguments: %v", err)
+	}
 
 	config, err := settings.InitializeGrpcConfig(path)
 	if err != nil {
-		fmt.Printf("failed to initialize config: %v", err)
+		log.Fatalf("failed to initialize config: %v", err)
 	}
 
 	logger, err := logger.GetLogger(&config.Logger)
 	if err != nil {
-		log.Fatalf("%v", err)
-		return
+		log.Fatalf("failed to initialize logger: %v", err)
 	}
 
 	// Database connection and migrations
