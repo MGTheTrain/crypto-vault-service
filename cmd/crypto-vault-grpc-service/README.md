@@ -159,9 +159,4 @@ grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/pr
 
 ### Delete key
 
-Run:
-
-```sh
-cd ../../ # Navigate to project root
-curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/keys/<key_id>' -H 'accept: application/json'
-```
+Run: `curl -X 'DELETE' 'http://localhost:8090/api/v1/cvs/keys/<key_id>' -H 'accept: application/json'`
