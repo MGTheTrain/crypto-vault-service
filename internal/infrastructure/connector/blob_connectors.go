@@ -40,7 +40,7 @@ type AzureBlobConnector struct {
 // It returns the connector and any error encountered during the initialization.
 func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (*AzureBlobConnector, error) {
 	if err := settings.Validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
 
 	client, err := azblob.NewClientFromConnectionString(settings.ConnectionString, nil)

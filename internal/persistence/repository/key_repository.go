@@ -28,7 +28,7 @@ func NewGormCryptoKeyRepository(db *gorm.DB, logger logger.Logger) (*GormCryptoK
 func (r *GormCryptoKeyRepository) Create(ctx context.Context, key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before saving
 	if err := key.Validate(); err != nil {
-		return fmt.Errorf("validation error: %v", err)
+		return fmt.Errorf("validation error: %w", err)
 	}
 
 	if err := r.db.WithContext(ctx).Create(&key).Error; err != nil {
@@ -102,7 +102,7 @@ func (r *GormCryptoKeyRepository) GetByID(ctx context.Context, keyId string) (*k
 func (r *GormCryptoKeyRepository) UpdateByID(ctx context.Context, key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before updating
 	if err := key.Validate(); err != nil {
-		return fmt.Errorf("validation error: %v", err)
+		return fmt.Errorf("validation error: %w", err)
 	}
 
 	if err := r.db.WithContext(ctx).Save(&key).Error; err != nil {

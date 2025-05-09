@@ -28,7 +28,7 @@ func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*GormBlobReposito
 func (r *GormBlobRepository) Create(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before saving
 	if err := blob.Validate(); err != nil {
-		return fmt.Errorf("validation error: %v", err)
+		return fmt.Errorf("validation error: %w", err)
 	}
 
 	if err := r.db.WithContext(ctx).Create(&blob).Error; err != nil {
@@ -104,7 +104,7 @@ func (r *GormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs
 func (r *GormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
-		return fmt.Errorf("validation error: %v", err)
+		return fmt.Errorf("validation error: %w", err)
 	}
 
 	if err := r.db.WithContext(ctx).Save(&blob).Error; err != nil {

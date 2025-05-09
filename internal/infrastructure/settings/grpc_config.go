@@ -88,12 +88,12 @@ func InitializeGrpcConfig(path string) (*GrpcConfig, error) {
 		}
 	} else {
 		if err := viper.ReadInConfig(); err != nil {
-			return nil, fmt.Errorf("unable to read config file, %v", err)
+			return nil, fmt.Errorf("unable to read config file, %w", err)
 		}
 
 		err := viper.Unmarshal(&config)
 		if err != nil {
-			return nil, fmt.Errorf("unable to decode config into struct, %v", err)
+			return nil, fmt.Errorf("unable to decode config into struct, %w", err)
 		}
 	}
 

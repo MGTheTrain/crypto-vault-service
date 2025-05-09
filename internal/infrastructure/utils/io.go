@@ -13,12 +13,12 @@ func CreateForm(content []byte, fileName string) (*multipart.Form, error) {
 
 	fileWriter, err := writer.CreateFormFile("files", fileName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create form file for '%s': %w", fileName, err)
 	}
 
 	_, err = fileWriter.Write(content)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to write content to form file '%s': %w", fileName, err)
 	}
 
 	writer.Close()
@@ -26,7 +26,7 @@ func CreateForm(content []byte, fileName string) (*multipart.Form, error) {
 	mr := multipart.NewReader(&buf, writer.Boundary())
 	form, err := mr.ReadForm(10 << 20)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read form with max size %d: %w", 10<<20, err)
 	}
 
 	return form, nil
@@ -46,12 +46,12 @@ func CreateMultipleFilesForm(contents [][]byte, fileNames []string) (*multipart.
 	for i, content := range contents {
 		fileWriter, err := writer.CreateFormFile("files", fileNames[i])
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to create form file for '%s': %w", fileNames[i], err)
 		}
 
 		_, err = fileWriter.Write(content)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to write content to file: %w", err)
 		}
 	}
 
@@ -62,7 +62,7 @@ func CreateMultipleFilesForm(contents [][]byte, fileNames []string) (*multipart.
 	mr := multipart.NewReader(&buf, writer.Boundary())
 	form, err := mr.ReadForm(10 << 20)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read form data: %w", err)
 	}
 
 	return form, nil

@@ -48,7 +48,7 @@ func (handler *BlobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
-	userId := uuid.New().String() // TBD: extract user id from JWT
+	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -351,7 +351,7 @@ func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
 		return
 	}
 
-	userId := uuid.New().String() // TBD: extract user id from JWT
+	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(ctx, userId, requestDto.Algorithm, requestDto.KeySize)
 	if err != nil {

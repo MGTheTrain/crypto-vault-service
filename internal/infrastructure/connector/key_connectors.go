@@ -40,7 +40,7 @@ type AzureVaultConnector struct {
 // This method can be updated in the future to support a more sophisticated key management system like Azure Key Vault.
 func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnectorSettings, logger logger.Logger) (*AzureVaultConnector, error) {
 	if err := settings.Validate(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
 
 	client, err := azblob.NewClientFromConnectionString(settings.ConnectionString, nil)

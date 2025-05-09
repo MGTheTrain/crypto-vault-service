@@ -183,7 +183,7 @@ func (s *CryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPa
 	// Upload Public Key
 	publicKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal public key: %v", err)
+		return nil, fmt.Errorf("failed to marshal public key: %w", err)
 	}
 	keyType = "public"
 	cryptoKeyMeta, err = s.vaultConnector.Upload(ctx, publicKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)

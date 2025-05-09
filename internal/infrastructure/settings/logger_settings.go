@@ -18,7 +18,7 @@ func (settings *LoggerSettings) Validate() error {
 
 	err := validate.Struct(settings)
 	if err != nil {
-		return fmt.Errorf("validation failed: %v", err)
+		return fmt.Errorf("validation failed: %w", err)
 	}
 	return nil
 }

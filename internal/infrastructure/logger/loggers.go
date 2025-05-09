@@ -129,12 +129,12 @@ func GetLogger(settings *settings.LoggerSettings) (Logger, error) {
 func newLogger(config *settings.LoggerSettings) (Logger, error) {
 	err := config.Validate()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to validate config: %w", err)
 	}
 
 	level, err := logrus.ParseLevel(config.LogLevel)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse log level '%s': %w", config.LogLevel, err)
 	}
 
 	if config.LogType == "console" {

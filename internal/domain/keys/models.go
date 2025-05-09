@@ -25,7 +25,7 @@ func (k *CryptoKeyMeta) Validate() error {
 
 	err := validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation)
 	if err != nil {
-		return fmt.Errorf("failed to register custom validator: %v", err)
+		return fmt.Errorf("failed to register custom validator: %w", err)
 	}
 	err = validate.Struct(k)
 	if err != nil {

@@ -41,7 +41,7 @@ func NewEC(logger logger.Logger) (*EC, error) {
 func (e *EC) GenerateKeys(curve elliptic.Curve) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	privateKey, err := ecdsa.GenerateKey(curve, rand.Reader)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to generate elliptic curve keys: %v", err)
+		return nil, nil, fmt.Errorf("failed to generate elliptic curve keys: %w", err)
 	}
 
 	publicKey := &privateKey.PublicKey
@@ -64,7 +64,7 @@ func (e *EC) Sign(message []byte, privateKey *ecdsa.PrivateKey) ([]byte, error) 
 	hash := sha256.Sum256(message)
 	r, s, err := ecdsa.Sign(rand.Reader, privateKey, hash[:])
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign message: %v", err)
+		return nil, fmt.Errorf("failed to sign message: %w", err)
 	}
 
 	// Encode the signature as r and s
@@ -110,14 +110,14 @@ func (e *EC) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename string)
 	// Write the PEM block to a file
 	file, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("failed to create private key file: %v", err)
+		return fmt.Errorf("failed to create private key file: %w", err)
 	}
 	defer file.Close()
 
 	// Encode and write the private key in PEM format
 	err = pem.Encode(file, privKeyPem)
 	if err != nil {
-		return fmt.Errorf("failed to encode private key: %v", err)
+		return fmt.Errorf("failed to encode private key: %w", err)
 	}
 
 	e.logger.Info(fmt.Sprintf("Saved EC private key %s", filename))
@@ -137,14 +137,14 @@ func (e *EC) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename string) er
 	// Write the PEM block to a file
 	file, err := os.Create(filename)
 	if err != nil {
-		return fmt.Errorf("failed to create public key file: %v", err)
+		return fmt.Errorf("failed to create public key file: %w", err)
 	}
 	defer file.Close()
 
 	// Encode and write the public key in PEM format
 	err = pem.Encode(file, pubKeyPem)
 	if err != nil {
-		return fmt.Errorf("failed to encode public key: %v", err)
+		return fmt.Errorf("failed to encode public key: %w", err)
 	}
 	e.logger.Info(fmt.Sprintf("Saved EC public key %s", filename))
 
@@ -166,7 +166,7 @@ func (e *EC) SaveSignatureToFile(filename string, data []byte) error {
 func (e *EC) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
 	privKeyPEM, err := os.ReadFile(privateKeyPath)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read private key file: %v", err)
+		return nil, fmt.Errorf("unable to read private key file: %w", err)
 	}
 
 	// Decode the PEM block
@@ -199,7 +199,7 @@ func (e *EC) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) (*ecdsa
 func (e *EC) ReadPublicKey(publicKeyPath string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
 	pubKeyPEM, err := os.ReadFile(publicKeyPath)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read public key file: %v", err)
+		return nil, fmt.Errorf("unable to read public key file: %w", err)
 	}
 
 	// Decode the PEM block
