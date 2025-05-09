@@ -18,6 +18,7 @@ linters:
     - importas  
     - unused  
     - ineffassign  
+    - errorlint  
 
 issues:
   exclude-use-default: false
