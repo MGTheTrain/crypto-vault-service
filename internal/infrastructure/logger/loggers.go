@@ -137,11 +137,12 @@ func newLogger(config *settings.LoggerSettings) (Logger, error) {
 		return nil, fmt.Errorf("failed to parse log level '%s': %w", config.LogLevel, err)
 	}
 
-	if config.LogType == "console" {
+	switch config.LogType {
+	case "console":
 		return NewConsoleLogger(level), nil
-	} else if config.LogType == "file" {
+	case "file":
 		return NewFileLogger(level, config.FilePath), nil
+	default:
+		return nil, fmt.Errorf("unsupported log type: %s", config.LogType)
 	}
-
-	return nil, fmt.Errorf("unsupported log type: %s", config.LogType)
 }

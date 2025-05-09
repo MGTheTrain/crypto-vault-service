@@ -126,7 +126,7 @@ func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb
 
 	bytes, err := s.blobDownloadService.Download(stream.Context(), id, decryptionKeyId)
 	if err != nil {
-		return fmt.Errorf("could not download blob with id %s: %v", id, err)
+		return fmt.Errorf("could not download blob with id %s: %w", id, err)
 	}
 
 	// If no error, stream the blob content back in chunks

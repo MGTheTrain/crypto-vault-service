@@ -3,6 +3,7 @@ package blobs
 import (
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/domain/validators"
+	"errors"
 	"fmt"
 	"time"
 
@@ -25,21 +26,24 @@ type BlobMeta struct {
 
 // Validate for validating BlobMeta struct
 func (b *BlobMeta) Validate() error {
-
 	validate := validator.New()
 
-	err := validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation)
-	if err != nil {
+	if err := validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation); err != nil {
 		return fmt.Errorf("failed to register custom validator: %w", err)
 	}
-	err = validate.Struct(b)
-	if err != nil {
 
-		var validationErrors []string
-		for _, err := range err.(validator.ValidationErrors) {
-			validationErrors = append(validationErrors, fmt.Sprintf("Field: %s, Tag: %s", err.Field(), err.Tag()))
+	err := validate.Struct(b)
+	if err != nil {
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			var messages []string
+			for _, fieldErr := range validationErrors {
+				messages = append(messages, fmt.Sprintf("Field: %s, Tag: %s", fieldErr.Field(), fieldErr.Tag()))
+			}
+			return fmt.Errorf("validation failed: %v", messages)
 		}
-		return fmt.Errorf("validation failed: %v", validationErrors)
+		return fmt.Errorf("validation error: %w", err)
 	}
+
 	return nil
 }

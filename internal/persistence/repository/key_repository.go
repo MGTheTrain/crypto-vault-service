@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
-	"crypto_vault_service/internal/domain/keys"
-	"crypto_vault_service/internal/infrastructure/logger"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
+
+	"crypto_vault_service/internal/domain/keys"
+	"crypto_vault_service/internal/infrastructure/logger"
 )
 
 // GormCryptoKeyRepository is the implementation of the CryptoKeyRepository interface
@@ -90,9 +92,10 @@ func (r *GormCryptoKeyRepository) List(ctx context.Context, query *keys.CryptoKe
 func (r *GormCryptoKeyRepository) GetByID(ctx context.Context, keyId string) (*keys.CryptoKeyMeta, error) {
 	var key keys.CryptoKeyMeta
 	if err := r.db.WithContext(ctx).Where("id = ?", keyId).First(&key).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("cryptographic key with ID %s not found", keyId)
 		}
+
 		return nil, fmt.Errorf("failed to fetch cryptographic key: %w", err)
 	}
 	return &key, nil

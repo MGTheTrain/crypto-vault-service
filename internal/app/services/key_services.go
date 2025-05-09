@@ -122,8 +122,8 @@ func (s *CryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 	}
 
 	// Upload Private Key
-	privateKeyBytes := append(privateKey.D.Bytes(), privateKey.PublicKey.X.Bytes()...)
-	privateKeyBytes = append(privateKeyBytes, privateKey.PublicKey.Y.Bytes()...)
+	privateKeyBytes := append(privateKey.D.Bytes(), privateKey.X.Bytes()...)
+	privateKeyBytes = append(privateKeyBytes, privateKey.Y.Bytes()...)
 	keyType := "private"
 	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, privateKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
 	if err != nil {

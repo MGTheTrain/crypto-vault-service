@@ -24,7 +24,9 @@ func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		os.Remove(fileName)
+		if err := os.Remove(fileName); err != nil {
+			t.Logf("failed to remove temporary file %s: %v", fileName, err)
+		}
 	})
 
 	form, err := CreateForm(fileContent, fileName)

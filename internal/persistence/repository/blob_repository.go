@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/infrastructure/logger"
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -92,9 +93,10 @@ func (r *GormBlobRepository) List(ctx context.Context, query *blobs.BlobMetaQuer
 func (r *GormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
 	var blob blobs.BlobMeta
 	if err := r.db.WithContext(ctx).Where("id = ?", blobId).First(&blob).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("blob with ID %s not found", blobId)
 		}
+
 		return nil, fmt.Errorf("failed to fetch blob: %w", err)
 	}
 	return &blob, nil

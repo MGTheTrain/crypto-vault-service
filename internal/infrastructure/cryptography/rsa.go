@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -171,7 +172,11 @@ func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) 
 	if err != nil {
 		return fmt.Errorf("failed to create private key file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	err = pem.Encode(file, privKeyPem)
 	if err != nil {
@@ -198,7 +203,11 @@ func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) err
 	if err != nil {
 		return fmt.Errorf("failed to create public key file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	err = pem.Encode(file, pubKeyPem)
 	if err != nil {

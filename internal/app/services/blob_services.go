@@ -15,6 +15,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"io"
+	"log"
 	"math/big"
 	"mime/multipart"
 )
@@ -142,7 +143,11 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 		if err != nil {
 			return nil, nil, fmt.Errorf("%w", err)
 		}
-		defer file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				log.Printf("warning: failed to close file: %v\n", err)
+			}
+		}()
 
 		buffer := bytes.NewBuffer(make([]byte, 0))
 		_, err = io.Copy(buffer, file)
@@ -170,7 +175,9 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 			if err != nil {
 				return nil, nil, fmt.Errorf("%w", err)
 			}
-			if operation == "encryption" {
+
+			switch operation {
+			case "encryption":
 				publicKeyInterface, err := x509.ParsePKIXPublicKey(keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing public key: %w", err)
@@ -181,17 +188,21 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				}
 				processedBytes, err = rsa.Encrypt(data, publicKey)
 				if err != nil {
-					return nil, nil, fmt.Errorf("%w", err)
+					return nil, nil, fmt.Errorf("encryption error: %w", err)
 				}
-			} else if operation == "signing" {
+
+			case "signing":
 				privateKey, err := x509.ParsePKCS1PrivateKey(keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing private key: %w", err)
 				}
 				processedBytes, err = rsa.Sign(data, privateKey)
 				if err != nil {
-					return nil, nil, fmt.Errorf("%w", err)
+					return nil, nil, fmt.Errorf("signing error: %w", err)
 				}
+
+			default:
+				return nil, nil, fmt.Errorf("unsupported operation: %s", operation)
 			}
 		case "EC":
 			if operation == "signing" {

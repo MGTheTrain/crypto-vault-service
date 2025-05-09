@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
+	"log"
 	"math/big"
 	"os"
 )
@@ -98,8 +99,8 @@ func (e *EC) Verify(message, signature []byte, publicKey *ecdsa.PublicKey) (bool
 // SavePrivateKeyToFile saves the private key to a PEM file using encoding/pem
 func (e *EC) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename string) error {
 	// Marshal private key components (private key 'D' and public key components 'X' and 'Y')
-	privKeyBytes := append(privateKey.D.Bytes(), privateKey.PublicKey.X.Bytes()...)
-	privKeyBytes = append(privKeyBytes, privateKey.PublicKey.Y.Bytes()...)
+	privKeyBytes := append(privateKey.D.Bytes(), privateKey.X.Bytes()...)
+	privKeyBytes = append(privKeyBytes, privateKey.Y.Bytes()...)
 
 	// Prepare the PEM block
 	privKeyPem := &pem.Block{
@@ -112,7 +113,11 @@ func (e *EC) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filename string)
 	if err != nil {
 		return fmt.Errorf("failed to create private key file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	// Encode and write the private key in PEM format
 	err = pem.Encode(file, privKeyPem)
@@ -139,7 +144,11 @@ func (e *EC) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename string) er
 	if err != nil {
 		return fmt.Errorf("failed to create public key file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	// Encode and write the public key in PEM format
 	err = pem.Encode(file, pubKeyPem)
@@ -156,7 +165,7 @@ func (e *EC) SaveSignatureToFile(filename string, data []byte) error {
 	hexData := hex.EncodeToString(data)
 	err := os.WriteFile(filename, []byte(hexData), 0644)
 	if err != nil {
-		return fmt.Errorf("failed to write data to file %s: %v", filename, err)
+		return fmt.Errorf("failed to write data to file %s: %w", filename, err)
 	}
 	e.logger.Info(fmt.Sprintf("Saved signature file %s", filename))
 	return nil

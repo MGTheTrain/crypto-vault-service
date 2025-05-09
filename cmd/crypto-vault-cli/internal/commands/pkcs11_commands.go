@@ -54,13 +54,13 @@ func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
 func readPkcs11ConfigFile() (*settings.PKCS11Settings, error) {
 	plainText, err := os.ReadFile("pkcs11-settings.json")
 	if err != nil {
-		return nil, fmt.Errorf("error reading JSON file: %s", err)
+		return nil, fmt.Errorf("error reading JSON file: %w", err)
 	}
 
 	var settings settings.PKCS11Settings
 	err = json.Unmarshal(plainText, &settings)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON into struct: %s", err)
+		return nil, fmt.Errorf("error unmarshalling JSON into struct: %w", err)
 	}
 
 	return &settings, nil
@@ -77,18 +77,22 @@ func writePkcs11ConfigFile(modulePath, soPin, userPin, slotId string) error {
 
 	settingsJSON, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {
-		return fmt.Errorf("error marshalling settings to JSON: %v", err)
+		return fmt.Errorf("error marshalling settings to JSON: %w", err)
 	}
 
 	file, err := os.Create("pkcs11-settings.json")
 	if err != nil {
-		return fmt.Errorf("error creating JSON file: %v", err)
+		return fmt.Errorf("error creating JSON file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	_, err = file.Write(settingsJSON)
 	if err != nil {
-		return fmt.Errorf("error writing to JSON file: %v", err)
+		return fmt.Errorf("error writing to JSON file: %w", err)
 	}
 	return nil
 }

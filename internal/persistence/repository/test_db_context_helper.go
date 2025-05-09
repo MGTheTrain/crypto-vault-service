@@ -126,7 +126,9 @@ func TeardownTestDB(t *testing.T, ctx *TestDBContext, dbType string) {
 		databaseName := ctx.DB.Migrator().CurrentDatabase()
 
 		// Close the current DB connection before dropping the database
-		sqlDB.Close()
+		if err := sqlDB.Close(); err != nil {
+			t.Fatalf("failed to close database: %v", err)
+		}
 
 		// Connect again to PostgreSQL without specifying a database (connect to the default one)
 		dsn := "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
@@ -143,6 +145,8 @@ func TeardownTestDB(t *testing.T, ctx *TestDBContext, dbType string) {
 		fmt.Printf("Database '%s' dropped successfully.\n", databaseName)
 	} else {
 		// For SQLite, no need to drop the in-memory database, just close the connection
-		sqlDB.Close()
+		if err := sqlDB.Close(); err != nil {
+			t.Fatalf("failed to close database: %v", err)
+		}
 	}
 }

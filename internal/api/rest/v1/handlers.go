@@ -255,7 +255,7 @@ func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
 	bytes, err := handler.blobDownloadService.Download(ctx, blobId, decryptionKeyId)
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err)
+		errorResponseDto.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
@@ -275,7 +275,7 @@ func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
 
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err)
+		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
@@ -523,7 +523,7 @@ func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
 
 	if err != nil {
 		var errorResponseDto ErrorResponseDto
-		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err)
+		errorResponseDto.Message = fmt.Sprintf("could not write bytes: %v", err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponseDto)
 		return
 	}
