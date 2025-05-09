@@ -9,5 +9,13 @@
         "ghcr.io/devcontainers/features/node:1": {}
     },
     "postCreateCommand": "bash .devcontainer/install.sh",
-    "remoteUser": "root"
+    "remoteUser": "root",
+    "appPort": [
+        5000,
+        8080,
+        8090,
+        50051,
+        5432,
+        10000
+    ]
 }
