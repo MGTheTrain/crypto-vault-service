@@ -7,13 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added [.golangci.yml](./.golangci.yml) with selected linters and formatters
+
 ### Updated
 
 - Followed Go idioms by relocating unit and integration tests alongside their corresponding implementations
+- Invoked `go fmt ./...` before `golangci-lint run` in [format-and-lint.sh script](./scripts/format-and-lint.sh)
+- Renamed entrypoint files in cmd folder to `main.go` 
 
 ### Fixed 
 
 - Enabled use of cancellation contexts in repository components
+- Addressed linter findings related to error wrapping, using switch statements over if/else, `import` dependency ordering, handling all errors
 
 ## [0.3.0] - 01-02-2025
 
