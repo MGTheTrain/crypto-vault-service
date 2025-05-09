@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled use of cancellation contexts in repository components
 - Resolved linter issues by improving error wrapping, replacing if/else blocks with switch statements where appropriate, organizing import dependencies and ensuring proper error handling
 - `README.md` sections related to commands executed against internal REST and gRPC service APIs
-- Refactored e2e-test for `crypto-vault-service` cli tool
+- Refactored `crypto-vault-service` cli tool to rely on environment variables for PKCS#11 operations and e2e-test related to it
 
 ## [0.3.0] - 01-02-2025
 
