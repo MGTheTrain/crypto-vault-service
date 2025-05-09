@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Enabled use of cancellation contexts in repository components
 - Addressed linter findings related to error wrapping, using switch statements over if/else, `import` dependency ordering, handling all errors
+- `README.md` sections related to commands executed against internal REST and gRPC service APIs
 
 ## [0.3.0] - 01-02-2025
 
