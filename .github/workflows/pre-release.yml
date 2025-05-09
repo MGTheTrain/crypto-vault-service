@@ -5,49 +5,20 @@ on:
     branches: [main]
 
 jobs:
-  pre-release-package-ci:
+  test:
+    uses: ./.github/workflows/_test.yml
+
+  docker-push-pre-release-packages:
     runs-on: ubuntu-22.04
     environment: qas
+    needs: test
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Go 1.23.x 🐹
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.23.x'
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Grant execute permissions
-        run: chmod +x *
-        working-directory: ./scripts
-
-      - name: Run Unit tests
-        run: ./run-test.sh -u
-        working-directory: ./scripts
-
-      - name: Spin up external storage services
-        run: |
-          docker compose up -d postgres azure-blob-storage
-
-      - name: Install apt dependencies for integration test
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
-
-      - name: Run Integration tests
-        run: sudo ./run-test.sh -i
-        working-directory: ./scripts
-
-      - name: Shut down external storage services
-        run: |
-          docker compose down -v
-
-      # Run static code analysis on source code
-      # Run vulnerability scanner and generate SBOMs on third part dependencies
-   
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -60,7 +31,7 @@ jobs:
           # Check if the version file exists and read its content
           if [ -f version ]; then
             version=$(cat version)
-            echo "VERSION=$version" >> $GITHUB_ENV
+            echo "version=$version" >> $GITHUB_OUTPUT
           else
             echo "Version file not found!"
             exit 1
@@ -68,12 +39,12 @@ jobs:
 
       - name: Build and push Docker image for REST backend
         run: |
-          BACKEND_TAG="${{ secrets.DOCKER_USERNAME }}/crypto-vault-rest-service:${{ env.VERSION }}-alpha${{ github.run_number }}"  
+          BACKEND_TAG="${{ secrets.DOCKER_USERNAME }}/crypto-vault-rest-service:${{ steps.get_version.outputs.version }}-alpha${{ github.run_number }}"  
           docker build -t $BACKEND_TAG -f cmd/crypto-vault-rest-service/Dockerfile .
           docker push $BACKEND_TAG
 
       - name: Build and push Docker image for gRPC backend
         run: |
-          BACKEND_TAG="${{ secrets.DOCKER_USERNAME }}/crypto-vault-grpc-service:${{ env.VERSION }}-alpha${{ github.run_number }}"  
+          BACKEND_TAG="${{ secrets.DOCKER_USERNAME }}/crypto-vault-grpc-service:${{ steps.get_version.outputs.version }}-alpha${{ github.run_number }}"  
           docker build -t $BACKEND_TAG -f cmd/crypto-vault-grpc-service/Dockerfile .
           docker push $BACKEND_TAG

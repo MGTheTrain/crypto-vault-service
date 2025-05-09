@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added [.golangci.yml](./.golangci.yml) with selected linters and formatters
+- Introduced a [reusable workflow call](./.github/workflows/_build_and_test.yml) utilized by various CI workflows
 
 ### Updated
 

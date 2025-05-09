@@ -1,6 +1,3 @@
-# The version of the golangci-lint configuration format
-version: "2"
-
 run:
   timeout: 5m
   modules-download-mode: readonly
