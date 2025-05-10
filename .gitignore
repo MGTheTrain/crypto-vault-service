@@ -31,3 +31,6 @@ go.work.sum
 # coverage reports
 coverage.out
 coverage.html
+
+# linter findings
+linter-findings*

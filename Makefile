@@ -4,6 +4,7 @@ SCRIPT_DIR = "scripts"
 help:
 	@echo "Available Makefile targets:"
 	@echo "  format-and-lint                     		- Run the format and linting script"
+	@echo "  lint-results			                    - Write golang-ci lint findings to a linter-findings.txt file"
 	@echo "  run-unit-tests                      		- Run the unit tests"
 	@echo "  run-integration-tests               		- Run the integration tests"
 	@echo "  run-unit-and-integration-tests             - Run the unit and integration tests"
@@ -16,6 +17,11 @@ help:
 
 format-and-lint:
 	@cd $(SCRIPT_DIR) && ./format-and-lint.sh
+
+lint-results:
+	@echo "Running golangci-lint..."
+	@golangci-lint run | sed 's/^/- /' > linter-findings.txt
+	@echo "Linting results written to linter-findings.txt"
 
 run-unit-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -u
