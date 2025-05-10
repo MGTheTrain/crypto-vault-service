@@ -17,24 +17,21 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl bc make
 
       - name: Grant execute permissions
         run: chmod +x *
         working-directory: ./scripts
 
       - name: Spin up external storage services
-        run: |
-          docker compose up -d postgres azure-blob-storage
+        run: make spin-up-integration-test-docker-containers
 
-      - name: Install apt dependencies for integration test
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl bc
-
-      - name: Run Unit and Integration tests
-        run: sudo ./run-test.sh -a
-        working-directory: ./scripts
+      - name: Run Unit and Integration tests and check if code coverage of min 80 percent is achieved
+        run: make check-coverage
 
       - name: Shut down external storage services
-        run: |
-          docker compose down -v
+        run: make shut-down-docker-containers

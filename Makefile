@@ -11,6 +11,7 @@ help:
 	@echo "  run-unit-tests                      		- Run the unit tests"
 	@echo "  run-integration-tests               		- Run the integration tests"
 	@echo "  run-unit-and-integration-tests             - Run the unit and integration tests"
+	@echo "  check-coverage                             - Run the unit and integration tests and check if code coverage of min 80 percent is achieved"
 	@echo "  run-api-tests             					- Run the api tests"
 	@echo "  spin-up-integration-test-docker-containers - Spin up Docker containers for integration tests (Postgres, Azure Blob Storage)"
 	@echo "  spin-up-docker-containers           		- Spin up Docker containers with internal containerized applications"
@@ -20,16 +21,6 @@ help:
 
 format-and-lint:
 	@cd $(SCRIPT_DIR) && ./format-and-lint.sh
-
-check-coverage: run-unit-and-integration-tests
-	@echo "Checking if coverage meets minimum threshold ($(MIN_COVERAGE)%)..."
-	@total_coverage=$$(go tool cover -func=$(COVERAGE_OUT_FILE) | grep total | awk '{print $$3}' | sed 's/%//'); \
-	if [ $$(echo "$$total_coverage < $(MIN_COVERAGE)" | bc) -eq 1 ]; then \
-		echo "❌ Code coverage ($$total_coverage%) is below the required $(MIN_COVERAGE)% threshold"; \
-		exit 1; \
-	else \
-		echo "✅ Code coverage check passed: $$total_coverage%"; \
-	fi
 
 lint-results:
 	@echo "Running golangci-lint..."
@@ -44,6 +35,16 @@ run-integration-tests:
 
 run-unit-and-integration-tests:
 	@cd $(SCRIPT_DIR) && ./run-test.sh -a
+
+check-coverage: run-unit-and-integration-tests
+	@echo "Checking if coverage meets minimum threshold ($(MIN_COVERAGE)%)..."
+	@total_coverage=$$(go tool cover -func=$(COVERAGE_OUT_FILE) | grep total | awk '{print $$3}' | sed 's/%//'); \
+	if [ $$(echo "$$total_coverage < $(MIN_COVERAGE)" | bc) -eq 1 ]; then \
+		echo "❌ Code coverage ($$total_coverage%) is below the required $(MIN_COVERAGE)% threshold"; \
+		exit 1; \
+	else \
+		echo "✅ Code coverage check passed: $$total_coverage%"; \
+	fi
 
 run-api-tests:
 	@cd $(SCRIPT_DIR) && echo "TODO(MGTheTrain): Invoke API tests"
