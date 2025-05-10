@@ -13,21 +13,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// VaultConnector is an interface for interacting with custom key storage.
-// The current implementation uses Azure Blob Storage, but this may be replaced
-// with Azure Key Vault, AWS KMS, or any other cloud-based key management system in the future.
-type VaultConnector interface {
-	// Upload uploads bytes of a single file to Blob Storage
-	// and returns the metadata for each uploaded byte stream.
-	Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
-
-	// Download retrieves a key's content by its IDs and type and returns the data as a byte slice.
-	Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error)
-
-	// Delete deletes a key from Vault Storage by its IDs and type and returns any error encountered.
-	Delete(ctx context.Context, keyId, keyPairId, keyType string) error
-}
-
 // This is a temporary implementation and may later be replaced with more specialized external key management systems
 // like Azure Key Vault or AWS KMS.
 type AzureVaultConnector struct {
