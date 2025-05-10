@@ -5,45 +5,16 @@ package connector
 
 import (
 	"context"
-	"fmt"
-	"mime/multipart"
-	"os"
 	"testing"
 
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
-	"crypto_vault_service/internal/infrastructure/utils"
+	"crypto_vault_service/test/testutils"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-// Helper function to create test files
-func CreateTestFile(fileName string, content []byte) error {
-	err := os.WriteFile(fileName, content, 0600)
-	if err != nil {
-		return fmt.Errorf("failed to create test file: %w", err)
-	}
-	return nil
-}
-
-// Helper function to create a test file and form
-func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*multipart.Form, error) {
-	err := CreateTestFile(fileName, fileContent)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		if err := os.Remove(fileName); err != nil {
-			t.Logf("failed to remove temporary file %s: %v", fileName, err)
-		}
-	})
-
-	form, err := utils.CreateForm(fileContent, fileName)
-	require.NoError(t, err)
-
-	return form, nil
-}
 
 // AzureBlobConnectorTest encapsulates common logic for tests
 type AzureBlobConnectorTest struct {
@@ -80,7 +51,7 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := testutils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -109,7 +80,7 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.pem"
-	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := testutils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -137,7 +108,7 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.pem"
-	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := testutils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()

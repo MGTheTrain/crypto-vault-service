@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
-	"crypto_vault_service/internal/infrastructure/utils"
+	"crypto_vault_service/test/testutils"
 	"errors"
 	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 	"time"
 
@@ -19,32 +18,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
-
-// Helper function to create test files
-func CreateTestFile(fileName string, content []byte) error {
-	err := os.WriteFile(fileName, content, 0600)
-	if err != nil {
-		return fmt.Errorf("failed to create test file: %w", err)
-	}
-	return nil
-}
-
-// Helper function to create a test file and form
-func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*multipart.Form, error) {
-	err := CreateTestFile(fileName, fileContent)
-	require.NoError(t, err)
-
-	t.Cleanup(func() {
-		if err := os.Remove(fileName); err != nil {
-			t.Logf("failed to remove temporary file %s: %v", fileName, err)
-		}
-	})
-
-	form, err := utils.CreateForm(fileContent, fileName)
-	require.NoError(t, err)
-
-	return form, nil
-}
 
 func TestBlobHandler_Upload(t *testing.T) {
 	// Set up mock services
@@ -67,7 +40,7 @@ func TestBlobHandler_Upload(t *testing.T) {
 	// Create test file and form data
 	fileName := "testfile.txt"
 	fileContent := []byte("This is a test file content")
-	form, err := CreateTestFileAndForm(t, fileName, fileContent)
+	form, err := testutils.CreateTestFileAndForm(t, fileName, fileContent)
 	require.NoError(t, err)
 
 	// Create a test HTTP request with the file attached as multipart form data
