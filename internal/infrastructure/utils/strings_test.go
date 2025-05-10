@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,7 +22,11 @@ func TestCreateForm(t *testing.T) {
 	// Check file content
 	file, err := files[0].Open()
 	assert.NoError(t, err)
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	buf := make([]byte, len(content))
 	_, err = file.Read(buf)
@@ -56,7 +61,11 @@ func TestCreateMultipleFilesForm(t *testing.T) {
 		_, err = file.Read(buf)
 		assert.NoError(t, err)
 		assert.Equal(t, contents[i], buf)
-		file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				log.Printf("warning: failed to close file: %v\n", err)
+			}
+		}()
 	}
 }
 
