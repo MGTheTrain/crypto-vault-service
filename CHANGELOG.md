@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Updated
 
-- Followed Go idioms by relocating unit and integration tests alongside their corresponding implementations
+- Placed unit and integration tests next to their respective implementations, with unit test files named `<component>_test.go` and integration test files named `<component>_integration_test.go`
+- Followed Go naming conventions by removing the `I` prefix from interfaces and making the structs that implement them private by default, e.g. `type SomeService interface {}` and `type someService struct {}`. This ensures that in this example, `someService` objects can only be created through the `func NewSomeService(...) -> *someService` function
+- Refactored `crypto-vault-service` cli tool to rely on environment variables for PKCS#11 operations and refactored e2e-test related to it
 - Ran `go fmt ./...` prior to `golangci-lint run` in the [format-and-lint.sh script](./scripts/format-and-lint.sh), and incorporated `shfmt` for shell script formatting and `prettier` for markdown formatting
 - Renamed entrypoint files in cmd folder to `main.go`
 
@@ -23,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enabled use of cancellation contexts in repository components
 - Resolved linter issues by improving error wrapping, replacing if/else blocks with switch statements where appropriate, organizing import dependencies and ensuring proper error handling
 - Fixed `README.md` sections related to commands executed against internal REST and gRPC service APIs
-- Refactored `crypto-vault-service` cli tool to rely on environment variables for PKCS#11 operations and refactored e2e-test related to it
 
 ## [0.3.0] - 01-02-2025
 
