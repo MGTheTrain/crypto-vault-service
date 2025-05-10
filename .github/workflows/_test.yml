@@ -18,20 +18,31 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
+      - name: Uninstall and clean SoftHSM
+        run: |
+          sudo apt-get purge -y softhsm
+          sudo rm -rf /usr/lib/softhsm /usr/lib/x86_64-linux-gnu/softhsm*
+          sudo rm -rf ~/.config/softhsm2 /tmp/tokens /var/lib/softhsm /etc/softhsm
+      
       - name: Install apt dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl bc make
 
-      - name: Grant execute permissions
-        run: chmod +x *
-        working-directory: ./scripts
-
       - name: Spin up external storage services
         run: make spin-up-integration-test-docker-containers
 
+      - name: Configure SoftHSM token directory
+        run: |
+          mkdir -p ~/.config/softhsm2
+          echo "directories.tokendir = /tmp/tokens" > ~/.config/softhsm2/softhsm2.conf
+          mkdir -p /tmp/tokens
+          # softhsm2-util --init-token --slot 0 --label MyToken --so-pin 1234 --pin 1234
+
       - name: Run Unit and Integration tests and check if code coverage of min 80 percent is achieved
         run: make check-coverage
+        env:
+          SOFTHSM2_CONF: /home/runner/.config/softhsm2/softhsm2.conf
 
       - name: Shut down external storage services
         run: make shut-down-docker-containers
