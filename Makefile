@@ -18,6 +18,7 @@ help:
 	@echo "  spin-up-docker-containers           		- Spin up Docker containers with internal containerized applications"
 	@echo "  shut-down-docker-containers         		- Shut down the application Docker containers"
 	@echo "  generate-swagger-docs         				- Convert Go annotations to Swagger Documentation 2.0"
+	@echo "  generate-grpc-files         				- Generate Go gRPC code from .proto files"
 	@echo "  remove-artifacts         			 	    - Remove artifacts"
 
 format-and-lint:
@@ -59,19 +60,23 @@ run-e2e-tests:
 	@go test ./test/... --tags="e2e" -cover
 
 spin-up-integration-test-docker-containers:
-	docker compose up -d postgres azure-blob-storage
+	@echo "Spinning up integration test docker containers..."
+	@docker compose up -d postgres azure-blob-storage
 
 spin-up-docker-containers:
-	docker compose up -d --build
+	@echo "Spinning up docker containers..."
+	@docker compose up -d --build
 
 shut-down-docker-containers:
-	docker compose down -v
+	@echo "Shutting down docker containers..."
+	@docker compose down -v
 
 generate-swagger-docs:
 	@echo "Generating Swagger docs..."
 	@swag init -g cmd/crypto-vault-rest-service/crypto_vault_service.go -o cmd/crypto-vault-rest-service/docs
 
 generate-grpc-files:
+	@echo "Generating Go gRPC code from .proto files..."
 	@cd $(SCRIPT_DIR) && ./generate-grpc-files.sh
 
 remove-artifacts:

@@ -77,6 +77,7 @@ Available Makefile targets:
   spin-up-docker-containers                     - Spin up Docker containers with internal containerized applications
   shut-down-docker-containers                   - Shut down the application Docker containers
   generate-swagger-docs                         - Convert Go annotations to Swagger Documentation 2.0
+  generate-grpc-files                           - Generate Go gRPC code from .proto files
   remove-artifacts                              - Remove artifacts
 ```
 
