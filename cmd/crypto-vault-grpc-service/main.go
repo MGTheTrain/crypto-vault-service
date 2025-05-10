@@ -74,7 +74,8 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to get raw DB connection: %v", err)
 		}
-		query := fmt.Sprintf("SELECT 1 FROM pg_database WHERE datname='%s'", config.Database.Name)
+
+		query := "SELECT 1 FROM pg_database WHERE datname = $1"
 		err = sqlDB.QueryRow(query).Scan(&dbExists)
 
 		if err != nil && err.Error() != "sql: no rows in result set" {
