@@ -30,7 +30,7 @@ type BlobMetadataService interface {
 // BlobDownloadService defines methods for downloading blobs.
 type BlobDownloadService interface {
 	// The download function retrieves a blob's content using its ID and also enables data decryption.
-	Download(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error)
+	DownloadById(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error)
 }
 
 // BlobRepository defines the interface for Blob-related operations

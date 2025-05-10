@@ -42,7 +42,7 @@ type MockBlobDownloadService struct {
 	mock.Mock
 }
 
-func (m *MockBlobDownloadService) Download(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
+func (m *MockBlobDownloadService) DownloadById(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
 	args := m.Called(ctx, blobId, decryptionKeyId)
 	return args.Get(0).([]byte), args.Error(1)
 }
@@ -79,7 +79,7 @@ type MockCryptoKeyDownloadService struct {
 	mock.Mock
 }
 
-func (m *MockCryptoKeyDownloadService) Download(ctx context.Context, keyID string) ([]byte, error) {
+func (m *MockCryptoKeyDownloadService) DownloadById(ctx context.Context, keyID string) ([]byte, error) {
 	args := m.Called(ctx, keyID)
 	return args.Get(0).([]byte), args.Error(1)
 }

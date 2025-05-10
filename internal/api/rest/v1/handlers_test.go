@@ -1,3 +1,6 @@
+//go:build unit
+// +build unit
+
 package v1
 
 import (
@@ -165,7 +168,7 @@ func TestBlobHandler_DownloadById(t *testing.T) {
 	}
 
 	// Mock the Download and GetByID service calls
-	mockDownloadService.On("Download", mock.Anything, blobId, (*string)(nil)).Return(blobContent, nil)
+	mockDownloadService.On("DownloadById", mock.Anything, blobId, (*string)(nil)).Return(blobContent, nil)
 	mockMetadataService.On("GetByID", mock.Anything, blobId).Return(blobMeta, nil)
 
 	// Create a test HTTP request
@@ -395,7 +398,7 @@ func TestKeyHandler_DownloadById(t *testing.T) {
 	keyContent := []byte("secret key content")
 
 	mockDownloadService.
-		On("Download", mock.Anything, keyID).
+		On("DownloadById", mock.Anything, keyID).
 		Return(keyContent, nil)
 
 	w := httptest.NewRecorder()

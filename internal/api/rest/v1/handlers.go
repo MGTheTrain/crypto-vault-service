@@ -254,7 +254,7 @@ func (handler *blobHandler) DownloadById(ctx *gin.Context) {
 		decryptionKeyId = &decryptionKeyQuery
 	}
 
-	bytes, err := handler.blobDownloadService.Download(ctx, blobId, decryptionKeyId)
+	bytes, err := handler.blobDownloadService.DownloadById(ctx, blobId, decryptionKeyId)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err.Error())
@@ -510,7 +510,7 @@ func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
 func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
 	keyId := ctx.Param("id")
 
-	bytes, err := handler.cryptoKeyDownloadService.Download(ctx, keyId)
+	bytes, err := handler.cryptoKeyDownloadService.DownloadById(ctx, keyId)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("could not download key with id %s: %v", keyId, err.Error())

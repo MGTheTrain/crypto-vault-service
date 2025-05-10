@@ -334,7 +334,7 @@ func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepositor
 // The download function retrieves a blob's content using its ID and also enables data decryption.
 // NOTE: Signing should be performed locally by first downloading the associated key, followed by verification.
 // Optionally, a verify endpoint will be available soon for optional use.
-func (s *blobDownloadService) Download(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
+func (s *blobDownloadService) DownloadById(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
 
 	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {

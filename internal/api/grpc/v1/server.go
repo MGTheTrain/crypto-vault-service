@@ -123,7 +123,7 @@ func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb
 		decryptionKeyId = &req.DecryptionKeyId
 	}
 
-	bytes, err := s.blobDownloadService.Download(stream.Context(), id, decryptionKeyId)
+	bytes, err := s.blobDownloadService.DownloadById(stream.Context(), id, decryptionKeyId)
 	if err != nil {
 		return fmt.Errorf("could not download blob with id %s: %w", id, err)
 	}
@@ -294,7 +294,7 @@ func NewCryptoKeyDownloadServer(cryptoKeyDownloadService keys.CryptoKeyDownloadS
 
 // DownloadById downloads a key by its ID
 func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIdServer) error {
-	bytes, err := s.cryptoKeyDownloadService.Download(stream.Context(), req.Id)
+	bytes, err := s.cryptoKeyDownloadService.DownloadById(stream.Context(), req.Id)
 	if err != nil {
 		return fmt.Errorf("failed to download crypto key: %w", err)
 	}

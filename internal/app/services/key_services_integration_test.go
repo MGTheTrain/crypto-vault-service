@@ -147,7 +147,7 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, keySize)
 	require.NoError(t, err)
 
-	blobData, err := keyServices.cryptoKeyDownloadService.Download(ctx, cryptoKeyMetas[0].ID)
+	blobData, err := keyServices.cryptoKeyDownloadService.DownloadById(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, blobData)
 	require.NotEmpty(t, blobData)
