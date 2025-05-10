@@ -31,6 +31,7 @@ func NewAESProcessor(logger logger.Logger) (*aesProcessor, error) {
 // Pad data to make it a multiple of AES block size
 func pkcs7Pad(data []byte, blockSize int) []byte {
 	padding := blockSize - len(data)%blockSize
+	// nolint: gocritic
 	padded := append(data, bytes.Repeat([]byte{byte(padding)}, padding)...)
 	return padded
 }
