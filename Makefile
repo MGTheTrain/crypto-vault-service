@@ -54,4 +54,4 @@ generate-grpc-files:
 	@cd $(SCRIPT_DIR) && ./generate-grpc-files.sh
 
 remove-artifacts:
-	rm coverage.*
+	rm coverage.* linter-findings.*
