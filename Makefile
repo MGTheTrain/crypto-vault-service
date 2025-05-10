@@ -1,6 +1,7 @@
 SCRIPT_DIR = "scripts"
 
 COVERAGE_OUT_FILE=coverage.out
+COVERAGE_HTML_FILE=coverage.html
 MIN_COVERAGE=80.0
 
 # Help target to list all available targets
@@ -28,13 +29,17 @@ lint-results:
 	@echo "Linting results written to linter-findings.txt"
 
 run-unit-tests:
-	@cd $(SCRIPT_DIR) && ./run-test.sh -u
+	@echo "Running unit tests..."
+	@go test ./internal/... --tags="integration" -cover
 
 run-integration-tests:
-	@cd $(SCRIPT_DIR) && ./run-test.sh -i
+	@echo "Running integration tests..."
+	@go test ./internal/... --tags="integration" -cover
 
 run-unit-and-integration-tests:
-	@cd $(SCRIPT_DIR) && ./run-test.sh -a
+	@echo "Running unit and integration tests... Generating $(COVERAGE_HTML_FILE) file..."
+	@go test ./internal/... --tags="unit integration" -cover -coverprofile=$(COVERAGE_OUT_FILE) -v
+	@go tool cover -html=$(COVERAGE_OUT_FILE) -o $(COVERAGE_HTML_FILE)
 
 check-coverage: run-unit-and-integration-tests
 	@echo "Checking if coverage meets minimum threshold ($(MIN_COVERAGE)%)..."
@@ -50,7 +55,8 @@ run-api-tests:
 	@cd $(SCRIPT_DIR) && echo "TODO(MGTheTrain): Invoke API tests"
 
 run-e2e-tests:
-	@cd $(SCRIPT_DIR) && ./run-e2e-test.sh
+	@echo "Running e2e tests..."
+	@go test ./test/... --tags="e2e" -cover
 
 spin-up-integration-test-docker-containers:
 	docker compose up -d postgres azure-blob-storage
@@ -62,10 +68,12 @@ shut-down-docker-containers:
 	docker compose down -v
 
 generate-swagger-docs:
-	@cd $(SCRIPT_DIR) && ./generate-docs.sh
+	@echo "Generating Swagger docs..."
+	@swag init -g cmd/crypto-vault-rest-service/crypto_vault_service.go -o cmd/crypto-vault-rest-service/docs
 
 generate-grpc-files:
 	@cd $(SCRIPT_DIR) && ./generate-grpc-files.sh
 
 remove-artifacts:
-	rm coverage.* linter-findings.*
+	@echo "Removing artifacts..."
+	@rm coverage.* linter-findings.*
