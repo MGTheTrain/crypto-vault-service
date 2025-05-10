@@ -83,6 +83,7 @@ func (token *pkcs11Handler) ListTokenSlots() ([]Token, error) {
 		return nil, fmt.Errorf("failed to check non-empty string for ModulePath='%s': %w", token.Settings.ModulePath, err)
 	}
 
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	listCmd := exec.Command(
 		"pkcs11-tool", "--module", token.Settings.ModulePath, "-L",
 	)
@@ -145,6 +146,7 @@ func (token *pkcs11Handler) ListObjects(tokenLabel string) ([]TokenObject, error
 		return nil, fmt.Errorf("failed to check non-empty strings for tokenLabel='%s' and ModulePath='%s': %w", tokenLabel, token.Settings.ModulePath, err)
 	}
 
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	listObjectsCmd := exec.Command(
 		"pkcs11-tool", "--module", token.Settings.ModulePath, "-O", "--token-label", tokenLabel, "--pin", token.Settings.UserPin,
 	)
@@ -349,6 +351,7 @@ func (token *pkcs11Handler) Encrypt(label, objectLabel, inputFilePath, outputFil
 	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=public;pin-value=%s", label, objectLabel, token.Settings.UserPin)
 
 	// Run OpenSSL command to encrypt using the public key from the PKCS#11 token
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	encryptCmd := exec.Command(
 		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-pubin", "-encrypt",
 		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
@@ -383,6 +386,7 @@ func (token *pkcs11Handler) Decrypt(label, objectLabel, inputFilePath, outputFil
 	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=private;pin-value=%s", label, objectLabel, token.Settings.UserPin)
 
 	// Run OpenSSL command to decrypt the data using the private key from the PKCS#11 token
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	decryptCmd := exec.Command(
 		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-decrypt",
 		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
@@ -421,6 +425,7 @@ func (token *pkcs11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 	case "RSA":
 		signatureFormat = "rsa_padding_mode:pss"
 		// Command for signing with RSA-PSS
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		signCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
 			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
@@ -430,6 +435,7 @@ func (token *pkcs11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 		)
 	case "ECDSA":
 		// Command for signing with ECDSA
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		signCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
 			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
@@ -473,6 +479,7 @@ func (token *pkcs11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 	switch keyType {
 	case "RSA":
 		// Command for verifying with RSA-PSS
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		verifyCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
 			"pkcs11:token="+label+";object="+objectLabel+";type=public;pin-value="+token.Settings.UserPin,
@@ -482,6 +489,7 @@ func (token *pkcs11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 		)
 	case "ECDSA":
 		// Command for verifying with ECDSA
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		verifyCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
 			"pkcs11:token="+label+";object="+objectLabel+";type=public;pin-value="+token.Settings.UserPin,
