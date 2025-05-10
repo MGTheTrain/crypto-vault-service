@@ -13,8 +13,11 @@ import (
 	"github.com/google/uuid"
 )
 
+type BlobHandler interface {
+}
+
 // BlobHandler struct holds the services
-type BlobHandler struct {
+type blobHandler struct {
 	blobUploadService      blobs.BlobUploadService
 	blobMetadataService    blobs.BlobMetadataService
 	blobDownloadService    blobs.BlobDownloadService
@@ -22,8 +25,8 @@ type BlobHandler struct {
 }
 
 // NewBlobHandler creates a new BlobHandler
-func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) *BlobHandler {
-	return &BlobHandler{
+func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) *blobHandler {
+	return &blobHandler{
 		blobUploadService:      blobUploadService,
 		blobDownloadService:    blobDownloadService,
 		blobMetadataService:    blobMetadataService,
@@ -43,7 +46,7 @@ func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadServi
 // @Success 201 {array} BlobMetaResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /blobs [post]
-func (handler *BlobHandler) Upload(ctx *gin.Context) {
+func (handler *blobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
@@ -113,7 +116,7 @@ func (handler *BlobHandler) Upload(ctx *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs [get]
-func (handler *BlobHandler) ListMetadata(ctx *gin.Context) {
+func (handler *blobHandler) ListMetadata(ctx *gin.Context) {
 	query := blobs.NewBlobMetaQuery()
 
 	if blobName := ctx.Query("name"); len(blobName) > 0 {
@@ -200,7 +203,7 @@ func (handler *BlobHandler) ListMetadata(ctx *gin.Context) {
 // @Success 200 {object} BlobMetaResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id} [get]
-func (handler *BlobHandler) GetMetadataById(ctx *gin.Context) {
+func (handler *blobHandler) GetMetadataById(ctx *gin.Context) {
 	blobId := ctx.Param("id")
 
 	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
@@ -243,7 +246,7 @@ func (handler *BlobHandler) GetMetadataById(ctx *gin.Context) {
 // @Success 200 {file} file "Blob content"
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id}/file [get]
-func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
+func (handler *blobHandler) DownloadById(ctx *gin.Context) {
 	blobId := ctx.Param("id")
 
 	var decryptionKeyId *string
@@ -290,7 +293,7 @@ func (handler *BlobHandler) DownloadById(ctx *gin.Context) {
 // @Success 204 {object} InfoResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id} [delete]
-func (handler *BlobHandler) DeleteById(ctx *gin.Context) {
+func (handler *blobHandler) DeleteById(ctx *gin.Context) {
 	blobId := ctx.Param("id")
 
 	if err := handler.blobMetadataService.DeleteByID(ctx, blobId); err != nil {
