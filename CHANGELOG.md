@@ -19,12 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored `crypto-vault-service` cli tool to rely on environment variables for PKCS#11 operations and refactored e2e-test related to it
 - Ran `go fmt ./...` prior to `golangci-lint run` in the [format-and-lint.sh script](./scripts/format-and-lint.sh), and incorporated `shfmt` for shell script formatting and `prettier` for markdown formatting
 - Renamed entrypoint files in cmd folder to `main.go`
+- Added a Make target to verify that code coverage meets the `70% threshold` across unit and integration tests
+- Consolidated standalone scripts into dedicated Make targets for running unit, integration and end-to-end tests
 
 ### Fixed
 
 - Enabled use of cancellation contexts in repository components
-- Resolved linter issues by improving error wrapping, replacing if/else blocks with switch statements where appropriate, organizing import dependencies and ensuring proper error handling
+- Resolved findings from various linters, including `errcheck`, `govet`, `staticcheck`, `wrapcheck`, `importas`, `unused`, `ineffassign`, `errorlint`, `gocritic`, `gosec`, `misspell` and `nakedret`
 - Fixed `README.md` sections related to commands executed against internal REST and gRPC service APIs
+
+### Removed
+
+- Removed obsolete `.vscode/launch.json`
 
 ## [0.3.0] - 01-02-2025
 
