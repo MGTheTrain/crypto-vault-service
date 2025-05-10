@@ -89,13 +89,13 @@ make format-and-lint
 
 ### Run Tests
 
-To run `unit tests` on Unix systems execute
+To run `unit tests` on Unix-like systems execute
 
 ```sh
 make run-unit-tests
 ```
 
-To run `integration tests` on Unix systems execute
+To run `integration tests` on Unix-like systems execute
 
 ```sh
 make spin-up-integration-test-docker-containers
@@ -103,7 +103,7 @@ make run-integration-tests
 make shut-down-docker-containers
 ```
 
-To run both `unit and integration tests` including a `coverage report in HTML format` on Unix systems execute
+To run both `unit and integration tests` including a `coverage report in HTML format` on Unix-like systems execute
 
 ```sh
 make spin-up-integration-test-docker-containers
@@ -111,7 +111,7 @@ make run-unit-and-integration-tests
 make shut-down-docker-containers
 ```
 
-To run `e2e-tests` on Unix systems execute
+To run `e2e-tests` on Unix-like systems execute
 
 ```sh
 make run-e2e-tests
