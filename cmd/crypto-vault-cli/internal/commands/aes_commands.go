@@ -14,8 +14,8 @@ import (
 )
 
 type AESCommandHandler struct {
-	aes    *cryptography.AES
-	Logger logger.Logger
+	aesProcessor cryptography.AESProcessor
+	Logger       logger.Logger
 }
 
 func NewAESCommandHandler() *AESCommandHandler {
@@ -31,15 +31,15 @@ func NewAESCommandHandler() *AESCommandHandler {
 		return nil
 	}
 
-	aes, err := cryptography.NewAES(logger)
+	aesProcessor, err := cryptography.NewAESProcessor(logger)
 	if err != nil {
 		log.Panicf("%v\n", err)
 		return nil
 	}
 
 	return &AESCommandHandler{
-		aes:    aes,
-		Logger: logger,
+		aesProcessor: aesProcessor,
+		Logger:       logger,
 	}
 }
 
@@ -50,14 +50,14 @@ func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, 
 
 	uniqueID := uuid.New()
 
-	secretKey, err := commandHandler.aes.GenerateKey(keySize)
+	secretKey, err := commandHandler.aesProcessor.GenerateKey(keySize)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric-key.bin", uniqueID))
-	err = os.WriteFile(keyFilePath, secretKey, 0644)
+	err = os.WriteFile(keyFilePath, secretKey, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -71,25 +71,25 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
 
-	plainText, err := os.ReadFile(inputFilePath)
+	plainText, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	key, err := os.ReadFile(symmetricKey)
+	key, err := os.ReadFile(filepath.Clean(symmetricKey))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	encryptedData, err := commandHandler.aes.Encrypt(plainText, key)
+	encryptedData, err := commandHandler.aesProcessor.Encrypt(plainText, key)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	err = os.WriteFile(outputFilePath, encryptedData, 0644)
+	err = os.WriteFile(outputFilePath, encryptedData, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -104,25 +104,25 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args 
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
 
-	key, err := os.ReadFile(symmetricKey)
+	key, err := os.ReadFile(filepath.Clean(symmetricKey))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	encryptedData, err := os.ReadFile(inputFilePath)
+	encryptedData, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	decryptedData, err := commandHandler.aes.Decrypt(encryptedData, key)
+	decryptedData, err := commandHandler.aesProcessor.Decrypt(encryptedData, key)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	err = os.WriteFile(outputFilePath, decryptedData, 0644)
+	err = os.WriteFile(outputFilePath, decryptedData, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return

@@ -27,8 +27,8 @@ type TokenObject struct {
 	Access string // Access controls for the object (e.g. sensitive, always sensitive)
 }
 
-// IPKCS11Handler defines the operations for working with a PKCS#11 token
-type IPKCS11Handler interface {
+// PKCS11Handler defines the operations for working with a PKCS#11 token
+type PKCS11Handler interface {
 	// ListTokenSlots lists all available tokens in the available slots
 	ListTokenSlots() ([]Token, error)
 	// ListObjects lists all objects (e.g. keys) in a specific token based on the token label
@@ -49,26 +49,26 @@ type IPKCS11Handler interface {
 	DeleteObject(label, objectType, objectLabel string) error
 }
 
-// PKCS11Handler represents the parameters and operations for interacting with a PKCS#11 token
-type PKCS11Handler struct {
+// pkcs11Handler represents the parameters and operations for interacting with a PKCS#11 token
+type pkcs11Handler struct {
 	Settings *settings.PKCS11Settings
 	Logger   logger.Logger
 }
 
 // NewPKCS11Handler creates and returns a new instance of PKCS11Handler
-func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (*PKCS11Handler, error) {
+func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (*pkcs11Handler, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
 
-	return &PKCS11Handler{
+	return &pkcs11Handler{
 		Settings: settings,
 		Logger:   logger,
 	}, nil
 }
 
 // Private method to execute pkcs11-tool commands and return output
-func (token *PKCS11Handler) executePKCS11ToolCommand(args []string) (string, error) {
+func (token *pkcs11Handler) executePKCS11ToolCommand(args []string) (string, error) {
 	cmd := exec.Command("pkcs11-tool", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -78,11 +78,12 @@ func (token *PKCS11Handler) executePKCS11ToolCommand(args []string) (string, err
 }
 
 // ListTokenSlots lists all available tokens in the available slots
-func (token *PKCS11Handler) ListTokenSlots() ([]Token, error) {
+func (token *pkcs11Handler) ListTokenSlots() ([]Token, error) {
 	if err := utils.CheckNonEmptyStrings(token.Settings.ModulePath); err != nil {
 		return nil, fmt.Errorf("failed to check non-empty string for ModulePath='%s': %w", token.Settings.ModulePath, err)
 	}
 
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	listCmd := exec.Command(
 		"pkcs11-tool", "--module", token.Settings.ModulePath, "-L",
 	)
@@ -140,11 +141,12 @@ func (token *PKCS11Handler) ListTokenSlots() ([]Token, error) {
 }
 
 // ListObjects lists all objects (e.g. keys) in a specific token based on the token label.
-func (token *PKCS11Handler) ListObjects(tokenLabel string) ([]TokenObject, error) {
+func (token *pkcs11Handler) ListObjects(tokenLabel string) ([]TokenObject, error) {
 	if err := utils.CheckNonEmptyStrings(tokenLabel, token.Settings.ModulePath); err != nil {
 		return nil, fmt.Errorf("failed to check non-empty strings for tokenLabel='%s' and ModulePath='%s': %w", tokenLabel, token.Settings.ModulePath, err)
 	}
 
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	listObjectsCmd := exec.Command(
 		"pkcs11-tool", "--module", token.Settings.ModulePath, "-O", "--token-label", tokenLabel, "--pin", token.Settings.UserPin,
 	)
@@ -192,7 +194,7 @@ func (token *PKCS11Handler) ListObjects(tokenLabel string) ([]TokenObject, error
 }
 
 // isTokenSet checks if the token exists in the given module path
-func (token *PKCS11Handler) isTokenSet(label string) (bool, error) {
+func (token *pkcs11Handler) isTokenSet(label string) (bool, error) {
 	if err := utils.CheckNonEmptyStrings(label); err != nil {
 		return false, fmt.Errorf("failed to check non-empty string for label='%s': %w", label, err)
 	}
@@ -213,7 +215,7 @@ func (token *PKCS11Handler) isTokenSet(label string) (bool, error) {
 }
 
 // InitializeToken initializes the token with the provided label and pins
-func (token *PKCS11Handler) InitializeToken(label string) error {
+func (token *pkcs11Handler) InitializeToken(label string) error {
 	if err := utils.CheckNonEmptyStrings(label); err != nil {
 		return fmt.Errorf("failed to check non-empty string for label='%s': %w", label, err)
 	}
@@ -238,7 +240,7 @@ func (token *PKCS11Handler) InitializeToken(label string) error {
 }
 
 // AddKey adds the selected key (ECDSA or RSA) to the token
-func (token *PKCS11Handler) AddKey(label, objectLabel, keyType string, keySize uint) error {
+func (token *pkcs11Handler) AddKey(label, objectLabel, keyType string, keySize uint) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s', objectLabel='%s', keyType='%s': %w", label, objectLabel, keyType, err)
 	}
@@ -254,7 +256,7 @@ func (token *PKCS11Handler) AddKey(label, objectLabel, keyType string, keySize u
 }
 
 // addECDSASignKey adds an ECDSA signing key to the token
-func (token *PKCS11Handler) addECDSASignKey(label, objectLabel string, keySize uint) error {
+func (token *pkcs11Handler) addECDSASignKey(label, objectLabel string, keySize uint) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s' and objectLabel='%s': %w", label, objectLabel, err)
 	}
@@ -292,7 +294,7 @@ func (token *PKCS11Handler) addECDSASignKey(label, objectLabel string, keySize u
 }
 
 // addRSASignKey adds an RSA signing key to the token
-func (token *PKCS11Handler) addRSASignKey(label, objectLabel string, keySize uint) error {
+func (token *pkcs11Handler) addRSASignKey(label, objectLabel string, keySize uint) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s' and objectLabel='%s': %w", label, objectLabel, err)
 	}
@@ -331,7 +333,7 @@ func (token *PKCS11Handler) addRSASignKey(label, objectLabel string, keySize uin
 }
 
 // Encrypt encrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11Handler) Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+func (token *pkcs11Handler) Encrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s', objectLabel='%s', inputFilePath='%s', outputFilePath='%s', keyType='%s': %w",
 			label, objectLabel, inputFilePath, outputFilePath, keyType, err)
@@ -349,6 +351,7 @@ func (token *PKCS11Handler) Encrypt(label, objectLabel, inputFilePath, outputFil
 	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=public;pin-value=%s", label, objectLabel, token.Settings.UserPin)
 
 	// Run OpenSSL command to encrypt using the public key from the PKCS#11 token
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	encryptCmd := exec.Command(
 		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-pubin", "-encrypt",
 		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
@@ -365,7 +368,7 @@ func (token *PKCS11Handler) Encrypt(label, objectLabel, inputFilePath, outputFil
 }
 
 // Decrypt decrypts data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pkcs
-func (token *PKCS11Handler) Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
+func (token *pkcs11Handler) Decrypt(label, objectLabel, inputFilePath, outputFilePath, keyType string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, inputFilePath, outputFilePath, keyType); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s', objectLabel='%s', inputFilePath='%s', outputFilePath='%s', keyType='%s': %w",
 			label, objectLabel, inputFilePath, outputFilePath, keyType, err)
@@ -383,6 +386,7 @@ func (token *PKCS11Handler) Decrypt(label, objectLabel, inputFilePath, outputFil
 	keyURI := fmt.Sprintf("pkcs11:token=%s;object=%s;type=private;pin-value=%s", label, objectLabel, token.Settings.UserPin)
 
 	// Run OpenSSL command to decrypt the data using the private key from the PKCS#11 token
+	// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 	decryptCmd := exec.Command(
 		"openssl", "pkeyutl", "-engine", "pkcs11", "-keyform", "engine", "-decrypt",
 		"-inkey", keyURI, "-pkeyopt", "rsa_padding_mode:pkcs1", "-in", inputFilePath, "-out", outputFilePath,
@@ -399,7 +403,7 @@ func (token *PKCS11Handler) Decrypt(label, objectLabel, inputFilePath, outputFil
 }
 
 // Sign signs data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error {
+func (token *pkcs11Handler) Sign(label, objectLabel, dataFilePath, signatureFilePath, keyType string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, dataFilePath, signatureFilePath, keyType); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s', objectLabel='%s', dataFilePath='%s', signatureFilePath='%s', keyType='%s': %w",
 			label, objectLabel, dataFilePath, signatureFilePath, keyType, err)
@@ -421,6 +425,7 @@ func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 	case "RSA":
 		signatureFormat = "rsa_padding_mode:pss"
 		// Command for signing with RSA-PSS
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		signCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
 			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
@@ -430,6 +435,7 @@ func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 		)
 	case "ECDSA":
 		// Command for signing with ECDSA
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		signCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-sign",
 			"pkcs11:token="+label+";object="+objectLabel+";type=private;pin-value="+token.Settings.UserPin,
@@ -451,7 +457,7 @@ func (token *PKCS11Handler) Sign(label, objectLabel, dataFilePath, signatureFile
 }
 
 // Verify verifies the signature of data using the cryptographic capabilities of the PKCS#11 token. Refer to: https://docs.yubico.com/hardware/yubihsm-2/hsm-2-user-guide/hsm2-openssl-libp11.html#rsa-pss
-func (token *PKCS11Handler) Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType string) (bool, error) {
+func (token *pkcs11Handler) Verify(label, objectLabel, dataFilePath, signatureFilePath, keyType string) (bool, error) {
 
 	if err := utils.CheckNonEmptyStrings(label, objectLabel, keyType, dataFilePath, signatureFilePath); err != nil {
 		return false, fmt.Errorf("failed to check non-empty strings for label='%s', objectLabel='%s', keyType='%s', dataFilePath='%s', signatureFilePath='%s': %w",
@@ -473,6 +479,7 @@ func (token *PKCS11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 	switch keyType {
 	case "RSA":
 		// Command for verifying with RSA-PSS
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		verifyCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
 			"pkcs11:token="+label+";object="+objectLabel+";type=public;pin-value="+token.Settings.UserPin,
@@ -482,6 +489,7 @@ func (token *PKCS11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 		)
 	case "ECDSA":
 		// Command for verifying with ECDSA
+		// #nosec G204 -- TODO(MGTheTrain) validate all inputs used in exec.Command
 		verifyCmd = exec.Command(
 			"openssl", "dgst", "-engine", "pkcs11", "-keyform", "engine", "-verify",
 			"pkcs11:token="+label+";object="+objectLabel+";type=public;pin-value="+token.Settings.UserPin,
@@ -509,7 +517,7 @@ func (token *PKCS11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 }
 
 // DeleteObject deletes a key or object from the token
-func (token *PKCS11Handler) DeleteObject(label, objectType, objectLabel string) error {
+func (token *pkcs11Handler) DeleteObject(label, objectType, objectLabel string) error {
 	if err := utils.CheckNonEmptyStrings(label, objectType, objectLabel); err != nil {
 		return fmt.Errorf("failed to check non-empty strings for label='%s', objectType='%s', objectLabel='%s': %w", label, objectType, objectLabel, err)
 	}

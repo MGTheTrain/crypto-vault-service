@@ -18,8 +18,8 @@ import (
 
 type TestDBContext struct {
 	DB            *gorm.DB
-	BlobRepo      *GormBlobRepository
-	CryptoKeyRepo *GormCryptoKeyRepository
+	BlobRepo      blobs.BlobRepository
+	CryptoKeyRepo keys.CryptoKeyRepository
 }
 
 // SetupTestDB initializes the test database and repositories based on the DB_TYPE environment variable

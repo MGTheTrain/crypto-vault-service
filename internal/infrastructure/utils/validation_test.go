@@ -34,7 +34,7 @@ func TestCheckFilesExist(t *testing.T) {
 	nonExistentFilePath := "non_existent_file.txt"
 
 	// Create the test file to ensure it exists
-	err := os.WriteFile(existingFilePath, []byte("This is a test file."), 0644)
+	err := os.WriteFile(existingFilePath, []byte("This is a test file."), 0600)
 	assert.NoError(t, err, "Expected no error when creating test file")
 
 	// Test with existing file

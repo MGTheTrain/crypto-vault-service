@@ -11,23 +11,23 @@ import (
 	"crypto_vault_service/internal/infrastructure/logger"
 )
 
-// GormCryptoKeyRepository is the implementation of the CryptoKeyRepository interface
-type GormCryptoKeyRepository struct {
+// gormCryptoKeyRepository is the implementation of the CryptoKeyRepository interface
+type gormCryptoKeyRepository struct {
 	db     *gorm.DB
 	logger logger.Logger
 }
 
-// GormCryptoKeyRepository creates a new GormCryptoKeyRepository instance
-func NewGormCryptoKeyRepository(db *gorm.DB, logger logger.Logger) (*GormCryptoKeyRepository, error) {
+// GormCryptoKeyRepository creates a new gormCryptoKeyRepository instance
+func NewGormCryptoKeyRepository(db *gorm.DB, logger logger.Logger) (*gormCryptoKeyRepository, error) {
 
-	return &GormCryptoKeyRepository{
+	return &gormCryptoKeyRepository{
 		db:     db,
 		logger: logger,
 	}, nil
 }
 
 // Create adds a new CryptoKey to the database
-func (r *GormCryptoKeyRepository) Create(ctx context.Context, key *keys.CryptoKeyMeta) error {
+func (r *gormCryptoKeyRepository) Create(ctx context.Context, key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before saving
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %w", err)
@@ -41,7 +41,7 @@ func (r *GormCryptoKeyRepository) Create(ctx context.Context, key *keys.CryptoKe
 	return nil
 }
 
-func (r *GormCryptoKeyRepository) List(ctx context.Context, query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
+func (r *gormCryptoKeyRepository) List(ctx context.Context, query *keys.CryptoKeyQuery) ([]*keys.CryptoKeyMeta, error) {
 	// Validate the query parameters before using them
 	if err := query.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid query parameters: %w", err)
@@ -89,7 +89,7 @@ func (r *GormCryptoKeyRepository) List(ctx context.Context, query *keys.CryptoKe
 }
 
 // GetByID retrieves a CryptoKey by its ID from the database
-func (r *GormCryptoKeyRepository) GetByID(ctx context.Context, keyId string) (*keys.CryptoKeyMeta, error) {
+func (r *gormCryptoKeyRepository) GetByID(ctx context.Context, keyId string) (*keys.CryptoKeyMeta, error) {
 	var key keys.CryptoKeyMeta
 	if err := r.db.WithContext(ctx).Where("id = ?", keyId).First(&key).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -102,7 +102,7 @@ func (r *GormCryptoKeyRepository) GetByID(ctx context.Context, keyId string) (*k
 }
 
 // UpdateByID updates an existing CryptoKey in the database
-func (r *GormCryptoKeyRepository) UpdateByID(ctx context.Context, key *keys.CryptoKeyMeta) error {
+func (r *gormCryptoKeyRepository) UpdateByID(ctx context.Context, key *keys.CryptoKeyMeta) error {
 	// Validate the CryptoKey before updating
 	if err := key.Validate(); err != nil {
 		return fmt.Errorf("validation error: %w", err)
@@ -117,7 +117,7 @@ func (r *GormCryptoKeyRepository) UpdateByID(ctx context.Context, key *keys.Cryp
 }
 
 // DeleteByID removes a CryptoKey from the database by its ID
-func (r *GormCryptoKeyRepository) DeleteByID(ctx context.Context, keyId string) error {
+func (r *gormCryptoKeyRepository) DeleteByID(ctx context.Context, keyId string) error {
 	if err := r.db.WithContext(ctx).Where("id = ?", keyId).Delete(&keys.CryptoKeyMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete cryptographic key: %w", err)
 	}

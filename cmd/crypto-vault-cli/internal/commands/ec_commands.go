@@ -9,14 +9,15 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
 type ECCommandHandler struct {
-	ec     *cryptography.EC
-	Logger logger.Logger
+	ecProcessor cryptography.ECProcessor
+	Logger      logger.Logger
 }
 
 func NewECCommandHandler() *ECCommandHandler {
@@ -32,15 +33,15 @@ func NewECCommandHandler() *ECCommandHandler {
 		return nil
 	}
 
-	ec, err := cryptography.NewEC(logger)
+	ecProcessor, err := cryptography.NewECProcessor(logger)
 	if err != nil {
 		log.Panicf("%v\n", err)
 		return nil
 	}
 
 	return &ECCommandHandler{
-		ec:     ec,
-		Logger: logger,
+		ecProcessor: ecProcessor,
+		Logger:      logger,
 	}
 }
 
@@ -66,21 +67,21 @@ func (commandHandler *ECCommandHandler) GenerateECKeysCmd(cmd *cobra.Command, ar
 		return
 	}
 
-	privateKey, publicKey, err := commandHandler.ec.GenerateKeys(curve)
+	privateKey, publicKey, err := commandHandler.ecProcessor.GenerateKeys(curve)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
-	err = commandHandler.ec.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
+	err = commandHandler.ecProcessor.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
-	err = commandHandler.ec.SavePublicKeyToFile(publicKey, publicKeyFilePath)
+	err = commandHandler.ecProcessor.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -93,25 +94,25 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []st
 	privateKeyFilePath, _ := cmd.Flags().GetString("private-key")
 	signatureFilePath, _ := cmd.Flags().GetString("output-file")
 
-	fileContent, err := os.ReadFile(inputFilePath)
+	fileContent, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	privateKey, err := commandHandler.ec.ReadPrivateKey(privateKeyFilePath, elliptic.P256())
+	privateKey, err := commandHandler.ecProcessor.ReadPrivateKey(privateKeyFilePath, elliptic.P256())
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	signature, err := commandHandler.ec.Sign(fileContent, privateKey)
+	signature, err := commandHandler.ecProcessor.Sign(fileContent, privateKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	err = commandHandler.ec.SaveSignatureToFile(signatureFilePath, signature)
+	err = commandHandler.ecProcessor.SaveSignatureToFile(signatureFilePath, signature)
 	if err != nil {
 		if err != nil {
 			commandHandler.Logger.Error(fmt.Sprintf("%v", err))
@@ -126,19 +127,19 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
 	signatureFile, _ := cmd.Flags().GetString("signature-file")
 
-	publicKey, err := commandHandler.ec.ReadPublicKey(publicKeyPath, elliptic.P256())
+	publicKey, err := commandHandler.ecProcessor.ReadPublicKey(publicKeyPath, elliptic.P256())
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	fileContent, err := os.ReadFile(inputFilePath)
+	fileContent, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	signatureHex, err := os.ReadFile(signatureFile)
+	signatureHex, err := os.ReadFile(filepath.Clean(signatureFile))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -150,7 +151,7 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []
 		return
 	}
 
-	valid, err := commandHandler.ec.Verify(fileContent, signature, publicKey)
+	valid, err := commandHandler.ecProcessor.Verify(fileContent, signature, publicKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
