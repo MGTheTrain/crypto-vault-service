@@ -38,7 +38,7 @@ run-integration-tests:
 
 run-unit-and-integration-tests:
 	@echo "Running unit and integration tests... Generating $(COVERAGE_HTML_FILE) file..."
-	@go test ./internal/... --tags="unit integration" -cover -coverprofile=$(COVERAGE_OUT_FILE) -v
+	@go test ./internal/... --tags="unit integration" -cover -coverprofile=$(COVERAGE_OUT_FILE)
 	@go tool cover -html=$(COVERAGE_OUT_FILE) -o $(COVERAGE_HTML_FILE)
 
 check-coverage: run-unit-and-integration-tests
