@@ -14,8 +14,8 @@ import (
 )
 
 type AESCommandHandler struct {
-	aes    *cryptography.AES
-	Logger logger.Logger
+	aesProcessor cryptography.AESProcessor
+	Logger       logger.Logger
 }
 
 func NewAESCommandHandler() *AESCommandHandler {
@@ -31,15 +31,15 @@ func NewAESCommandHandler() *AESCommandHandler {
 		return nil
 	}
 
-	aes, err := cryptography.NewAES(logger)
+	aesProcessor, err := cryptography.NewAESProcessor(logger)
 	if err != nil {
 		log.Panicf("%v\n", err)
 		return nil
 	}
 
 	return &AESCommandHandler{
-		aes:    aes,
-		Logger: logger,
+		aesProcessor: aesProcessor,
+		Logger:       logger,
 	}
 }
 
@@ -50,7 +50,7 @@ func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, 
 
 	uniqueID := uuid.New()
 
-	secretKey, err := commandHandler.aes.GenerateKey(keySize)
+	secretKey, err := commandHandler.aesProcessor.GenerateKey(keySize)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -83,7 +83,7 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	encryptedData, err := commandHandler.aes.Encrypt(plainText, key)
+	encryptedData, err := commandHandler.aesProcessor.Encrypt(plainText, key)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -116,7 +116,7 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	decryptedData, err := commandHandler.aes.Decrypt(encryptedData, key)
+	decryptedData, err := commandHandler.aesProcessor.Decrypt(encryptedData, key)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return

@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/utils"
@@ -19,36 +18,36 @@ import (
 
 type BlobUploadServer struct {
 	pb.UnimplementedBlobUploadServer
-	blobUploadService *services.BlobUploadService
+	blobUploadService blobs.BlobUploadService
 }
 
 type BlobDownloadServer struct {
 	pb.UnimplementedBlobDownloadServer
-	blobDownloadService *services.BlobDownloadService
+	blobDownloadService blobs.BlobDownloadService
 }
 
 type BlobMetadataServer struct {
 	pb.UnimplementedBlobMetadataServer
-	blobMetadataService *services.BlobMetadataService
+	blobMetadataService blobs.BlobMetadataService
 }
 
 type CryptoKeyUploadServer struct {
 	pb.UnimplementedCryptoKeyUploadServer
-	cryptoKeyUploadService *services.CryptoKeyUploadService
+	cryptoKeyUploadService keys.CryptoKeyUploadService
 }
 
 type CryptoKeyDownloadServer struct {
 	pb.UnimplementedCryptoKeyDownloadServer
-	cryptoKeyDownloadService *services.CryptoKeyDownloadService
+	cryptoKeyDownloadService keys.CryptoKeyDownloadService
 }
 
 type CryptoKeyMetadataServer struct {
 	pb.UnimplementedCryptoKeyMetadataServer
-	cryptoKeyMetadataService *services.CryptoKeyMetadataService
+	cryptoKeyMetadataService keys.CryptoKeyMetadataService
 }
 
 // NewBlobUploadServer creates a new instance of BlobUploadServer.
-func NewBlobUploadServer(blobUploadService *services.BlobUploadService) (*BlobUploadServer, error) {
+func NewBlobUploadServer(blobUploadService blobs.BlobUploadService) (*BlobUploadServer, error) {
 	return &BlobUploadServer{
 		blobUploadService: blobUploadService,
 	}, nil
@@ -110,7 +109,7 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 }
 
 // NewBlobDownloadServer creates a new instance of BlobDownloadServer.
-func NewBlobDownloadServer(blobDownloadService *services.BlobDownloadService) (*BlobDownloadServer, error) {
+func NewBlobDownloadServer(blobDownloadService blobs.BlobDownloadService) (*BlobDownloadServer, error) {
 	return &BlobDownloadServer{
 		blobDownloadService: blobDownloadService,
 	}, nil
@@ -151,7 +150,7 @@ func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb
 }
 
 // NewBlobMetadataServer creates a new instance of BlobMetadataServer.
-func NewBlobMetadataServer(blobMetadataService *services.BlobMetadataService) (*BlobMetadataServer, error) {
+func NewBlobMetadataServer(blobMetadataService blobs.BlobMetadataService) (*BlobMetadataServer, error) {
 	return &BlobMetadataServer{
 		blobMetadataService: blobMetadataService,
 	}, nil
@@ -252,7 +251,7 @@ func (s *BlobMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) 
 }
 
 // NewCryptoKeyUploadServer creates a new instance of CryptoKeyUploadServer.
-func NewCryptoKeyUploadServer(cryptoKeyUploadService *services.CryptoKeyUploadService) (*CryptoKeyUploadServer, error) {
+func NewCryptoKeyUploadServer(cryptoKeyUploadService keys.CryptoKeyUploadService) (*CryptoKeyUploadServer, error) {
 	return &CryptoKeyUploadServer{
 		cryptoKeyUploadService: cryptoKeyUploadService,
 	}, nil
@@ -287,7 +286,7 @@ func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.Crypt
 }
 
 // NewCryptoKeyDownloadServer creates a new instance of CryptoKeyDownloadServer.
-func NewCryptoKeyDownloadServer(cryptoKeyDownloadService *services.CryptoKeyDownloadService) (*CryptoKeyDownloadServer, error) {
+func NewCryptoKeyDownloadServer(cryptoKeyDownloadService keys.CryptoKeyDownloadService) (*CryptoKeyDownloadServer, error) {
 	return &CryptoKeyDownloadServer{
 		cryptoKeyDownloadService: cryptoKeyDownloadService,
 	}, nil
@@ -323,7 +322,7 @@ func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, strea
 }
 
 // NewCryptoKeyMetadataServer creates a new instance of CryptoKeyMetadataServer.
-func NewCryptoKeyMetadataServer(cryptoKeyMetadataService *services.CryptoKeyMetadataService) (*CryptoKeyMetadataServer, error) {
+func NewCryptoKeyMetadataServer(cryptoKeyMetadataService keys.CryptoKeyMetadataService) (*CryptoKeyMetadataServer, error) {
 	return &CryptoKeyMetadataServer{
 		cryptoKeyMetadataService: cryptoKeyMetadataService,
 	}, nil

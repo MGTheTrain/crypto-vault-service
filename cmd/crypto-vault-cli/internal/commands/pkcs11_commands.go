@@ -14,7 +14,7 @@ import (
 
 // PKCS11CommandsHandler holds settings and methods for managing PKCS#11 token operations
 type PKCS11CommandsHandler struct {
-	pkcs11Handler cryptography.IPKCS11Handler
+	pkcs11Handler cryptography.PKCS11Handler
 	Logger        logger.Logger
 }
 

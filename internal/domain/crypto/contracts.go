@@ -1,7 +1,7 @@
 package crypto
 
-// ICryptoKeyOperationService defines methods for local cryptographic key management, encryption, signing, and PKCS#11 operations.
-type ICryptoKeyOperationService interface {
+// CryptoKeyOperationService defines methods for local cryptographic key management, encryption, signing, and PKCS#11 operations.
+type CryptoKeyOperationService interface {
 
 	// --- Key Generation ---
 

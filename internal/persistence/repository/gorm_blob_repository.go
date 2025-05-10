@@ -10,23 +10,23 @@ import (
 	"gorm.io/gorm"
 )
 
-// GormBlobRepository is the implementation of the BlobRepository interface
-type GormBlobRepository struct {
+// gormBlobRepository is the implementation of the BlobRepository interface
+type gormBlobRepository struct {
 	db     *gorm.DB
 	logger logger.Logger
 }
 
-// NewGormBlobRepository creates a new GormBlobRepository instance
-func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*GormBlobRepository, error) {
+// NewGormBlobRepository creates a new gormBlobRepository instance
+func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*gormBlobRepository, error) {
 
-	return &GormBlobRepository{
+	return &gormBlobRepository{
 		db:     db,
 		logger: logger,
 	}, nil
 }
 
 // Create adds a new Blob to the database
-func (r *GormBlobRepository) Create(ctx context.Context, blob *blobs.BlobMeta) error {
+func (r *gormBlobRepository) Create(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before saving
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %w", err)
@@ -39,7 +39,7 @@ func (r *GormBlobRepository) Create(ctx context.Context, blob *blobs.BlobMeta) e
 	return nil
 }
 
-func (r *GormBlobRepository) List(ctx context.Context, query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
+func (r *gormBlobRepository) List(ctx context.Context, query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
 	// Validate the query parameters before using them
 	if err := query.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid query parameters: %w", err)
@@ -90,7 +90,7 @@ func (r *GormBlobRepository) List(ctx context.Context, query *blobs.BlobMetaQuer
 }
 
 // GetById retrieves a Blob by its ID from the database
-func (r *GormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
+func (r *gormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
 	var blob blobs.BlobMeta
 	if err := r.db.WithContext(ctx).Where("id = ?", blobId).First(&blob).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -103,7 +103,7 @@ func (r *GormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs
 }
 
 // UpdateById updates an existing Blob in the database
-func (r *GormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMeta) error {
+func (r *gormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %w", err)
@@ -117,7 +117,7 @@ func (r *GormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMet
 }
 
 // DeleteById removes a Blob from the database by its ID
-func (r *GormBlobRepository) DeleteById(ctx context.Context, blobId string) error {
+func (r *gormBlobRepository) DeleteById(ctx context.Context, blobId string) error {
 	if err := r.db.WithContext(ctx).Where("id = ?", blobId).Delete(&blobs.BlobMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}

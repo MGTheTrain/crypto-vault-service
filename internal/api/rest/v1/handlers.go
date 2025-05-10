@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"crypto_vault_service/internal/app/services"
 	"crypto_vault_service/internal/domain/blobs"
 	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/utils"
@@ -16,14 +15,14 @@ import (
 
 // BlobHandler struct holds the services
 type BlobHandler struct {
-	blobUploadService      *services.BlobUploadService
-	blobDownloadService    *services.BlobDownloadService
-	blobMetadataService    *services.BlobMetadataService
-	cryptoKeyUploadService *services.CryptoKeyUploadService
+	blobUploadService      blobs.BlobUploadService
+	blobMetadataService    blobs.BlobMetadataService
+	blobDownloadService    blobs.BlobDownloadService
+	cryptoKeyUploadService keys.CryptoKeyUploadService
 }
 
 // NewBlobHandler creates a new BlobHandler
-func NewBlobHandler(blobUploadService *services.BlobUploadService, blobDownloadService *services.BlobDownloadService, blobMetadataService *services.BlobMetadataService, cryptoKeyUploadService *services.CryptoKeyUploadService) *BlobHandler {
+func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) *BlobHandler {
 	return &BlobHandler{
 		blobUploadService:      blobUploadService,
 		blobDownloadService:    blobDownloadService,
@@ -308,13 +307,13 @@ func (handler *BlobHandler) DeleteById(ctx *gin.Context) {
 
 // KeyHandler struct holds the services
 type KeyHandler struct {
-	cryptoKeyUploadService   *services.CryptoKeyUploadService
-	cryptoKeyDownloadService *services.CryptoKeyDownloadService
-	cryptoKeyMetadataService *services.CryptoKeyMetadataService
+	cryptoKeyUploadService   keys.CryptoKeyUploadService
+	cryptoKeyDownloadService keys.CryptoKeyDownloadService
+	cryptoKeyMetadataService keys.CryptoKeyMetadataService
 }
 
 // NewKeyHandler creates a new KeyHandler
-func NewKeyHandler(cryptoKeyUploadService *services.CryptoKeyUploadService, cryptoKeyDownloadService *services.CryptoKeyDownloadService, cryptoKeyMetadataService *services.CryptoKeyMetadataService) *KeyHandler {
+func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKeyDownloadService keys.CryptoKeyDownloadService, cryptoKeyMetadataService keys.CryptoKeyMetadataService) *KeyHandler {
 
 	return &KeyHandler{
 		cryptoKeyUploadService:   cryptoKeyUploadService,

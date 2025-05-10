@@ -13,8 +13,8 @@ import (
 )
 
 type RSACommandHandler struct {
-	rsa    *cryptography.RSA
-	Logger logger.Logger
+	rsaProcessor cryptography.RSAProcessor
+	Logger       logger.Logger
 }
 
 func NewRSACommandHandler() *RSACommandHandler {
@@ -30,15 +30,15 @@ func NewRSACommandHandler() *RSACommandHandler {
 		return nil
 	}
 
-	rsa, err := cryptography.NewRSA(logger)
+	rsaProcessor, err := cryptography.NewRSAProcessor(logger)
 	if err != nil {
 		log.Panicf("%v\n", err)
 		return nil
 	}
 
 	return &RSACommandHandler{
-		rsa:    rsa,
-		Logger: logger,
+		rsaProcessor: rsaProcessor,
+		Logger:       logger,
 	}
 }
 
@@ -49,7 +49,7 @@ func (commandHandler *RSACommandHandler) GenerateRSAKeysCmd(cmd *cobra.Command, 
 
 	uniqueID := uuid.New()
 
-	privateKey, publicKey, err := commandHandler.rsa.GenerateKeys(keySize)
+	privateKey, publicKey, err := commandHandler.rsaProcessor.GenerateKeys(keySize)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -57,14 +57,14 @@ func (commandHandler *RSACommandHandler) GenerateRSAKeysCmd(cmd *cobra.Command, 
 
 	privateKeyFilePath := fmt.Sprintf("%s/%s-private-key.pem", keyDir, uniqueID.String())
 
-	err = commandHandler.rsa.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
+	err = commandHandler.rsaProcessor.SavePrivateKeyToFile(privateKey, privateKeyFilePath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
 	publicKeyFilePath := fmt.Sprintf("%s/%s-public-key.pem", keyDir, uniqueID.String())
-	err = commandHandler.rsa.SavePublicKeyToFile(publicKey, publicKeyFilePath)
+	err = commandHandler.rsaProcessor.SavePublicKeyToFile(publicKey, publicKeyFilePath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -77,7 +77,7 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 	outputFile, _ := cmd.Flags().GetString("output-file")
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
 
-	publicKey, err := commandHandler.rsa.ReadPublicKey(publicKeyPath)
+	publicKey, err := commandHandler.rsaProcessor.ReadPublicKey(publicKeyPath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -89,7 +89,7 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	encryptedData, err := commandHandler.rsa.Encrypt(plainText, publicKey)
+	encryptedData, err := commandHandler.rsaProcessor.Encrypt(plainText, publicKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -110,7 +110,7 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 	outputFile, _ := cmd.Flags().GetString("output-file")
 	privateKeyPath, _ := cmd.Flags().GetString("private-key")
 
-	privateKey, err := commandHandler.rsa.ReadPrivateKey(privateKeyPath)
+	privateKey, err := commandHandler.rsaProcessor.ReadPrivateKey(privateKeyPath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -122,7 +122,7 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	decryptedData, err := commandHandler.rsa.Decrypt(encryptedData, privateKey)
+	decryptedData, err := commandHandler.rsaProcessor.Decrypt(encryptedData, privateKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -144,7 +144,7 @@ func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []s
 	privateKeyPath, _ := cmd.Flags().GetString("private-key")
 
 	// Read private key
-	privateKey, err := commandHandler.rsa.ReadPrivateKey(privateKeyPath)
+	privateKey, err := commandHandler.rsaProcessor.ReadPrivateKey(privateKeyPath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -158,7 +158,7 @@ func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []s
 	}
 
 	// Sign the data
-	signature, err := commandHandler.rsa.Sign(data, privateKey)
+	signature, err := commandHandler.rsaProcessor.Sign(data, privateKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -181,7 +181,7 @@ func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, args [
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
 
 	// Read public key
-	publicKey, err := commandHandler.rsa.ReadPublicKey(publicKeyPath)
+	publicKey, err := commandHandler.rsaProcessor.ReadPublicKey(publicKeyPath)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -201,7 +201,7 @@ func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, args [
 	}
 
 	// Verify the signature
-	valid, err := commandHandler.rsa.Verify(data, signature, publicKey)
+	valid, err := commandHandler.rsaProcessor.Verify(data, signature, publicKey)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return

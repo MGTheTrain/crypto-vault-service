@@ -17,16 +17,16 @@ import (
 	"github.com/google/uuid"
 )
 
-// AzureBlobConnector is a struct that holds the Azure Blob storage client and implements the BlobConnector interfaces.
-type AzureBlobConnector struct {
+// azureBlobConnector is a struct that holds the Azure Blob storage client and implements the BlobConnector interfaces.
+type azureBlobConnector struct {
 	client        *azblob.Client
 	containerName string
 	logger        logger.Logger
 }
 
-// NewAzureBlobConnector creates a new AzureBlobConnector instance using a connection string.
+// NewAzureBlobConnector creates a new azureBlobConnector instance using a connection string.
 // It returns the connector and any error encountered during the initialization.
-func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (*AzureBlobConnector, error) {
+func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (*azureBlobConnector, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
@@ -41,7 +41,7 @@ func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnector
 	// 	fmt.Printf("Failed to create Azure container: %v\n", err)
 	// }
 
-	return &AzureBlobConnector{
+	return &azureBlobConnector{
 		client:        client,
 		containerName: settings.ContainerName,
 		logger:        logger,
@@ -50,7 +50,7 @@ func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnector
 
 // UploadFromForm uploads files to a Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (abc *AzureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
+func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 
 	fileHeaders := form.File["files"]
@@ -120,7 +120,7 @@ func (abc *AzureBlobConnector) Upload(ctx context.Context, form *multipart.Form,
 }
 
 // rollbackUploadedBlobs deletes the blobs that were uploaded successfully before the error occurred
-func (abc *AzureBlobConnector) rollbackUploadedBlobs(ctx context.Context, blobs []*blobs.BlobMeta) {
+func (abc *azureBlobConnector) rollbackUploadedBlobs(ctx context.Context, blobs []*blobs.BlobMeta) {
 	for _, blob := range blobs {
 		err := abc.Delete(ctx, blob.ID, blob.Name)
 		if err != nil {
@@ -132,7 +132,7 @@ func (abc *AzureBlobConnector) rollbackUploadedBlobs(ctx context.Context, blobs 
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *AzureBlobConnector) Download(ctx context.Context, blobId, blobName string) ([]byte, error) {
+func (abc *azureBlobConnector) Download(ctx context.Context, blobId, blobName string) ([]byte, error) {
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
 	get, err := abc.client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
@@ -158,7 +158,7 @@ func (abc *AzureBlobConnector) Download(ctx context.Context, blobId, blobName st
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
-func (abc *AzureBlobConnector) Delete(ctx context.Context, blobId, blobName string) error {
+func (abc *azureBlobConnector) Delete(ctx context.Context, blobId, blobName string) error {
 	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
 
 	_, err := abc.client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)

@@ -6,6 +6,7 @@ package services
 import (
 	"context"
 	"crypto_vault_service/internal/domain/blobs"
+	"crypto_vault_service/internal/domain/keys"
 	"crypto_vault_service/internal/infrastructure/connector"
 	"crypto_vault_service/internal/infrastructure/logger"
 	"crypto_vault_service/internal/infrastructure/settings"
@@ -20,11 +21,11 @@ import (
 )
 
 type BlobServicesTest struct {
-	BlobUploadService      *BlobUploadService
-	BlobDownloadService    *BlobDownloadService
-	BlobMetadataService    *BlobMetadataService
-	CryptoKeyUploadService *CryptoKeyUploadService
-	DBContext              *repository.TestDBContext
+	blobUploadService      blobs.BlobUploadService
+	blobDownloadService    blobs.BlobDownloadService
+	blobMetadataService    blobs.BlobMetadataService
+	cryptoKeyUploadService keys.CryptoKeyUploadService
+	dbContext              *repository.TestDBContext
 }
 
 func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
@@ -70,18 +71,18 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	require.NoError(t, err, "Error creating CryptoKeyUploadService")
 
 	return &BlobServicesTest{
-		BlobUploadService:      blobUploadService,
-		BlobDownloadService:    blobDownloadService,
-		BlobMetadataService:    blobMetadataService,
-		CryptoKeyUploadService: cryptoKeyUploadService,
-		DBContext:              dbContext,
+		blobUploadService:      blobUploadService,
+		blobDownloadService:    blobDownloadService,
+		blobMetadataService:    blobMetadataService,
+		cryptoKeyUploadService: cryptoKeyUploadService,
+		dbContext:              dbContext,
 	}
 }
 
 // Test case for successful blob upload with RSA encryption and signing
 func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -95,14 +96,14 @@ func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *tes
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := blobServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 
 	signKeyId := cryptoKeyMetas[0].ID       // private key
 	encryptionKeyId := cryptoKeyMetas[1].ID // public key
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, &encryptionKeyId, &signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, &encryptionKeyId, &signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 	require.NotEmpty(t, blobMetas[0].ID)
@@ -112,7 +113,7 @@ func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *tes
 // Test case for successful blob upload with AES encryption and ECDSA signing
 func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -127,7 +128,7 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 	signKeySize := 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := blobServices.CryptoKeyUploadService.Upload(ctx, userId, signKeyAlgorithm, uint(signKeySize))
+	cryptoKeyMetas, err := blobServices.cryptoKeyUploadService.Upload(ctx, userId, signKeyAlgorithm, uint(signKeySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 
@@ -135,14 +136,14 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 	encryptionKeyAlgorithm := "AES"
 	encryptionKeySize := 256
 
-	cryptoKeyMetas2, err := blobServices.CryptoKeyUploadService.Upload(ctx, userId, encryptionKeyAlgorithm, uint(encryptionKeySize))
+	cryptoKeyMetas2, err := blobServices.cryptoKeyUploadService.Upload(ctx, userId, encryptionKeyAlgorithm, uint(encryptionKeySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas2), 1)
 
 	signKeyId := cryptoKeyMetas[0].ID        // private key
 	encryptionKeyId := cryptoKeyMetas2[0].ID // symmetric key
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, &encryptionKeyId, &signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, &encryptionKeyId, &signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 	require.NotEmpty(t, blobMetas[0].ID)
@@ -152,7 +153,7 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 // Test case for successful blob upload without encryption and signing
 func TestBlobUploadService_Upload_Without_Encryption_And_Signing_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -165,7 +166,7 @@ func TestBlobUploadService_Upload_Without_Encryption_And_Signing_Success(t *test
 	var signKeyId *string = nil
 	ctx := context.Background()
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 	require.NotEmpty(t, blobMetas[0].ID)
@@ -175,7 +176,7 @@ func TestBlobUploadService_Upload_Without_Encryption_And_Signing_Success(t *test
 // Test case for failed blob upload due to invalid encryption key
 func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -188,7 +189,7 @@ func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 	signKeyId := uuid.New().String()
 	ctx := context.Background()
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, &invalidEncryptionKeyId, &signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, &invalidEncryptionKeyId, &signKeyId)
 	require.Error(t, err)
 	require.Nil(t, blobMetas)
 }
@@ -196,7 +197,7 @@ func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 // Test case for successful blob download
 func TestBlobDownloadService_Download_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -209,14 +210,14 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 	var signKeyId *string = nil
 	ctx := context.Background()
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
 	// decryptionKeyId := uuid.New().String()
 
-	// blobData, err := blobServices.BlobDownloadService.Download(blobId, &decryptionKeyId)
-	blobData, err := blobServices.BlobDownloadService.Download(ctx, blobMetas[0].ID, nil)
+	// blobData, err := blobServices.blobDownloadService.Download(blobId, &decryptionKeyId)
+	blobData, err := blobServices.blobDownloadService.Download(ctx, blobMetas[0].ID, nil)
 	require.NoError(t, err)
 	require.NotNil(t, blobData)
 	require.NotEmpty(t, blobData)
@@ -225,13 +226,13 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 // Test case for failed blob download with invalid decryption key
 func TestBlobDownloadService_Download_Fail_InvalidDecryptionKey(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	blobId := uuid.New().String()
 	invalidDecryptionKeyId := "invalid-decryption-key-id"
 	ctx := context.Background()
 
-	blobData, err := blobServices.BlobDownloadService.Download(ctx, blobId, &invalidDecryptionKeyId)
+	blobData, err := blobServices.blobDownloadService.Download(ctx, blobId, &invalidDecryptionKeyId)
 	require.Error(t, err)
 	require.Nil(t, blobData)
 }
@@ -239,7 +240,7 @@ func TestBlobDownloadService_Download_Fail_InvalidDecryptionKey(t *testing.T) {
 // Test case for successful listing of blob metadata
 func TestBlobMetadataService_List_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -255,13 +256,13 @@ func TestBlobMetadataService_List_Success(t *testing.T) {
 	// signKeyId := uuid.New().String()
 	ctx := context.Background()
 
-	// blobMetas, err := blobServices.BlobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, nil, nil)
+	// blobMetas, err := blobServices.blobUploadService.Upload(form, userId, &encryptionKeyId, &signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, nil, nil)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
 	query := &blobs.BlobMetaQuery{}
-	blobMetas, err = blobServices.BlobMetadataService.List(ctx, query)
+	blobMetas, err = blobServices.blobMetadataService.List(ctx, query)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 	require.Greater(t, len(blobMetas), 0)
@@ -270,7 +271,7 @@ func TestBlobMetadataService_List_Success(t *testing.T) {
 // Test case for successful retrieval of blob metadata by ID
 func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -283,11 +284,11 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 	var signKeyId *string = nil
 	ctx := context.Background()
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
-	blobMeta, err := blobServices.BlobMetadataService.GetByID(ctx, blobMetas[0].ID)
+	blobMeta, err := blobServices.blobMetadataService.GetByID(ctx, blobMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, blobMeta)
 	require.Equal(t, blobMetas[0].ID, blobMeta.ID)
@@ -296,7 +297,7 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 // Test case for successful deletion of blob metadata by ID
 func TestBlobMetadataService_DeleteByID_Success(t *testing.T) {
 	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.DBContext, "sqlite")
+	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -309,16 +310,16 @@ func TestBlobMetadataService_DeleteByID_Success(t *testing.T) {
 	var signKeyId *string = nil
 	ctx := context.Background()
 
-	blobMetas, err := blobServices.BlobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := blobServices.blobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
 	require.NoError(t, err)
 	require.NotNil(t, blobMetas)
 
-	err = blobServices.BlobMetadataService.DeleteByID(ctx, blobMetas[0].ID)
+	err = blobServices.blobMetadataService.DeleteByID(ctx, blobMetas[0].ID)
 	require.NoError(t, err)
 
 	// Verify deletion
 	var deletedBlobMeta blobs.BlobMeta
-	err = blobServices.DBContext.DB.First(&deletedBlobMeta, "id = ?", blobMetas[0].ID).Error
+	err = blobServices.dbContext.DB.First(&deletedBlobMeta, "id = ?", blobMetas[0].ID).Error
 	require.Error(t, err)
 	require.Equal(t, gorm.ErrRecordNotFound, err)
 }

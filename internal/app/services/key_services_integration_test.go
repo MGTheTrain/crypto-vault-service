@@ -19,10 +19,10 @@ import (
 )
 
 type KeyServicesTest struct {
-	CryptoKeyUploadService   *CryptoKeyUploadService
-	CryptoKeyMetadataService *CryptoKeyMetadataService
-	CryptoKeyDownloadService *CryptoKeyDownloadService
-	DBContext                *repository.TestDBContext
+	cryptoKeyUploadService   keys.CryptoKeyUploadService
+	cryptoKeyMetadataService keys.CryptoKeyMetadataService
+	cryptoKeyDownloadService keys.CryptoKeyDownloadService
+	dbContext                *repository.TestDBContext
 }
 
 func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
@@ -61,10 +61,10 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 
 	// Return struct with services and context
 	return &KeyServicesTest{
-		CryptoKeyUploadService:   cryptoKeyUploadService,
-		CryptoKeyMetadataService: cryptoKeyMetadataService,
-		CryptoKeyDownloadService: cryptoKeyDownloadService,
-		DBContext:                dbContext,
+		cryptoKeyUploadService:   cryptoKeyUploadService,
+		cryptoKeyMetadataService: cryptoKeyMetadataService,
+		cryptoKeyDownloadService: cryptoKeyDownloadService,
+		dbContext:                dbContext,
 	}
 }
 
@@ -72,14 +72,14 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 	require.NotNil(t, cryptoKeyMetas)
@@ -94,17 +94,17 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	fetchedCryptoKeyMeta, err := keyServices.CryptoKeyMetadataService.GetByID(ctx, cryptoKeyMetas[0].ID)
+	fetchedCryptoKeyMeta, err := keyServices.cryptoKeyMetadataService.GetByID(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedCryptoKeyMeta)
 	require.Equal(t, cryptoKeyMetas[0].ID, fetchedCryptoKeyMeta.ID)
@@ -114,21 +114,21 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 521
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	err = keyServices.CryptoKeyMetadataService.DeleteByID(ctx, cryptoKeyMetas[0].ID)
+	err = keyServices.cryptoKeyMetadataService.DeleteByID(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 
 	var deletedCryptoKeyMeta keys.CryptoKeyMeta
-	err = keyServices.DBContext.DB.First(&deletedCryptoKeyMeta, "id = ?", cryptoKeyMetas[0].ID).Error
+	err = keyServices.dbContext.DB.First(&deletedCryptoKeyMeta, "id = ?", cryptoKeyMetas[0].ID).Error
 	require.Error(t, err)
 	require.Equal(t, gorm.ErrRecordNotFound, err)
 }
@@ -137,17 +137,17 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
-	defer repository.TeardownTestDB(t, keyServices.DBContext, dbType)
+	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
 	keySize := 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.CryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
 	require.NoError(t, err)
 
-	blobData, err := keyServices.CryptoKeyDownloadService.Download(ctx, cryptoKeyMetas[0].ID)
+	blobData, err := keyServices.cryptoKeyDownloadService.Download(ctx, cryptoKeyMetas[0].ID)
 	require.NoError(t, err)
 	require.NotNil(t, blobData)
 	require.NotEmpty(t, blobData)
