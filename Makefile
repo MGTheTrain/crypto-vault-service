@@ -31,7 +31,7 @@ lint-results:
 
 run-unit-tests:
 	@echo "Running unit tests..."
-	@go test ./internal/... --tags="integration" -cover
+	@go test ./internal/... --tags="unit" -cover
 
 run-integration-tests:
 	@echo "Running integration tests..."
