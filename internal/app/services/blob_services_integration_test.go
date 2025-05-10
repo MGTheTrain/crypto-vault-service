@@ -12,6 +12,8 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"crypto_vault_service/internal/infrastructure/utils"
 	"crypto_vault_service/internal/persistence/repository"
+	"fmt"
+	"mime/multipart"
 	"os"
 	"testing"
 
@@ -19,6 +21,32 @@ import (
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
+
+// Helper function to create test files
+func CreateTestFile(fileName string, content []byte) error {
+	err := os.WriteFile(fileName, content, 0600)
+	if err != nil {
+		return fmt.Errorf("failed to create test file: %w", err)
+	}
+	return nil
+}
+
+// Helper function to create a test file and form
+func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*multipart.Form, error) {
+	err := CreateTestFile(fileName, fileContent)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		if err := os.Remove(fileName); err != nil {
+			t.Logf("failed to remove temporary file %s: %v", fileName, err)
+		}
+	})
+
+	form, err := utils.CreateForm(fileContent, fileName)
+	require.NoError(t, err)
+
+	return form, nil
+}
 
 type BlobServicesTest struct {
 	blobUploadService      blobs.BlobUploadService
@@ -88,7 +116,7 @@ func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *tes
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -120,7 +148,7 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -161,7 +189,7 @@ func TestBlobUploadService_Upload_Without_Encryption_And_Signing_Success(t *test
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -185,7 +213,7 @@ func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -207,7 +235,7 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -251,7 +279,7 @@ func TestBlobMetadataService_List_Success(t *testing.T) {
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
-	err := utils.CreateTestFile(testFileName, testFileContent)
+	err := CreateTestFile(testFileName, testFileContent)
 	require.NoError(t, err)
 	defer os.Remove(testFileName)
 
@@ -284,7 +312,7 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
@@ -311,7 +339,7 @@ func TestBlobMetadataService_DeleteByID_Success(t *testing.T) {
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
 
-	form, err := utils.CreateTestFileAndForm(t, testFileName, testFileContent)
+	form, err := CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
 	userId := uuid.New().String()
