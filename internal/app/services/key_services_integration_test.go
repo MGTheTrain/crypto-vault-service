@@ -76,10 +76,10 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
-	keySize := 256
+	var keySize uint32 = 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, keySize)
 	require.NoError(t, err)
 	require.Equal(t, len(cryptoKeyMetas), 2)
 	require.NotNil(t, cryptoKeyMetas)
@@ -98,10 +98,10 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
-	keySize := 256
+	var keySize uint32 = 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, keySize)
 	require.NoError(t, err)
 
 	fetchedCryptoKeyMeta, err := keyServices.cryptoKeyMetadataService.GetByID(ctx, cryptoKeyMetas[0].ID)
@@ -118,10 +118,10 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
-	keySize := 521
+	var keySize uint32 = 521
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, keySize)
 	require.NoError(t, err)
 
 	err = keyServices.cryptoKeyMetadataService.DeleteByID(ctx, cryptoKeyMetas[0].ID)
@@ -141,10 +141,10 @@ func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
 
 	userId := uuid.New().String()
 	keyAlgorithm := "EC"
-	keySize := 256
+	var keySize uint32 = 256
 	ctx := context.Background()
 
-	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, uint(keySize))
+	cryptoKeyMetas, err := keyServices.cryptoKeyUploadService.Upload(ctx, userId, keyAlgorithm, keySize)
 	require.NoError(t, err)
 
 	blobData, err := keyServices.cryptoKeyDownloadService.Download(ctx, cryptoKeyMetas[0].ID)

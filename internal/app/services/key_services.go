@@ -31,7 +31,7 @@ func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKe
 
 // Upload uploads cryptographic keys
 // It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-func (s *cryptoKeyUploadService) Upload(ctx context.Context, userId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) Upload(ctx context.Context, userId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var cryptKeyMetas []*keys.CryptoKeyMeta
 
 	keyPairId := uuid.New().String()
@@ -55,7 +55,7 @@ func (s *cryptoKeyUploadService) Upload(ctx context.Context, userId, keyAlgorith
 }
 
 // Helper function for uploading AES key
-func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var keyMetas []*keys.CryptoKeyMeta
 
 	aesProcessor, err := cryptography.NewAESProcessor(s.logger)
@@ -95,7 +95,7 @@ func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPa
 }
 
 // Helper function for uploading EC key pair (private and public)
-func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var keyMetas []*keys.CryptoKeyMeta
 
 	var curve elliptic.Curve
@@ -154,7 +154,7 @@ func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 }
 
 // Helper function for uploading RSA key pair (private and public)
-func (s *cryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var keyMetas []*keys.CryptoKeyMeta
 
 	rsaProcessor, err := cryptography.NewRSAProcessor(s.logger)

@@ -261,7 +261,7 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService keys.CryptoKeyUploadService
 func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
 	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
-	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(stream.Context(), userId, req.Algorithm, uint(req.KeySize))
+	cryptoKeyMetas, err := s.cryptoKeyUploadService.Upload(stream.Context(), userId, req.Algorithm, req.KeySize)
 	if err != nil {
 		return fmt.Errorf("failed to generate and upload crypto keys: %w", err)
 	}

@@ -11,7 +11,7 @@ import (
 type VaultConnector interface {
 	// Upload uploads bytes of a single file to Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error)
+	Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint32) (*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a key's content by its IDs and type and returns the data as a byte slice.
 	Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error)

@@ -133,7 +133,7 @@ func (s *blobUploadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId
 
 // applyCryptographicOperation performs cryptographic operations (encryption or signing)
 // on files within a multipart form using the specified algorithm and key.
-func (s *blobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte, keySize uint) ([][]byte, []string, error) {
+func (s *blobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte, keySize uint32) ([][]byte, []string, error) {
 	var contents [][]byte
 	var fileNames []string
 

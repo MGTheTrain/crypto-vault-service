@@ -6,7 +6,7 @@ import "context"
 type CryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(ctx context.Context, userId, keyAlgorihm string, keySize uint) ([]*CryptoKeyMeta, error)
+	Upload(ctx context.Context, userId, keyAlgorihm string, keySize uint32) ([]*CryptoKeyMeta, error)
 }
 
 // CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.

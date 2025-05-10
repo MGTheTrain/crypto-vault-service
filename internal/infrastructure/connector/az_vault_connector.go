@@ -47,7 +47,7 @@ func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnector
 
 // Upload uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *azureVaultConnector) Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint) (*keys.CryptoKeyMeta, error) {
+func (vc *azureVaultConnector) Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint32) (*keys.CryptoKeyMeta, error) {
 	keyId := uuid.New().String()
 	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
 

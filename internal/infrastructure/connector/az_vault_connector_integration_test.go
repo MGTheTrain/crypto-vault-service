@@ -60,7 +60,7 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint32(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
@@ -84,7 +84,7 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint32(keySize))
 	require.NoError(t, err)
 
 	downloadedData, err := avct.vaultConnector.Download(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
@@ -108,7 +108,7 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint(keySize))
+	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint32(keySize))
 	require.NoError(t, err)
 
 	err = avct.vaultConnector.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)

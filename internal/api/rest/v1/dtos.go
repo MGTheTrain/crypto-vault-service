@@ -11,7 +11,7 @@ import (
 
 type UploadKeyRequestDto struct {
 	Algorithm string `json:"algorithm" validate:"omitempty,oneof=AES RSA EC"`
-	KeySize   uint   `json:"key_size" validate:"omitempty,keySizeValidation"`
+	KeySize   uint32 `json:"key_size" validate:"omitempty,keySizeValidation"`
 }
 
 // Validate method for UploadKeyRequestDto struct
@@ -61,7 +61,7 @@ type CryptoKeyMetaResponseDto struct {
 	ID              string    `json:"id"`
 	KeyPairID       string    `json:"keyPairID"`
 	Algorithm       string    `json:"algorithm"`
-	KeySize         uint      `json:"keySize"`
+	KeySize         uint32    `json:"keySize"`
 	Type            string    `json:"type"`
 	DateTimeCreated time.Time `json:"dateTimeCreated"`
 	UserID          string    `json:"userID"`
