@@ -12,6 +12,7 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"path/filepath"
 )
 
 // ECProcessor Interface
@@ -109,7 +110,7 @@ func (e *ecProcessor) SavePrivateKeyToFile(privateKey *ecdsa.PrivateKey, filenam
 	}
 
 	// Write the PEM block to a file
-	file, err := os.Create(filename)
+	file, err := os.Create(filepath.Clean(filename))
 	if err != nil {
 		return fmt.Errorf("failed to create private key file: %w", err)
 	}
@@ -140,7 +141,7 @@ func (e *ecProcessor) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename s
 	}
 
 	// Write the PEM block to a file
-	file, err := os.Create(filename)
+	file, err := os.Create(filepath.Clean(filename))
 	if err != nil {
 		return fmt.Errorf("failed to create public key file: %w", err)
 	}
@@ -163,7 +164,7 @@ func (e *ecProcessor) SavePublicKeyToFile(publicKey *ecdsa.PublicKey, filename s
 // SaveSignatureToFile can be used for storing signature files in hex format
 func (e *ecProcessor) SaveSignatureToFile(filename string, data []byte) error {
 	hexData := hex.EncodeToString(data)
-	err := os.WriteFile(filename, []byte(hexData), 0644)
+	err := os.WriteFile(filename, []byte(hexData), 0600)
 	if err != nil {
 		return fmt.Errorf("failed to write data to file %s: %w", filename, err)
 	}
@@ -173,7 +174,7 @@ func (e *ecProcessor) SaveSignatureToFile(filename string, data []byte) error {
 
 // ReadPrivateKey reads an ECDSA private key from a PEM file using encoding/pem
 func (e *ecProcessor) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve) (*ecdsa.PrivateKey, error) {
-	privKeyPEM, err := os.ReadFile(privateKeyPath)
+	privKeyPEM, err := os.ReadFile(filepath.Clean(privateKeyPath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %w", err)
 	}
@@ -206,7 +207,7 @@ func (e *ecProcessor) ReadPrivateKey(privateKeyPath string, curve elliptic.Curve
 
 // ReadPublicKey reads an ECDSA public key from a PEM file using encoding/pem
 func (e *ecProcessor) ReadPublicKey(publicKeyPath string, curve elliptic.Curve) (*ecdsa.PublicKey, error) {
-	pubKeyPEM, err := os.ReadFile(publicKeyPath)
+	pubKeyPEM, err := os.ReadFile(filepath.Clean(publicKeyPath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %w", err)
 	}

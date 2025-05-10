@@ -11,6 +11,7 @@ import (
 	"encoding/hex"
 	"math/big"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -111,7 +112,7 @@ func (et *ecProcessorTests) TestSaveSignatureToFile(t *testing.T) {
 	err = et.processor.SaveSignatureToFile(sigFile, sig)
 	assert.NoError(t, err)
 
-	hexData, err := os.ReadFile(sigFile)
+	hexData, err := os.ReadFile(filepath.Clean(sigFile))
 	assert.NoError(t, err)
 
 	decoded, err := hex.DecodeString(string(hexData))

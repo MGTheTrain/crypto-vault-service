@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 // RSAProcessor Interface
@@ -168,7 +169,7 @@ func (r *rsaProcessor) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename
 		Bytes: privKeyBytes,
 	}
 
-	file, err := os.Create(filename)
+	file, err := os.Create(filepath.Clean(filename))
 	if err != nil {
 		return fmt.Errorf("failed to create private key file: %w", err)
 	}
@@ -199,7 +200,7 @@ func (r *rsaProcessor) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename st
 		Bytes: pubKeyBytes,
 	}
 
-	file, err := os.Create(filename)
+	file, err := os.Create(filepath.Clean(filename))
 	if err != nil {
 		return fmt.Errorf("failed to create public key file: %w", err)
 	}
@@ -221,7 +222,7 @@ func (r *rsaProcessor) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename st
 
 // Read RSA private key from PEM file
 func (r *rsaProcessor) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
-	privKeyPEM, err := os.ReadFile(privateKeyPath)
+	privKeyPEM, err := os.ReadFile(filepath.Clean(privateKeyPath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %w", err)
 	}
@@ -254,7 +255,7 @@ func (r *rsaProcessor) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, e
 
 // Read RSA public key from PEM file
 func (r *rsaProcessor) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
-	pubKeyPEM, err := os.ReadFile(publicKeyPath)
+	pubKeyPEM, err := os.ReadFile(filepath.Clean(publicKeyPath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %w", err)
 	}

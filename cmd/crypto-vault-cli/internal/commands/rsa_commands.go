@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -83,7 +84,7 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	plainText, err := os.ReadFile(inputFile)
+	plainText, err := os.ReadFile(filepath.Clean(inputFile))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -95,7 +96,7 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	err = os.WriteFile(outputFile, encryptedData, 0644)
+	err = os.WriteFile(outputFile, encryptedData, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -116,7 +117,7 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	encryptedData, err := os.ReadFile(inputFile)
+	encryptedData, err := os.ReadFile(filepath.Clean(inputFile))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -128,7 +129,7 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 		return
 	}
 
-	err = os.WriteFile(outputFile, decryptedData, 0644)
+	err = os.WriteFile(outputFile, decryptedData, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -151,7 +152,7 @@ func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []s
 	}
 
 	// Read data to sign
-	data, err := os.ReadFile(inputFilePath)
+	data, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -165,7 +166,7 @@ func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []s
 	}
 
 	// Save the signature to a file
-	err = os.WriteFile(signatureFilePath, signature, 0644)
+	err = os.WriteFile(signatureFilePath, signature, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -188,13 +189,13 @@ func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, args [
 	}
 
 	// Read data and signature
-	data, err := os.ReadFile(inputFilePath)
+	data, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	signature, err := os.ReadFile(signatureFilePath)
+	signature, err := os.ReadFile(filepath.Clean(signatureFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return

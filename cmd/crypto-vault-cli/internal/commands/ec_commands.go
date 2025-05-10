@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -93,7 +94,7 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []st
 	privateKeyFilePath, _ := cmd.Flags().GetString("private-key")
 	signatureFilePath, _ := cmd.Flags().GetString("output-file")
 
-	fileContent, err := os.ReadFile(inputFilePath)
+	fileContent, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -132,13 +133,13 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []
 		return
 	}
 
-	fileContent, err := os.ReadFile(inputFilePath)
+	fileContent, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	signatureHex, err := os.ReadFile(signatureFile)
+	signatureHex, err := os.ReadFile(filepath.Clean(signatureFile))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return

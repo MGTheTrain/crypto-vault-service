@@ -5,6 +5,7 @@ package cryptography
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"crypto_vault_service/internal/infrastructure/logger"
@@ -126,7 +127,7 @@ func TestEncryptDecrypt(t *testing.T) {
 	test.AddKeyToToken(t, "RSA", 2048)
 
 	inputFile := "plain-text.txt"
-	err := os.WriteFile(inputFile, []byte("This is some data to encrypt."), 0644)
+	err := os.WriteFile(inputFile, []byte("This is some data to encrypt."), 0600)
 	require.NoError(t, err)
 
 	encryptedFile := "encrypted.bin"
@@ -135,17 +136,17 @@ func TestEncryptDecrypt(t *testing.T) {
 	err = test.pkcs11Handler.Encrypt(Label, test.objectLabel, inputFile, encryptedFile, "RSA")
 	assert.NoError(t, err)
 
-	encryptedData, err := os.ReadFile(encryptedFile)
+	encryptedData, err := os.ReadFile(filepath.Clean(encryptedFile))
 	require.NoError(t, err)
 	assert.NotEmpty(t, encryptedData)
 
 	err = test.pkcs11Handler.Decrypt(Label, test.objectLabel, encryptedFile, decryptedFile, "RSA")
 	assert.NoError(t, err)
 
-	decryptedData, err := os.ReadFile(decryptedFile)
+	decryptedData, err := os.ReadFile(filepath.Clean(decryptedFile))
 	require.NoError(t, err)
 
-	originalData, err := os.ReadFile(inputFile)
+	originalData, err := os.ReadFile(filepath.Clean(inputFile))
 	require.NoError(t, err)
 	assert.Equal(t, originalData, decryptedData)
 
@@ -162,13 +163,13 @@ func TestSignAndVerify(t *testing.T) {
 
 	dataFile := "data-to-sign.txt"
 	sigFile := "data.sig"
-	err := os.WriteFile(dataFile, []byte("This is some data to sign."), 0644)
+	err := os.WriteFile(dataFile, []byte("This is some data to sign."), 0600)
 	require.NoError(t, err)
 
 	err = test.pkcs11Handler.Sign(Label, test.objectLabel, dataFile, sigFile, "RSA")
 	assert.NoError(t, err)
 
-	sigData, err := os.ReadFile(sigFile)
+	sigData, err := os.ReadFile(filepath.Clean(sigFile))
 	require.NoError(t, err)
 	assert.NotEmpty(t, sigData)
 

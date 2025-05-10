@@ -57,7 +57,7 @@ func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, 
 	}
 
 	keyFilePath := filepath.Join(keyDir, fmt.Sprintf("%s-symmetric-key.bin", uniqueID))
-	err = os.WriteFile(keyFilePath, secretKey, 0644)
+	err = os.WriteFile(keyFilePath, secretKey, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -71,13 +71,13 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
 
-	plainText, err := os.ReadFile(inputFilePath)
+	plainText, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	key, err := os.ReadFile(symmetricKey)
+	key, err := os.ReadFile(filepath.Clean(symmetricKey))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -89,7 +89,7 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	err = os.WriteFile(outputFilePath, encryptedData, 0644)
+	err = os.WriteFile(outputFilePath, encryptedData, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -104,13 +104,13 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args 
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
 
-	key, err := os.ReadFile(symmetricKey)
+	key, err := os.ReadFile(filepath.Clean(symmetricKey))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
 	}
 
-	encryptedData, err := os.ReadFile(inputFilePath)
+	encryptedData, err := os.ReadFile(filepath.Clean(inputFilePath))
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
@@ -122,7 +122,7 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args 
 		return
 	}
 
-	err = os.WriteFile(outputFilePath, decryptedData, 0644)
+	err = os.WriteFile(outputFilePath, decryptedData, 0600)
 	if err != nil {
 		commandHandler.Logger.Error(fmt.Sprintf("%v", err))
 		return
