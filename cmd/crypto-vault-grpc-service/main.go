@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	v1 "crypto_vault_service/internal/api/grpc/v1"
 	"crypto_vault_service/internal/app/services"
@@ -255,8 +256,9 @@ func main() {
 	gatewayPort := config.GatewayPort
 	// Set up the HTTP server to serve the Gateway
 	gwServer := &http.Server{
-		Addr:    ":" + gatewayPort,
-		Handler: gwmux,
+		Addr:              ":" + gatewayPort,
+		Handler:           gwmux,
+		ReadHeaderTimeout: 10 * time.Second, // Set a timeout to mitigate Slowloris attack
 	}
 
 	log.Printf("gRPC-Gateway server started at http://0.0.0.0:%v", gatewayPort)
