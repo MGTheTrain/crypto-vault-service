@@ -25,7 +25,7 @@ type KeyServicesTest struct {
 	dbContext                *repository.TestDBContext
 }
 
-func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
+func NewKeyServicesTest(t *testing.T, dbType string) *KeyServicesTest {
 	ctx := context.Background()
 	// Set up logger
 	loggerSettings := &settings.LoggerSettings{
@@ -38,7 +38,7 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 	require.NoError(t, err, "Error creating logger")
 
 	// Set up DB context (sqlite)
-	dbContext := repository.SetupTestDB(t)
+	dbContext := repository.SetupTestDB(t, dbType)
 
 	// Set up connector
 	keyConnectorSettings := &settings.KeyConnectorSettings{
@@ -70,8 +70,8 @@ func NewKeyServicesTest(t *testing.T) *KeyServicesTest {
 
 // Test case for successful file upload and metadata creation
 func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
-	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
+	keyServices := NewKeyServicesTest(t, dbType)
 	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
@@ -92,8 +92,8 @@ func TestCryptoKeyUploadService_Upload_Success(t *testing.T) {
 // Test case for successful retrieval of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
-	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
+	keyServices := NewKeyServicesTest(t, dbType)
 	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
@@ -112,8 +112,8 @@ func TestCryptoKeyMetadataService_GetByID_Success(t *testing.T) {
 
 // Test case for successful deletion of cryptographic key metadata by ID
 func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
-	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
+	keyServices := NewKeyServicesTest(t, dbType)
 	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()
@@ -135,8 +135,8 @@ func TestCryptoKeyMetadataService_DeleteByID_Success(t *testing.T) {
 
 // Test case for successful download of cryptographic key
 func TestCryptoKeyDownloadService_Download_Success(t *testing.T) {
-	keyServices := NewKeyServicesTest(t)
 	dbType := "sqlite"
+	keyServices := NewKeyServicesTest(t, dbType)
 	defer repository.TeardownTestDB(t, keyServices.dbContext, dbType)
 
 	userId := uuid.New().String()

@@ -18,8 +18,8 @@ import (
 
 func TestBlobSqliteRepository_Create(t *testing.T) {
 
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -57,8 +57,8 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 
 func TestBlobSqliteRepository_GetById(t *testing.T) {
 
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -94,8 +94,8 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_Create_InvalidBlob(t *testing.T) {
-	ctx := SetupTestDB(t)
-	dbType := "postgres"
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	blob := &blobs.BlobMeta{} // Invalid because required fields are empty
@@ -106,8 +106,8 @@ func TestBlobPsqlRepository_Create_InvalidBlob(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_GetById_NotFound(t *testing.T) {
-	ctx := SetupTestDB(t)
-	dbType := "postgres"
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	_, err := ctx.BlobRepo.GetById(context.Background(), "non-existent-id")
@@ -116,8 +116,8 @@ func TestBlobPsqlRepository_GetById_NotFound(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_List_WithFilters(t *testing.T) {
-	ctx := SetupTestDB(t)
-	dbType := "postgres"
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	key := keys.CryptoKeyMeta{
@@ -156,8 +156,8 @@ func TestBlobPsqlRepository_List_WithFilters(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_List_SortAndPagination(t *testing.T) {
-	ctx := SetupTestDB(t)
-	dbType := "postgres"
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	key := keys.CryptoKeyMeta{
@@ -199,8 +199,8 @@ func TestBlobPsqlRepository_List_SortAndPagination(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_List_InvalidQuery(t *testing.T) {
-	ctx := SetupTestDB(t)
-	dbType := "postgres"
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	query := &blobs.BlobMetaQuery{

@@ -15,8 +15,8 @@ import (
 )
 
 func TestCryptoKeySqliteRepository_Create(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -40,8 +40,8 @@ func TestCryptoKeySqliteRepository_Create(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -64,8 +64,8 @@ func TestCryptoKeySqliteRepository_GetByID(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_List(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta1 := &keys.CryptoKeyMeta{
@@ -102,8 +102,8 @@ func TestCryptoKeySqliteRepository_List(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -131,8 +131,8 @@ func TestCryptoKeySqliteRepository_UpdateByID(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
@@ -158,8 +158,9 @@ func TestCryptoKeySqliteRepository_DeleteByID(t *testing.T) {
 }
 
 func TestCryptoKeyRepository_GetByID_NotFound(t *testing.T) {
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx, "sqlite")
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	nonexistentID := uuid.New().String()
 
@@ -170,8 +171,9 @@ func TestCryptoKeyRepository_GetByID_NotFound(t *testing.T) {
 }
 
 func TestCryptoKeyRepository_Create_ValidationError(t *testing.T) {
-	ctx := SetupTestDB(t)
-	defer TeardownTestDB(t, ctx, "sqlite")
+	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
+	defer TeardownTestDB(t, ctx, dbType)
 
 	invalidKey := &keys.CryptoKeyMeta{} // Missing required fields
 
@@ -181,8 +183,8 @@ func TestCryptoKeyRepository_Create_ValidationError(t *testing.T) {
 }
 
 func TestCryptoKeySqliteRepository_List_WithFiltersAndSorting(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "sqlite"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	// Create two keys with different values

@@ -7,7 +7,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
 	"log"
-	"os"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -23,14 +23,9 @@ type TestDBContext struct {
 }
 
 // SetupTestDB initializes the test database and repositories based on the DB_TYPE environment variable
-func SetupTestDB(t *testing.T) *TestDBContext {
+func SetupTestDB(t *testing.T, dbType string) *TestDBContext {
 	var err error
 	var db *gorm.DB
-
-	dbType := os.Getenv("DB_TYPE")
-	if dbType == "" {
-		dbType = "sqlite" // Default to SQLite in-memory if DB_TYPE is not set
-	}
 
 	switch dbType {
 	case "postgres":
@@ -43,8 +38,7 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 			t.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}
 
-		// Generate a unique database name using UUID
-		uniqueDBName := "blobs_" + uuid.New().String()
+		uniqueDBName := "blobs_" + strings.ReplaceAll(uuid.New().String(), "-", "")
 
 		// Ensure the unique `blobs` database exists, create if necessary
 		sqlDB, err := db.DB()

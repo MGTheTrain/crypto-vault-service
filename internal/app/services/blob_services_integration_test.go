@@ -28,7 +28,7 @@ type BlobServicesTest struct {
 	dbContext              *repository.TestDBContext
 }
 
-func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
+func NewBlobServicesTest(t *testing.T, dbType string) *BlobServicesTest {
 	ctx := context.Background()
 
 	loggerSettings := &settings.LoggerSettings{
@@ -40,7 +40,7 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 	logger, err := logger.GetLogger(loggerSettings)
 	require.NoError(t, err, "Error creating logger")
 
-	dbContext := repository.SetupTestDB(t)
+	dbContext := repository.SetupTestDB(t, dbType)
 
 	blobConnectorSettings := &settings.BlobConnectorSettings{
 		CloudProvider:    "azure",
@@ -81,8 +81,9 @@ func NewBlobServicesTest(t *testing.T) *BlobServicesTest {
 
 // Test case for successful blob upload with RSA encryption and signing
 func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -112,8 +113,9 @@ func TestBlobUploadService_Upload_With_RSA_Encryption_And_Signing_Success(t *tes
 
 // Test case for successful blob upload with AES encryption and ECDSA signing
 func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -152,8 +154,9 @@ func TestBlobUploadService_Upload_With_AES_Encryption_And_ECDSA_Signing_Success(
 
 // Test case for successful blob upload without encryption and signing
 func TestBlobUploadService_Upload_Without_Encryption_And_Signing_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -175,8 +178,9 @@ func TestBlobUploadService_Upload_Without_Encryption_And_Signing_Success(t *test
 
 // Test case for failed blob upload due to invalid encryption key
 func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -196,8 +200,9 @@ func TestBlobUploadService_Upload_Fail_InvalidEncryptionKey(t *testing.T) {
 
 // Test case for successful blob download
 func TestBlobDownloadService_Download_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -225,8 +230,9 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 
 // Test case for failed blob download with invalid decryption key
 func TestBlobDownloadService_Download_Fail_InvalidDecryptionKey(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	blobId := uuid.New().String()
 	invalidDecryptionKeyId := "invalid-decryption-key-id"
@@ -239,8 +245,9 @@ func TestBlobDownloadService_Download_Fail_InvalidDecryptionKey(t *testing.T) {
 
 // Test case for successful listing of blob metadata
 func TestBlobMetadataService_List_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -270,8 +277,9 @@ func TestBlobMetadataService_List_Success(t *testing.T) {
 
 // Test case for successful retrieval of blob metadata by ID
 func TestBlobMetadataService_GetByID_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
@@ -296,8 +304,9 @@ func TestBlobMetadataService_GetByID_Success(t *testing.T) {
 
 // Test case for successful deletion of blob metadata by ID
 func TestBlobMetadataService_DeleteByID_Success(t *testing.T) {
-	blobServices := NewBlobServicesTest(t)
-	defer repository.TeardownTestDB(t, blobServices.dbContext, "sqlite")
+	dbType := "sqlite"
+	blobServices := NewBlobServicesTest(t, dbType)
+	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
 	testFileContent := []byte("This is test file content")
 	testFileName := "testfile.txt"
