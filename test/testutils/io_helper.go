@@ -1,6 +1,7 @@
-package utils
+package testutils
 
 import (
+	"crypto_vault_service/internal/infrastructure/utils"
 	"fmt"
 	"mime/multipart"
 	"os"
@@ -11,7 +12,7 @@ import (
 
 // Helper function to create test files
 func CreateTestFile(fileName string, content []byte) error {
-	err := os.WriteFile(fileName, content, 0644)
+	err := os.WriteFile(fileName, content, 0600)
 	if err != nil {
 		return fmt.Errorf("failed to create test file: %w", err)
 	}
@@ -29,7 +30,7 @@ func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*
 		}
 	})
 
-	form, err := CreateForm(fileContent, fileName)
+	form, err := utils.CreateForm(fileContent, fileName)
 	require.NoError(t, err)
 
 	return form, nil

@@ -9,13 +9,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type UploadKeyRequestDto struct {
+type UploadKeyRequest struct {
 	Algorithm string `json:"algorithm" validate:"omitempty,oneof=AES RSA EC"`
-	KeySize   uint   `json:"key_size" validate:"omitempty,keySizeValidation"`
+	KeySize   uint32 `json:"key_size" validate:"omitempty,keySizeValidation"`
 }
 
-// Validate method for UploadKeyRequestDto struct
-func (k *UploadKeyRequestDto) Validate() error {
+// Validate method for UploadKeyRequest struct
+func (k *UploadKeyRequest) Validate() error {
 	validate := validator.New()
 
 	if err := validate.RegisterValidation("keySizeValidation", validators.KeySizeValidation); err != nil {
@@ -38,15 +38,15 @@ func (k *UploadKeyRequestDto) Validate() error {
 	return nil
 }
 
-type ErrorResponseDto struct {
+type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-type InfoResponseDto struct {
+type InfoResponse struct {
 	Message string `json:"message"`
 }
 
-type BlobMetaResponseDto struct {
+type BlobMetaResponse struct {
 	ID              string    `json:"id"`
 	DateTimeCreated time.Time `json:"dateTimeCreated"`
 	UserID          string    `json:"userID"`
@@ -57,11 +57,11 @@ type BlobMetaResponseDto struct {
 	SignKeyID       *string   `json:"signKeyID"`
 }
 
-type CryptoKeyMetaResponseDto struct {
+type CryptoKeyMetaResponse struct {
 	ID              string    `json:"id"`
 	KeyPairID       string    `json:"keyPairID"`
 	Algorithm       string    `json:"algorithm"`
-	KeySize         uint      `json:"keySize"`
+	KeySize         uint32    `json:"keySize"`
 	Type            string    `json:"type"`
 	DateTimeCreated time.Time `json:"dateTimeCreated"`
 	UserID          string    `json:"userID"`

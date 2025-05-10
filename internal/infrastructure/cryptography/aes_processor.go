@@ -9,21 +9,21 @@ import (
 	"fmt"
 )
 
-// IAES Interface
-type IAES interface {
+// AESProcessor Interface
+type AESProcessor interface {
 	Encrypt(data, key []byte) ([]byte, error)
 	Decrypt(ciphertext, key []byte) ([]byte, error)
 	GenerateKey(keySize int) ([]byte, error)
 }
 
-// AES struct that implements the IAES interface
-type AES struct {
+// aesProcessor struct that implements the AESProcessor interface
+type aesProcessor struct {
 	logger logger.Logger
 }
 
-// NewAES creates and returns a new instance of AES
-func NewAES(logger logger.Logger) (*AES, error) {
-	return &AES{
+// NewAESProcessor creates and returns a new instance of aesProcessor
+func NewAESProcessor(logger logger.Logger) (*aesProcessor, error) {
+	return &aesProcessor{
 		logger: logger,
 	}, nil
 }
@@ -31,6 +31,7 @@ func NewAES(logger logger.Logger) (*AES, error) {
 // Pad data to make it a multiple of AES block size
 func pkcs7Pad(data []byte, blockSize int) []byte {
 	padding := blockSize - len(data)%blockSize
+	// nolint: gocritic
 	padded := append(data, bytes.Repeat([]byte{byte(padding)}, padding)...)
 	return padded
 }
@@ -47,7 +48,7 @@ func pkcs7Unpad(data []byte, blockSize int) ([]byte, error) {
 }
 
 // GenerateRandomAESKey generates a random AES key of the specified size
-func (a *AES) GenerateKey(keySize int) ([]byte, error) {
+func (a *aesProcessor) GenerateKey(keySize int) ([]byte, error) {
 	key := make([]byte, keySize)
 	_, err := rand.Read(key)
 	if err != nil {
@@ -59,7 +60,7 @@ func (a *AES) GenerateKey(keySize int) ([]byte, error) {
 }
 
 // Encrypt data using AES in CBC mode
-func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
+func (a *aesProcessor) Encrypt(data, key []byte) ([]byte, error) {
 	if key == nil || data == nil {
 		return nil, fmt.Errorf("key and data cannot be nil")
 	}
@@ -85,7 +86,7 @@ func (a *AES) Encrypt(data, key []byte) ([]byte, error) {
 }
 
 // Decrypt data using AES in CBC mode
-func (a *AES) Decrypt(ciphertext, key []byte) ([]byte, error) {
+func (a *aesProcessor) Decrypt(ciphertext, key []byte) ([]byte, error) {
 	if key == nil || ciphertext == nil {
 		return nil, fmt.Errorf("ciphertext and key cannot be nil")
 	}

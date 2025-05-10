@@ -15,8 +15,8 @@ import (
 )
 
 func TestBlobPsqlRepository_Create(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "postgres"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -53,8 +53,8 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_GetById(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "postgres"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -87,8 +87,8 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_List(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "postgres"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -141,8 +141,8 @@ func TestBlobPsqlRepository_List(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_UpdateById(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "postgres"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{
@@ -182,8 +182,8 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 }
 
 func TestBlobPsqlRepository_DeleteById(t *testing.T) {
-	ctx := SetupTestDB(t)
 	dbType := "postgres"
+	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
 	cryptographicKey := keys.CryptoKeyMeta{

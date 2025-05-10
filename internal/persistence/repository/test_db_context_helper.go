@@ -7,7 +7,7 @@ import (
 	"crypto_vault_service/internal/infrastructure/settings"
 	"fmt"
 	"log"
-	"os"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -18,27 +18,19 @@ import (
 
 type TestDBContext struct {
 	DB            *gorm.DB
-	BlobRepo      *GormBlobRepository
-	CryptoKeyRepo *GormCryptoKeyRepository
+	BlobRepo      blobs.BlobRepository
+	CryptoKeyRepo keys.CryptoKeyRepository
 }
 
 // SetupTestDB initializes the test database and repositories based on the DB_TYPE environment variable
-func SetupTestDB(t *testing.T) *TestDBContext {
+func SetupTestDB(t *testing.T, dbType string) *TestDBContext {
 	var err error
 	var db *gorm.DB
-
-	dbType := os.Getenv("DB_TYPE")
-	if dbType == "" {
-		dbType = "sqlite" // Default to SQLite in-memory if DB_TYPE is not set
-	}
 
 	switch dbType {
 	case "postgres":
 		// PostgreSQL setup
 		dsn := "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
-		if dsn == "" {
-			t.Fatalf("POSTGRES_DSN environment variable is not set")
-		}
 
 		// Connect to PostgreSQL without specifying a database (so we can create one if necessary)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -46,8 +38,7 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 			t.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}
 
-		// Generate a unique database name using UUID
-		uniqueDBName := "blobs_" + uuid.New().String()
+		uniqueDBName := "blobs_" + strings.ReplaceAll(uuid.New().String(), "-", "")
 
 		// Ensure the unique `blobs` database exists, create if necessary
 		sqlDB, err := db.DB()

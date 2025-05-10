@@ -64,16 +64,21 @@ apt-get install -y openssl opensc softhsm libssl-dev libengine-pkcs11-openssl
 ### Make targets
 
 ```sh
-make help
+ make help
 Available Makefile targets:
   format-and-lint                               - Run the format and linting script
+  lint-results                                  - Write golang-ci lint findings to a linter-findings.txt file
   run-unit-tests                                - Run the unit tests
   run-integration-tests                         - Run the integration tests
-  run-unit-and-integration-tests             - Run the unit and integration tests
-  spin-up-integration-test-docker-containers - Spin up Docker containers for integration tests (Postgres, Azure Blob Storage)
+  run-unit-and-integration-tests                - Run the unit and integration tests
+  check-coverage                                - Run the unit and integration tests and check if code coverage of min 80 percent is achieved
+  run-api-tests                                 - Run the api tests
+  spin-up-integration-test-docker-containers    - Spin up Docker containers for integration tests (Postgres, Azure Blob Storage)
   spin-up-docker-containers                     - Spin up Docker containers with internal containerized applications
   shut-down-docker-containers                   - Shut down the application Docker containers
-  generate-swagger-docs                                         - Convert Go annotations to Swagger Documentation 2.0
+  generate-swagger-docs                         - Convert Go annotations to Swagger Documentation 2.0
+  generate-grpc-files                           - Generate Go gRPC code from .proto files
+  remove-artifacts                              - Remove artifacts
 ```
 
 ### Formatting and linting
@@ -96,6 +101,20 @@ To run `integration tests` on Unix systems execute
 make spin-up-integration-test-docker-containers
 make run-integration-tests
 make shut-down-docker-containers
+```
+
+To run both `unit and integration tests` including a `coverage report in HTML format` on Unix systems execute
+
+```sh
+make spin-up-integration-test-docker-containers
+make run-unit-and-integration-tests
+make shut-down-docker-containers
+```
+
+To run `e2e-tests` on Unix systems execute
+
+```sh
+make run-e2e-tests
 ```
 
 ### Applications

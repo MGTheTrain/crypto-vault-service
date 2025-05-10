@@ -26,20 +26,14 @@ jobs:
     - name: Install APT packages
       run: |
         sudo apt-get update
-        sudo apt-get install -y shfmt
+        sudo apt-get install -y shfmt make
     
     - name: Install Prettier globally
       run: |
         sudo npm install -g prettier
-      
-    - name: Grant execute permissions
-      run: chmod +x *
-      working-directory: ./scripts
 
     - name: Auto-format and lint Go
-      run: |
-        ./format-and-lint.sh
-      working-directory: ./scripts
+      run: make format-and-lint
 
     - name: Check diffs
       run: |

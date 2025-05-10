@@ -1,19 +1,20 @@
 package v1
 
 import (
-	"crypto_vault_service/internal/app/services"
+	"crypto_vault_service/internal/domain/blobs"
+	"crypto_vault_service/internal/domain/keys"
 
 	"github.com/gin-gonic/gin"
 )
 
 // SetupRoutes sets up all the API routes for version 1.
 func SetupRoutes(r *gin.Engine,
-	blobUploadService *services.BlobUploadService,
-	blobDownloadService *services.BlobDownloadService,
-	blobMetadataService *services.BlobMetadataService,
-	cryptoKeyUploadService *services.CryptoKeyUploadService,
-	cryptoKeyDownloadService *services.CryptoKeyDownloadService,
-	cryptoKeyMetadataService *services.CryptoKeyMetadataService) {
+	blobUploadService blobs.BlobUploadService,
+	blobDownloadService blobs.BlobDownloadService,
+	blobMetadataService blobs.BlobMetadataService,
+	cryptoKeyUploadService keys.CryptoKeyUploadService,
+	cryptoKeyDownloadService keys.CryptoKeyDownloadService,
+	cryptoKeyMetadataService keys.CryptoKeyMetadataService) {
 
 	v1 := r.Group(BasePath) // lookup in version file
 

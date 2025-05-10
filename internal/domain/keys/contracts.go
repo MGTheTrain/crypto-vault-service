@@ -2,33 +2,33 @@ package keys
 
 import "context"
 
-// ICryptoKeyUploadService defines methods for uploading cryptographic keys.
-type ICryptoKeyUploadService interface {
+// CryptoKeyUploadService defines methods for uploading cryptographic keys.
+type CryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(ctx context.Context, userId, keyPairId, keyAlgorihm string, keySize uint) ([]*CryptoKeyMeta, error)
+	Upload(ctx context.Context, userId, keyAlgorihm string, keySize uint32) ([]*CryptoKeyMeta, error)
 }
 
-// ICryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
-type ICryptoKeyMetadataService interface {
+// CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
+type CryptoKeyMetadataService interface {
 	// List retrieves all cryptographic keys metadata considering a query filter when set.
 	// It returns a slice of CryptoKeyMeta and any error encountered during the retrieval process.
-	List(query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
+	List(ctx context.Context, query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
 
 	// GetByID retrieves the metadata of a cryptographic key by its unique ID.
 	// It returns the CryptoKeyMeta and any error encountered during the retrieval process.
-	GetByID(keyID string) (*CryptoKeyMeta, error)
+	GetByID(ctx context.Context, keyID string) (*CryptoKeyMeta, error)
 
 	// DeleteByID deletes a cryptographic key and its associated metadata by ID.
 	// It returns any error encountered during the deletion process.
 	DeleteByID(ctx context.Context, keyID string) error
 }
 
-// ICryptoKeyDownloadService defines methods for downloading cryptographic keys.
-type ICryptoKeyDownloadService interface {
+// CryptoKeyDownloadService defines methods for downloading cryptographic keys.
+type CryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	Download(ctx context.Context, keyID string) ([]byte, error)
+	DownloadById(ctx context.Context, keyID string) ([]byte, error)
 }
 
 // CryptoKeyRepository defines the interface for CryptoKey-related operations

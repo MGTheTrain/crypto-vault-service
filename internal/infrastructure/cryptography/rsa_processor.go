@@ -12,10 +12,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
-// IRSA Interface
-type IRSA interface {
+// RSAProcessor Interface
+type RSAProcessor interface {
 	Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error)
 	Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error)
 	Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error)
@@ -27,20 +28,20 @@ type IRSA interface {
 	ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error)
 }
 
-// RSA struct that implements the IRSA interface
-type RSA struct {
+// rsaProcessor struct that implements the RSAProcessor interface
+type rsaProcessor struct {
 	logger logger.Logger
 }
 
-// NewRSA creates and returns a new instance of RSA
-func NewRSA(logger logger.Logger) (*RSA, error) {
-	return &RSA{
+// NewRSAProcessor creates and returns a new instance of rsaProcessor
+func NewRSAProcessor(logger logger.Logger) (*rsaProcessor, error) {
+	return &rsaProcessor{
 		logger: logger,
 	}, nil
 }
 
 // GenerateRSAKeys generates RSA key pair
-func (r *RSA) GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
+func (r *rsaProcessor) GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, keySize)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to generate RSA keys: %w", err)
@@ -53,7 +54,7 @@ func (r *RSA) GenerateKeys(keySize int) (*rsa.PrivateKey, *rsa.PublicKey, error)
 // Encrypt data using RSA public key
 // Encrypt encrypts the given plaintext using RSA encryption.
 // If the plaintext is too large, it will split it into smaller chunks and encrypt each one separately.
-func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error) {
+func (r *rsaProcessor) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error) {
 	if publicKey == nil {
 		return nil, errors.New("public key cannot be nil")
 	}
@@ -89,7 +90,7 @@ func (r *RSA) Encrypt(plainText []byte, publicKey *rsa.PublicKey) ([]byte, error
 }
 
 // Decrypt data using RSA private key. It handles multiple chunks of encrypted data.
-func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+func (r *rsaProcessor) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
 		return nil, fmt.Errorf("private key cannot be nil")
 	}
@@ -123,7 +124,7 @@ func (r *RSA) Decrypt(ciphertext []byte, privateKey *rsa.PrivateKey) ([]byte, er
 }
 
 // Sign data using RSA private key
-func (r *RSA) Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
+func (r *rsaProcessor) Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
 		return nil, fmt.Errorf("private key cannot be nil")
 	}
@@ -142,7 +143,7 @@ func (r *RSA) Sign(data []byte, privateKey *rsa.PrivateKey) ([]byte, error) {
 }
 
 // Verify RSA signature with public key
-func (r *RSA) Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (bool, error) {
+func (r *rsaProcessor) Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (bool, error) {
 	if publicKey == nil {
 		return false, fmt.Errorf("public key cannot be nil")
 	}
@@ -161,14 +162,14 @@ func (r *RSA) Verify(data []byte, signature []byte, publicKey *rsa.PublicKey) (b
 }
 
 // SavePrivateKeyToFile saves the private key to a PEM file using encoding/pem
-func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error {
+func (r *rsaProcessor) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) error {
 	privKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	privKeyPem := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
 		Bytes: privKeyBytes,
 	}
 
-	file, err := os.Create(filename)
+	file, err := os.Create(filepath.Clean(filename))
 	if err != nil {
 		return fmt.Errorf("failed to create private key file: %w", err)
 	}
@@ -188,7 +189,7 @@ func (r *RSA) SavePrivateKeyToFile(privateKey *rsa.PrivateKey, filename string) 
 }
 
 // SavePublicKeyToFile saves the public key to a PEM file using encoding/pem
-func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
+func (r *rsaProcessor) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) error {
 	pubKeyBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	if err != nil {
 		return fmt.Errorf("failed to marshal public key: %w", err)
@@ -199,7 +200,7 @@ func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) err
 		Bytes: pubKeyBytes,
 	}
 
-	file, err := os.Create(filename)
+	file, err := os.Create(filepath.Clean(filename))
 	if err != nil {
 		return fmt.Errorf("failed to create public key file: %w", err)
 	}
@@ -220,8 +221,8 @@ func (r *RSA) SavePublicKeyToFile(publicKey *rsa.PublicKey, filename string) err
 }
 
 // Read RSA private key from PEM file
-func (r *RSA) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
-	privKeyPEM, err := os.ReadFile(privateKeyPath)
+func (r *rsaProcessor) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
+	privKeyPEM, err := os.ReadFile(filepath.Clean(privateKeyPath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read private key file: %w", err)
 	}
@@ -253,8 +254,8 @@ func (r *RSA) ReadPrivateKey(privateKeyPath string) (*rsa.PrivateKey, error) {
 }
 
 // Read RSA public key from PEM file
-func (r *RSA) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
-	pubKeyPEM, err := os.ReadFile(publicKeyPath)
+func (r *rsaProcessor) ReadPublicKey(publicKeyPath string) (*rsa.PublicKey, error) {
+	pubKeyPEM, err := os.ReadFile(filepath.Clean(publicKeyPath))
 	if err != nil {
 		return nil, fmt.Errorf("unable to read public key file: %w", err)
 	}

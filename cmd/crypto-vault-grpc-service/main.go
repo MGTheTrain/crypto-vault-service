@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	v1 "crypto_vault_service/internal/api/grpc/v1"
 	"crypto_vault_service/internal/app/services"
@@ -74,7 +75,8 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to get raw DB connection: %v", err)
 		}
-		query := fmt.Sprintf("SELECT 1 FROM pg_database WHERE datname='%s'", config.Database.Name)
+
+		query := "SELECT 1 FROM pg_database WHERE datname = $1"
 		err = sqlDB.QueryRow(query).Scan(&dbExists)
 
 		if err != nil && err.Error() != "sql: no rows in result set" {
@@ -254,8 +256,9 @@ func main() {
 	gatewayPort := config.GatewayPort
 	// Set up the HTTP server to serve the Gateway
 	gwServer := &http.Server{
-		Addr:    ":" + gatewayPort,
-		Handler: gwmux,
+		Addr:              ":" + gatewayPort,
+		Handler:           gwmux,
+		ReadHeaderTimeout: 10 * time.Second, // Set a timeout to mitigate Slowloris attack
 	}
 
 	log.Printf("gRPC-Gateway server started at http://0.0.0.0:%v", gatewayPort)

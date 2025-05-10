@@ -20,8 +20,8 @@ import (
 	"mime/multipart"
 )
 
-// BlobUploadService implements the BlobUploadService interface for handling blob uploads
-type BlobUploadService struct {
+// blobUploadService implements the BlobUploadService interface for handling blob uploads
+type blobUploadService struct {
 	blobConnector  connector.BlobConnector
 	blobRepository blobs.BlobRepository
 	vaultConnector connector.VaultConnector
@@ -30,8 +30,8 @@ type BlobUploadService struct {
 }
 
 // NewBlobUploadService creates a new instance of BlobUploadService
-func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*BlobUploadService, error) {
-	return &BlobUploadService{
+func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*blobUploadService, error) {
+	return &blobUploadService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -42,7 +42,7 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 
 // Upload transfers blobs with the option to encrypt them using an encryption key or sign them with a signing key.
 // It returns a slice of Blob for the uploaded blobs and any error encountered during the upload process.
-func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
+func (s *blobUploadService) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var newForm *multipart.Form
 
 	// Process signKeyId if provided
@@ -90,7 +90,7 @@ func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 		}
 
 		for _, blobMeta := range blobMetas {
-			err := s.blobRepository.Create(context.Background(), blobMeta)
+			err := s.blobRepository.Create(ctx, blobMeta)
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
@@ -104,7 +104,7 @@ func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 	}
 
 	for _, blobMeta := range blobMetas {
-		err := s.blobRepository.Create(context.Background(), blobMeta)
+		err := s.blobRepository.Create(ctx, blobMeta)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -115,9 +115,9 @@ func (s *BlobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 
 // getCryptoKeyAndData retrieves the encryption or signing key along with its metadata by ID.
 // It downloads the key from the vault and returns the key bytes and associated metadata.
-func (s *BlobUploadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
+func (s *blobUploadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
 	// Get meta info
-	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(context.Background(), cryptoKeyId)
+	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(ctx, cryptoKeyId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%w", err)
 	}
@@ -133,7 +133,7 @@ func (s *BlobUploadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId
 
 // applyCryptographicOperation performs cryptographic operations (encryption or signing)
 // on files within a multipart form using the specified algorithm and key.
-func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte, keySize uint) ([][]byte, []string, error) {
+func (s *blobUploadService) applyCryptographicOperation(form *multipart.Form, algorithm, operation string, keyBytes []byte, keySize uint32) ([][]byte, []string, error) {
 	var contents [][]byte
 	var fileNames []string
 
@@ -161,17 +161,17 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 		switch algorithm {
 		case "AES":
 			if operation == "encryption" {
-				aes, err := cryptography.NewAES(s.logger)
+				aesProcessor, err := cryptography.NewAESProcessor(s.logger)
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
-				processedBytes, err = aes.Encrypt(data, keyBytes)
+				processedBytes, err = aesProcessor.Encrypt(data, keyBytes)
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
 			}
 		case "RSA":
-			rsa, err := cryptography.NewRSA(s.logger)
+			rsaProcessor, err := cryptography.NewRSAProcessor(s.logger)
 			if err != nil {
 				return nil, nil, fmt.Errorf("%w", err)
 			}
@@ -186,7 +186,7 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				if !ok {
 					return nil, nil, fmt.Errorf("public key is not of type RSA")
 				}
-				processedBytes, err = rsa.Encrypt(data, publicKey)
+				processedBytes, err = rsaProcessor.Encrypt(data, publicKey)
 				if err != nil {
 					return nil, nil, fmt.Errorf("encryption error: %w", err)
 				}
@@ -196,7 +196,7 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 				if err != nil {
 					return nil, nil, fmt.Errorf("error parsing private key: %w", err)
 				}
-				processedBytes, err = rsa.Sign(data, privateKey)
+				processedBytes, err = rsaProcessor.Sign(data, privateKey)
 				if err != nil {
 					return nil, nil, fmt.Errorf("signing error: %w", err)
 				}
@@ -206,7 +206,7 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 			}
 		case "EC":
 			if operation == "signing" {
-				ec, err := cryptography.NewEC(s.logger)
+				ecProcessor, err := cryptography.NewECProcessor(s.logger)
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
@@ -239,7 +239,7 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 					D:         privateKeyD,
 					PublicKey: *publicKey,
 				}
-				processedBytes, err = ec.Sign(data, privateKey)
+				processedBytes, err = ecProcessor.Sign(data, privateKey)
 				if err != nil {
 					return nil, nil, fmt.Errorf("%w", err)
 				}
@@ -255,16 +255,16 @@ func (s *BlobUploadService) applyCryptographicOperation(form *multipart.Form, al
 	return contents, fileNames, nil
 }
 
-// BlobMetadataService implements the BlobMetadataService interface for retrieving and deleting blob metadata
-type BlobMetadataService struct {
+// blobMetadataService implements the BlobMetadataService interface for retrieving and deleting blob metadata
+type blobMetadataService struct {
 	blobConnector  connector.BlobConnector
 	blobRepository blobs.BlobRepository
 	logger         logger.Logger
 }
 
-// NewBlobMetadataService creates a new instance of BlobMetadataService
-func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (*BlobMetadataService, error) {
-	return &BlobMetadataService{
+// NewBlobMetadataService creates a new instance of blobMetadataService
+func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (*blobMetadataService, error) {
+	return &blobMetadataService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
 		logger:         logger,
@@ -272,8 +272,8 @@ func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector c
 }
 
 // List retrieves all blobs' metadata considering a query filter
-func (s *BlobMetadataService) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
-	blobMetas, err := s.blobRepository.List(context.Background(), query)
+func (s *blobMetadataService) List(ctx context.Context, query *blobs.BlobMetaQuery) ([]*blobs.BlobMeta, error) {
+	blobMetas, err := s.blobRepository.List(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -282,8 +282,8 @@ func (s *BlobMetadataService) List(query *blobs.BlobMetaQuery) ([]*blobs.BlobMet
 }
 
 // GetByID retrieves a blob's metadata by its unique ID
-func (s *BlobMetadataService) GetByID(blobId string) (*blobs.BlobMeta, error) {
-	blobMeta, err := s.blobRepository.GetById(context.Background(), blobId)
+func (s *blobMetadataService) GetByID(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
+	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -291,14 +291,14 @@ func (s *BlobMetadataService) GetByID(blobId string) (*blobs.BlobMeta, error) {
 }
 
 // DeleteByID deletes a blob and its associated metadata by ID
-func (s *BlobMetadataService) DeleteByID(ctx context.Context, blobId string) error {
+func (s *blobMetadataService) DeleteByID(ctx context.Context, blobId string) error {
 
-	blobMeta, err := s.blobRepository.GetById(context.Background(), blobId)
+	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	err = s.blobRepository.DeleteById(context.Background(), blobId)
+	err = s.blobRepository.DeleteById(ctx, blobId)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -311,8 +311,8 @@ func (s *BlobMetadataService) DeleteByID(ctx context.Context, blobId string) err
 	return nil
 }
 
-// BlobDownloadService implements the BlobDownloadService interface for downloading blobs
-type BlobDownloadService struct {
+// blobDownloadService implements the BlobDownloadService interface for downloading blobs
+type blobDownloadService struct {
 	blobConnector  connector.BlobConnector
 	blobRepository blobs.BlobRepository
 	vaultConnector connector.VaultConnector
@@ -321,8 +321,8 @@ type BlobDownloadService struct {
 }
 
 // NewBlobDownloadService creates a new instance of BlobDownloadService
-func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*BlobDownloadService, error) {
-	return &BlobDownloadService{
+func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*blobDownloadService, error) {
+	return &blobDownloadService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -334,9 +334,9 @@ func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepositor
 // The download function retrieves a blob's content using its ID and also enables data decryption.
 // NOTE: Signing should be performed locally by first downloading the associated key, followed by verification.
 // Optionally, a verify endpoint will be available soon for optional use.
-func (s *BlobDownloadService) Download(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
+func (s *blobDownloadService) DownloadById(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
 
-	blobMeta, err := s.blobRepository.GetById(context.Background(), blobId)
+	blobMeta, err := s.blobRepository.GetById(ctx, blobId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -355,16 +355,16 @@ func (s *BlobDownloadService) Download(ctx context.Context, blobId string, decry
 
 		switch cryptoKeyMeta.Algorithm {
 		case "AES":
-			aes, err := cryptography.NewAES(s.logger)
+			aesProcessor, err := cryptography.NewAESProcessor(s.logger)
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
-			processedBytes, err = aes.Decrypt(blobBytes, keyBytes)
+			processedBytes, err = aesProcessor.Decrypt(blobBytes, keyBytes)
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
 		case "RSA":
-			rsa, err := cryptography.NewRSA(s.logger)
+			rsaProcessor, err := cryptography.NewRSAProcessor(s.logger)
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
@@ -372,7 +372,7 @@ func (s *BlobDownloadService) Download(ctx context.Context, blobId string, decry
 			if err != nil {
 				return nil, fmt.Errorf("error parsing private key: %w", err)
 			}
-			processedBytes, err = rsa.Decrypt(blobBytes, privateKey)
+			processedBytes, err = rsaProcessor.Decrypt(blobBytes, privateKey)
 			if err != nil {
 				return nil, fmt.Errorf("%w", err)
 			}
@@ -386,9 +386,9 @@ func (s *BlobDownloadService) Download(ctx context.Context, blobId string, decry
 
 // getCryptoKeyAndData retrieves the encryption or signing key along with its metadata by ID.
 // It downloads the key from the vault and returns the key bytes and associated metadata.
-func (s *BlobDownloadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
+func (s *blobDownloadService) getCryptoKeyAndData(ctx context.Context, cryptoKeyId string) ([]byte, *keys.CryptoKeyMeta, error) {
 	// Get meta info
-	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(context.Background(), cryptoKeyId)
+	cryptoKeyMeta, err := s.cryptoKeyRepo.GetByID(ctx, cryptoKeyId)
 	if err != nil {
 		return nil, nil, fmt.Errorf("%w", err)
 	}
