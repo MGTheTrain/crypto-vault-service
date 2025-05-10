@@ -2,7 +2,7 @@
 
 ## Summary
 
-`crypto-vault-cli` is a versatile command-line tool that facilitates secure file operations, including encryption, decryption, digital signing and verification using AES, RSA and ECDSA algorithms. It also integrates with PKCS#11 hardware tokens for key management and cryptographic operations. 
+`crypto-vault-cli` is a versatile command-line tool that facilitates secure file operations, including encryption, decryption, digital signing and verification using AES, RSA and ECDSA algorithms. It also integrates with PKCS#11 hardware tokens for key management and cryptographic operations.
 
 ## Getting Started
 
