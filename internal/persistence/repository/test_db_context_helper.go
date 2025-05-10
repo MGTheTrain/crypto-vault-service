@@ -36,9 +36,6 @@ func SetupTestDB(t *testing.T) *TestDBContext {
 	case "postgres":
 		// PostgreSQL setup
 		dsn := "user=postgres password=postgres host=localhost port=5432 sslmode=disable"
-		if dsn == "" {
-			t.Fatalf("POSTGRES_DSN environment variable is not set")
-		}
 
 		// Connect to PostgreSQL without specifying a database (so we can create one if necessary)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
