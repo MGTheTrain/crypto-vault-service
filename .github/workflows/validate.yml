@@ -31,10 +31,6 @@ jobs:
     - name: Install Prettier globally
       run: |
         sudo npm install -g prettier
-      
-    - name: Grant execute permissions
-      run: chmod +x *
-      working-directory: ./scripts
 
     - name: Auto-format and lint Go
       run: make format-and-lint
