@@ -1,5 +1,8 @@
 SCRIPT_DIR = "scripts"
 
+COVERAGE_OUT_FILE=coverage.out
+MIN_COVERAGE=80.0
+
 # Help target to list all available targets
 help:
 	@echo "Available Makefile targets:"
@@ -17,6 +20,16 @@ help:
 
 format-and-lint:
 	@cd $(SCRIPT_DIR) && ./format-and-lint.sh
+
+check-coverage: run-unit-and-integration-tests
+	@echo "Checking if coverage meets minimum threshold ($(MIN_COVERAGE)%)..."
+	@total_coverage=$$(go tool cover -func=$(COVERAGE_OUT_FILE) | grep total | awk '{print $$3}' | sed 's/%//'); \
+	if [ $$(echo "$$total_coverage < $(MIN_COVERAGE)" | bc) -eq 1 ]; then \
+		echo "❌ Code coverage ($$total_coverage%) is below the required $(MIN_COVERAGE)% threshold"; \
+		exit 1; \
+	else \
+		echo "✅ Code coverage check passed: $$total_coverage%"; \
+	fi
 
 lint-results:
 	@echo "Running golangci-lint..."
