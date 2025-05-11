@@ -83,4 +83,4 @@ generate-grpc-files:
 
 remove-artifacts:
 	@echo "Removing artifacts..."
-	@rm coverage.* linter-findings.*
+	@rm -rf *coverage.* linter-findings.*
