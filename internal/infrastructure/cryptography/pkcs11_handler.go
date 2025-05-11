@@ -510,10 +510,9 @@ func (token *pkcs11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 	if strings.Contains(string(verifyOutput), "Verified OK") {
 		token.Logger.Info("The signature is valid")
 		return true, nil
-	} else {
-		token.Logger.Info("The signature is invalid")
-		return false, nil
 	}
+	token.Logger.Info("The signature is invalid")
+	return false, nil
 }
 
 // DeleteObject deletes a key or object from the token
