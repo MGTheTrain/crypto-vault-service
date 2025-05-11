@@ -83,7 +83,7 @@ func ReadPkcs11SettingsFromEnv() (*settings.PKCS11Settings, error) {
 }
 
 // ListTokenSlotsCmd lists PKCS#11 tokens
-func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, _ []string) {
 
 	tokens, err := commandHandler.pkcs11Handler.ListTokenSlots()
 	if err != nil {
@@ -101,7 +101,7 @@ func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Comman
 }
 
 // ListObjectsSlotsCmd lists PKCS#11 token objects
-func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 
 	objects, err := commandHandler.pkcs11Handler.ListObjects(tokenLabel)
@@ -120,7 +120,7 @@ func (commandHandler *PKCS11CommandsHandler) ListObjectsSlotsCmd(cmd *cobra.Comm
 }
 
 // InitializeTokenCmd initializes a PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 
 	if err := commandHandler.pkcs11Handler.InitializeToken(tokenLabel); err != nil {
@@ -130,7 +130,7 @@ func (commandHandler *PKCS11CommandsHandler) InitializeTokenCmd(cmd *cobra.Comma
 }
 
 // AddKeyCmd adds a key to the PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	keyType, _ := cmd.Flags().GetString("key-type")
@@ -143,7 +143,7 @@ func (commandHandler *PKCS11CommandsHandler) AddKeyCmd(cmd *cobra.Command, args 
 }
 
 // DeleteObjectCmd deletes an object (key) from the PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	objectType, _ := cmd.Flags().GetString("object-type")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
@@ -155,7 +155,7 @@ func (commandHandler *PKCS11CommandsHandler) DeleteObjectCmd(cmd *cobra.Command,
 }
 
 // EncryptCmd encrypts data using the PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
@@ -169,7 +169,7 @@ func (commandHandler *PKCS11CommandsHandler) EncryptCmd(cmd *cobra.Command, args
 }
 
 // DecryptCmd decrypts data using the PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
@@ -183,7 +183,7 @@ func (commandHandler *PKCS11CommandsHandler) DecryptCmd(cmd *cobra.Command, args
 }
 
 // SignCmd signs data using the PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	dataFilePath, _ := cmd.Flags().GetString("data-file")
@@ -197,7 +197,7 @@ func (commandHandler *PKCS11CommandsHandler) SignCmd(cmd *cobra.Command, args []
 }
 
 // VerifyCmd verifies the signature using the PKCS#11 token
-func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *PKCS11CommandsHandler) VerifyCmd(cmd *cobra.Command, _ []string) {
 	tokenLabel, _ := cmd.Flags().GetString("token-label")
 	objectLabel, _ := cmd.Flags().GetString("object-label")
 	dataFilePath, _ := cmd.Flags().GetString("data-file")

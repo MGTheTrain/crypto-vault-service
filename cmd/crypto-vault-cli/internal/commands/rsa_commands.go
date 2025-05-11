@@ -44,7 +44,7 @@ func NewRSACommandHandler() *RSACommandHandler {
 }
 
 // GenerateRSAKeysCmd generates RSA key pairs and persists those in a selected directory
-func (commandHandler *RSACommandHandler) GenerateRSAKeysCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *RSACommandHandler) GenerateRSAKeysCmd(cmd *cobra.Command, _ []string) {
 	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
 
@@ -73,7 +73,7 @@ func (commandHandler *RSACommandHandler) GenerateRSAKeysCmd(cmd *cobra.Command, 
 }
 
 // EncryptRSACmd encrypts a file using RSA and saves asymmetric key pairs
-func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args []string) {
+func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, _ []string) {
 	inputFile, _ := cmd.Flags().GetString("input-file")
 	outputFile, _ := cmd.Flags().GetString("output-file")
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
@@ -106,7 +106,7 @@ func (commandHandler *RSACommandHandler) EncryptRSACmd(cmd *cobra.Command, args 
 }
 
 // DecryptRSACmd decrypts a file using RSA
-func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args []string) {
+func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, _ []string) {
 	inputFile, _ := cmd.Flags().GetString("input-file")
 	outputFile, _ := cmd.Flags().GetString("output-file")
 	privateKeyPath, _ := cmd.Flags().GetString("private-key")
@@ -139,7 +139,7 @@ func (commandHandler *RSACommandHandler) DecryptRSACmd(cmd *cobra.Command, args 
 }
 
 // SignRSACmd signs a file using RSA and saves the signature
-func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []string) {
+func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	signatureFilePath, _ := cmd.Flags().GetString("output-file")
 	privateKeyPath, _ := cmd.Flags().GetString("private-key")
@@ -176,7 +176,7 @@ func (commandHandler *RSACommandHandler) SignRSACmd(cmd *cobra.Command, args []s
 }
 
 // VerifyRSACmd verifies a signature using RSA
-func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, args []string) {
+func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	signatureFilePath, _ := cmd.Flags().GetString("signature-file")
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
