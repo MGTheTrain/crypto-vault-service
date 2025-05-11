@@ -18,7 +18,7 @@ linters:
     - errorlint                    # Promotes correct practices for working with Go 1.13+ error wrapping
     - gocritic                     # Detects bugs and style issues using a wide variety of checks (e.g., redundant operations, bad practices)
     - gosec                        # Scans for potential security issues (e.g., SQL injection, file permissions, hardcoded credentials)
-    # - revive                       # A more configurable replacement for `golint`; useful for style and readability checks
+    - revive                       # A more configurable replacement for `golint`; useful for style and readability checks
     - misspell                     # Detects common English misspellings in comments and documentation
     - nakedret                     # Discourages use of naked returns in long functions for better readability
 
