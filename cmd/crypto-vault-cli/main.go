@@ -1,3 +1,6 @@
+// Package main is the entry point for the crypto-vault-cli application.
+// It initializes the root command and registers various commands (AES, RSA, ECDSA, PKCS#11)
+// for the CLI, then executes the command-line interface.
 package main
 
 import (

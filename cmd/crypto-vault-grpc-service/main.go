@@ -1,3 +1,9 @@
+// Package main is the entry point for the crypto-vault-grpc-service application.
+// It sets up and starts both a gRPC server and a gRPC-Gateway server.
+// The main function initializes services, configures database connections,
+// registers necessary gRPC services, and starts the HTTP server for the gRPC-Gateway.
+// It also handles the setup of various repositories, connectors and logging components.
+// Additionally, it performs database migrations and ensures the required database schema exists.
 package main
 
 import (

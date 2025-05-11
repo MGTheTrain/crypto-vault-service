@@ -1,3 +1,9 @@
+// Package main is the entry point for the crypto-vault-rest-service application.
+// It sets up and starts the RESTful API server using the Gin framework.
+// The main function initializes services, configures database connections,
+// registers necessary routes, and sets up Swagger documentation for the API.
+// It also handles the setup of repositories, connectors, and logging components.
+// Additionally, it performs database migrations and ensures the required database schema exists.
 package main
 
 import (
