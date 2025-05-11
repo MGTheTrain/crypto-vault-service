@@ -272,7 +272,7 @@ func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, crypto
 }
 
 // Download retrieves a cryptographic key by its ID.
-func (s *cryptoKeyDownloadService) DownloadById(ctx context.Context, keyID string) ([]byte, error) {
+func (s *cryptoKeyDownloadService) DownloadByID(ctx context.Context, keyID string) ([]byte, error) {
 	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)

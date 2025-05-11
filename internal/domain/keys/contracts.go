@@ -28,7 +28,7 @@ type CryptoKeyMetadataService interface {
 type CryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	DownloadById(ctx context.Context, keyID string) ([]byte, error)
+	DownloadByID(ctx context.Context, keyID string) ([]byte, error)
 }
 
 // CryptoKeyRepository defines the interface for CryptoKey-related operations

@@ -55,7 +55,7 @@ func TestBlobSqliteRepository_Create(t *testing.T) {
 	assert.Equal(t, blob.Name, createdBlob.Name, "Name should match")
 }
 
-func TestBlobSqliteRepository_GetById(t *testing.T) {
+func TestBlobSqliteRepository_GetByID(t *testing.T) {
 
 	dbType := "sqlite"
 	ctx := SetupTestDB(t, dbType)
@@ -87,8 +87,8 @@ func TestBlobSqliteRepository_GetById(t *testing.T) {
 	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
 
-	fetchedBlob, err := ctx.BlobRepo.GetById(context.Background(), blob.ID)
-	assert.NoError(t, err, "GetById should not return an error")
+	fetchedBlob, err := ctx.BlobRepo.GetByID(context.Background(), blob.ID)
+	assert.NoError(t, err, "GetByID should not return an error")
 	assert.NotNil(t, fetchedBlob, "Fetched blob should not be nil")
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
 }
@@ -105,12 +105,12 @@ func TestBlobPsqlRepository_Create_InvalidBlob(t *testing.T) {
 	assert.Contains(t, err.Error(), "validation")
 }
 
-func TestBlobPsqlRepository_GetById_NotFound(t *testing.T) {
+func TestBlobPsqlRepository_GetByID_NotFound(t *testing.T) {
 	dbType := "sqlite"
 	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
 
-	_, err := ctx.BlobRepo.GetById(context.Background(), "non-existent-id")
+	_, err := ctx.BlobRepo.GetByID(context.Background(), "non-existent-id")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "not found")
 }

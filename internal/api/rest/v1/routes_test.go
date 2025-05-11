@@ -30,7 +30,7 @@ func TestSetupRoutes(t *testing.T) {
 	mockBlobMetadataService.On("List", mock.Anything, mock.Anything).Return(nil, nil)
 	mockBlobMetadataService.On("GetByID", mock.Anything, mock.Anything).Return(nil, nil)
 	mockBlobMetadataService.On("DeleteByID", mock.Anything, mock.Anything).Return(nil, nil)
-	mockBlobDownloadService.On("DownloadById", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+	mockBlobDownloadService.On("DownloadByID", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
 
 	mockCryptoKeyUploadService.
 		On("Upload", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
@@ -42,7 +42,7 @@ func TestSetupRoutes(t *testing.T) {
 		On("GetByID", mock.Anything, mock.Anything).
 		Return(nil, nil)
 	mockCryptoKeyDownloadService.
-		On("DownloadById", mock.Anything, mock.Anything).
+		On("DownloadByID", mock.Anything, mock.Anything).
 		Return(nil, nil)
 	mockCryptoKeyMetadataService.
 		On("DeleteByID", mock.Anything, mock.Anything).

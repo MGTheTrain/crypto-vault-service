@@ -283,7 +283,7 @@ func (s *blobMetadataService) List(ctx context.Context, query *blobs.BlobMetaQue
 
 // GetByID retrieves a blob's metadata by its unique ID
 func (s *blobMetadataService) GetByID(ctx context.Context, blobID string) (*blobs.BlobMeta, error) {
-	blobMeta, err := s.blobRepository.GetById(ctx, blobID)
+	blobMeta, err := s.blobRepository.GetByID(ctx, blobID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -293,12 +293,12 @@ func (s *blobMetadataService) GetByID(ctx context.Context, blobID string) (*blob
 // DeleteByID deletes a blob and its associated metadata by ID
 func (s *blobMetadataService) DeleteByID(ctx context.Context, blobID string) error {
 
-	blobMeta, err := s.blobRepository.GetById(ctx, blobID)
+	blobMeta, err := s.blobRepository.GetByID(ctx, blobID)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	err = s.blobRepository.DeleteById(ctx, blobID)
+	err = s.blobRepository.DeleteByID(ctx, blobID)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -334,9 +334,9 @@ func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepositor
 // The download function retrieves a blob's content using its ID and also enables data decryption.
 // NOTE: Signing should be performed locally by first downloading the associated key, followed by verification.
 // Optionally, a verify endpoint will be available soon for optional use.
-func (s *blobDownloadService) DownloadById(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error) {
+func (s *blobDownloadService) DownloadByID(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error) {
 
-	blobMeta, err := s.blobRepository.GetById(ctx, blobID)
+	blobMeta, err := s.blobRepository.GetByID(ctx, blobID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

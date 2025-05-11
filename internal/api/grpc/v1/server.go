@@ -115,15 +115,15 @@ func NewBlobDownloadServer(blobDownloadService blobs.BlobDownloadService) (*Blob
 	}, nil
 }
 
-// DownloadById downloads a blob by its ID
-func (s *BlobDownloadServer) DownloadById(req *pb.BlobDownloadRequest, stream pb.BlobDownload_DownloadByIdServer) error {
+// DownloadByID downloads a blob by its ID
+func (s *BlobDownloadServer) DownloadByID(req *pb.BlobDownloadRequest, stream pb.BlobDownload_DownloadByIDServer) error {
 	id := req.Id
 	var decryptionKeyId *string = nil
 	if len(req.DecryptionKeyId) > 0 {
 		decryptionKeyId = &req.DecryptionKeyId
 	}
 
-	bytes, err := s.blobDownloadService.DownloadById(stream.Context(), id, decryptionKeyId)
+	bytes, err := s.blobDownloadService.DownloadByID(stream.Context(), id, decryptionKeyId)
 	if err != nil {
 		return fmt.Errorf("could not download blob with id %s: %w", id, err)
 	}
@@ -211,8 +211,8 @@ func (s *BlobMetadataServer) ListMetadata(req *pb.BlobMetaQuery, stream pb.BlobM
 	return nil
 }
 
-// GetMetadataById handles the GET request to fetch metadata of a blob by its ID
-func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
+// GetMetadataByID handles the GET request to fetch metadata of a blob by its ID
+func (s *BlobMetadataServer) GetMetadataByID(ctx context.Context, req *pb.IdRequest) (*pb.BlobMetaResponse, error) {
 	blobMeta, err := s.blobMetadataService.GetByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get metadata by ID: %w", err)
@@ -238,8 +238,8 @@ func (s *BlobMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequ
 	return blobMetaResponse, nil
 }
 
-// DeleteById handles the DELETE request to delete a blob by its ID
-func (s *BlobMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
+// DeleteByID handles the DELETE request to delete a blob by its ID
+func (s *BlobMetadataServer) DeleteByID(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.blobMetadataService.DeleteByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete blob: %w", err)
@@ -292,9 +292,9 @@ func NewCryptoKeyDownloadServer(cryptoKeyDownloadService keys.CryptoKeyDownloadS
 	}, nil
 }
 
-// DownloadById downloads a key by its ID
-func (s *CryptoKeyDownloadServer) DownloadById(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIdServer) error {
-	bytes, err := s.cryptoKeyDownloadService.DownloadById(stream.Context(), req.Id)
+// DownloadByID downloads a key by its ID
+func (s *CryptoKeyDownloadServer) DownloadByID(req *pb.KeyDownloadRequest, stream pb.CryptoKeyDownload_DownloadByIDServer) error {
+	bytes, err := s.cryptoKeyDownloadService.DownloadByID(stream.Context(), req.Id)
 	if err != nil {
 		return fmt.Errorf("failed to download crypto key: %w", err)
 	}
@@ -372,8 +372,8 @@ func (s *CryptoKeyMetadataServer) ListMetadata(req *pb.KeyMetadataQuery, stream 
 	return nil
 }
 
-// GetMetadataById handles the GET request to retrieve metadata of a key by its ID
-func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.IdRequest) (*pb.CryptoKeyMetaResponse, error) {
+// GetMetadataByID handles the GET request to retrieve metadata of a key by its ID
+func (s *CryptoKeyMetadataServer) GetMetadataByID(ctx context.Context, req *pb.IdRequest) (*pb.CryptoKeyMetaResponse, error) {
 	cryptoKeyMeta, err := s.cryptoKeyMetadataService.GetByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get crypto key metadata by ID: %w", err)
@@ -390,8 +390,8 @@ func (s *CryptoKeyMetadataServer) GetMetadataById(ctx context.Context, req *pb.I
 	}, nil
 }
 
-// DeleteById deletes a key by its ID
-func (s *CryptoKeyMetadataServer) DeleteById(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
+// DeleteByID deletes a key by its ID
+func (s *CryptoKeyMetadataServer) DeleteByID(ctx context.Context, req *pb.IdRequest) (*pb.InfoResponse, error) {
 	err := s.cryptoKeyMetadataService.DeleteByID(ctx, req.Id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete crypto key: %w", err)

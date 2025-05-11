@@ -61,11 +61,11 @@ type MockBlobDownloadService struct {
 	mock.Mock
 }
 
-func (m *MockBlobDownloadService) DownloadById(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error) {
+func (m *MockBlobDownloadService) DownloadByID(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error) {
 	args := m.Called(ctx, blobID, decryptionKeyId)
 	err := args.Error(1)
 	if err != nil {
-		return nil, fmt.Errorf("mock DownloadById error: %w", err)
+		return nil, fmt.Errorf("mock DownloadByID error: %w", err)
 	}
 	return args.Get(0).([]byte), nil
 }
@@ -118,11 +118,11 @@ type MockCryptoKeyDownloadService struct {
 	mock.Mock
 }
 
-func (m *MockCryptoKeyDownloadService) DownloadById(ctx context.Context, keyID string) ([]byte, error) {
+func (m *MockCryptoKeyDownloadService) DownloadByID(ctx context.Context, keyID string) ([]byte, error) {
 	args := m.Called(ctx, keyID)
 	err := args.Error(1)
 	if err != nil {
-		return nil, fmt.Errorf("mock DownloadById error: %w", err)
+		return nil, fmt.Errorf("mock DownloadByID error: %w", err)
 	}
 	return args.Get(0).([]byte), nil
 }

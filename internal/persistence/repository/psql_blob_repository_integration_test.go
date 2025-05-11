@@ -52,7 +52,7 @@ func TestBlobPsqlRepository_Create(t *testing.T) {
 	assert.Equal(t, blob.Name, createdBlob.Name, "Name should match")
 }
 
-func TestBlobPsqlRepository_GetById(t *testing.T) {
+func TestBlobPsqlRepository_GetByID(t *testing.T) {
 	dbType := "postgres"
 	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
@@ -80,8 +80,8 @@ func TestBlobPsqlRepository_GetById(t *testing.T) {
 	}
 	err := ctx.BlobRepo.Create(context.Background(), blob)
 	assert.NoError(t, err, "Create should not return an error")
-	fetchedBlob, err := ctx.BlobRepo.GetById(context.Background(), blob.ID)
-	assert.NoError(t, err, "GetById should not return an error")
+	fetchedBlob, err := ctx.BlobRepo.GetByID(context.Background(), blob.ID)
+	assert.NoError(t, err, "GetByID should not return an error")
 	assert.NotNil(t, fetchedBlob, "Fetched blob should not be nil")
 	assert.Equal(t, blob.ID, fetchedBlob.ID, "ID should match")
 }
@@ -140,7 +140,7 @@ func TestBlobPsqlRepository_List(t *testing.T) {
 	assert.Len(t, blobsList, 2, "There should be two blobs in the list")
 }
 
-func TestBlobPsqlRepository_UpdateById(t *testing.T) {
+func TestBlobPsqlRepository_UpdateByID(t *testing.T) {
 	dbType := "postgres"
 	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
@@ -171,8 +171,8 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 
 	// Update blob
 	blob.Name = "updated-blob"
-	err = ctx.BlobRepo.UpdateById(context.Background(), blob)
-	assert.NoError(t, err, "UpdateById should not return an error")
+	err = ctx.BlobRepo.UpdateByID(context.Background(), blob)
+	assert.NoError(t, err, "UpdateByID should not return an error")
 
 	// Fetch updated blob
 	var updatedBlob blobs.BlobMeta
@@ -181,7 +181,7 @@ func TestBlobPsqlRepository_UpdateById(t *testing.T) {
 	assert.Equal(t, "updated-blob", updatedBlob.Name, "Name should be updated")
 }
 
-func TestBlobPsqlRepository_DeleteById(t *testing.T) {
+func TestBlobPsqlRepository_DeleteByID(t *testing.T) {
 	dbType := "postgres"
 	ctx := SetupTestDB(t, dbType)
 	defer TeardownTestDB(t, ctx, dbType)
@@ -211,8 +211,8 @@ func TestBlobPsqlRepository_DeleteById(t *testing.T) {
 	assert.NoError(t, err, "Create should not return an error")
 
 	// Delete blob
-	err = ctx.BlobRepo.DeleteById(context.Background(), blob.ID)
-	assert.NoError(t, err, "DeleteById should not return an error")
+	err = ctx.BlobRepo.DeleteByID(context.Background(), blob.ID)
+	assert.NoError(t, err, "DeleteByID should not return an error")
 
 	// Verify blob is deleted
 	var deletedBlob blobs.BlobMeta

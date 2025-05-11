@@ -1055,25 +1055,25 @@ var file_internal_service_proto_depIdxs = []int32{
 	13, // 2: internal.BlobMetaResponse.date_time_created:type_name -> google.protobuf.Timestamp
 	13, // 3: internal.CryptoKeyMetaResponse.date_time_created:type_name -> google.protobuf.Timestamp
 	0,  // 4: internal.BlobUpload.Upload:input_type -> internal.BlobUploadRequest
-	4,  // 5: internal.BlobDownload.DownloadById:input_type -> internal.BlobDownloadRequest
+	4,  // 5: internal.BlobDownload.DownloadByID:input_type -> internal.BlobDownloadRequest
 	3,  // 6: internal.BlobMetadata.ListMetadata:input_type -> internal.BlobMetaQuery
-	2,  // 7: internal.BlobMetadata.GetMetadataById:input_type -> internal.IdRequest
-	2,  // 8: internal.BlobMetadata.DeleteById:input_type -> internal.IdRequest
+	2,  // 7: internal.BlobMetadata.GetMetadataByID:input_type -> internal.IdRequest
+	2,  // 8: internal.BlobMetadata.DeleteByID:input_type -> internal.IdRequest
 	1,  // 9: internal.CryptoKeyUpload.Upload:input_type -> internal.UploadKeyRequest
-	6,  // 10: internal.CryptoKeyDownload.DownloadById:input_type -> internal.KeyDownloadRequest
+	6,  // 10: internal.CryptoKeyDownload.DownloadByID:input_type -> internal.KeyDownloadRequest
 	5,  // 11: internal.CryptoKeyMetadata.ListMetadata:input_type -> internal.KeyMetadataQuery
-	2,  // 12: internal.CryptoKeyMetadata.GetMetadataById:input_type -> internal.IdRequest
-	2,  // 13: internal.CryptoKeyMetadata.DeleteById:input_type -> internal.IdRequest
+	2,  // 12: internal.CryptoKeyMetadata.GetMetadataByID:input_type -> internal.IdRequest
+	2,  // 13: internal.CryptoKeyMetadata.DeleteByID:input_type -> internal.IdRequest
 	9,  // 14: internal.BlobUpload.Upload:output_type -> internal.BlobMetaResponse
-	11, // 15: internal.BlobDownload.DownloadById:output_type -> internal.BlobContent
+	11, // 15: internal.BlobDownload.DownloadByID:output_type -> internal.BlobContent
 	9,  // 16: internal.BlobMetadata.ListMetadata:output_type -> internal.BlobMetaResponse
-	9,  // 17: internal.BlobMetadata.GetMetadataById:output_type -> internal.BlobMetaResponse
-	8,  // 18: internal.BlobMetadata.DeleteById:output_type -> internal.InfoResponse
+	9,  // 17: internal.BlobMetadata.GetMetadataByID:output_type -> internal.BlobMetaResponse
+	8,  // 18: internal.BlobMetadata.DeleteByID:output_type -> internal.InfoResponse
 	10, // 19: internal.CryptoKeyUpload.Upload:output_type -> internal.CryptoKeyMetaResponse
-	12, // 20: internal.CryptoKeyDownload.DownloadById:output_type -> internal.KeyContent
+	12, // 20: internal.CryptoKeyDownload.DownloadByID:output_type -> internal.KeyContent
 	10, // 21: internal.CryptoKeyMetadata.ListMetadata:output_type -> internal.CryptoKeyMetaResponse
-	10, // 22: internal.CryptoKeyMetadata.GetMetadataById:output_type -> internal.CryptoKeyMetaResponse
-	8,  // 23: internal.CryptoKeyMetadata.DeleteById:output_type -> internal.InfoResponse
+	10, // 22: internal.CryptoKeyMetadata.GetMetadataByID:output_type -> internal.CryptoKeyMetaResponse
+	8,  // 23: internal.CryptoKeyMetadata.DeleteByID:output_type -> internal.InfoResponse
 	14, // [14:24] is the sub-list for method output_type
 	4,  // [4:14] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
