@@ -42,7 +42,7 @@ func parseArgs() (string, error) {
 // @contact.name MGTheTrain
 // @contact.url TBD
 // @contact.email TBD
-// @license.name LGPL-2.1 license
+// @license.name MIT license
 // @license.url https://github.com/MGTheTrain/crypto-vault-service/blob/main/LICENSE
 // @BasePath /api/v1/cvs
 // @securityDefinitions.basic BasicAuth

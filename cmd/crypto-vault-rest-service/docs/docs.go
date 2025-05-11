@@ -16,7 +16,7 @@ const docTemplate = `{
             "email": "TBD"
         },
         "license": {
-            "name": "LGPL-2.1 license",
+            "name": "MIT license",
             "url": "https://github.com/MGTheTrain/crypto-vault-service/blob/main/LICENSE"
         },
         "version": "{{.Version}}"
