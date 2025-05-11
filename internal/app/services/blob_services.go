@@ -30,7 +30,7 @@ type blobUploadService struct {
 }
 
 // NewBlobUploadService creates a new instance of BlobUploadService
-func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*blobUploadService, error) {
+func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (blobs.BlobUploadService, error) {
 	return &blobUploadService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
@@ -263,7 +263,7 @@ type blobMetadataService struct {
 }
 
 // NewBlobMetadataService creates a new instance of blobMetadataService
-func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (*blobMetadataService, error) {
+func NewBlobMetadataService(blobRepository blobs.BlobRepository, blobConnector connector.BlobConnector, logger logger.Logger) (blobs.BlobMetadataService, error) {
 	return &blobMetadataService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,
@@ -321,7 +321,7 @@ type blobDownloadService struct {
 }
 
 // NewBlobDownloadService creates a new instance of BlobDownloadService
-func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*blobDownloadService, error) {
+func NewBlobDownloadService(blobConnector connector.BlobConnector, blobRepository blobs.BlobRepository, vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (blobs.BlobDownloadService, error) {
 	return &blobDownloadService{
 		blobConnector:  blobConnector,
 		blobRepository: blobRepository,

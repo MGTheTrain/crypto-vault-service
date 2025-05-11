@@ -15,6 +15,11 @@ import (
 
 // BlobHandler defines the interface for handling blob-related operations
 type BlobHandler interface {
+	Upload(ctx *gin.Context)
+	ListMetadata(ctx *gin.Context)
+	GetMetadataByID(ctx *gin.Context)
+	DownloadByID(ctx *gin.Context)
+	DeleteByID(ctx *gin.Context)
 }
 
 // BlobHandler struct holds the services
@@ -26,7 +31,7 @@ type blobHandler struct {
 }
 
 // NewBlobHandler creates a new BlobHandler
-func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) *blobHandler {
+func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) BlobHandler {
 	return &blobHandler{
 		blobUploadService:      blobUploadService,
 		blobDownloadService:    blobDownloadService,
@@ -309,17 +314,25 @@ func (handler *blobHandler) DeleteByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusNoContent, infoResponse)
 }
 
+// KeyHandler defines the interface for handling key-related operations
+type KeyHandler interface {
+	UploadKeys(ctx *gin.Context)
+	ListMetadata(ctx *gin.Context)
+	GetMetadataByID(ctx *gin.Context)
+	DownloadByID(ctx *gin.Context)
+	DeleteByID(ctx *gin.Context)
+}
+
 // KeyHandler struct holds the services
-type KeyHandler struct {
+type keyHandler struct {
 	cryptoKeyUploadService   keys.CryptoKeyUploadService
 	cryptoKeyDownloadService keys.CryptoKeyDownloadService
 	cryptoKeyMetadataService keys.CryptoKeyMetadataService
 }
 
 // NewKeyHandler creates a new KeyHandler
-func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKeyDownloadService keys.CryptoKeyDownloadService, cryptoKeyMetadataService keys.CryptoKeyMetadataService) *KeyHandler {
-
-	return &KeyHandler{
+func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKeyDownloadService keys.CryptoKeyDownloadService, cryptoKeyMetadataService keys.CryptoKeyMetadataService) KeyHandler {
+	return &keyHandler{
 		cryptoKeyUploadService:   cryptoKeyUploadService,
 		cryptoKeyDownloadService: cryptoKeyDownloadService,
 		cryptoKeyMetadataService: cryptoKeyMetadataService,
@@ -336,7 +349,7 @@ func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKey
 // @Success 201 {array} CryptoKeyMetaResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /keys [post]
-func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
+func (handler *keyHandler) UploadKeys(ctx *gin.Context) {
 
 	var request UploadKeyRequest
 
@@ -398,7 +411,7 @@ func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /keys [get]
-func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
+func (handler *keyHandler) ListMetadata(ctx *gin.Context) {
 	query := keys.NewCryptoKeyQuery()
 
 	if keyAlgorithm := ctx.Query("algorithm"); len(keyAlgorithm) > 0 {
@@ -474,7 +487,7 @@ func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
 // @Success 200 {object} CryptoKeyMetaResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id} [get]
-func (handler *KeyHandler) GetMetadataByID(ctx *gin.Context) {
+func (handler *keyHandler) GetMetadataByID(ctx *gin.Context) {
 	keyID := ctx.Param("id")
 
 	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(ctx, keyID)
@@ -508,7 +521,7 @@ func (handler *KeyHandler) GetMetadataByID(ctx *gin.Context) {
 // @Success 200 {file} file "Cryptographic key content"
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id}/file [get]
-func (handler *KeyHandler) DownloadByID(ctx *gin.Context) {
+func (handler *keyHandler) DownloadByID(ctx *gin.Context) {
 	keyID := ctx.Param("id")
 
 	bytes, err := handler.cryptoKeyDownloadService.DownloadByID(ctx, keyID)
@@ -542,7 +555,7 @@ func (handler *KeyHandler) DownloadByID(ctx *gin.Context) {
 // @Success 204 {object} InfoResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id} [delete]
-func (handler *KeyHandler) DeleteByID(ctx *gin.Context) {
+func (handler *keyHandler) DeleteByID(ctx *gin.Context) {
 	keyID := ctx.Param("id")
 
 	if err := handler.cryptoKeyMetadataService.DeleteByID(ctx, keyID); err != nil {

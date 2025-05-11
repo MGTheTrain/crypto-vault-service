@@ -23,7 +23,7 @@ type azureVaultConnector struct {
 
 // NewAzureVaultConnector creates a new instance of azureVaultConnector, which connects to Azure Blob Storage.
 // This method can be updated in the future to support a more sophisticated key management system like Azure Key Vault.
-func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnectorSettings, logger logger.Logger) (*azureVaultConnector, error) {
+func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnectorSettings, logger logger.Logger) (VaultConnector, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}

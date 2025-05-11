@@ -5,13 +5,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// fileLogger is an implementation of Logger that logs to a file.
-type fileLogger struct {
+// FileLogger is an implementation of Logger that logs to a file.
+type FileLogger struct {
 	logger *logrus.Logger
 }
 
 // NewFileLogger creates a new file logger with the specified log level and file path.
-func NewFileLogger(level logrus.Level, filePath string) *fileLogger {
+func NewFileLogger(level logrus.Level, filePath string) *FileLogger {
 	logger := logrus.New()
 
 	logger.SetOutput(&lumberjack.Logger{
@@ -25,25 +25,30 @@ func NewFileLogger(level logrus.Level, filePath string) *fileLogger {
 		FullTimestamp: true,
 	})
 	logger.SetLevel(level)
-	return &fileLogger{logger: logger}
+	return &FileLogger{logger: logger}
 }
 
-func (l *fileLogger) Info(args ...interface{}) {
+// Info logs an informational message using the underlying logger.
+func (l *FileLogger) Info(args ...interface{}) {
 	l.logger.Info(args...)
 }
 
-func (l *fileLogger) Warn(args ...interface{}) {
+// Warn logs a warning message using the underlying logger.
+func (l *FileLogger) Warn(args ...interface{}) {
 	l.logger.Warn(args...)
 }
 
-func (l *fileLogger) Error(args ...interface{}) {
+// Error logs an error message using the underlying logger.
+func (l *FileLogger) Error(args ...interface{}) {
 	l.logger.Error(args...)
 }
 
-func (l *fileLogger) Fatal(args ...interface{}) {
+// Fatal logs a fatal message using the underlying logger and then exits the program.
+func (l *FileLogger) Fatal(args ...interface{}) {
 	l.logger.Fatal(args...)
 }
 
-func (l *fileLogger) Panic(args ...interface{}) {
+// Panic logs a panic message using the underlying logger and then panics.
+func (l *FileLogger) Panic(args ...interface{}) {
 	l.logger.Panic(args...)
 }

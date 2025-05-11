@@ -21,7 +21,7 @@ type cryptoKeyUploadService struct {
 }
 
 // NewCryptoKeyUploadService creates a new cryptoKeyUploadService instance
-func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*cryptoKeyUploadService, error) {
+func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (keys.CryptoKeyUploadService, error) {
 	return &cryptoKeyUploadService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -208,7 +208,7 @@ type cryptoKeyMetadataService struct {
 }
 
 // NewCryptoKeyMetadataService creates a new cryptoKeyMetadataService instance
-func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*cryptoKeyMetadataService, error) {
+func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (keys.CryptoKeyMetadataService, error) {
 	return &cryptoKeyMetadataService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -263,7 +263,7 @@ type cryptoKeyDownloadService struct {
 }
 
 // NewCryptoKeyDownloadService creates a new cryptoKeyDownloadService instance
-func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*cryptoKeyDownloadService, error) {
+func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (keys.CryptoKeyDownloadService, error) {
 	return &cryptoKeyDownloadService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,

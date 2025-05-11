@@ -17,7 +17,7 @@ type gormBlobRepository struct {
 }
 
 // NewGormBlobRepository creates a new gormBlobRepository instance
-func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*gormBlobRepository, error) {
+func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (blobs.BlobRepository, error) {
 
 	return &gormBlobRepository{
 		db:     db,

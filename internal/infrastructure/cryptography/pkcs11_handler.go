@@ -56,7 +56,7 @@ type pkcs11Handler struct {
 }
 
 // NewPKCS11Handler creates and returns a new instance of PKCS11Handler
-func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (*pkcs11Handler, error) {
+func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (PKCS11Handler, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
