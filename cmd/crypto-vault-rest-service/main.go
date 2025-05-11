@@ -105,7 +105,7 @@ func main() {
 		// Check if the database exists
 		var dbExists bool
 		query := "SELECT 1 FROM pg_database WHERE datname = $1"
-		err = sqlDB.QueryRow(query).Scan(&dbExists)
+		err = sqlDB.QueryRow(query, config.Database.Name).Scan(&dbExists)
 
 		if err != nil && err.Error() != "sql: no rows in result set" {
 			log.Fatalf("Failed to check if database '%s' exists: %v", config.Database.Name, err)
