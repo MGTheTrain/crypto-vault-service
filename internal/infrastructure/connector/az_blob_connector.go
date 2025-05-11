@@ -50,7 +50,7 @@ func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnector
 
 // UploadFromForm uploads files to a Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
+func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 
 	fileHeaders := form.File["files"]
@@ -67,7 +67,7 @@ func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form,
 			Size:            fileHeader.Size,
 			Type:            fileExt,
 			DateTimeCreated: time.Now(),
-			UserID:          userId,
+			UserID:          userID,
 			EncryptionKeyID: nil,
 			SignKeyID:       nil,
 		}

@@ -50,7 +50,7 @@ func (handler *blobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
 	var encryptionKeyId *string = nil
 	var signKeyId *string = nil
-	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
+	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -68,7 +68,7 @@ func (handler *blobHandler) Upload(ctx *gin.Context) {
 		signKeyId = &signKeys[0]
 	}
 
-	blobMetas, err := handler.blobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := handler.blobUploadService.Upload(ctx, form, userID, encryptionKeyId, signKeyId)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("error uploading blob: %v", err.Error())
@@ -353,9 +353,9 @@ func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
 		return
 	}
 
-	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
+	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
-	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(ctx, userId, request.Algorithm, request.KeySize)
+	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(ctx, userID, request.Algorithm, request.KeySize)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("error uploading key: %v", err.Error())

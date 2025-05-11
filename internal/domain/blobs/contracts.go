@@ -9,7 +9,7 @@ import (
 type BlobUploadService interface {
 	// Upload transfers blobs with the option to encrypt them using an encryption key or sign them with a signing key.
 	// It returns a slice of Blob for the uploaded blobs and any error encountered during the upload process.
-	Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*BlobMeta, error)
+	Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyId, signKeyId *string) ([]*BlobMeta, error)
 }
 
 // BlobMetadataService defines methods for retrieving Blob and deleting a blob along with its metadata.

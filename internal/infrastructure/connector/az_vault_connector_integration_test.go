@@ -53,19 +53,19 @@ func TestAzureVaultConnector_Upload(t *testing.T) {
 
 	testFileContent := []byte("This is a test file content.")
 
-	userId := uuid.New().String()
-	keyPairId := uuid.New().String()
+	userID := uuid.New().String()
+	keyPairID := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint32(keySize))
+	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userID, keyPairID, keyType, keyAlgorithm, uint32(keySize))
 	require.NoError(t, err)
 
 	assert.NotEmpty(t, cryptoKeyMeta.ID)
 	assert.Equal(t, keyType, cryptoKeyMeta.Type)
-	assert.Equal(t, userId, cryptoKeyMeta.UserID)
+	assert.Equal(t, userID, cryptoKeyMeta.UserID)
 	assert.WithinDuration(t, time.Now(), cryptoKeyMeta.DateTimeCreated, time.Second)
 
 	err = avct.vaultConnector.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
@@ -77,14 +77,14 @@ func TestAzureVaultConnector_Download(t *testing.T) {
 
 	testFileContent := []byte("This is a test file content.")
 
-	userId := uuid.New().String()
-	keyPairId := uuid.New().String()
+	userID := uuid.New().String()
+	keyPairID := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint32(keySize))
+	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userID, keyPairID, keyType, keyAlgorithm, uint32(keySize))
 	require.NoError(t, err)
 
 	downloadedData, err := avct.vaultConnector.Download(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)
@@ -101,14 +101,14 @@ func TestAzureVaultConnector_Delete(t *testing.T) {
 
 	testFileContent := []byte("This is a test file content.")
 
-	userId := uuid.New().String()
-	keyPairId := uuid.New().String()
+	userID := uuid.New().String()
+	keyPairID := uuid.New().String()
 	keyAlgorithm := "RSA"
 	keyType := "private"
 	keySize := 2048
 	ctx := context.Background()
 
-	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userId, keyPairId, keyType, keyAlgorithm, uint32(keySize))
+	cryptoKeyMeta, err := avct.vaultConnector.Upload(ctx, testFileContent, userID, keyPairID, keyType, keyAlgorithm, uint32(keySize))
 	require.NoError(t, err)
 
 	err = avct.vaultConnector.Delete(ctx, cryptoKeyMeta.ID, cryptoKeyMeta.KeyPairID, cryptoKeyMeta.Type)

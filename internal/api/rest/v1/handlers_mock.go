@@ -74,8 +74,8 @@ type MockCryptoKeyUploadService struct {
 	mock.Mock
 }
 
-func (m *MockCryptoKeyUploadService) Upload(ctx context.Context, userId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
-	args := m.Called(ctx, userId, keyAlgorithm, keySize)
+func (m *MockCryptoKeyUploadService) Upload(ctx context.Context, userID, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
+	args := m.Called(ctx, userID, keyAlgorithm, keySize)
 	err := args.Error(1)
 	if err != nil {
 		return nil, fmt.Errorf("mock Upload error: %w", err)

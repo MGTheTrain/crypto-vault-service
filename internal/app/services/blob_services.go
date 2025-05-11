@@ -42,7 +42,7 @@ func NewBlobUploadService(blobConnector connector.BlobConnector, blobRepository 
 
 // Upload transfers blobs with the option to encrypt them using an encryption key or sign them with a signing key.
 // It returns a slice of Blob for the uploaded blobs and any error encountered during the upload process.
-func (s *blobUploadService) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
+func (s *blobUploadService) Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
 	var newForm *multipart.Form
 
 	// Process signKeyId if provided
@@ -84,7 +84,7 @@ func (s *blobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 	}
 
 	if signKeyId != nil || encryptionKeyId != nil {
-		blobMetas, err := s.blobConnector.Upload(ctx, newForm, userId, encryptionKeyId, signKeyId)
+		blobMetas, err := s.blobConnector.Upload(ctx, newForm, userID, encryptionKeyId, signKeyId)
 		if err != nil {
 			return nil, fmt.Errorf("%w", err)
 		}
@@ -98,7 +98,7 @@ func (s *blobUploadService) Upload(ctx context.Context, form *multipart.Form, us
 		return blobMetas, nil
 	}
 
-	blobMetas, err := s.blobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := s.blobConnector.Upload(ctx, form, userID, encryptionKeyId, signKeyId)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

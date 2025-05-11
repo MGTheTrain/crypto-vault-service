@@ -83,7 +83,7 @@ func ReadPkcs11SettingsFromEnv() (*settings.PKCS11Settings, error) {
 }
 
 // ListTokenSlotsCmd lists PKCS#11 tokens
-func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(cmd *cobra.Command, _ []string) {
+func (commandHandler *PKCS11CommandsHandler) ListTokenSlotsCmd(_ *cobra.Command, _ []string) {
 
 	tokens, err := commandHandler.pkcs11Handler.ListTokenSlots()
 	if err != nil {

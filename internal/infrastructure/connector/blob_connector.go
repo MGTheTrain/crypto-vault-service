@@ -10,7 +10,7 @@ import (
 type BlobConnector interface {
 	// UploadFromForm uploads files to a Blob Storage
 	// and returns the metadata for each uploaded byte stream.
-	Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error)
+	Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error)
 
 	// Download retrieves a blob's content by its ID and name, and returns the data as a stream.
 	Download(ctx context.Context, blobID, blobName string) ([]byte, error)

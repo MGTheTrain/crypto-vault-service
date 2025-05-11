@@ -566,7 +566,7 @@ type BlobMetaResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	DateTimeCreated *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_time_created,json=dateTimeCreated,proto3" json:"date_time_created,omitempty"`
-	UserId          string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId          string                 `protobuf:"bytes,3,opt,name=user_id,json=userID,proto3" json:"user_id,omitempty"`
 	Name            string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	Size            int64                  `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
 	Type            string                 `protobuf:"bytes,6,opt,name=type,proto3" json:"type,omitempty"`
@@ -665,12 +665,12 @@ func (x *BlobMetaResponse) GetSignKeyId() string {
 type CryptoKeyMetaResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	KeyPairId       string                 `protobuf:"bytes,2,opt,name=key_pair_id,json=keyPairId,proto3" json:"key_pair_id,omitempty"`
+	KeyPairId       string                 `protobuf:"bytes,2,opt,name=key_pair_id,json=keyPairID,proto3" json:"key_pair_id,omitempty"`
 	Algorithm       string                 `protobuf:"bytes,3,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
 	KeySize         uint32                 `protobuf:"varint,4,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
 	Type            string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
 	DateTimeCreated *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_time_created,json=dateTimeCreated,proto3" json:"date_time_created,omitempty"`
-	UserId          string                 `protobuf:"bytes,7,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId          string                 `protobuf:"bytes,7,opt,name=user_id,json=userID,proto3" json:"user_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
