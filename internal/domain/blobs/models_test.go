@@ -22,7 +22,7 @@ type BlobValidationTests struct {
 
 // NewBlobValidationTests is a constructor to create a new instance of BlobValidationTests
 func NewBlobValidationTests() *BlobValidationTests {
-	keyId := uuid.New().String()
+	keyID := uuid.New().String()
 	// Create valid and invalid test data
 	validBlob := BlobMeta{
 		ID:              uuid.New().String(),
@@ -32,9 +32,9 @@ func NewBlobValidationTests() *BlobValidationTests {
 		Size:            12345,
 		Type:            "text",
 		EncryptionKey:   keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		EncryptionKeyID: &keyId,
+		EncryptionKeyID: &keyID,
 		SignKey:         keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		SignKeyID:       &keyId,
+		SignKeyID:       &keyID,
 	}
 
 	invalidBlob := BlobMeta{
@@ -45,9 +45,9 @@ func NewBlobValidationTests() *BlobValidationTests {
 		Size:            -12345, // Invalid Size (negative)
 		Type:            "text",
 		EncryptionKey:   keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		EncryptionKeyID: &keyId,
+		EncryptionKeyID: &keyID,
 		SignKey:         keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		SignKeyID:       &keyId,
+		SignKeyID:       &keyID,
 	}
 
 	invalidBlob2 := BlobMeta{
@@ -58,9 +58,9 @@ func NewBlobValidationTests() *BlobValidationTests {
 		Size:            12345,
 		Type:            "text",
 		EncryptionKey:   keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		EncryptionKeyID: &keyId,
+		EncryptionKeyID: &keyID,
 		SignKey:         keys.CryptoKeyMeta{ID: uuid.New().String(), KeyPairID: uuid.New().String(), Algorithm: "AES", KeySize: 256, Type: "private", DateTimeCreated: time.Now(), UserID: uuid.New().String()},
-		SignKeyID:       &keyId,
+		SignKeyID:       &keyID,
 	}
 
 	return &BlobValidationTests{

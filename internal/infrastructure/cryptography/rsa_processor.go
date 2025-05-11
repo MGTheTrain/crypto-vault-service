@@ -34,7 +34,7 @@ type rsaProcessor struct {
 }
 
 // NewRSAProcessor creates and returns a new instance of rsaProcessor
-func NewRSAProcessor(logger logger.Logger) (*rsaProcessor, error) {
+func NewRSAProcessor(logger logger.Logger) (RSAProcessor, error) {
 	return &rsaProcessor{
 		logger: logger,
 	}, nil

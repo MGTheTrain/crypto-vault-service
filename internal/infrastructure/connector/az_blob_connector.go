@@ -26,7 +26,7 @@ type azureBlobConnector struct {
 
 // NewAzureBlobConnector creates a new azureBlobConnector instance using a connection string.
 // It returns the connector and any error encountered during the initialization.
-func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (*azureBlobConnector, error) {
+func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnectorSettings, logger logger.Logger) (BlobConnector, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
@@ -50,7 +50,7 @@ func NewAzureBlobConnector(ctx context.Context, settings *settings.BlobConnector
 
 // UploadFromForm uploads files to a Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userId string, encryptionKeyId, signKeyId *string) ([]*blobs.BlobMeta, error) {
+func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyID, signKeyID *string) ([]*blobs.BlobMeta, error) {
 	var blobMeta []*blobs.BlobMeta
 
 	fileHeaders := form.File["files"]
@@ -67,17 +67,17 @@ func (abc *azureBlobConnector) Upload(ctx context.Context, form *multipart.Form,
 			Size:            fileHeader.Size,
 			Type:            fileExt,
 			DateTimeCreated: time.Now(),
-			UserID:          userId,
+			UserID:          userID,
 			EncryptionKeyID: nil,
 			SignKeyID:       nil,
 		}
 
-		if encryptionKeyId != nil {
-			blob.EncryptionKeyID = encryptionKeyId
+		if encryptionKeyID != nil {
+			blob.EncryptionKeyID = encryptionKeyID
 		}
 
-		if signKeyId != nil {
-			blob.SignKeyID = signKeyId
+		if signKeyID != nil {
+			blob.SignKeyID = signKeyID
 		}
 
 		fullBlobName := fmt.Sprintf("%s/%s", blob.ID, blob.Name)
@@ -132,8 +132,8 @@ func (abc *azureBlobConnector) rollbackUploadedBlobs(ctx context.Context, blobs 
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *azureBlobConnector) Download(ctx context.Context, blobId, blobName string) ([]byte, error) {
-	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
+func (abc *azureBlobConnector) Download(ctx context.Context, blobID, blobName string) ([]byte, error) {
+	fullBlobName := fmt.Sprintf("%s/%s", blobID, blobName)
 
 	get, err := abc.client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {
@@ -158,8 +158,8 @@ func (abc *azureBlobConnector) Download(ctx context.Context, blobId, blobName st
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
-func (abc *azureBlobConnector) Delete(ctx context.Context, blobId, blobName string) error {
-	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
+func (abc *azureBlobConnector) Delete(ctx context.Context, blobID, blobName string) error {
+	fullBlobName := fmt.Sprintf("%s/%s", blobID, blobName)
 
 	_, err := abc.client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {

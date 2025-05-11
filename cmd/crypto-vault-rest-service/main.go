@@ -1,3 +1,9 @@
+// Package main is the entry point for the crypto-vault-rest-service application.
+// It sets up and starts the RESTful API server using the Gin framework.
+// The main function initializes services, configures database connections,
+// registers necessary routes, and sets up Swagger documentation for the API.
+// It also handles the setup of repositories, connectors, and logging components.
+// Additionally, it performs database migrations and ensures the required database schema exists.
 package main
 
 import (
@@ -42,7 +48,7 @@ func parseArgs() (string, error) {
 // @contact.name MGTheTrain
 // @contact.url TBD
 // @contact.email TBD
-// @license.name LGPL-2.1 license
+// @license.name MIT license
 // @license.url https://github.com/MGTheTrain/crypto-vault-service/blob/main/LICENSE
 // @BasePath /api/v1/cvs
 // @securityDefinitions.basic BasicAuth
@@ -105,7 +111,7 @@ func main() {
 		// Check if the database exists
 		var dbExists bool
 		query := "SELECT 1 FROM pg_database WHERE datname = $1"
-		err = sqlDB.QueryRow(query).Scan(&dbExists)
+		err = sqlDB.QueryRow(query, config.Database.Name).Scan(&dbExists)
 
 		if err != nil && err.Error() != "sql: no rows in result set" {
 			log.Fatalf("Failed to check if database '%s' exists: %v", config.Database.Name, err)

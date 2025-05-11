@@ -6,7 +6,7 @@ import "context"
 type CryptoKeyUploadService interface {
 	// Upload uploads cryptographic keys
 	// It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-	Upload(ctx context.Context, userId, keyAlgorihm string, keySize uint32) ([]*CryptoKeyMeta, error)
+	Upload(ctx context.Context, userID, keyAlgorihm string, keySize uint32) ([]*CryptoKeyMeta, error)
 }
 
 // CryptoKeyMetadataService defines methods for managing cryptographic key metadata and deleting keys.
@@ -28,14 +28,14 @@ type CryptoKeyMetadataService interface {
 type CryptoKeyDownloadService interface {
 	// Download retrieves a cryptographic key by its ID
 	// It returns the CryptoKeyMeta, the key data as a byte slice, and any error encountered during the download process.
-	DownloadById(ctx context.Context, keyID string) ([]byte, error)
+	DownloadByID(ctx context.Context, keyID string) ([]byte, error)
 }
 
 // CryptoKeyRepository defines the interface for CryptoKey-related operations
 type CryptoKeyRepository interface {
 	Create(ctx context.Context, key *CryptoKeyMeta) error
 	List(ctx context.Context, query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
-	GetByID(ctx context.Context, keyId string) (*CryptoKeyMeta, error)
+	GetByID(ctx context.Context, keyID string) (*CryptoKeyMeta, error)
 	UpdateByID(ctx context.Context, key *CryptoKeyMeta) error
-	DeleteByID(ctx context.Context, keyId string) error
+	DeleteByID(ctx context.Context, keyID string) error
 }

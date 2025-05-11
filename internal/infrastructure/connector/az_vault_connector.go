@@ -23,7 +23,7 @@ type azureVaultConnector struct {
 
 // NewAzureVaultConnector creates a new instance of azureVaultConnector, which connects to Azure Blob Storage.
 // This method can be updated in the future to support a more sophisticated key management system like Azure Key Vault.
-func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnectorSettings, logger logger.Logger) (*azureVaultConnector, error) {
+func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnectorSettings, logger logger.Logger) (VaultConnector, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
@@ -47,18 +47,18 @@ func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnector
 
 // Upload uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
-func (vc *azureVaultConnector) Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint32) (*keys.CryptoKeyMeta, error) {
-	keyId := uuid.New().String()
-	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
+func (vc *azureVaultConnector) Upload(ctx context.Context, bytes []byte, userID, keyPairID, keyType, keyAlgorihm string, keySize uint32) (*keys.CryptoKeyMeta, error) {
+	keyID := uuid.New().String()
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairID, keyID, keyType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
-		ID:              keyId,
-		KeyPairID:       keyPairId,
+		ID:              keyID,
+		KeyPairID:       keyPairID,
 		Type:            keyType,
 		Algorithm:       keyAlgorihm,
 		KeySize:         keySize,
 		DateTimeCreated: time.Now(),
-		UserID:          userId,
+		UserID:          userID,
 	}
 
 	_, err := vc.client.UploadBuffer(ctx, vc.containerName, fullKeyName, bytes, nil)
@@ -82,9 +82,9 @@ func (vc *azureVaultConnector) rollbackUploadedBlobs(ctx context.Context, crypto
 }
 
 // Download retrieves a key's content by its IDs and Type and returns the data as a byte slice.
-func (vc *azureVaultConnector) Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error) {
+func (vc *azureVaultConnector) Download(ctx context.Context, keyID, keyPairID, keyType string) ([]byte, error) {
 
-	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairID, keyID, keyType)
 
 	get, err := vc.client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
@@ -102,8 +102,8 @@ func (vc *azureVaultConnector) Download(ctx context.Context, keyId, keyPairId, k
 }
 
 // Delete deletes a key from Azure Blob Storage by its IDs and Type.
-func (vc *azureVaultConnector) Delete(ctx context.Context, keyId, keyPairId, keyType string) error {
-	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
+func (vc *azureVaultConnector) Delete(ctx context.Context, keyID, keyPairID, keyType string) error {
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairID, keyID, keyType)
 
 	_, err := vc.client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {

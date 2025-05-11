@@ -84,7 +84,7 @@ func InitializeGrpcConfig(path string) (*GrpcConfig, error) {
 			config.PKCS11.UserPin = pkcs11UserPin
 		}
 		if pkcs11SlotID := viper.GetString("PKCS11_SLOT_ID"); pkcs11SlotID != "" {
-			config.PKCS11.SlotId = pkcs11SlotID
+			config.PKCS11.SlotID = pkcs11SlotID
 		}
 	} else {
 		if err := viper.ReadInConfig(); err != nil {

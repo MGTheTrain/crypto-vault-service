@@ -21,7 +21,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 				ModulePath: "/path/to/module",
 				SOPin:      "1234",
 				UserPin:    "5678",
-				SlotId:     "1",
+				SlotID:     "1",
 			},
 			expectedError: false,
 		},
@@ -30,7 +30,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 			settings: &PKCS11Settings{
 				SOPin:   "1234",
 				UserPin: "5678",
-				SlotId:  "1",
+				SlotID:  "1",
 			},
 			expectedError: true,
 		},
@@ -39,7 +39,7 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				UserPin:    "5678",
-				SlotId:     "1",
+				SlotID:     "1",
 			},
 			expectedError: true,
 		},
@@ -48,12 +48,12 @@ func TestPKCS11SettingsValidation(t *testing.T) {
 			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				SOPin:      "1234",
-				SlotId:     "1",
+				SlotID:     "1",
 			},
 			expectedError: true,
 		},
 		{
-			name: "Missing SlotId",
+			name: "Missing SlotID",
 			settings: &PKCS11Settings{
 				ModulePath: "/path/to/module",
 				SOPin:      "1234",

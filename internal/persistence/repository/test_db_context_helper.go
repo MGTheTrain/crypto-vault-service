@@ -16,6 +16,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TestDBContext is a mockable context holding database and repository references for testing
 type TestDBContext struct {
 	DB            *gorm.DB
 	BlobRepo      blobs.BlobRepository

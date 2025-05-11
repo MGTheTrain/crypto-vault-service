@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// BlobConnectorSettings holds configuration settings for connecting to a blob storage service
 type BlobConnectorSettings struct {
 	CloudProvider    string `mapstructure:"cloud_provider" validate:"required"`
 	ConnectionString string `mapstructure:"connection_string" validate:"required"`

@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Helper function to create test files
+// CreateTestFile create a test files
 func CreateTestFile(fileName string, content []byte) error {
 	err := os.WriteFile(fileName, content, 0600)
 	if err != nil {
@@ -19,7 +19,7 @@ func CreateTestFile(fileName string, content []byte) error {
 	return nil
 }
 
-// Helper function to create a test file and form
+// CreateTestFileAndForm creates a test file and form
 func CreateTestFileAndForm(t *testing.T, fileName string, fileContent []byte) (*multipart.Form, error) {
 	err := CreateTestFile(fileName, fileContent)
 	require.NoError(t, err)

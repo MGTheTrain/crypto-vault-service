@@ -26,8 +26,8 @@ type BlobUploadRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	FileName        string                 `protobuf:"bytes,1,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
 	FileContent     []byte                 `protobuf:"bytes,2,opt,name=file_content,json=fileContent,proto3" json:"file_content,omitempty"`
-	EncryptionKeyId string                 `protobuf:"bytes,3,opt,name=encryption_key_id,json=encryptionKeyId,proto3" json:"encryption_key_id,omitempty"`
-	SignKeyId       string                 `protobuf:"bytes,4,opt,name=sign_key_id,json=signKeyId,proto3" json:"sign_key_id,omitempty"`
+	EncryptionKeyId string                 `protobuf:"bytes,3,opt,name=encryption_key_id,json=encryptionKeyID,proto3" json:"encryption_key_id,omitempty"`
+	SignKeyId       string                 `protobuf:"bytes,4,opt,name=sign_key_id,json=signKeyID,proto3" json:"sign_key_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -289,7 +289,7 @@ func (x *BlobMetaQuery) GetSortOrder() string {
 type BlobDownloadRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	DecryptionKeyId string                 `protobuf:"bytes,2,opt,name=decryption_key_id,json=decryptionKeyId,proto3" json:"decryption_key_id,omitempty"`
+	DecryptionKeyId string                 `protobuf:"bytes,2,opt,name=decryption_key_id,json=decryptionKeyID,proto3" json:"decryption_key_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -566,12 +566,12 @@ type BlobMetaResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	DateTimeCreated *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=date_time_created,json=dateTimeCreated,proto3" json:"date_time_created,omitempty"`
-	UserId          string                 `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId          string                 `protobuf:"bytes,3,opt,name=user_id,json=userID,proto3" json:"user_id,omitempty"`
 	Name            string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	Size            int64                  `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
 	Type            string                 `protobuf:"bytes,6,opt,name=type,proto3" json:"type,omitempty"`
-	EncryptionKeyId string                 `protobuf:"bytes,7,opt,name=encryption_key_id,json=encryptionKeyId,proto3" json:"encryption_key_id,omitempty"`
-	SignKeyId       string                 `protobuf:"bytes,8,opt,name=sign_key_id,json=signKeyId,proto3" json:"sign_key_id,omitempty"`
+	EncryptionKeyId string                 `protobuf:"bytes,7,opt,name=encryption_key_id,json=encryptionKeyID,proto3" json:"encryption_key_id,omitempty"`
+	SignKeyId       string                 `protobuf:"bytes,8,opt,name=sign_key_id,json=signKeyID,proto3" json:"sign_key_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -665,12 +665,12 @@ func (x *BlobMetaResponse) GetSignKeyId() string {
 type CryptoKeyMetaResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	KeyPairId       string                 `protobuf:"bytes,2,opt,name=key_pair_id,json=keyPairId,proto3" json:"key_pair_id,omitempty"`
+	KeyPairId       string                 `protobuf:"bytes,2,opt,name=key_pair_id,json=keyPairID,proto3" json:"key_pair_id,omitempty"`
 	Algorithm       string                 `protobuf:"bytes,3,opt,name=algorithm,proto3" json:"algorithm,omitempty"`
 	KeySize         uint32                 `protobuf:"varint,4,opt,name=key_size,json=keySize,proto3" json:"key_size,omitempty"`
 	Type            string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
 	DateTimeCreated *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=date_time_created,json=dateTimeCreated,proto3" json:"date_time_created,omitempty"`
-	UserId          string                 `protobuf:"bytes,7,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId          string                 `protobuf:"bytes,7,opt,name=user_id,json=userID,proto3" json:"user_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1055,25 +1055,25 @@ var file_internal_service_proto_depIdxs = []int32{
 	13, // 2: internal.BlobMetaResponse.date_time_created:type_name -> google.protobuf.Timestamp
 	13, // 3: internal.CryptoKeyMetaResponse.date_time_created:type_name -> google.protobuf.Timestamp
 	0,  // 4: internal.BlobUpload.Upload:input_type -> internal.BlobUploadRequest
-	4,  // 5: internal.BlobDownload.DownloadById:input_type -> internal.BlobDownloadRequest
+	4,  // 5: internal.BlobDownload.DownloadByID:input_type -> internal.BlobDownloadRequest
 	3,  // 6: internal.BlobMetadata.ListMetadata:input_type -> internal.BlobMetaQuery
-	2,  // 7: internal.BlobMetadata.GetMetadataById:input_type -> internal.IdRequest
-	2,  // 8: internal.BlobMetadata.DeleteById:input_type -> internal.IdRequest
+	2,  // 7: internal.BlobMetadata.GetMetadataByID:input_type -> internal.IdRequest
+	2,  // 8: internal.BlobMetadata.DeleteByID:input_type -> internal.IdRequest
 	1,  // 9: internal.CryptoKeyUpload.Upload:input_type -> internal.UploadKeyRequest
-	6,  // 10: internal.CryptoKeyDownload.DownloadById:input_type -> internal.KeyDownloadRequest
+	6,  // 10: internal.CryptoKeyDownload.DownloadByID:input_type -> internal.KeyDownloadRequest
 	5,  // 11: internal.CryptoKeyMetadata.ListMetadata:input_type -> internal.KeyMetadataQuery
-	2,  // 12: internal.CryptoKeyMetadata.GetMetadataById:input_type -> internal.IdRequest
-	2,  // 13: internal.CryptoKeyMetadata.DeleteById:input_type -> internal.IdRequest
+	2,  // 12: internal.CryptoKeyMetadata.GetMetadataByID:input_type -> internal.IdRequest
+	2,  // 13: internal.CryptoKeyMetadata.DeleteByID:input_type -> internal.IdRequest
 	9,  // 14: internal.BlobUpload.Upload:output_type -> internal.BlobMetaResponse
-	11, // 15: internal.BlobDownload.DownloadById:output_type -> internal.BlobContent
+	11, // 15: internal.BlobDownload.DownloadByID:output_type -> internal.BlobContent
 	9,  // 16: internal.BlobMetadata.ListMetadata:output_type -> internal.BlobMetaResponse
-	9,  // 17: internal.BlobMetadata.GetMetadataById:output_type -> internal.BlobMetaResponse
-	8,  // 18: internal.BlobMetadata.DeleteById:output_type -> internal.InfoResponse
+	9,  // 17: internal.BlobMetadata.GetMetadataByID:output_type -> internal.BlobMetaResponse
+	8,  // 18: internal.BlobMetadata.DeleteByID:output_type -> internal.InfoResponse
 	10, // 19: internal.CryptoKeyUpload.Upload:output_type -> internal.CryptoKeyMetaResponse
-	12, // 20: internal.CryptoKeyDownload.DownloadById:output_type -> internal.KeyContent
+	12, // 20: internal.CryptoKeyDownload.DownloadByID:output_type -> internal.KeyContent
 	10, // 21: internal.CryptoKeyMetadata.ListMetadata:output_type -> internal.CryptoKeyMetaResponse
-	10, // 22: internal.CryptoKeyMetadata.GetMetadataById:output_type -> internal.CryptoKeyMetaResponse
-	8,  // 23: internal.CryptoKeyMetadata.DeleteById:output_type -> internal.InfoResponse
+	10, // 22: internal.CryptoKeyMetadata.GetMetadataByID:output_type -> internal.CryptoKeyMetaResponse
+	8,  // 23: internal.CryptoKeyMetadata.DeleteByID:output_type -> internal.InfoResponse
 	14, // [14:24] is the sub-list for method output_type
 	4,  // [4:14] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name

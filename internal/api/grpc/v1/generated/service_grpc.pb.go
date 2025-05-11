@@ -130,7 +130,7 @@ var BlobUpload_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	BlobDownload_DownloadById_FullMethodName = "/internal.BlobDownload/DownloadById"
+	BlobDownload_DownloadByID_FullMethodName = "/internal.BlobDownload/DownloadByID"
 )
 
 // BlobDownloadClient is the client API for BlobDownload service.
@@ -138,7 +138,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BlobDownloadClient interface {
 	// Download a blob by ID
-	DownloadById(ctx context.Context, in *BlobDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobContent], error)
+	DownloadByID(ctx context.Context, in *BlobDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobContent], error)
 }
 
 type blobDownloadClient struct {
@@ -149,9 +149,9 @@ func NewBlobDownloadClient(cc grpc.ClientConnInterface) BlobDownloadClient {
 	return &blobDownloadClient{cc}
 }
 
-func (c *blobDownloadClient) DownloadById(ctx context.Context, in *BlobDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobContent], error) {
+func (c *blobDownloadClient) DownloadByID(ctx context.Context, in *BlobDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobContent], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &BlobDownload_ServiceDesc.Streams[0], BlobDownload_DownloadById_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &BlobDownload_ServiceDesc.Streams[0], BlobDownload_DownloadByID_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -166,14 +166,14 @@ func (c *blobDownloadClient) DownloadById(ctx context.Context, in *BlobDownloadR
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type BlobDownload_DownloadByIdClient = grpc.ServerStreamingClient[BlobContent]
+type BlobDownload_DownloadByIDClient = grpc.ServerStreamingClient[BlobContent]
 
 // BlobDownloadServer is the server API for BlobDownload service.
 // All implementations must embed UnimplementedBlobDownloadServer
 // for forward compatibility.
 type BlobDownloadServer interface {
 	// Download a blob by ID
-	DownloadById(*BlobDownloadRequest, grpc.ServerStreamingServer[BlobContent]) error
+	DownloadByID(*BlobDownloadRequest, grpc.ServerStreamingServer[BlobContent]) error
 	mustEmbedUnimplementedBlobDownloadServer()
 }
 
@@ -184,8 +184,8 @@ type BlobDownloadServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBlobDownloadServer struct{}
 
-func (UnimplementedBlobDownloadServer) DownloadById(*BlobDownloadRequest, grpc.ServerStreamingServer[BlobContent]) error {
-	return status.Errorf(codes.Unimplemented, "method DownloadById not implemented")
+func (UnimplementedBlobDownloadServer) DownloadByID(*BlobDownloadRequest, grpc.ServerStreamingServer[BlobContent]) error {
+	return status.Errorf(codes.Unimplemented, "method DownloadByID not implemented")
 }
 func (UnimplementedBlobDownloadServer) mustEmbedUnimplementedBlobDownloadServer() {}
 func (UnimplementedBlobDownloadServer) testEmbeddedByValue()                      {}
@@ -208,16 +208,16 @@ func RegisterBlobDownloadServer(s grpc.ServiceRegistrar, srv BlobDownloadServer)
 	s.RegisterService(&BlobDownload_ServiceDesc, srv)
 }
 
-func _BlobDownload_DownloadById_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _BlobDownload_DownloadByID_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(BlobDownloadRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(BlobDownloadServer).DownloadById(m, &grpc.GenericServerStream[BlobDownloadRequest, BlobContent]{ServerStream: stream})
+	return srv.(BlobDownloadServer).DownloadByID(m, &grpc.GenericServerStream[BlobDownloadRequest, BlobContent]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type BlobDownload_DownloadByIdServer = grpc.ServerStreamingServer[BlobContent]
+type BlobDownload_DownloadByIDServer = grpc.ServerStreamingServer[BlobContent]
 
 // BlobDownload_ServiceDesc is the grpc.ServiceDesc for BlobDownload service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -228,8 +228,8 @@ var BlobDownload_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "DownloadById",
-			Handler:       _BlobDownload_DownloadById_Handler,
+			StreamName:    "DownloadByID",
+			Handler:       _BlobDownload_DownloadByID_Handler,
 			ServerStreams: true,
 		},
 	},
@@ -238,8 +238,8 @@ var BlobDownload_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	BlobMetadata_ListMetadata_FullMethodName    = "/internal.BlobMetadata/ListMetadata"
-	BlobMetadata_GetMetadataById_FullMethodName = "/internal.BlobMetadata/GetMetadataById"
-	BlobMetadata_DeleteById_FullMethodName      = "/internal.BlobMetadata/DeleteById"
+	BlobMetadata_GetMetadataByID_FullMethodName = "/internal.BlobMetadata/GetMetadataByID"
+	BlobMetadata_DeleteByID_FullMethodName      = "/internal.BlobMetadata/DeleteByID"
 )
 
 // BlobMetadataClient is the client API for BlobMetadata service.
@@ -249,9 +249,9 @@ type BlobMetadataClient interface {
 	// List metadata of blobs
 	ListMetadata(ctx context.Context, in *BlobMetaQuery, opts ...grpc.CallOption) (grpc.ServerStreamingClient[BlobMetaResponse], error)
 	// Get metadata by ID
-	GetMetadataById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*BlobMetaResponse, error)
+	GetMetadataByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*BlobMetaResponse, error)
 	// Delete blob by ID
-	DeleteById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	DeleteByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error)
 }
 
 type blobMetadataClient struct {
@@ -281,20 +281,20 @@ func (c *blobMetadataClient) ListMetadata(ctx context.Context, in *BlobMetaQuery
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type BlobMetadata_ListMetadataClient = grpc.ServerStreamingClient[BlobMetaResponse]
 
-func (c *blobMetadataClient) GetMetadataById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*BlobMetaResponse, error) {
+func (c *blobMetadataClient) GetMetadataByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*BlobMetaResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BlobMetaResponse)
-	err := c.cc.Invoke(ctx, BlobMetadata_GetMetadataById_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BlobMetadata_GetMetadataByID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *blobMetadataClient) DeleteById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
+func (c *blobMetadataClient) DeleteByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(InfoResponse)
-	err := c.cc.Invoke(ctx, BlobMetadata_DeleteById_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BlobMetadata_DeleteByID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -308,9 +308,9 @@ type BlobMetadataServer interface {
 	// List metadata of blobs
 	ListMetadata(*BlobMetaQuery, grpc.ServerStreamingServer[BlobMetaResponse]) error
 	// Get metadata by ID
-	GetMetadataById(context.Context, *IdRequest) (*BlobMetaResponse, error)
+	GetMetadataByID(context.Context, *IdRequest) (*BlobMetaResponse, error)
 	// Delete blob by ID
-	DeleteById(context.Context, *IdRequest) (*InfoResponse, error)
+	DeleteByID(context.Context, *IdRequest) (*InfoResponse, error)
 	mustEmbedUnimplementedBlobMetadataServer()
 }
 
@@ -324,11 +324,11 @@ type UnimplementedBlobMetadataServer struct{}
 func (UnimplementedBlobMetadataServer) ListMetadata(*BlobMetaQuery, grpc.ServerStreamingServer[BlobMetaResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ListMetadata not implemented")
 }
-func (UnimplementedBlobMetadataServer) GetMetadataById(context.Context, *IdRequest) (*BlobMetaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMetadataById not implemented")
+func (UnimplementedBlobMetadataServer) GetMetadataByID(context.Context, *IdRequest) (*BlobMetaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetadataByID not implemented")
 }
-func (UnimplementedBlobMetadataServer) DeleteById(context.Context, *IdRequest) (*InfoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteById not implemented")
+func (UnimplementedBlobMetadataServer) DeleteByID(context.Context, *IdRequest) (*InfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteByID not implemented")
 }
 func (UnimplementedBlobMetadataServer) mustEmbedUnimplementedBlobMetadataServer() {}
 func (UnimplementedBlobMetadataServer) testEmbeddedByValue()                      {}
@@ -362,38 +362,38 @@ func _BlobMetadata_ListMetadata_Handler(srv interface{}, stream grpc.ServerStrea
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type BlobMetadata_ListMetadataServer = grpc.ServerStreamingServer[BlobMetaResponse]
 
-func _BlobMetadata_GetMetadataById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BlobMetadata_GetMetadataByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BlobMetadataServer).GetMetadataById(ctx, in)
+		return srv.(BlobMetadataServer).GetMetadataByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BlobMetadata_GetMetadataById_FullMethodName,
+		FullMethod: BlobMetadata_GetMetadataByID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlobMetadataServer).GetMetadataById(ctx, req.(*IdRequest))
+		return srv.(BlobMetadataServer).GetMetadataByID(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BlobMetadata_DeleteById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BlobMetadata_DeleteByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BlobMetadataServer).DeleteById(ctx, in)
+		return srv.(BlobMetadataServer).DeleteByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BlobMetadata_DeleteById_FullMethodName,
+		FullMethod: BlobMetadata_DeleteByID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BlobMetadataServer).DeleteById(ctx, req.(*IdRequest))
+		return srv.(BlobMetadataServer).DeleteByID(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -406,12 +406,12 @@ var BlobMetadata_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BlobMetadataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetMetadataById",
-			Handler:    _BlobMetadata_GetMetadataById_Handler,
+			MethodName: "GetMetadataByID",
+			Handler:    _BlobMetadata_GetMetadataByID_Handler,
 		},
 		{
-			MethodName: "DeleteById",
-			Handler:    _BlobMetadata_DeleteById_Handler,
+			MethodName: "DeleteByID",
+			Handler:    _BlobMetadata_DeleteByID_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -532,7 +532,7 @@ var CryptoKeyUpload_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	CryptoKeyDownload_DownloadById_FullMethodName = "/internal.CryptoKeyDownload/DownloadById"
+	CryptoKeyDownload_DownloadByID_FullMethodName = "/internal.CryptoKeyDownload/DownloadByID"
 )
 
 // CryptoKeyDownloadClient is the client API for CryptoKeyDownload service.
@@ -540,7 +540,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CryptoKeyDownloadClient interface {
 	// Download crypto key by ID
-	DownloadById(ctx context.Context, in *KeyDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[KeyContent], error)
+	DownloadByID(ctx context.Context, in *KeyDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[KeyContent], error)
 }
 
 type cryptoKeyDownloadClient struct {
@@ -551,9 +551,9 @@ func NewCryptoKeyDownloadClient(cc grpc.ClientConnInterface) CryptoKeyDownloadCl
 	return &cryptoKeyDownloadClient{cc}
 }
 
-func (c *cryptoKeyDownloadClient) DownloadById(ctx context.Context, in *KeyDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[KeyContent], error) {
+func (c *cryptoKeyDownloadClient) DownloadByID(ctx context.Context, in *KeyDownloadRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[KeyContent], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &CryptoKeyDownload_ServiceDesc.Streams[0], CryptoKeyDownload_DownloadById_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &CryptoKeyDownload_ServiceDesc.Streams[0], CryptoKeyDownload_DownloadByID_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -568,14 +568,14 @@ func (c *cryptoKeyDownloadClient) DownloadById(ctx context.Context, in *KeyDownl
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CryptoKeyDownload_DownloadByIdClient = grpc.ServerStreamingClient[KeyContent]
+type CryptoKeyDownload_DownloadByIDClient = grpc.ServerStreamingClient[KeyContent]
 
 // CryptoKeyDownloadServer is the server API for CryptoKeyDownload service.
 // All implementations must embed UnimplementedCryptoKeyDownloadServer
 // for forward compatibility.
 type CryptoKeyDownloadServer interface {
 	// Download crypto key by ID
-	DownloadById(*KeyDownloadRequest, grpc.ServerStreamingServer[KeyContent]) error
+	DownloadByID(*KeyDownloadRequest, grpc.ServerStreamingServer[KeyContent]) error
 	mustEmbedUnimplementedCryptoKeyDownloadServer()
 }
 
@@ -586,8 +586,8 @@ type CryptoKeyDownloadServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCryptoKeyDownloadServer struct{}
 
-func (UnimplementedCryptoKeyDownloadServer) DownloadById(*KeyDownloadRequest, grpc.ServerStreamingServer[KeyContent]) error {
-	return status.Errorf(codes.Unimplemented, "method DownloadById not implemented")
+func (UnimplementedCryptoKeyDownloadServer) DownloadByID(*KeyDownloadRequest, grpc.ServerStreamingServer[KeyContent]) error {
+	return status.Errorf(codes.Unimplemented, "method DownloadByID not implemented")
 }
 func (UnimplementedCryptoKeyDownloadServer) mustEmbedUnimplementedCryptoKeyDownloadServer() {}
 func (UnimplementedCryptoKeyDownloadServer) testEmbeddedByValue()                           {}
@@ -610,16 +610,16 @@ func RegisterCryptoKeyDownloadServer(s grpc.ServiceRegistrar, srv CryptoKeyDownl
 	s.RegisterService(&CryptoKeyDownload_ServiceDesc, srv)
 }
 
-func _CryptoKeyDownload_DownloadById_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _CryptoKeyDownload_DownloadByID_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(KeyDownloadRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(CryptoKeyDownloadServer).DownloadById(m, &grpc.GenericServerStream[KeyDownloadRequest, KeyContent]{ServerStream: stream})
+	return srv.(CryptoKeyDownloadServer).DownloadByID(m, &grpc.GenericServerStream[KeyDownloadRequest, KeyContent]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CryptoKeyDownload_DownloadByIdServer = grpc.ServerStreamingServer[KeyContent]
+type CryptoKeyDownload_DownloadByIDServer = grpc.ServerStreamingServer[KeyContent]
 
 // CryptoKeyDownload_ServiceDesc is the grpc.ServiceDesc for CryptoKeyDownload service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -630,8 +630,8 @@ var CryptoKeyDownload_ServiceDesc = grpc.ServiceDesc{
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "DownloadById",
-			Handler:       _CryptoKeyDownload_DownloadById_Handler,
+			StreamName:    "DownloadByID",
+			Handler:       _CryptoKeyDownload_DownloadByID_Handler,
 			ServerStreams: true,
 		},
 	},
@@ -640,8 +640,8 @@ var CryptoKeyDownload_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	CryptoKeyMetadata_ListMetadata_FullMethodName    = "/internal.CryptoKeyMetadata/ListMetadata"
-	CryptoKeyMetadata_GetMetadataById_FullMethodName = "/internal.CryptoKeyMetadata/GetMetadataById"
-	CryptoKeyMetadata_DeleteById_FullMethodName      = "/internal.CryptoKeyMetadata/DeleteById"
+	CryptoKeyMetadata_GetMetadataByID_FullMethodName = "/internal.CryptoKeyMetadata/GetMetadataByID"
+	CryptoKeyMetadata_DeleteByID_FullMethodName      = "/internal.CryptoKeyMetadata/DeleteByID"
 )
 
 // CryptoKeyMetadataClient is the client API for CryptoKeyMetadata service.
@@ -651,9 +651,9 @@ type CryptoKeyMetadataClient interface {
 	// List metadata of crypto keys
 	ListMetadata(ctx context.Context, in *KeyMetadataQuery, opts ...grpc.CallOption) (grpc.ServerStreamingClient[CryptoKeyMetaResponse], error)
 	// Get metadata by ID
-	GetMetadataById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CryptoKeyMetaResponse, error)
+	GetMetadataByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CryptoKeyMetaResponse, error)
 	// Delete crypto key by ID
-	DeleteById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error)
+	DeleteByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error)
 }
 
 type cryptoKeyMetadataClient struct {
@@ -683,20 +683,20 @@ func (c *cryptoKeyMetadataClient) ListMetadata(ctx context.Context, in *KeyMetad
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CryptoKeyMetadata_ListMetadataClient = grpc.ServerStreamingClient[CryptoKeyMetaResponse]
 
-func (c *cryptoKeyMetadataClient) GetMetadataById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CryptoKeyMetaResponse, error) {
+func (c *cryptoKeyMetadataClient) GetMetadataByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*CryptoKeyMetaResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CryptoKeyMetaResponse)
-	err := c.cc.Invoke(ctx, CryptoKeyMetadata_GetMetadataById_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CryptoKeyMetadata_GetMetadataByID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *cryptoKeyMetadataClient) DeleteById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
+func (c *cryptoKeyMetadataClient) DeleteByID(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*InfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(InfoResponse)
-	err := c.cc.Invoke(ctx, CryptoKeyMetadata_DeleteById_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CryptoKeyMetadata_DeleteByID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -710,9 +710,9 @@ type CryptoKeyMetadataServer interface {
 	// List metadata of crypto keys
 	ListMetadata(*KeyMetadataQuery, grpc.ServerStreamingServer[CryptoKeyMetaResponse]) error
 	// Get metadata by ID
-	GetMetadataById(context.Context, *IdRequest) (*CryptoKeyMetaResponse, error)
+	GetMetadataByID(context.Context, *IdRequest) (*CryptoKeyMetaResponse, error)
 	// Delete crypto key by ID
-	DeleteById(context.Context, *IdRequest) (*InfoResponse, error)
+	DeleteByID(context.Context, *IdRequest) (*InfoResponse, error)
 	mustEmbedUnimplementedCryptoKeyMetadataServer()
 }
 
@@ -726,11 +726,11 @@ type UnimplementedCryptoKeyMetadataServer struct{}
 func (UnimplementedCryptoKeyMetadataServer) ListMetadata(*KeyMetadataQuery, grpc.ServerStreamingServer[CryptoKeyMetaResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ListMetadata not implemented")
 }
-func (UnimplementedCryptoKeyMetadataServer) GetMetadataById(context.Context, *IdRequest) (*CryptoKeyMetaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMetadataById not implemented")
+func (UnimplementedCryptoKeyMetadataServer) GetMetadataByID(context.Context, *IdRequest) (*CryptoKeyMetaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMetadataByID not implemented")
 }
-func (UnimplementedCryptoKeyMetadataServer) DeleteById(context.Context, *IdRequest) (*InfoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteById not implemented")
+func (UnimplementedCryptoKeyMetadataServer) DeleteByID(context.Context, *IdRequest) (*InfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteByID not implemented")
 }
 func (UnimplementedCryptoKeyMetadataServer) mustEmbedUnimplementedCryptoKeyMetadataServer() {}
 func (UnimplementedCryptoKeyMetadataServer) testEmbeddedByValue()                           {}
@@ -764,38 +764,38 @@ func _CryptoKeyMetadata_ListMetadata_Handler(srv interface{}, stream grpc.Server
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CryptoKeyMetadata_ListMetadataServer = grpc.ServerStreamingServer[CryptoKeyMetaResponse]
 
-func _CryptoKeyMetadata_GetMetadataById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CryptoKeyMetadata_GetMetadataByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CryptoKeyMetadataServer).GetMetadataById(ctx, in)
+		return srv.(CryptoKeyMetadataServer).GetMetadataByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CryptoKeyMetadata_GetMetadataById_FullMethodName,
+		FullMethod: CryptoKeyMetadata_GetMetadataByID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CryptoKeyMetadataServer).GetMetadataById(ctx, req.(*IdRequest))
+		return srv.(CryptoKeyMetadataServer).GetMetadataByID(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _CryptoKeyMetadata_DeleteById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CryptoKeyMetadata_DeleteByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CryptoKeyMetadataServer).DeleteById(ctx, in)
+		return srv.(CryptoKeyMetadataServer).DeleteByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CryptoKeyMetadata_DeleteById_FullMethodName,
+		FullMethod: CryptoKeyMetadata_DeleteByID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CryptoKeyMetadataServer).DeleteById(ctx, req.(*IdRequest))
+		return srv.(CryptoKeyMetadataServer).DeleteByID(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -808,12 +808,12 @@ var CryptoKeyMetadata_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CryptoKeyMetadataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetMetadataById",
-			Handler:    _CryptoKeyMetadata_GetMetadataById_Handler,
+			MethodName: "GetMetadataByID",
+			Handler:    _CryptoKeyMetadata_GetMetadataByID_Handler,
 		},
 		{
-			MethodName: "DeleteById",
-			Handler:    _CryptoKeyMetadata_DeleteById_Handler,
+			MethodName: "DeleteByID",
+			Handler:    _CryptoKeyMetadata_DeleteByID_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

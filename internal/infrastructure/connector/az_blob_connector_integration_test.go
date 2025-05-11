@@ -54,13 +54,13 @@ func TestAzureBlobConnector_Upload(t *testing.T) {
 	form, err := testutils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
-	userId := uuid.New().String()
+	userID := uuid.New().String()
 
-	var encryptionKeyId *string = nil
-	var signKeyId *string = nil
+	var encryptionKeyID *string = nil
+	var signKeyID *string = nil
 	ctx := context.Background()
 
-	blobs, err := abct.blobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobs, err := abct.blobConnector.Upload(ctx, form, userID, encryptionKeyID, signKeyID)
 	require.NoError(t, err)
 
 	require.Len(t, blobs, 1)
@@ -83,12 +83,12 @@ func TestAzureBlobConnector_Download(t *testing.T) {
 	form, err := testutils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
-	userId := uuid.New().String()
+	userID := uuid.New().String()
 
-	var encryptionKeyId *string = nil
-	var signKeyId *string = nil
+	var encryptionKeyID *string = nil
+	var signKeyID *string = nil
 	ctx := context.Background()
-	blobs, err := abct.blobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobs, err := abct.blobConnector.Upload(ctx, form, userID, encryptionKeyID, signKeyID)
 	require.NoError(t, err)
 
 	blob := blobs[0]
@@ -111,13 +111,13 @@ func TestAzureBlobConnector_Delete(t *testing.T) {
 	form, err := testutils.CreateTestFileAndForm(t, testFileName, testFileContent)
 	require.NoError(t, err)
 
-	userId := uuid.New().String()
+	userID := uuid.New().String()
 
-	var encryptionKeyId *string = nil
-	var signKeyId *string = nil
+	var encryptionKeyID *string = nil
+	var signKeyID *string = nil
 	ctx := context.Background()
 
-	blobs, err := abct.blobConnector.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobs, err := abct.blobConnector.Upload(ctx, form, userID, encryptionKeyID, signKeyID)
 	require.NoError(t, err)
 
 	blob := blobs[0]

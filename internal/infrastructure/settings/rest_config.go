@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config struct holds the overall configuration with separate settings for Blob, Key, Logger, and PKCS#11
+// RestConfig holds configuration settings for the entire application, including database, connectors, logger, PKCS11 and server port
 type RestConfig struct {
 	Database      DatabaseSettings      `mapstructure:"database"`
 	BlobConnector BlobConnectorSettings `mapstructure:"blob_connector"`
@@ -17,7 +17,7 @@ type RestConfig struct {
 	Port          string                `mapstructure:"port"`
 }
 
-// Initialize function to read the config, prioritize environment variables and fall back to config file
+// InitializeRestConfig reads the configuration, prioritizes environment variables and falls back to the config file.
 func InitializeRestConfig(path string) (*RestConfig, error) {
 	viper.SetConfigFile(path)
 	viper.AutomaticEnv()
@@ -79,7 +79,7 @@ func InitializeRestConfig(path string) (*RestConfig, error) {
 			config.PKCS11.UserPin = pkcs11UserPin
 		}
 		if pkcs11SlotID := viper.GetString("PKCS11_SLOT_ID"); pkcs11SlotID != "" {
-			config.PKCS11.SlotId = pkcs11SlotID
+			config.PKCS11.SlotID = pkcs11SlotID
 		}
 	} else {
 		if err := viper.ReadInConfig(); err != nil {

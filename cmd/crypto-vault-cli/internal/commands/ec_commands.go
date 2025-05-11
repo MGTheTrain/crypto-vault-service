@@ -15,11 +15,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ECCommandHandler encapsulates logic for handling elliptic curve cryptographic operations via CLI.
 type ECCommandHandler struct {
 	ecProcessor cryptography.ECProcessor
 	Logger      logger.Logger
 }
 
+// NewECCommandHandler initializes a new ECCommandHandler with logging and an EC processor.
+// It panics if any setup step fails.
 func NewECCommandHandler() *ECCommandHandler {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -46,7 +49,7 @@ func NewECCommandHandler() *ECCommandHandler {
 }
 
 // GenerateECKeysCmd generates EC key pairs and persists those in a selected directory
-func (commandHandler *ECCommandHandler) GenerateECKeysCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *ECCommandHandler) GenerateECKeysCmd(cmd *cobra.Command, _ []string) {
 	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
 
@@ -89,7 +92,7 @@ func (commandHandler *ECCommandHandler) GenerateECKeysCmd(cmd *cobra.Command, ar
 }
 
 // SignECCCmd signs the contents of a file with ECDSA
-func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	privateKeyFilePath, _ := cmd.Flags().GetString("private-key")
 	signatureFilePath, _ := cmd.Flags().GetString("output-file")
@@ -121,8 +124,8 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, args []st
 	}
 }
 
-// verifyECCCmd verifies the signature of a file's content using ECDSA
-func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []string) {
+// VerifyECCCmd verifies the signature of a file's content using ECDSA
+func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
 	signatureFile, _ := cmd.Flags().GetString("signature-file")
@@ -164,6 +167,7 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, args []
 	}
 }
 
+// InitECDSACommands registers EC-related commands
 func InitECDSACommands(rootCmd *cobra.Command) {
 	handler := NewECCommandHandler()
 

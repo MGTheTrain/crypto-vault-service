@@ -17,7 +17,7 @@ type gormBlobRepository struct {
 }
 
 // NewGormBlobRepository creates a new gormBlobRepository instance
-func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (*gormBlobRepository, error) {
+func NewGormBlobRepository(db *gorm.DB, logger logger.Logger) (blobs.BlobRepository, error) {
 
 	return &gormBlobRepository{
 		db:     db,
@@ -89,12 +89,12 @@ func (r *gormBlobRepository) List(ctx context.Context, query *blobs.BlobMetaQuer
 	return blobMetas, nil
 }
 
-// GetById retrieves a Blob by its ID from the database
-func (r *gormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
+// GetByID retrieves a Blob by its ID from the database
+func (r *gormBlobRepository) GetByID(ctx context.Context, blobID string) (*blobs.BlobMeta, error) {
 	var blob blobs.BlobMeta
-	if err := r.db.WithContext(ctx).Where("id = ?", blobId).First(&blob).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", blobID).First(&blob).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("blob with ID %s not found", blobId)
+			return nil, fmt.Errorf("blob with ID %s not found", blobID)
 		}
 
 		return nil, fmt.Errorf("failed to fetch blob: %w", err)
@@ -102,8 +102,8 @@ func (r *gormBlobRepository) GetById(ctx context.Context, blobId string) (*blobs
 	return &blob, nil
 }
 
-// UpdateById updates an existing Blob in the database
-func (r *gormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMeta) error {
+// UpdateByID updates an existing Blob in the database
+func (r *gormBlobRepository) UpdateByID(ctx context.Context, blob *blobs.BlobMeta) error {
 	// Validate the Blob before updating
 	if err := blob.Validate(); err != nil {
 		return fmt.Errorf("validation error: %w", err)
@@ -116,11 +116,11 @@ func (r *gormBlobRepository) UpdateById(ctx context.Context, blob *blobs.BlobMet
 	return nil
 }
 
-// DeleteById removes a Blob from the database by its ID
-func (r *gormBlobRepository) DeleteById(ctx context.Context, blobId string) error {
-	if err := r.db.WithContext(ctx).Where("id = ?", blobId).Delete(&blobs.BlobMeta{}).Error; err != nil {
+// DeleteByID removes a Blob from the database by its ID
+func (r *gormBlobRepository) DeleteByID(ctx context.Context, blobID string) error {
+	if err := r.db.WithContext(ctx).Where("id = ?", blobID).Delete(&blobs.BlobMeta{}).Error; err != nil {
 		return fmt.Errorf("failed to delete blob: %w", err)
 	}
-	r.logger.Info(fmt.Sprintf("Deleted blob metadata with id %s", blobId))
+	r.logger.Info(fmt.Sprintf("Deleted blob metadata with id %s", blobID))
 	return nil
 }

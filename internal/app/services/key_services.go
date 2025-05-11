@@ -21,7 +21,7 @@ type cryptoKeyUploadService struct {
 }
 
 // NewCryptoKeyUploadService creates a new cryptoKeyUploadService instance
-func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*cryptoKeyUploadService, error) {
+func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (keys.CryptoKeyUploadService, error) {
 	return &cryptoKeyUploadService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -31,18 +31,18 @@ func NewCryptoKeyUploadService(vaultConnector connector.VaultConnector, cryptoKe
 
 // Upload uploads cryptographic keys
 // It returns a slice of CryptoKeyMeta and any error encountered during the upload process.
-func (s *cryptoKeyUploadService) Upload(ctx context.Context, userId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) Upload(ctx context.Context, userID, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var cryptKeyMetas []*keys.CryptoKeyMeta
 
-	keyPairId := uuid.New().String()
+	keyPairID := uuid.New().String()
 	var err error
 	switch keyAlgorithm {
 	case "AES":
-		cryptKeyMetas, err = s.uploadAESKey(ctx, userId, keyPairId, keyAlgorithm, keySize)
+		cryptKeyMetas, err = s.uploadAESKey(ctx, userID, keyPairID, keyAlgorithm, keySize)
 	case "EC":
-		cryptKeyMetas, err = s.uploadECKey(ctx, userId, keyPairId, keyAlgorithm, keySize)
+		cryptKeyMetas, err = s.uploadECKey(ctx, userID, keyPairID, keyAlgorithm, keySize)
 	case "RSA":
-		cryptKeyMetas, err = s.uploadRSAKey(ctx, userId, keyPairId, keyAlgorithm, keySize)
+		cryptKeyMetas, err = s.uploadRSAKey(ctx, userID, keyPairID, keyAlgorithm, keySize)
 	default:
 		return nil, fmt.Errorf("unsupported algorithm: %s", keyAlgorithm)
 	}
@@ -55,7 +55,7 @@ func (s *cryptoKeyUploadService) Upload(ctx context.Context, userId, keyAlgorith
 }
 
 // Helper function for uploading AES key
-func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userID, keyPairID, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var keyMetas []*keys.CryptoKeyMeta
 
 	aesProcessor, err := cryptography.NewAESProcessor(s.logger)
@@ -81,7 +81,7 @@ func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPa
 	}
 
 	keyType := "symmetric"
-	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, symmetricKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, symmetricKeyBytes, userID, keyPairID, keyType, keyAlgorithm, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -95,7 +95,7 @@ func (s *cryptoKeyUploadService) uploadAESKey(ctx context.Context, userId, keyPa
 }
 
 // Helper function for uploading EC key pair (private and public)
-func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userID, keyPairID, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var keyMetas []*keys.CryptoKeyMeta
 
 	var curve elliptic.Curve
@@ -126,7 +126,7 @@ func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 	privateKeyBytes := append(privateKey.D.Bytes(), privateKey.X.Bytes()...)
 	privateKeyBytes = append(privateKeyBytes, privateKey.Y.Bytes()...)
 	keyType := "private"
-	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, privateKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, privateKeyBytes, userID, keyPairID, keyType, keyAlgorithm, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -140,7 +140,7 @@ func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 	// Upload Public Key
 	publicKeyBytes := append(publicKey.X.Bytes(), publicKey.Y.Bytes()...)
 	keyType = "public"
-	cryptoKeyMeta, err = s.vaultConnector.Upload(ctx, publicKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	cryptoKeyMeta, err = s.vaultConnector.Upload(ctx, publicKeyBytes, userID, keyPairID, keyType, keyAlgorithm, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -154,7 +154,7 @@ func (s *cryptoKeyUploadService) uploadECKey(ctx context.Context, userId, keyPai
 }
 
 // Helper function for uploading RSA key pair (private and public)
-func (s *cryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPairId, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
+func (s *cryptoKeyUploadService) uploadRSAKey(ctx context.Context, userID, keyPairID, keyAlgorithm string, keySize uint32) ([]*keys.CryptoKeyMeta, error) {
 	var keyMetas []*keys.CryptoKeyMeta
 
 	rsaProcessor, err := cryptography.NewRSAProcessor(s.logger)
@@ -170,7 +170,7 @@ func (s *cryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPa
 	// Upload Private Key
 	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	keyType := "private"
-	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, privateKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	cryptoKeyMeta, err := s.vaultConnector.Upload(ctx, privateKeyBytes, userID, keyPairID, keyType, keyAlgorithm, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -187,7 +187,7 @@ func (s *cryptoKeyUploadService) uploadRSAKey(ctx context.Context, userId, keyPa
 		return nil, fmt.Errorf("failed to marshal public key: %w", err)
 	}
 	keyType = "public"
-	cryptoKeyMeta, err = s.vaultConnector.Upload(ctx, publicKeyBytes, userId, keyPairId, keyType, keyAlgorithm, keySize)
+	cryptoKeyMeta, err = s.vaultConnector.Upload(ctx, publicKeyBytes, userID, keyPairID, keyType, keyAlgorithm, keySize)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -208,7 +208,7 @@ type cryptoKeyMetadataService struct {
 }
 
 // NewCryptoKeyMetadataService creates a new cryptoKeyMetadataService instance
-func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*cryptoKeyMetadataService, error) {
+func NewCryptoKeyMetadataService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (keys.CryptoKeyMetadataService, error) {
 	return &cryptoKeyMetadataService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -227,8 +227,8 @@ func (s *cryptoKeyMetadataService) List(ctx context.Context, query *keys.CryptoK
 }
 
 // GetByID retrieves the metadata of a cryptographic key by its ID.
-func (s *cryptoKeyMetadataService) GetByID(ctx context.Context, keyId string) (*keys.CryptoKeyMeta, error) {
-	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyId)
+func (s *cryptoKeyMetadataService) GetByID(ctx context.Context, keyID string) (*keys.CryptoKeyMeta, error) {
+	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -237,18 +237,18 @@ func (s *cryptoKeyMetadataService) GetByID(ctx context.Context, keyId string) (*
 }
 
 // DeleteByID deletes a cryptographic key's metadata by its ID.
-func (s *cryptoKeyMetadataService) DeleteByID(ctx context.Context, keyId string) error {
-	keyMeta, err := s.GetByID(ctx, keyId)
+func (s *cryptoKeyMetadataService) DeleteByID(ctx context.Context, keyID string) error {
+	keyMeta, err := s.GetByID(ctx, keyID)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
 
-	err = s.vaultConnector.Delete(ctx, keyId, keyMeta.KeyPairID, keyMeta.Type)
+	err = s.vaultConnector.Delete(ctx, keyID, keyMeta.KeyPairID, keyMeta.Type)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
 
-	err = s.cryptoKeyRepo.DeleteByID(ctx, keyId)
+	err = s.cryptoKeyRepo.DeleteByID(ctx, keyID)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
@@ -263,7 +263,7 @@ type cryptoKeyDownloadService struct {
 }
 
 // NewCryptoKeyDownloadService creates a new cryptoKeyDownloadService instance
-func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (*cryptoKeyDownloadService, error) {
+func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, cryptoKeyRepo keys.CryptoKeyRepository, logger logger.Logger) (keys.CryptoKeyDownloadService, error) {
 	return &cryptoKeyDownloadService{
 		vaultConnector: vaultConnector,
 		cryptoKeyRepo:  cryptoKeyRepo,
@@ -272,8 +272,8 @@ func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, crypto
 }
 
 // Download retrieves a cryptographic key by its ID.
-func (s *cryptoKeyDownloadService) DownloadById(ctx context.Context, keyId string) ([]byte, error) {
-	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyId)
+func (s *cryptoKeyDownloadService) DownloadByID(ctx context.Context, keyID string) ([]byte, error) {
+	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

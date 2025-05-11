@@ -35,9 +35,9 @@ var (
 	_ = metadata.Join
 )
 
-var filter_BlobDownload_DownloadById_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+var filter_BlobDownload_DownloadByID_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 
-func request_BlobDownload_DownloadById_0(ctx context.Context, marshaler runtime.Marshaler, client BlobDownloadClient, req *http.Request, pathParams map[string]string) (BlobDownload_DownloadByIdClient, runtime.ServerMetadata, error) {
+func request_BlobDownload_DownloadByID_0(ctx context.Context, marshaler runtime.Marshaler, client BlobDownloadClient, req *http.Request, pathParams map[string]string) (BlobDownload_DownloadByIDClient, runtime.ServerMetadata, error) {
 	var (
 		protoReq BlobDownloadRequest
 		metadata runtime.ServerMetadata
@@ -54,10 +54,10 @@ func request_BlobDownload_DownloadById_0(ctx context.Context, marshaler runtime.
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlobDownload_DownloadById_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_BlobDownload_DownloadByID_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	stream, err := client.DownloadById(ctx, &protoReq)
+	stream, err := client.DownloadByID(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
 	}
@@ -94,7 +94,7 @@ func request_BlobMetadata_ListMetadata_0(ctx context.Context, marshaler runtime.
 	return stream, metadata, nil
 }
 
-func request_BlobMetadata_GetMetadataById_0(ctx context.Context, marshaler runtime.Marshaler, client BlobMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BlobMetadata_GetMetadataByID_0(ctx context.Context, marshaler runtime.Marshaler, client BlobMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -108,11 +108,11 @@ func request_BlobMetadata_GetMetadataById_0(ctx context.Context, marshaler runti
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := client.GetMetadataById(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetMetadataByID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlobMetadata_GetMetadataById_0(ctx context.Context, marshaler runtime.Marshaler, server BlobMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BlobMetadata_GetMetadataByID_0(ctx context.Context, marshaler runtime.Marshaler, server BlobMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -126,11 +126,11 @@ func local_request_BlobMetadata_GetMetadataById_0(ctx context.Context, marshaler
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := server.GetMetadataById(ctx, &protoReq)
+	msg, err := server.GetMetadataByID(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_BlobMetadata_DeleteById_0(ctx context.Context, marshaler runtime.Marshaler, client BlobMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BlobMetadata_DeleteByID_0(ctx context.Context, marshaler runtime.Marshaler, client BlobMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -144,11 +144,11 @@ func request_BlobMetadata_DeleteById_0(ctx context.Context, marshaler runtime.Ma
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := client.DeleteById(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DeleteByID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_BlobMetadata_DeleteById_0(ctx context.Context, marshaler runtime.Marshaler, server BlobMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BlobMetadata_DeleteByID_0(ctx context.Context, marshaler runtime.Marshaler, server BlobMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -162,7 +162,7 @@ func local_request_BlobMetadata_DeleteById_0(ctx context.Context, marshaler runt
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := server.DeleteById(ctx, &protoReq)
+	msg, err := server.DeleteByID(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -186,7 +186,7 @@ func request_CryptoKeyUpload_Upload_0(ctx context.Context, marshaler runtime.Mar
 	return stream, metadata, nil
 }
 
-func request_CryptoKeyDownload_DownloadById_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoKeyDownloadClient, req *http.Request, pathParams map[string]string) (CryptoKeyDownload_DownloadByIdClient, runtime.ServerMetadata, error) {
+func request_CryptoKeyDownload_DownloadByID_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoKeyDownloadClient, req *http.Request, pathParams map[string]string) (CryptoKeyDownload_DownloadByIDClient, runtime.ServerMetadata, error) {
 	var (
 		protoReq KeyDownloadRequest
 		metadata runtime.ServerMetadata
@@ -200,7 +200,7 @@ func request_CryptoKeyDownload_DownloadById_0(ctx context.Context, marshaler run
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	stream, err := client.DownloadById(ctx, &protoReq)
+	stream, err := client.DownloadByID(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
 	}
@@ -237,7 +237,7 @@ func request_CryptoKeyMetadata_ListMetadata_0(ctx context.Context, marshaler run
 	return stream, metadata, nil
 }
 
-func request_CryptoKeyMetadata_GetMetadataById_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoKeyMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_CryptoKeyMetadata_GetMetadataByID_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoKeyMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -251,11 +251,11 @@ func request_CryptoKeyMetadata_GetMetadataById_0(ctx context.Context, marshaler 
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := client.GetMetadataById(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetMetadataByID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_CryptoKeyMetadata_GetMetadataById_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoKeyMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_CryptoKeyMetadata_GetMetadataByID_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoKeyMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -269,11 +269,11 @@ func local_request_CryptoKeyMetadata_GetMetadataById_0(ctx context.Context, mars
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := server.GetMetadataById(ctx, &protoReq)
+	msg, err := server.GetMetadataByID(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_CryptoKeyMetadata_DeleteById_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoKeyMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_CryptoKeyMetadata_DeleteByID_0(ctx context.Context, marshaler runtime.Marshaler, client CryptoKeyMetadataClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -287,11 +287,11 @@ func request_CryptoKeyMetadata_DeleteById_0(ctx context.Context, marshaler runti
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := client.DeleteById(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DeleteByID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_CryptoKeyMetadata_DeleteById_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoKeyMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_CryptoKeyMetadata_DeleteByID_0(ctx context.Context, marshaler runtime.Marshaler, server CryptoKeyMetadataServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq IdRequest
 		metadata runtime.ServerMetadata
@@ -305,7 +305,7 @@ func local_request_CryptoKeyMetadata_DeleteById_0(ctx context.Context, marshaler
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := server.DeleteById(ctx, &protoReq)
+	msg, err := server.DeleteByID(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -315,7 +315,7 @@ func local_request_CryptoKeyMetadata_DeleteById_0(ctx context.Context, marshaler
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBlobDownloadHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterBlobDownloadHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BlobDownloadServer) error {
-	mux.Handle(http.MethodGet, pattern_BlobDownload_DownloadById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BlobDownload_DownloadByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -337,45 +337,45 @@ func RegisterBlobMetadataHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 		return
 	})
-	mux.Handle(http.MethodGet, pattern_BlobMetadata_GetMetadataById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BlobMetadata_GetMetadataByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataByID", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlobMetadata_GetMetadataById_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BlobMetadata_GetMetadataByID_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlobMetadata_GetMetadataById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BlobMetadata_GetMetadataByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlobMetadata_DeleteById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_BlobMetadata_DeleteByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.BlobMetadata/DeleteByID", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_BlobMetadata_DeleteById_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BlobMetadata_DeleteByID_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlobMetadata_DeleteById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BlobMetadata_DeleteByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -403,7 +403,7 @@ func RegisterCryptoKeyUploadHandlerServer(ctx context.Context, mux *runtime.Serv
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterCryptoKeyDownloadHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterCryptoKeyDownloadHandlerServer(ctx context.Context, mux *runtime.ServeMux, server CryptoKeyDownloadServer) error {
-	mux.Handle(http.MethodGet, pattern_CryptoKeyDownload_DownloadById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CryptoKeyDownload_DownloadByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -425,45 +425,45 @@ func RegisterCryptoKeyMetadataHandlerServer(ctx context.Context, mux *runtime.Se
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 		return
 	})
-	mux.Handle(http.MethodGet, pattern_CryptoKeyMetadata_GetMetadataById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CryptoKeyMetadata_GetMetadataByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataByID", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_CryptoKeyMetadata_GetMetadataById_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_CryptoKeyMetadata_GetMetadataByID_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CryptoKeyMetadata_GetMetadataById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CryptoKeyMetadata_GetMetadataByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_CryptoKeyMetadata_DeleteById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_CryptoKeyMetadata_DeleteByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteByID", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_CryptoKeyMetadata_DeleteById_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_CryptoKeyMetadata_DeleteByID_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CryptoKeyMetadata_DeleteById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CryptoKeyMetadata_DeleteByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
@@ -505,32 +505,32 @@ func RegisterBlobDownloadHandler(ctx context.Context, mux *runtime.ServeMux, con
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "BlobDownloadClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterBlobDownloadHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BlobDownloadClient) error {
-	mux.Handle(http.MethodGet, pattern_BlobDownload_DownloadById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BlobDownload_DownloadByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobDownload/DownloadById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}/file"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobDownload/DownloadByID", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}/file"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlobDownload_DownloadById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BlobDownload_DownloadByID_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlobDownload_DownloadById_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_BlobDownload_DownloadByID_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_BlobDownload_DownloadById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "v1", "cvs", "blobs", "id", "file"}, ""))
+	pattern_BlobDownload_DownloadByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "v1", "cvs", "blobs", "id", "file"}, ""))
 )
 
 var (
-	forward_BlobDownload_DownloadById_0 = runtime.ForwardResponseStream
+	forward_BlobDownload_DownloadByID_0 = runtime.ForwardResponseStream
 )
 
 // RegisterBlobMetadataHandlerFromEndpoint is same as RegisterBlobMetadataHandler but
@@ -586,53 +586,53 @@ func RegisterBlobMetadataHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 		forward_BlobMetadata_ListMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_BlobMetadata_GetMetadataById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_BlobMetadata_GetMetadataByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/GetMetadataByID", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlobMetadata_GetMetadataById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BlobMetadata_GetMetadataByID_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlobMetadata_GetMetadataById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BlobMetadata_GetMetadataByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_BlobMetadata_DeleteById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_BlobMetadata_DeleteByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.BlobMetadata/DeleteByID", runtime.WithHTTPPathPattern("/api/v1/cvs/blobs/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_BlobMetadata_DeleteById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BlobMetadata_DeleteByID_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_BlobMetadata_DeleteById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BlobMetadata_DeleteByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
 	pattern_BlobMetadata_ListMetadata_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "cvs", "blobs"}, ""))
-	pattern_BlobMetadata_GetMetadataById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "blobs", "id"}, ""))
-	pattern_BlobMetadata_DeleteById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "blobs", "id"}, ""))
+	pattern_BlobMetadata_GetMetadataByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "blobs", "id"}, ""))
+	pattern_BlobMetadata_DeleteByID_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "blobs", "id"}, ""))
 )
 
 var (
 	forward_BlobMetadata_ListMetadata_0    = runtime.ForwardResponseStream
-	forward_BlobMetadata_GetMetadataById_0 = runtime.ForwardResponseMessage
-	forward_BlobMetadata_DeleteById_0      = runtime.ForwardResponseMessage
+	forward_BlobMetadata_GetMetadataByID_0 = runtime.ForwardResponseMessage
+	forward_BlobMetadata_DeleteByID_0      = runtime.ForwardResponseMessage
 )
 
 // RegisterCryptoKeyUploadHandlerFromEndpoint is same as RegisterCryptoKeyUploadHandler but
@@ -735,32 +735,32 @@ func RegisterCryptoKeyDownloadHandler(ctx context.Context, mux *runtime.ServeMux
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "CryptoKeyDownloadClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterCryptoKeyDownloadHandlerClient(ctx context.Context, mux *runtime.ServeMux, client CryptoKeyDownloadClient) error {
-	mux.Handle(http.MethodGet, pattern_CryptoKeyDownload_DownloadById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CryptoKeyDownload_DownloadByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyDownload/DownloadById", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}/file"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyDownload/DownloadByID", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}/file"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_CryptoKeyDownload_DownloadById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_CryptoKeyDownload_DownloadByID_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CryptoKeyDownload_DownloadById_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_CryptoKeyDownload_DownloadByID_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
-	pattern_CryptoKeyDownload_DownloadById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "v1", "cvs", "keys", "id", "file"}, ""))
+	pattern_CryptoKeyDownload_DownloadByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"api", "v1", "cvs", "keys", "id", "file"}, ""))
 )
 
 var (
-	forward_CryptoKeyDownload_DownloadById_0 = runtime.ForwardResponseStream
+	forward_CryptoKeyDownload_DownloadByID_0 = runtime.ForwardResponseStream
 )
 
 // RegisterCryptoKeyMetadataHandlerFromEndpoint is same as RegisterCryptoKeyMetadataHandler but
@@ -816,51 +816,51 @@ func RegisterCryptoKeyMetadataHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 		forward_CryptoKeyMetadata_ListMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_CryptoKeyMetadata_GetMetadataById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_CryptoKeyMetadata_GetMetadataByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataById", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/GetMetadataByID", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_CryptoKeyMetadata_GetMetadataById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_CryptoKeyMetadata_GetMetadataByID_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CryptoKeyMetadata_GetMetadataById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CryptoKeyMetadata_GetMetadataByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodDelete, pattern_CryptoKeyMetadata_DeleteById_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodDelete, pattern_CryptoKeyMetadata_DeleteByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteById", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/internal.CryptoKeyMetadata/DeleteByID", runtime.WithHTTPPathPattern("/api/v1/cvs/keys/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_CryptoKeyMetadata_DeleteById_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_CryptoKeyMetadata_DeleteByID_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_CryptoKeyMetadata_DeleteById_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CryptoKeyMetadata_DeleteByID_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	return nil
 }
 
 var (
 	pattern_CryptoKeyMetadata_ListMetadata_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "v1", "cvs", "keys"}, ""))
-	pattern_CryptoKeyMetadata_GetMetadataById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "keys", "id"}, ""))
-	pattern_CryptoKeyMetadata_DeleteById_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "keys", "id"}, ""))
+	pattern_CryptoKeyMetadata_GetMetadataByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "keys", "id"}, ""))
+	pattern_CryptoKeyMetadata_DeleteByID_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "v1", "cvs", "keys", "id"}, ""))
 )
 
 var (
 	forward_CryptoKeyMetadata_ListMetadata_0    = runtime.ForwardResponseStream
-	forward_CryptoKeyMetadata_GetMetadataById_0 = runtime.ForwardResponseMessage
-	forward_CryptoKeyMetadata_DeleteById_0      = runtime.ForwardResponseMessage
+	forward_CryptoKeyMetadata_GetMetadataByID_0 = runtime.ForwardResponseMessage
+	forward_CryptoKeyMetadata_DeleteByID_0      = runtime.ForwardResponseMessage
 )

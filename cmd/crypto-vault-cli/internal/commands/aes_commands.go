@@ -13,11 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// AESCommandHandler encapsulates logic for handling AES operations via CLI.
 type AESCommandHandler struct {
 	aesProcessor cryptography.AESProcessor
 	Logger       logger.Logger
 }
 
+// NewAESCommandHandler initializes and returns an AESCommandHandler instance with
+// configured logger and AES processor.
 func NewAESCommandHandler() *AESCommandHandler {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -44,7 +47,7 @@ func NewAESCommandHandler() *AESCommandHandler {
 }
 
 // GenerateAESKeysCmd generates AES key pairs and persists those in a selected directory
-func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, _ []string) {
 	keySize, _ := cmd.Flags().GetInt("key-size")
 	keyDir, _ := cmd.Flags().GetString("key-dir")
 
@@ -66,7 +69,7 @@ func (commandHandler *AESCommandHandler) GenerateAESKeysCmd(cmd *cobra.Command, 
 }
 
 // EncryptAESCmd encrypts a file using AES and saves the symmetric key with a UUID prefix
-func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
@@ -99,7 +102,7 @@ func (commandHandler *AESCommandHandler) EncryptAESCmd(cmd *cobra.Command, args 
 }
 
 // DecryptAESCmd decrypts a file using AES and reads the corresponding symmetric key with a UUID prefix
-func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args []string) {
+func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	outputFilePath, _ := cmd.Flags().GetString("output-file")
 	symmetricKey, _ := cmd.Flags().GetString("symmetric-key")
@@ -131,6 +134,7 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, args 
 	commandHandler.Logger.Info(fmt.Sprintf("Decrypted data saved to %s.", outputFilePath))
 }
 
+// InitAESCommands registers AES-related commands
 func InitAESCommands(rootCmd *cobra.Command) {
 	handler := NewAESCommandHandler()
 

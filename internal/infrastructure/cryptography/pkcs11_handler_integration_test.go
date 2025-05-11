@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	SlotId     = "0x0"
+	SlotID     = "0x0"
 	ModulePath = "/usr/lib/softhsm/libsofthsm2.so"
 	Label      = "MyToken"
 	SOPin      = "123456"
@@ -33,7 +33,7 @@ func NewPKCS11HandlerTests(t *testing.T, objectLabel string) *PKCS11HandlerTests
 		ModulePath: ModulePath,
 		SOPin:      SOPin,
 		UserPin:    UserPin,
-		SlotId:     SlotId,
+		SlotID:     SlotID,
 	}
 
 	loggerSettings := &settings.LoggerSettings{
@@ -83,7 +83,7 @@ func TestListTokens(t *testing.T) {
 	require.NotEmpty(t, tokens)
 
 	token := tokens[0]
-	assert.NotEmpty(t, token.SlotId)
+	assert.NotEmpty(t, token.SlotID)
 	assert.NotEmpty(t, token.Label)
 	assert.NotEmpty(t, token.Manufacturer)
 	assert.NotEmpty(t, token.Model)

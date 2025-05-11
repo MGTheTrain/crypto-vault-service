@@ -13,7 +13,13 @@ import (
 	"github.com/google/uuid"
 )
 
+// BlobHandler defines the interface for handling blob-related operations
 type BlobHandler interface {
+	Upload(ctx *gin.Context)
+	ListMetadata(ctx *gin.Context)
+	GetMetadataByID(ctx *gin.Context)
+	DownloadByID(ctx *gin.Context)
+	DeleteByID(ctx *gin.Context)
 }
 
 // BlobHandler struct holds the services
@@ -25,7 +31,7 @@ type blobHandler struct {
 }
 
 // NewBlobHandler creates a new BlobHandler
-func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) *blobHandler {
+func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadService blobs.BlobDownloadService, blobMetadataService blobs.BlobMetadataService, cryptoKeyUploadService keys.CryptoKeyUploadService) BlobHandler {
 	return &blobHandler{
 		blobUploadService:      blobUploadService,
 		blobDownloadService:    blobDownloadService,
@@ -48,9 +54,9 @@ func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadServi
 // @Router /blobs [post]
 func (handler *blobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
-	var encryptionKeyId *string = nil
-	var signKeyId *string = nil
-	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
+	var encryptionKeyID *string
+	var signKeyID *string
+	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -61,14 +67,14 @@ func (handler *blobHandler) Upload(ctx *gin.Context) {
 	}
 
 	if encryptionKeys := form.Value["encryption_key_id"]; len(encryptionKeys) > 0 {
-		encryptionKeyId = &encryptionKeys[0]
+		encryptionKeyID = &encryptionKeys[0]
 	}
 
 	if signKeys := form.Value["sign_key_id"]; len(signKeys) > 0 {
-		signKeyId = &signKeys[0]
+		signKeyID = &signKeys[0]
 	}
 
-	blobMetas, err := handler.blobUploadService.Upload(ctx, form, userId, encryptionKeyId, signKeyId)
+	blobMetas, err := handler.blobUploadService.Upload(ctx, form, userID, encryptionKeyID, signKeyID)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("error uploading blob: %v", err.Error())
@@ -193,7 +199,7 @@ func (handler *blobHandler) ListMetadata(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, listResponse)
 }
 
-// GetMetadataById handles the GET request to fetch metadata of a blob by its ID
+// GetMetadataByID handles the GET request to fetch metadata of a blob by its ID
 // @Summary Retrieve metadata of a blob by its ID
 // @Description Fetch the metadata of a specific blob by its unique ID, including its name, size, type, encryption and signing key IDs, and creation date.
 // @Tags Blob
@@ -203,13 +209,13 @@ func (handler *blobHandler) ListMetadata(ctx *gin.Context) {
 // @Success 200 {object} BlobMetaResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id} [get]
-func (handler *blobHandler) GetMetadataById(ctx *gin.Context) {
-	blobId := ctx.Param("id")
+func (handler *blobHandler) GetMetadataByID(ctx *gin.Context) {
+	blobID := ctx.Param("id")
 
-	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
+	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
@@ -235,7 +241,7 @@ func (handler *blobHandler) GetMetadataById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, blobMetadataResponse)
 }
 
-// DownloadById handles the GET request to download a blob by its ID
+// DownloadByID handles the GET request to download a blob by its ID
 // @Summary Download a blob by its ID
 // @Description Download the content of a specific blob by its ID, optionally decrypted with a provided decryption key ID.
 // @Tags Blob
@@ -246,26 +252,26 @@ func (handler *blobHandler) GetMetadataById(ctx *gin.Context) {
 // @Success 200 {file} file "Blob content"
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id}/file [get]
-func (handler *blobHandler) DownloadById(ctx *gin.Context) {
-	blobId := ctx.Param("id")
+func (handler *blobHandler) DownloadByID(ctx *gin.Context) {
+	blobID := ctx.Param("id")
 
-	var decryptionKeyId *string
+	var decryptionKeyID *string
 	if decryptionKeyQuery := ctx.Query("decryption_key_id"); len(decryptionKeyQuery) > 0 {
-		decryptionKeyId = &decryptionKeyQuery
+		decryptionKeyID = &decryptionKeyQuery
 	}
 
-	bytes, err := handler.blobDownloadService.DownloadById(ctx, blobId, decryptionKeyId)
+	bytes, err := handler.blobDownloadService.DownloadByID(ctx, blobID, decryptionKeyID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err.Error())
+		errorResponse.Message = fmt.Sprintf("could not download blob with id %s: %v", blobID, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponse)
 		return
 	}
 
-	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
+	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
@@ -283,7 +289,7 @@ func (handler *blobHandler) DownloadById(ctx *gin.Context) {
 	}
 }
 
-// DeleteById handles the DELETE request to delete a blob by its ID
+// DeleteByID handles the DELETE request to delete a blob by its ID
 // @Summary Delete a blob by its ID
 // @Description Delete a specific blob and its associated metadata by its ID.
 // @Tags Blob
@@ -293,32 +299,40 @@ func (handler *blobHandler) DownloadById(ctx *gin.Context) {
 // @Success 204 {object} InfoResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id} [delete]
-func (handler *blobHandler) DeleteById(ctx *gin.Context) {
-	blobId := ctx.Param("id")
+func (handler *blobHandler) DeleteByID(ctx *gin.Context) {
+	blobID := ctx.Param("id")
 
-	if err := handler.blobMetadataService.DeleteByID(ctx, blobId); err != nil {
+	if err := handler.blobMetadataService.DeleteByID(ctx, blobID); err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
 
 	var infoResponse InfoResponse
-	infoResponse.Message = fmt.Sprintf("deleted blob with id %s", blobId)
+	infoResponse.Message = fmt.Sprintf("deleted blob with id %s", blobID)
 	ctx.JSON(http.StatusNoContent, infoResponse)
 }
 
+// KeyHandler defines the interface for handling key-related operations
+type KeyHandler interface {
+	UploadKeys(ctx *gin.Context)
+	ListMetadata(ctx *gin.Context)
+	GetMetadataByID(ctx *gin.Context)
+	DownloadByID(ctx *gin.Context)
+	DeleteByID(ctx *gin.Context)
+}
+
 // KeyHandler struct holds the services
-type KeyHandler struct {
+type keyHandler struct {
 	cryptoKeyUploadService   keys.CryptoKeyUploadService
 	cryptoKeyDownloadService keys.CryptoKeyDownloadService
 	cryptoKeyMetadataService keys.CryptoKeyMetadataService
 }
 
 // NewKeyHandler creates a new KeyHandler
-func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKeyDownloadService keys.CryptoKeyDownloadService, cryptoKeyMetadataService keys.CryptoKeyMetadataService) *KeyHandler {
-
-	return &KeyHandler{
+func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKeyDownloadService keys.CryptoKeyDownloadService, cryptoKeyMetadataService keys.CryptoKeyMetadataService) KeyHandler {
+	return &keyHandler{
 		cryptoKeyUploadService:   cryptoKeyUploadService,
 		cryptoKeyDownloadService: cryptoKeyDownloadService,
 		cryptoKeyMetadataService: cryptoKeyMetadataService,
@@ -335,7 +349,7 @@ func NewKeyHandler(cryptoKeyUploadService keys.CryptoKeyUploadService, cryptoKey
 // @Success 201 {array} CryptoKeyMetaResponse
 // @Failure 400 {object} ErrorResponse
 // @Router /keys [post]
-func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
+func (handler *keyHandler) UploadKeys(ctx *gin.Context) {
 
 	var request UploadKeyRequest
 
@@ -353,9 +367,9 @@ func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
 		return
 	}
 
-	userId := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
+	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
-	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(ctx, userId, request.Algorithm, request.KeySize)
+	cryptoKeyMetas, err := handler.cryptoKeyUploadService.Upload(ctx, userID, request.Algorithm, request.KeySize)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("error uploading key: %v", err.Error())
@@ -397,7 +411,7 @@ func (handler *KeyHandler) UploadKeys(ctx *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /keys [get]
-func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
+func (handler *keyHandler) ListMetadata(ctx *gin.Context) {
 	query := keys.NewCryptoKeyQuery()
 
 	if keyAlgorithm := ctx.Query("algorithm"); len(keyAlgorithm) > 0 {
@@ -463,7 +477,7 @@ func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, listResponse)
 }
 
-// GetMetadataById handles the GET request to retrieve metadata of a key by its ID
+// GetMetadataByID handles the GET request to retrieve metadata of a key by its ID
 // @Summary Retrieve metadata of a key by its ID
 // @Description Fetch the metadata of a specific cryptographic key by its unique ID, including algorithm, key size, and creation date.
 // @Tags Key
@@ -473,13 +487,13 @@ func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
 // @Success 200 {object} CryptoKeyMetaResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id} [get]
-func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
-	keyId := ctx.Param("id")
+func (handler *keyHandler) GetMetadataByID(ctx *gin.Context) {
+	keyID := ctx.Param("id")
 
-	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(ctx, keyId)
+	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(ctx, keyID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("key with id %s not found", keyId)
+		errorResponse.Message = fmt.Sprintf("key with id %s not found", keyID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
@@ -497,7 +511,7 @@ func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, cryptoKeyMetadataResponse)
 }
 
-// DownloadById handles the GET request to download a key by its ID
+// DownloadByID handles the GET request to download a key by its ID
 // @Summary Download a cryptographic key by its ID
 // @Description Download the content of a specific cryptographic key by its ID.
 // @Tags Key
@@ -507,20 +521,20 @@ func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
 // @Success 200 {file} file "Cryptographic key content"
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id}/file [get]
-func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
-	keyId := ctx.Param("id")
+func (handler *keyHandler) DownloadByID(ctx *gin.Context) {
+	keyID := ctx.Param("id")
 
-	bytes, err := handler.cryptoKeyDownloadService.DownloadById(ctx, keyId)
+	bytes, err := handler.cryptoKeyDownloadService.DownloadByID(ctx, keyID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("could not download key with id %s: %v", keyId, err.Error())
+		errorResponse.Message = fmt.Sprintf("could not download key with id %s: %v", keyID, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponse)
 		return
 	}
 
 	ctx.Writer.WriteHeader(http.StatusOK)
 	ctx.Writer.Header().Set("Content-Type", "application/octet-stream; charset=utf-8")
-	ctx.Writer.Header().Set("Content-Disposition", "attachment; filename="+keyId)
+	ctx.Writer.Header().Set("Content-Disposition", "attachment; filename="+keyID)
 	_, err = ctx.Writer.Write(bytes)
 
 	if err != nil {
@@ -531,7 +545,7 @@ func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
 	}
 }
 
-// DeleteById handles the DELETE request to delete a key by its ID
+// DeleteByID handles the DELETE request to delete a key by its ID
 // @Summary Delete a cryptographic key by its ID
 // @Description Delete a specific cryptographic key and its associated metadata by its ID.
 // @Tags Key
@@ -541,17 +555,17 @@ func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
 // @Success 204 {object} InfoResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id} [delete]
-func (handler *KeyHandler) DeleteById(ctx *gin.Context) {
-	keyId := ctx.Param("id")
+func (handler *keyHandler) DeleteByID(ctx *gin.Context) {
+	keyID := ctx.Param("id")
 
-	if err := handler.cryptoKeyMetadataService.DeleteByID(ctx, keyId); err != nil {
+	if err := handler.cryptoKeyMetadataService.DeleteByID(ctx, keyID); err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("error deleting key with id %s", keyId)
+		errorResponse.Message = fmt.Sprintf("error deleting key with id %s", keyID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
 
 	var infoResponse InfoResponse
-	infoResponse.Message = fmt.Sprintf("deleted key with id %s", keyId)
+	infoResponse.Message = fmt.Sprintf("deleted key with id %s", keyID)
 	ctx.JSON(http.StatusNoContent, infoResponse)
 }

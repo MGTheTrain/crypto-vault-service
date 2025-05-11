@@ -71,7 +71,7 @@ Optionally:
 cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<blob_id>"
-}' -plaintext localhost:50051 internal.BlobMetadata/GetMetadataById
+}' -plaintext localhost:50051 internal.BlobMetadata/GetMetadataByID
 ```
 
 ### Download blob
@@ -85,7 +85,7 @@ cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<blob_id>",
     "decryption_key_id": ""
-}' -plaintext localhost:50051 internal.BlobDownload/DownloadById
+}' -plaintext localhost:50051 internal.BlobDownload/DownloadByID
 ```
 
 ### Delete blob
@@ -98,7 +98,7 @@ Optionally:
 cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<blob_id>"
-}' -plaintext localhost:50051 internal.BlobMetadata/DeleteById
+}' -plaintext localhost:50051 internal.BlobMetadata/DeleteByID
 ```
 
 ### Generate and upload keys
@@ -138,7 +138,7 @@ Run:
 cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<key_id>"
-}' -plaintext localhost:50051 internal.CryptoKeyMetadata/GetMetadataById
+}' -plaintext localhost:50051 internal.CryptoKeyMetadata/GetMetadataByID
 ```
 
 ### Download key
@@ -149,7 +149,7 @@ Run:
 cd ../../ # Navigate to project root
 grpcurl -import-path ./internal/api/grpc/v1/proto -proto internal/api/grpc/v1/proto/internal/service.proto -d '{
     "id": "<key_id>"
-}' -plaintext localhost:50051 internal.CryptoKeyDownload/DownloadById
+}' -plaintext localhost:50051 internal.CryptoKeyDownload/DownloadByID
 ```
 
 ### Delete key

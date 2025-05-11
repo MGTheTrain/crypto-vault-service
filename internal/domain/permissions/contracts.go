@@ -1,4 +1,4 @@
-package contracts
+package permissions
 
 // PoC with OpenFGA required for signatures
 

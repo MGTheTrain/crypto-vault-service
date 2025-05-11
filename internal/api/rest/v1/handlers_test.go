@@ -115,7 +115,7 @@ func TestBlobHandler_ListMetadata(t *testing.T) {
 	mockMetadataService.AssertExpectations(t)
 }
 
-func TestBlobHandler_GetMetadataById(t *testing.T) {
+func TestBlobHandler_GetMetadataByID(t *testing.T) {
 	// Set up mock services
 	mockUploadService := new(MockBlobUploadService)
 	mockDownloadService := new(MockBlobDownloadService)
@@ -141,8 +141,8 @@ func TestBlobHandler_GetMetadataById(t *testing.T) {
 	c.Request = req
 	c.Params = gin.Params{gin.Param{Key: "id", Value: "123"}}
 
-	// Call the GetMetadataById handler
-	handler.GetMetadataById(c)
+	// Call the GetMetadataByID handler
+	handler.GetMetadataByID(c)
 
 	// Assert the response
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -150,7 +150,7 @@ func TestBlobHandler_GetMetadataById(t *testing.T) {
 	mockMetadataService.AssertExpectations(t)
 }
 
-func TestBlobHandler_DownloadById(t *testing.T) {
+func TestBlobHandler_DownloadByID(t *testing.T) {
 	// Set up mock services
 	mockUploadService := new(MockBlobUploadService)
 	mockDownloadService := new(MockBlobDownloadService)
@@ -160,16 +160,16 @@ func TestBlobHandler_DownloadById(t *testing.T) {
 	handler := NewBlobHandler(mockUploadService, mockDownloadService, mockMetadataService, mockCryptoKeyUploadService)
 
 	// Prepare mock data
-	blobId := "123"
+	blobID := "123"
 	blobContent := []byte("file content")
 	blobMeta := &blobs.BlobMeta{
-		ID:   blobId,
+		ID:   blobID,
 		Name: "testfile.txt",
 	}
 
 	// Mock the Download and GetByID service calls
-	mockDownloadService.On("DownloadById", mock.Anything, blobId, (*string)(nil)).Return(blobContent, nil)
-	mockMetadataService.On("GetByID", mock.Anything, blobId).Return(blobMeta, nil)
+	mockDownloadService.On("DownloadByID", mock.Anything, blobID, (*string)(nil)).Return(blobContent, nil)
+	mockMetadataService.On("GetByID", mock.Anything, blobID).Return(blobMeta, nil)
 
 	// Create a test HTTP request
 	w := httptest.NewRecorder()
@@ -178,10 +178,10 @@ func TestBlobHandler_DownloadById(t *testing.T) {
 	// Set up Gin context
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
-	c.Params = gin.Params{gin.Param{Key: "id", Value: blobId}}
+	c.Params = gin.Params{gin.Param{Key: "id", Value: blobID}}
 
 	// Call the handler
-	handler.DownloadById(c)
+	handler.DownloadByID(c)
 
 	// Assert the response
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -193,7 +193,7 @@ func TestBlobHandler_DownloadById(t *testing.T) {
 	mockMetadataService.AssertExpectations(t)
 }
 
-func TestBlobHandler_DeleteById(t *testing.T) {
+func TestBlobHandler_DeleteByID(t *testing.T) {
 	// Set up mock services
 	mockUploadService := new(MockBlobUploadService)
 	mockDownloadService := new(MockBlobDownloadService)
@@ -214,15 +214,15 @@ func TestBlobHandler_DeleteById(t *testing.T) {
 	c.Request = req
 	c.Params = gin.Params{gin.Param{Key: "id", Value: "123"}}
 
-	handler.DeleteById(c)
+	handler.DeleteByID(c)
 
 	// Assert the response
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	mockMetadataService.AssertExpectations(t)
 }
 
-// Test error case in GetMetadataById
-func TestBlobHandler_GetMetadataById_Error(t *testing.T) {
+// Test error case in GetMetadataByID
+func TestBlobHandler_GetMetadataByID_Error(t *testing.T) {
 	// Set up mock services
 	mockUploadService := new(MockBlobUploadService)
 	mockDownloadService := new(MockBlobDownloadService)
@@ -243,8 +243,8 @@ func TestBlobHandler_GetMetadataById_Error(t *testing.T) {
 	c.Request = req
 	c.Params = gin.Params{gin.Param{Key: "id", Value: "123"}}
 
-	// Call the GetMetadataById handler
-	handler.GetMetadataById(c)
+	// Call the GetMetadataByID handler
+	handler.GetMetadataByID(c)
 
 	// Assert the response
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -352,7 +352,7 @@ func TestKeyHandler_ListMetadata(t *testing.T) {
 	mockMetadataService.AssertExpectations(t)
 }
 
-func TestKeyHandler_GetMetadataById(t *testing.T) {
+func TestKeyHandler_GetMetadataByID(t *testing.T) {
 	mockUploadService := new(MockCryptoKeyUploadService)
 	mockDownloadService := new(MockCryptoKeyDownloadService)
 	mockMetadataService := new(MockCryptoKeyMetadataService)
@@ -380,14 +380,14 @@ func TestKeyHandler_GetMetadataById(t *testing.T) {
 	c.Request = req
 	c.Params = gin.Params{gin.Param{Key: "id", Value: "abc-123"}}
 
-	handler.GetMetadataById(c)
+	handler.GetMetadataByID(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "abc-123")
 	mockMetadataService.AssertExpectations(t)
 }
 
-func TestKeyHandler_DownloadById(t *testing.T) {
+func TestKeyHandler_DownloadByID(t *testing.T) {
 	mockUploadService := new(MockCryptoKeyUploadService)
 	mockDownloadService := new(MockCryptoKeyDownloadService)
 	mockMetadataService := new(MockCryptoKeyMetadataService)
@@ -398,7 +398,7 @@ func TestKeyHandler_DownloadById(t *testing.T) {
 	keyContent := []byte("secret key content")
 
 	mockDownloadService.
-		On("DownloadById", mock.Anything, keyID).
+		On("DownloadByID", mock.Anything, keyID).
 		Return(keyContent, nil)
 
 	w := httptest.NewRecorder()
@@ -408,7 +408,7 @@ func TestKeyHandler_DownloadById(t *testing.T) {
 	c.Request = req
 	c.Params = gin.Params{gin.Param{Key: "id", Value: keyID}}
 
-	handler.DownloadById(c)
+	handler.DownloadByID(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Equal(t, "application/octet-stream; charset=utf-8", w.Header().Get("Content-Type"))
@@ -418,7 +418,7 @@ func TestKeyHandler_DownloadById(t *testing.T) {
 	mockDownloadService.AssertExpectations(t)
 }
 
-func TestKeyHandler_DeleteById(t *testing.T) {
+func TestKeyHandler_DeleteByID(t *testing.T) {
 	mockUploadService := new(MockCryptoKeyUploadService)
 	mockDownloadService := new(MockCryptoKeyDownloadService)
 	mockMetadataService := new(MockCryptoKeyMetadataService)
@@ -438,7 +438,7 @@ func TestKeyHandler_DeleteById(t *testing.T) {
 	c.Request = req
 	c.Params = gin.Params{gin.Param{Key: "id", Value: keyID}}
 
-	handler.DeleteById(c)
+	handler.DeleteByID(c)
 
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	mockMetadataService.AssertExpectations(t)

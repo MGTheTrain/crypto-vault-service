@@ -1,3 +1,9 @@
+// Package main is the entry point for the crypto-vault-grpc-service application.
+// It sets up and starts both a gRPC server and a gRPC-Gateway server.
+// The main function initializes services, configures database connections,
+// registers necessary gRPC services, and starts the HTTP server for the gRPC-Gateway.
+// It also handles the setup of various repositories, connectors and logging components.
+// Additionally, it performs database migrations and ensures the required database schema exists.
 package main
 
 import (
@@ -77,7 +83,7 @@ func main() {
 		}
 
 		query := "SELECT 1 FROM pg_database WHERE datname = $1"
-		err = sqlDB.QueryRow(query).Scan(&dbExists)
+		err = sqlDB.QueryRow(query, config.Database.Name).Scan(&dbExists)
 
 		if err != nil && err.Error() != "sql: no rows in result set" {
 			log.Fatalf("Failed to check if database '%s' exists: %v", config.Database.Name, err)

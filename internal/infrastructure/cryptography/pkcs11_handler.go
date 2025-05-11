@@ -12,7 +12,7 @@ import (
 
 // Token represents a PKCS#11 token with its label and other metadata.
 type Token struct {
-	SlotId       string
+	SlotID       string
 	Label        string
 	Manufacturer string
 	Model        string
@@ -56,7 +56,7 @@ type pkcs11Handler struct {
 }
 
 // NewPKCS11Handler creates and returns a new instance of PKCS11Handler
-func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (*pkcs11Handler, error) {
+func NewPKCS11Handler(settings *settings.PKCS11Settings, logger logger.Logger) (PKCS11Handler, error) {
 	if err := settings.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate settings: %w", err)
 	}
@@ -105,7 +105,7 @@ func (token *pkcs11Handler) ListTokenSlots() ([]Token, error) {
 			}
 
 			currentToken = &Token{
-				SlotId:       "",
+				SlotID:       "",
 				Label:        "",
 				Manufacturer: "",
 				Model:        "",
@@ -114,7 +114,7 @@ func (token *pkcs11Handler) ListTokenSlots() ([]Token, error) {
 
 			re := regexp.MustCompile(`\((0x[0-9a-fA-F]+)\)`) // e.g. `(0x39e9d82d)` in `Slot 1 (0x39e9d82d): SoftHSM slot ID 0x39e9d82d`
 			matches := re.FindStringSubmatch(line)
-			currentToken.SlotId = matches[1]
+			currentToken.SlotID = matches[1]
 		}
 
 		if strings.Contains(line, "token label") {
@@ -229,7 +229,7 @@ func (token *pkcs11Handler) InitializeToken(label string) error {
 		return nil
 	}
 
-	args := []string{"--module", token.Settings.ModulePath, "--init-token", "--label", label, "--so-pin", token.Settings.SOPin, "--init-pin", "--pin", token.Settings.UserPin, "--slot", token.Settings.SlotId}
+	args := []string{"--module", token.Settings.ModulePath, "--init-token", "--label", label, "--so-pin", token.Settings.SOPin, "--init-pin", "--pin", token.Settings.UserPin, "--slot", token.Settings.SlotID}
 	_, err = token.executePKCS11ToolCommand(args)
 	if err != nil {
 		return fmt.Errorf("failed to initialize token with label '%s': %w", label, err)
@@ -510,10 +510,9 @@ func (token *pkcs11Handler) Verify(label, objectLabel, dataFilePath, signatureFi
 	if strings.Contains(string(verifyOutput), "Verified OK") {
 		token.Logger.Info("The signature is valid")
 		return true, nil
-	} else {
-		token.Logger.Info("The signature is invalid")
-		return false, nil
 	}
+	token.Logger.Info("The signature is invalid")
+	return false, nil
 }
 
 // DeleteObject deletes a key or object from the token

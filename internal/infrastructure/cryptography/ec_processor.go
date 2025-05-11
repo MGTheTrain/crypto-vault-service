@@ -33,7 +33,7 @@ type ecProcessor struct {
 }
 
 // NewECProcessor creates and returns a new instance of ecProcessor
-func NewECProcessor(logger logger.Logger) (*ecProcessor, error) {
+func NewECProcessor(logger logger.Logger) (ECProcessor, error) {
 	return &ecProcessor{
 		logger: logger,
 	}, nil

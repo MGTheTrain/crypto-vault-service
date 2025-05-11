@@ -22,7 +22,7 @@ type aesProcessor struct {
 }
 
 // NewAESProcessor creates and returns a new instance of aesProcessor
-func NewAESProcessor(logger logger.Logger) (*aesProcessor, error) {
+func NewAESProcessor(logger logger.Logger) (AESProcessor, error) {
 	return &aesProcessor{
 		logger: logger,
 	}, nil
