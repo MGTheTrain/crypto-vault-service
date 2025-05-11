@@ -58,15 +58,15 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 	fileContent := [][]byte{req.FileContent}
 	fileNames := []string{req.FileName}
 
-	var encryptionKeyId *string = nil
-	var signKeyId *string = nil
+	var encryptionKeyID *string = nil
+	var signKeyID *string = nil
 
 	if len(req.EncryptionKeyId) > 0 {
-		encryptionKeyId = &req.EncryptionKeyId
+		encryptionKeyID = &req.EncryptionKeyId
 	}
 
 	if len(req.SignKeyId) > 0 {
-		signKeyId = &req.SignKeyId
+		signKeyID = &req.SignKeyId
 	}
 
 	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
@@ -75,7 +75,7 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 		return fmt.Errorf("failed to create multiple files form for files %v: %w", fileNames, err)
 	}
 
-	blobMetas, err := s.blobUploadService.Upload(stream.Context(), form, userID, encryptionKeyId, signKeyId)
+	blobMetas, err := s.blobUploadService.Upload(stream.Context(), form, userID, encryptionKeyID, signKeyID)
 	if err != nil {
 		return fmt.Errorf("failed to upload blob: %w", err)
 	}
@@ -118,12 +118,12 @@ func NewBlobDownloadServer(blobDownloadService blobs.BlobDownloadService) (*Blob
 // DownloadByID downloads a blob by its ID
 func (s *BlobDownloadServer) DownloadByID(req *pb.BlobDownloadRequest, stream pb.BlobDownload_DownloadByIDServer) error {
 	id := req.Id
-	var decryptionKeyId *string = nil
+	var decryptionKeyID *string = nil
 	if len(req.DecryptionKeyId) > 0 {
-		decryptionKeyId = &req.DecryptionKeyId
+		decryptionKeyID = &req.DecryptionKeyId
 	}
 
-	bytes, err := s.blobDownloadService.DownloadByID(stream.Context(), id, decryptionKeyId)
+	bytes, err := s.blobDownloadService.DownloadByID(stream.Context(), id, decryptionKeyID)
 	if err != nil {
 		return fmt.Errorf("could not download blob with id %s: %w", id, err)
 	}

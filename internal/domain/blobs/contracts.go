@@ -9,7 +9,7 @@ import (
 type BlobUploadService interface {
 	// Upload transfers blobs with the option to encrypt them using an encryption key or sign them with a signing key.
 	// It returns a slice of Blob for the uploaded blobs and any error encountered during the upload process.
-	Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyId, signKeyId *string) ([]*BlobMeta, error)
+	Upload(ctx context.Context, form *multipart.Form, userID string, encryptionKeyID, signKeyID *string) ([]*BlobMeta, error)
 }
 
 // BlobMetadataService defines methods for retrieving Blob and deleting a blob along with its metadata.
@@ -30,7 +30,7 @@ type BlobMetadataService interface {
 // BlobDownloadService defines methods for downloading blobs.
 type BlobDownloadService interface {
 	// The download function retrieves a blob's content using its ID and also enables data decryption.
-	DownloadByID(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error)
+	DownloadByID(ctx context.Context, blobID string, decryptionKeyID *string) ([]byte, error)
 }
 
 // BlobRepository defines the interface for Blob-related operations

@@ -61,8 +61,8 @@ type MockBlobDownloadService struct {
 	mock.Mock
 }
 
-func (m *MockBlobDownloadService) DownloadByID(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error) {
-	args := m.Called(ctx, blobID, decryptionKeyId)
+func (m *MockBlobDownloadService) DownloadByID(ctx context.Context, blobID string, decryptionKeyID *string) ([]byte, error) {
+	args := m.Called(ctx, blobID, decryptionKeyID)
 	err := args.Error(1)
 	if err != nil {
 		return nil, fmt.Errorf("mock DownloadByID error: %w", err)

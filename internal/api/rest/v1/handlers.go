@@ -48,8 +48,8 @@ func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadServi
 // @Router /blobs [post]
 func (handler *blobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
-	var encryptionKeyId *string = nil
-	var signKeyId *string = nil
+	var encryptionKeyID *string = nil
+	var signKeyID *string = nil
 	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	form, err := ctx.MultipartForm()
@@ -61,14 +61,14 @@ func (handler *blobHandler) Upload(ctx *gin.Context) {
 	}
 
 	if encryptionKeys := form.Value["encryption_key_id"]; len(encryptionKeys) > 0 {
-		encryptionKeyId = &encryptionKeys[0]
+		encryptionKeyID = &encryptionKeys[0]
 	}
 
 	if signKeys := form.Value["sign_key_id"]; len(signKeys) > 0 {
-		signKeyId = &signKeys[0]
+		signKeyID = &signKeys[0]
 	}
 
-	blobMetas, err := handler.blobUploadService.Upload(ctx, form, userID, encryptionKeyId, signKeyId)
+	blobMetas, err := handler.blobUploadService.Upload(ctx, form, userID, encryptionKeyID, signKeyID)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("error uploading blob: %v", err.Error())
@@ -249,12 +249,12 @@ func (handler *blobHandler) GetMetadataByID(ctx *gin.Context) {
 func (handler *blobHandler) DownloadByID(ctx *gin.Context) {
 	blobID := ctx.Param("id")
 
-	var decryptionKeyId *string
+	var decryptionKeyID *string
 	if decryptionKeyQuery := ctx.Query("decryption_key_id"); len(decryptionKeyQuery) > 0 {
-		decryptionKeyId = &decryptionKeyQuery
+		decryptionKeyID = &decryptionKeyQuery
 	}
 
-	bytes, err := handler.blobDownloadService.DownloadByID(ctx, blobID, decryptionKeyId)
+	bytes, err := handler.blobDownloadService.DownloadByID(ctx, blobID, decryptionKeyID)
 	if err != nil {
 		var errorResponse ErrorResponse
 		errorResponse.Message = fmt.Sprintf("could not download blob with id %s: %v", blobID, err.Error())

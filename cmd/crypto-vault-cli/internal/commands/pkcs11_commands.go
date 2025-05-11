@@ -66,8 +66,8 @@ func ReadPkcs11SettingsFromEnv() (*settings.PKCS11Settings, error) {
 		return nil, fmt.Errorf("environment variable PKCS11_USER_PIN is not set")
 	}
 
-	slotId := os.Getenv("PKCS11_SLOT_ID")
-	if slotId == "" {
+	slotID := os.Getenv("PKCS11_SLOT_ID")
+	if slotID == "" {
 		return nil, fmt.Errorf("environment variable PKCS11_SLOT_ID is not set")
 	}
 
@@ -76,7 +76,7 @@ func ReadPkcs11SettingsFromEnv() (*settings.PKCS11Settings, error) {
 		ModulePath: modulePath,
 		SOPin:      soPin,
 		UserPin:    userPin,
-		SlotId:     slotId,
+		SlotID:     slotID,
 	}
 
 	return settings, nil

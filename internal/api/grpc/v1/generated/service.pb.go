@@ -26,8 +26,8 @@ type BlobUploadRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	FileName        string                 `protobuf:"bytes,1,opt,name=file_name,json=fileName,proto3" json:"file_name,omitempty"`
 	FileContent     []byte                 `protobuf:"bytes,2,opt,name=file_content,json=fileContent,proto3" json:"file_content,omitempty"`
-	EncryptionKeyId string                 `protobuf:"bytes,3,opt,name=encryption_key_id,json=encryptionKeyId,proto3" json:"encryption_key_id,omitempty"`
-	SignKeyId       string                 `protobuf:"bytes,4,opt,name=sign_key_id,json=signKeyId,proto3" json:"sign_key_id,omitempty"`
+	EncryptionKeyId string                 `protobuf:"bytes,3,opt,name=encryption_key_id,json=encryptionKeyID,proto3" json:"encryption_key_id,omitempty"`
+	SignKeyId       string                 `protobuf:"bytes,4,opt,name=sign_key_id,json=signKeyID,proto3" json:"sign_key_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -289,7 +289,7 @@ func (x *BlobMetaQuery) GetSortOrder() string {
 type BlobDownloadRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	DecryptionKeyId string                 `protobuf:"bytes,2,opt,name=decryption_key_id,json=decryptionKeyId,proto3" json:"decryption_key_id,omitempty"`
+	DecryptionKeyId string                 `protobuf:"bytes,2,opt,name=decryption_key_id,json=decryptionKeyID,proto3" json:"decryption_key_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -570,8 +570,8 @@ type BlobMetaResponse struct {
 	Name            string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
 	Size            int64                  `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
 	Type            string                 `protobuf:"bytes,6,opt,name=type,proto3" json:"type,omitempty"`
-	EncryptionKeyId string                 `protobuf:"bytes,7,opt,name=encryption_key_id,json=encryptionKeyId,proto3" json:"encryption_key_id,omitempty"`
-	SignKeyId       string                 `protobuf:"bytes,8,opt,name=sign_key_id,json=signKeyId,proto3" json:"sign_key_id,omitempty"`
+	EncryptionKeyId string                 `protobuf:"bytes,7,opt,name=encryption_key_id,json=encryptionKeyID,proto3" json:"encryption_key_id,omitempty"`
+	SignKeyId       string                 `protobuf:"bytes,8,opt,name=sign_key_id,json=signKeyID,proto3" json:"sign_key_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }

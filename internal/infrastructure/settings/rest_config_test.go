@@ -63,7 +63,7 @@ func TestInitializeRestConfig(t *testing.T) {
 					ModulePath: "/path/to/module",
 					SOPin:      "so-pin",
 					UserPin:    "user-pin",
-					SlotId:     "1",
+					SlotID:     "1",
 				},
 			},
 		},
