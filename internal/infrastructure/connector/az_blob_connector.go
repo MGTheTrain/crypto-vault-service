@@ -132,8 +132,8 @@ func (abc *azureBlobConnector) rollbackUploadedBlobs(ctx context.Context, blobs 
 }
 
 // Download retrieves a blob's content by its ID and name, and returns the data as a stream.
-func (abc *azureBlobConnector) Download(ctx context.Context, blobId, blobName string) ([]byte, error) {
-	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
+func (abc *azureBlobConnector) Download(ctx context.Context, blobID, blobName string) ([]byte, error) {
+	fullBlobName := fmt.Sprintf("%s/%s", blobID, blobName)
 
 	get, err := abc.client.DownloadStream(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {
@@ -158,8 +158,8 @@ func (abc *azureBlobConnector) Download(ctx context.Context, blobId, blobName st
 }
 
 // Delete deletes a blob from Azure Blob Storage by its ID and Name, and returns any error encountered.
-func (abc *azureBlobConnector) Delete(ctx context.Context, blobId, blobName string) error {
-	fullBlobName := fmt.Sprintf("%s/%s", blobId, blobName)
+func (abc *azureBlobConnector) Delete(ctx context.Context, blobID, blobName string) error {
+	fullBlobName := fmt.Sprintf("%s/%s", blobID, blobName)
 
 	_, err := abc.client.DeleteBlob(ctx, abc.containerName, fullBlobName, nil)
 	if err != nil {

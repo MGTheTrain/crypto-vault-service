@@ -227,8 +227,8 @@ func (s *cryptoKeyMetadataService) List(ctx context.Context, query *keys.CryptoK
 }
 
 // GetByID retrieves the metadata of a cryptographic key by its ID.
-func (s *cryptoKeyMetadataService) GetByID(ctx context.Context, keyId string) (*keys.CryptoKeyMeta, error) {
-	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyId)
+func (s *cryptoKeyMetadataService) GetByID(ctx context.Context, keyID string) (*keys.CryptoKeyMeta, error) {
+	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
@@ -237,18 +237,18 @@ func (s *cryptoKeyMetadataService) GetByID(ctx context.Context, keyId string) (*
 }
 
 // DeleteByID deletes a cryptographic key's metadata by its ID.
-func (s *cryptoKeyMetadataService) DeleteByID(ctx context.Context, keyId string) error {
-	keyMeta, err := s.GetByID(ctx, keyId)
+func (s *cryptoKeyMetadataService) DeleteByID(ctx context.Context, keyID string) error {
+	keyMeta, err := s.GetByID(ctx, keyID)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
 
-	err = s.vaultConnector.Delete(ctx, keyId, keyMeta.KeyPairID, keyMeta.Type)
+	err = s.vaultConnector.Delete(ctx, keyID, keyMeta.KeyPairID, keyMeta.Type)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
 
-	err = s.cryptoKeyRepo.DeleteByID(ctx, keyId)
+	err = s.cryptoKeyRepo.DeleteByID(ctx, keyID)
 	if err != nil {
 		return fmt.Errorf("failed to%w", err)
 	}
@@ -272,8 +272,8 @@ func NewCryptoKeyDownloadService(vaultConnector connector.VaultConnector, crypto
 }
 
 // Download retrieves a cryptographic key by its ID.
-func (s *cryptoKeyDownloadService) DownloadById(ctx context.Context, keyId string) ([]byte, error) {
-	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyId)
+func (s *cryptoKeyDownloadService) DownloadById(ctx context.Context, keyID string) ([]byte, error) {
+	keyMeta, err := s.cryptoKeyRepo.GetByID(ctx, keyID)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}

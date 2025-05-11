@@ -39,8 +39,8 @@ func (m *MockBlobMetadataService) List(ctx context.Context, query *blobs.BlobMet
 	return args.Get(0).([]*blobs.BlobMeta), nil
 }
 
-func (m *MockBlobMetadataService) GetByID(ctx context.Context, blobId string) (*blobs.BlobMeta, error) {
-	args := m.Called(ctx, blobId)
+func (m *MockBlobMetadataService) GetByID(ctx context.Context, blobID string) (*blobs.BlobMeta, error) {
+	args := m.Called(ctx, blobID)
 	err := args.Error(1)
 	if err != nil {
 		return nil, fmt.Errorf("mock GetByID error: %w", err)
@@ -48,8 +48,8 @@ func (m *MockBlobMetadataService) GetByID(ctx context.Context, blobId string) (*
 	return args.Get(0).(*blobs.BlobMeta), nil
 }
 
-func (m *MockBlobMetadataService) DeleteByID(ctx context.Context, blobId string) error {
-	args := m.Called(ctx, blobId)
+func (m *MockBlobMetadataService) DeleteByID(ctx context.Context, blobID string) error {
+	args := m.Called(ctx, blobID)
 	err := args.Error(0)
 	if err != nil {
 		return fmt.Errorf("mock DeleteByID error: %w", err)
@@ -61,8 +61,8 @@ type MockBlobDownloadService struct {
 	mock.Mock
 }
 
-func (m *MockBlobDownloadService) DownloadById(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error) {
-	args := m.Called(ctx, blobId, decryptionKeyId)
+func (m *MockBlobDownloadService) DownloadById(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error) {
+	args := m.Called(ctx, blobID, decryptionKeyId)
 	err := args.Error(1)
 	if err != nil {
 		return nil, fmt.Errorf("mock DownloadById error: %w", err)

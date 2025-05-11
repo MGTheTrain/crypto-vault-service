@@ -35,7 +35,7 @@ type CryptoKeyDownloadService interface {
 type CryptoKeyRepository interface {
 	Create(ctx context.Context, key *CryptoKeyMeta) error
 	List(ctx context.Context, query *CryptoKeyQuery) ([]*CryptoKeyMeta, error)
-	GetByID(ctx context.Context, keyId string) (*CryptoKeyMeta, error)
+	GetByID(ctx context.Context, keyID string) (*CryptoKeyMeta, error)
 	UpdateByID(ctx context.Context, key *CryptoKeyMeta) error
-	DeleteByID(ctx context.Context, keyId string) error
+	DeleteByID(ctx context.Context, keyID string) error
 }

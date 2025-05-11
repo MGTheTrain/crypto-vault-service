@@ -204,12 +204,12 @@ func (handler *blobHandler) ListMetadata(ctx *gin.Context) {
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id} [get]
 func (handler *blobHandler) GetMetadataById(ctx *gin.Context) {
-	blobId := ctx.Param("id")
+	blobID := ctx.Param("id")
 
-	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
+	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
@@ -247,25 +247,25 @@ func (handler *blobHandler) GetMetadataById(ctx *gin.Context) {
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id}/file [get]
 func (handler *blobHandler) DownloadById(ctx *gin.Context) {
-	blobId := ctx.Param("id")
+	blobID := ctx.Param("id")
 
 	var decryptionKeyId *string
 	if decryptionKeyQuery := ctx.Query("decryption_key_id"); len(decryptionKeyQuery) > 0 {
 		decryptionKeyId = &decryptionKeyQuery
 	}
 
-	bytes, err := handler.blobDownloadService.DownloadById(ctx, blobId, decryptionKeyId)
+	bytes, err := handler.blobDownloadService.DownloadById(ctx, blobID, decryptionKeyId)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("could not download blob with id %s: %v", blobId, err.Error())
+		errorResponse.Message = fmt.Sprintf("could not download blob with id %s: %v", blobID, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponse)
 		return
 	}
 
-	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobId)
+	blobMeta, err := handler.blobMetadataService.GetByID(ctx, blobID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
@@ -294,17 +294,17 @@ func (handler *blobHandler) DownloadById(ctx *gin.Context) {
 // @Failure 404 {object} ErrorResponse
 // @Router /blobs/{id} [delete]
 func (handler *blobHandler) DeleteById(ctx *gin.Context) {
-	blobId := ctx.Param("id")
+	blobID := ctx.Param("id")
 
-	if err := handler.blobMetadataService.DeleteByID(ctx, blobId); err != nil {
+	if err := handler.blobMetadataService.DeleteByID(ctx, blobID); err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobId)
+		errorResponse.Message = fmt.Sprintf("blob with id %s not found", blobID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
 
 	var infoResponse InfoResponse
-	infoResponse.Message = fmt.Sprintf("deleted blob with id %s", blobId)
+	infoResponse.Message = fmt.Sprintf("deleted blob with id %s", blobID)
 	ctx.JSON(http.StatusNoContent, infoResponse)
 }
 
@@ -474,12 +474,12 @@ func (handler *KeyHandler) ListMetadata(ctx *gin.Context) {
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id} [get]
 func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
-	keyId := ctx.Param("id")
+	keyID := ctx.Param("id")
 
-	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(ctx, keyId)
+	cryptoKeyMeta, err := handler.cryptoKeyMetadataService.GetByID(ctx, keyID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("key with id %s not found", keyId)
+		errorResponse.Message = fmt.Sprintf("key with id %s not found", keyID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
@@ -508,19 +508,19 @@ func (handler *KeyHandler) GetMetadataById(ctx *gin.Context) {
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id}/file [get]
 func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
-	keyId := ctx.Param("id")
+	keyID := ctx.Param("id")
 
-	bytes, err := handler.cryptoKeyDownloadService.DownloadById(ctx, keyId)
+	bytes, err := handler.cryptoKeyDownloadService.DownloadById(ctx, keyID)
 	if err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("could not download key with id %s: %v", keyId, err.Error())
+		errorResponse.Message = fmt.Sprintf("could not download key with id %s: %v", keyID, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponse)
 		return
 	}
 
 	ctx.Writer.WriteHeader(http.StatusOK)
 	ctx.Writer.Header().Set("Content-Type", "application/octet-stream; charset=utf-8")
-	ctx.Writer.Header().Set("Content-Disposition", "attachment; filename="+keyId)
+	ctx.Writer.Header().Set("Content-Disposition", "attachment; filename="+keyID)
 	_, err = ctx.Writer.Write(bytes)
 
 	if err != nil {
@@ -542,16 +542,16 @@ func (handler *KeyHandler) DownloadById(ctx *gin.Context) {
 // @Failure 404 {object} ErrorResponse
 // @Router /keys/{id} [delete]
 func (handler *KeyHandler) DeleteById(ctx *gin.Context) {
-	keyId := ctx.Param("id")
+	keyID := ctx.Param("id")
 
-	if err := handler.cryptoKeyMetadataService.DeleteByID(ctx, keyId); err != nil {
+	if err := handler.cryptoKeyMetadataService.DeleteByID(ctx, keyID); err != nil {
 		var errorResponse ErrorResponse
-		errorResponse.Message = fmt.Sprintf("error deleting key with id %s", keyId)
+		errorResponse.Message = fmt.Sprintf("error deleting key with id %s", keyID)
 		ctx.JSON(http.StatusNotFound, errorResponse)
 		return
 	}
 
 	var infoResponse InfoResponse
-	infoResponse.Message = fmt.Sprintf("deleted key with id %s", keyId)
+	infoResponse.Message = fmt.Sprintf("deleted key with id %s", keyID)
 	ctx.JSON(http.StatusNoContent, infoResponse)
 }

@@ -48,11 +48,11 @@ func NewAzureVaultConnector(ctx context.Context, settings *settings.KeyConnector
 // Upload uploads bytes of a single file to Blob Storage
 // and returns the metadata for each uploaded byte stream.
 func (vc *azureVaultConnector) Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint32) (*keys.CryptoKeyMeta, error) {
-	keyId := uuid.New().String()
-	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
+	keyID := uuid.New().String()
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyID, keyType)
 
 	cryptoKeyMeta := &keys.CryptoKeyMeta{
-		ID:              keyId,
+		ID:              keyID,
 		KeyPairID:       keyPairId,
 		Type:            keyType,
 		Algorithm:       keyAlgorihm,
@@ -82,9 +82,9 @@ func (vc *azureVaultConnector) rollbackUploadedBlobs(ctx context.Context, crypto
 }
 
 // Download retrieves a key's content by its IDs and Type and returns the data as a byte slice.
-func (vc *azureVaultConnector) Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error) {
+func (vc *azureVaultConnector) Download(ctx context.Context, keyID, keyPairId, keyType string) ([]byte, error) {
 
-	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyID, keyType)
 
 	get, err := vc.client.DownloadStream(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {
@@ -102,8 +102,8 @@ func (vc *azureVaultConnector) Download(ctx context.Context, keyId, keyPairId, k
 }
 
 // Delete deletes a key from Azure Blob Storage by its IDs and Type.
-func (vc *azureVaultConnector) Delete(ctx context.Context, keyId, keyPairId, keyType string) error {
-	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyId, keyType)
+func (vc *azureVaultConnector) Delete(ctx context.Context, keyID, keyPairId, keyType string) error {
+	fullKeyName := fmt.Sprintf("%s/%s-%s", keyPairId, keyID, keyType)
 
 	_, err := vc.client.DeleteBlob(ctx, vc.containerName, fullKeyName, nil)
 	if err != nil {

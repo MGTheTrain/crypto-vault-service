@@ -14,8 +14,8 @@ type VaultConnector interface {
 	Upload(ctx context.Context, bytes []byte, userId, keyPairId, keyType, keyAlgorihm string, keySize uint32) (*keys.CryptoKeyMeta, error)
 
 	// Download retrieves a key's content by its IDs and type and returns the data as a byte slice.
-	Download(ctx context.Context, keyId, keyPairId, keyType string) ([]byte, error)
+	Download(ctx context.Context, keyID, keyPairId, keyType string) ([]byte, error)
 
 	// Delete deletes a key from Vault Storage by its IDs and type and returns any error encountered.
-	Delete(ctx context.Context, keyId, keyPairId, keyType string) error
+	Delete(ctx context.Context, keyID, keyPairId, keyType string) error
 }

@@ -160,16 +160,16 @@ func TestBlobHandler_DownloadById(t *testing.T) {
 	handler := NewBlobHandler(mockUploadService, mockDownloadService, mockMetadataService, mockCryptoKeyUploadService)
 
 	// Prepare mock data
-	blobId := "123"
+	blobID := "123"
 	blobContent := []byte("file content")
 	blobMeta := &blobs.BlobMeta{
-		ID:   blobId,
+		ID:   blobID,
 		Name: "testfile.txt",
 	}
 
 	// Mock the Download and GetByID service calls
-	mockDownloadService.On("DownloadById", mock.Anything, blobId, (*string)(nil)).Return(blobContent, nil)
-	mockMetadataService.On("GetByID", mock.Anything, blobId).Return(blobMeta, nil)
+	mockDownloadService.On("DownloadById", mock.Anything, blobID, (*string)(nil)).Return(blobContent, nil)
+	mockMetadataService.On("GetByID", mock.Anything, blobID).Return(blobMeta, nil)
 
 	// Create a test HTTP request
 	w := httptest.NewRecorder()
@@ -178,7 +178,7 @@ func TestBlobHandler_DownloadById(t *testing.T) {
 	// Set up Gin context
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
-	c.Params = gin.Params{gin.Param{Key: "id", Value: blobId}}
+	c.Params = gin.Params{gin.Param{Key: "id", Value: blobID}}
 
 	// Call the handler
 	handler.DownloadById(c)

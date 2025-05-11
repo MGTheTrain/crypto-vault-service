@@ -20,24 +20,24 @@ type BlobMetadataService interface {
 
 	// GetByID retrieves the metadata of a blob by its unique ID.
 	// It returns the Blob and any error encountered during the retrieval process.
-	GetByID(ctx context.Context, blobId string) (*BlobMeta, error)
+	GetByID(ctx context.Context, blobID string) (*BlobMeta, error)
 
 	// DeleteByID deletes a blob and its associated metadata by ID.
 	// It returns any error encountered during the deletion process.
-	DeleteByID(ctx context.Context, blobId string) error
+	DeleteByID(ctx context.Context, blobID string) error
 }
 
 // BlobDownloadService defines methods for downloading blobs.
 type BlobDownloadService interface {
 	// The download function retrieves a blob's content using its ID and also enables data decryption.
-	DownloadById(ctx context.Context, blobId string, decryptionKeyId *string) ([]byte, error)
+	DownloadById(ctx context.Context, blobID string, decryptionKeyId *string) ([]byte, error)
 }
 
 // BlobRepository defines the interface for Blob-related operations
 type BlobRepository interface {
 	Create(ctx context.Context, blob *BlobMeta) error
 	List(ctx context.Context, query *BlobMetaQuery) ([]*BlobMeta, error)
-	GetById(ctx context.Context, blobId string) (*BlobMeta, error)
+	GetById(ctx context.Context, blobID string) (*BlobMeta, error)
 	UpdateById(ctx context.Context, blob *BlobMeta) error
-	DeleteById(ctx context.Context, blobId string) error
+	DeleteById(ctx context.Context, blobID string) error
 }

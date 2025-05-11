@@ -222,7 +222,7 @@ func TestBlobDownloadService_Download_Success(t *testing.T) {
 
 	// decryptionKeyId := uuid.New().String()
 
-	// blobData, err := blobServices.blobDownloadService.DownloadById(blobId, &decryptionKeyId)
+	// blobData, err := blobServices.blobDownloadService.DownloadById(blobID, &decryptionKeyId)
 	blobData, err := blobServices.blobDownloadService.DownloadById(ctx, blobMetas[0].ID, nil)
 	require.NoError(t, err)
 	require.NotNil(t, blobData)
@@ -235,11 +235,11 @@ func TestBlobDownloadService_Download_Fail_InvalidDecryptionKey(t *testing.T) {
 	blobServices := NewBlobServicesTest(t, dbType)
 	defer repository.TeardownTestDB(t, blobServices.dbContext, dbType)
 
-	blobId := uuid.New().String()
+	blobID := uuid.New().String()
 	invalidDecryptionKeyId := "invalid-decryption-key-id"
 	ctx := context.Background()
 
-	blobData, err := blobServices.blobDownloadService.DownloadById(ctx, blobId, &invalidDecryptionKeyId)
+	blobData, err := blobServices.blobDownloadService.DownloadById(ctx, blobID, &invalidDecryptionKeyId)
 	require.Error(t, err)
 	require.Nil(t, blobData)
 }
