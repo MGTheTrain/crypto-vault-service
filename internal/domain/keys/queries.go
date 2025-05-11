@@ -23,7 +23,7 @@ type CryptoKeyQuery struct {
 	SortOrder string `validate:"omitempty,oneof=asc desc"`                  // SortOrder is optional, default is ascending ('asc'), can also be 'desc'
 }
 
-// New function to create a CryptoKeyQuery with default values
+// NewCryptoKeyQuery creates a CryptoKeyQuery with default values
 func NewCryptoKeyQuery() *CryptoKeyQuery {
 	return &CryptoKeyQuery{
 		Limit:     10,                  // Default limit to 10 results per page
@@ -33,6 +33,7 @@ func NewCryptoKeyQuery() *CryptoKeyQuery {
 	}
 }
 
+// Validate validates the CryptoKeyQuery struct based on the defined rules.
 func (k *CryptoKeyQuery) Validate() error {
 	validate := validator.New()
 	err := validate.Struct(k)

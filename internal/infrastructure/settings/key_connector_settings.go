@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// KeyConnectorSettings holds configuration settings for connecting to a key storage service
 type KeyConnectorSettings struct {
 	CloudProvider    string `mapstructure:"cloud_provider" validate:"required"`
 	ConnectionString string `mapstructure:"connection_string" validate:"required"`

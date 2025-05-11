@@ -13,9 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// AESCommandHandler provides command-line handlers for performing AES encryption,
-// decryption and key generation operations. It encapsulates the AES processor and logger
-// used to process AES-related commands in the CLI.
+// AESCommandHandler encapsulates logic for handling AES operations via CLI.
 type AESCommandHandler struct {
 	aesProcessor cryptography.AESProcessor
 	Logger       logger.Logger
@@ -136,6 +134,7 @@ func (commandHandler *AESCommandHandler) DecryptAESCmd(cmd *cobra.Command, _ []s
 	commandHandler.Logger.Info(fmt.Sprintf("Decrypted data saved to %s.", outputFilePath))
 }
 
+// InitAESCommands registers AES-related commands
 func InitAESCommands(rootCmd *cobra.Command) {
 	handler := NewAESCommandHandler()
 

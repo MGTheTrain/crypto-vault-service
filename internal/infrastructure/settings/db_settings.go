@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// DatabaseSettings holds configuration settings for connecting to a database, including type, DSN and name
 type DatabaseSettings struct {
 	Type string `mapstructure:"type" validate:"required"`
 	DSN  string `mapstructure:"dsn" validate:"required"`

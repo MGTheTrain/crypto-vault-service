@@ -15,11 +15,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// ECCommandHandler encapsulates logic for handling elliptic curve cryptographic operations via CLI.
 type ECCommandHandler struct {
 	ecProcessor cryptography.ECProcessor
 	Logger      logger.Logger
 }
 
+// NewECCommandHandler initializes a new ECCommandHandler with logging and an EC processor.
+// It panics if any setup step fails.
 func NewECCommandHandler() *ECCommandHandler {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -121,7 +124,7 @@ func (commandHandler *ECCommandHandler) SignECCCmd(cmd *cobra.Command, _ []strin
 	}
 }
 
-// verifyECCCmd verifies the signature of a file's content using ECDSA
+// VerifyECCCmd verifies the signature of a file's content using ECDSA
 func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, _ []string) {
 	inputFilePath, _ := cmd.Flags().GetString("input-file")
 	publicKeyPath, _ := cmd.Flags().GetString("public-key")
@@ -164,6 +167,7 @@ func (commandHandler *ECCommandHandler) VerifyECCCmd(cmd *cobra.Command, _ []str
 	}
 }
 
+// InitECDSACommands registers EC-related commands
 func InitECDSACommands(rootCmd *cobra.Command) {
 	handler := NewECCommandHandler()
 

@@ -16,31 +16,37 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// BlobUploadServer handles gRPC requests for uploading blobs
 type BlobUploadServer struct {
 	pb.UnimplementedBlobUploadServer
 	blobUploadService blobs.BlobUploadService
 }
 
+// BlobDownloadServer handles gRPC requests for downloading blobs
 type BlobDownloadServer struct {
 	pb.UnimplementedBlobDownloadServer
 	blobDownloadService blobs.BlobDownloadService
 }
 
+// BlobMetadataServer handles gRPC requests for blob metadata operations
 type BlobMetadataServer struct {
 	pb.UnimplementedBlobMetadataServer
 	blobMetadataService blobs.BlobMetadataService
 }
 
+// CryptoKeyUploadServer handles gRPC requests for uploading cryptographic keys
 type CryptoKeyUploadServer struct {
 	pb.UnimplementedCryptoKeyUploadServer
 	cryptoKeyUploadService keys.CryptoKeyUploadService
 }
 
+// CryptoKeyDownloadServer handles gRPC requests for downloading cryptographic keys
 type CryptoKeyDownloadServer struct {
 	pb.UnimplementedCryptoKeyDownloadServer
 	cryptoKeyDownloadService keys.CryptoKeyDownloadService
 }
 
+// CryptoKeyMetadataServer handles gRPC requests for cryptographic key metadata
 type CryptoKeyMetadataServer struct {
 	pb.UnimplementedCryptoKeyMetadataServer
 	cryptoKeyMetadataService keys.CryptoKeyMetadataService
@@ -58,8 +64,8 @@ func (s BlobUploadServer) Upload(req *pb.BlobUploadRequest, stream pb.BlobUpload
 	fileContent := [][]byte{req.FileContent}
 	fileNames := []string{req.FileName}
 
-	var encryptionKeyID *string = nil
-	var signKeyID *string = nil
+	var encryptionKeyID *string
+	var signKeyID *string
 
 	if len(req.EncryptionKeyId) > 0 {
 		encryptionKeyID = &req.EncryptionKeyId
@@ -118,7 +124,7 @@ func NewBlobDownloadServer(blobDownloadService blobs.BlobDownloadService) (*Blob
 // DownloadByID downloads a blob by its ID
 func (s *BlobDownloadServer) DownloadByID(req *pb.BlobDownloadRequest, stream pb.BlobDownload_DownloadByIDServer) error {
 	id := req.Id
-	var decryptionKeyID *string = nil
+	var decryptionKeyID *string
 	if len(req.DecryptionKeyId) > 0 {
 		decryptionKeyID = &req.DecryptionKeyId
 	}
@@ -257,7 +263,7 @@ func NewCryptoKeyUploadServer(cryptoKeyUploadService keys.CryptoKeyUploadService
 	}, nil
 }
 
-// UploadKeys generates and uploads cryptographic keys
+// Upload generates and uploads cryptographic keys
 func (s *CryptoKeyUploadServer) Upload(req *pb.UploadKeyRequest, stream pb.CryptoKeyUpload_UploadServer) error {
 	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
@@ -404,26 +410,32 @@ func (s *CryptoKeyMetadataServer) DeleteByID(ctx context.Context, req *pb.IdRequ
 
 // Register the gRPC handlers for each service
 
+// RegisterBlobUploadServer registers the BlobUpload gRPC service with the server
 func RegisterBlobUploadServer(server *grpc.Server, blobUploadServer *BlobUploadServer) {
 	pb.RegisterBlobUploadServer(server, blobUploadServer)
 }
 
+// RegisterBlobDownloadServer registers the BlobDownload gRPC service with the server
 func RegisterBlobDownloadServer(server *grpc.Server, blobDownloadServer *BlobDownloadServer) {
 	pb.RegisterBlobDownloadServer(server, blobDownloadServer)
 }
 
+// RegisterBlobMetadataServer registers the BlobMetadata gRPC service with the server
 func RegisterBlobMetadataServer(server *grpc.Server, blobMetadataServer *BlobMetadataServer) {
 	pb.RegisterBlobMetadataServer(server, blobMetadataServer)
 }
 
+// RegisterCryptoKeyUploadServer registers the CryptoKeyUpload gRPC service with the server
 func RegisterCryptoKeyUploadServer(server *grpc.Server, cryptoKeyUploadServer *CryptoKeyUploadServer) {
 	pb.RegisterCryptoKeyUploadServer(server, cryptoKeyUploadServer)
 }
 
+// RegisterCryptoKeyDownloadServer registers the CryptoKeyDownload gRPC service with the server
 func RegisterCryptoKeyDownloadServer(server *grpc.Server, cryptoKeyDownloadServer *CryptoKeyDownloadServer) {
 	pb.RegisterCryptoKeyDownloadServer(server, cryptoKeyDownloadServer)
 }
 
+// RegisterCryptoKeyMetadataServer registers the CryptoKeyMetadata gRPC service with the server
 func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServer *CryptoKeyMetadataServer) {
 	pb.RegisterCryptoKeyMetadataServer(server, cryptoKeyMetadataServer)
 }
@@ -440,6 +452,7 @@ func RegisterCryptoKeyMetadataServer(server *grpc.Server, cryptoKeyMetadataServe
 // 	return nil
 // }
 
+// RegisterBlobDownloadGateway registers the BlobDownload HTTP gateway handler.
 func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, _ *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterBlobDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
@@ -448,6 +461,7 @@ func RegisterBlobDownloadGateway(ctx context.Context, gatewayTarget string, gwmu
 	return nil
 }
 
+// RegisterBlobMetadataGateway registers the BlobMetadata HTTP gateway handler.
 func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, _ *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterBlobMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
@@ -456,6 +470,7 @@ func RegisterBlobMetadataGateway(ctx context.Context, gatewayTarget string, gwmu
 	return nil
 }
 
+// RegisterCryptoKeyUploadGateway registers the CryptoKeyUpload HTTP gateway handler.
 func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, _ *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterCryptoKeyUploadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
@@ -464,6 +479,7 @@ func RegisterCryptoKeyUploadGateway(ctx context.Context, gatewayTarget string, g
 	return nil
 }
 
+// RegisterCryptoKeyDownloadGateway registers the CryptoKeyDownload HTTP gateway handler.
 func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, _ *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterCryptoKeyDownloadHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {
@@ -472,6 +488,7 @@ func RegisterCryptoKeyDownloadGateway(ctx context.Context, gatewayTarget string,
 	return nil
 }
 
+// RegisterCryptoKeyMetadataGateway registers the CryptoKeyMetadata HTTP gateway handler.
 func RegisterCryptoKeyMetadataGateway(ctx context.Context, gatewayTarget string, gwmux *runtime.ServeMux, _ *grpc.ClientConn, creds credentials.TransportCredentials) error {
 	err := pb.RegisterCryptoKeyMetadataHandlerFromEndpoint(ctx, gwmux, gatewayTarget, []grpc.DialOption{grpc.WithTransportCredentials(creds)})
 	if err != nil {

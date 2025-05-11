@@ -17,7 +17,7 @@ type gormCryptoKeyRepository struct {
 	logger logger.Logger
 }
 
-// GormCryptoKeyRepository creates a new gormCryptoKeyRepository instance
+// NewGormCryptoKeyRepository creates a new gormCryptoKeyRepository instance
 func NewGormCryptoKeyRepository(db *gorm.DB, logger logger.Logger) (*gormCryptoKeyRepository, error) {
 
 	return &gormCryptoKeyRepository{

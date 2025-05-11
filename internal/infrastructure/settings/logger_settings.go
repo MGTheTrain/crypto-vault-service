@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// LoggerSettings holds configuration settings for logging, including log level, type and file path
 type LoggerSettings struct {
 	LogLevel string `mapstructure:"log_level" validate:"required,oneof=info debug error warning critical"`
 	LogType  string `mapstructure:"log_type" validate:"required,oneof=console file"`

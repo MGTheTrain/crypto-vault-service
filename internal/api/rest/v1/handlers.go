@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// BlobHandler defines the interface for handling blob-related operations
 type BlobHandler interface {
 }
 
@@ -48,8 +49,8 @@ func NewBlobHandler(blobUploadService blobs.BlobUploadService, blobDownloadServi
 // @Router /blobs [post]
 func (handler *blobHandler) Upload(ctx *gin.Context) {
 	var form *multipart.Form
-	var encryptionKeyID *string = nil
-	var signKeyID *string = nil
+	var encryptionKeyID *string
+	var signKeyID *string
 	userID := uuid.New().String() // TODO(MGTheTrain): extract user id from JWT
 
 	form, err := ctx.MultipartForm()

@@ -13,11 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// RSACommandHandler encapsulates logic for handling RSA operations via CLI.
 type RSACommandHandler struct {
 	rsaProcessor cryptography.RSAProcessor
 	Logger       logger.Logger
 }
 
+// NewRSACommandHandler initializes a new RSACommandHandler with logging and an RSA processor.
+// It panics if any setup step fails.
 func NewRSACommandHandler() *RSACommandHandler {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -215,6 +218,7 @@ func (commandHandler *RSACommandHandler) VerifyRSACmd(cmd *cobra.Command, _ []st
 	}
 }
 
+// InitRSACommands registers RSA-related commands
 func InitRSACommands(rootCmd *cobra.Command) {
 	handler := NewRSACommandHandler()
 

@@ -18,6 +18,8 @@ type PKCS11CommandsHandler struct {
 	Logger        logger.Logger
 }
 
+// NewPKCS11CommandsHandler initializes a new PKCS11CommandsHandler with logger and PKCS#11 settings.
+// It reads environment variables to configure the PKCS#11 module and panics if initialization fails.
 func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
 	loggerSettings := &settings.LoggerSettings{
 		LogLevel: "info",
@@ -50,6 +52,8 @@ func NewPKCS11CommandsHandler() *PKCS11CommandsHandler {
 	}
 }
 
+// ReadPkcs11SettingsFromEnv reads PKCS#11 configuration values from environment variables.
+// Returns an error if any required environment variable is not set.
 func ReadPkcs11SettingsFromEnv() (*settings.PKCS11Settings, error) {
 	modulePath := os.Getenv("PKCS11_MODULE_PATH")
 	if modulePath == "" {
