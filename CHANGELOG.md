@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resolved findings from various linters, including `errcheck`, `govet`, `staticcheck`, `wrapcheck`, `importas`, `unused`, `ineffassign`, `errorlint`, `gocritic`, `gosec`, `misspell`, `nakedret` and `revive`
 - Fixed `README.md` sections related to commands executed against internal REST and gRPC service APIs
 - Specified the database name as an argument in the `QueryRow` function during service startup to ensure proper database creation
+- Changed license to MIT: LGPL CLI tools are invoked in internal components only
 
 ### Removed
 

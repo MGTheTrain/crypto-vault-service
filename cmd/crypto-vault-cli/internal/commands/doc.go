@@ -1,3 +1,2 @@
-// Package commands handles the initialization and execution of CLI commands,
-// including AES, RSA, ECDSA, and optionally PKCS#11 commands.
+// Package commands encapsulates logic for handling AES, RSA, EC and PKCS#11 operations
 package commands
